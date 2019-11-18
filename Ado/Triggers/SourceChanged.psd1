@@ -1,0 +1,5 @@
+﻿@{
+    paths = @{
+        exclude = '*.md', '*.txt'
+    }
+}
