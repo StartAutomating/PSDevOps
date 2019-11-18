@@ -1,10 +1,10 @@
-
+﻿
 stages: 
   - stage: TestPowerShellCrossPlatform
     displayName: Test
     jobs: 
       - job: Windows
-        displayName: on Windows
+        displayName: Windows
         pool: 
           vmImage: vs2017-win2016
         steps: 
@@ -33,7 +33,7 @@ stages:
               summaryFileLocation: "**/*.Coverage.xml"
               reportDirectory: $(System.DefaultWorkingDirectory)
       - job: Linux
-        displayName: on Linux
+        displayName: Linux
         pool: 
           vmImage: ubuntu-16.04
         steps: 
@@ -70,7 +70,7 @@ stages:
               summaryFileLocation: "**/*.Coverage.xml"
               reportDirectory: $(System.DefaultWorkingDirectory)
       - job: MacOS
-        displayName: on MacOS
+        displayName: MacOS
         pool: 
           vmImage: xcode9-macos10.13
         steps: 
