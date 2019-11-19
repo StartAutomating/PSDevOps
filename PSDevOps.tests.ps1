@@ -129,3 +129,11 @@ describe 'Creating Pipelines' {
         $adoDef | should belike '*trigger:*paths:*exclude:*.md*.txt*'
     }
 }
+
+describe 'Calling REST APIs' {
+    it 'Can invoke an Azure DevOps REST api' {
+        $org = 'StartAutomating'
+        $project = 'PSDevOps'
+        Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
+    }
+}
