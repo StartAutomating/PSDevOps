@@ -4,10 +4,10 @@ foreach ($file in Get-ChildItem -Path $psScriptRoot -Filter *-*.ps1) {
 }
 
 # When the module loads we want to cache all possible names and metadata about the pipeline parts that exist.
-# We do this with two structures: 
+# We do this with two structures:
 $Script:ThingNames = #*A map of thing names to item names
     [Collections.Generic.Dictionary[
-        string, 
+        string,
         Collections.Generic.List[string]
     ]]::new([StringComparer]::OrdinalIgnoreCase)
 $Script:ThingData = #* A map of thing type + thing name to thing metadata
@@ -20,13 +20,13 @@ $myAdoDir = Get-ChildItem -Path $myRoot -Filter ado -Directory
 $dirList = [Collections.Generic.List[IO.DirectoryInfo]]::new()
 $dirList.Add($myAdoDir)
 
-$loadedModules = Get-Module 
+$loadedModules = Get-Module
 :nextModule foreach ($m in $loadedModules) {
     $requiredModuleNames = @(foreach ($_ in $m.RequiredModules) {
         $_.Name
-    })        
-    if ($requiredModuleNames -notcontains $MyInvocation.MyCommand.ScriptBlock.Module -and
-        $m.PrivateData.PSData.Tags -notcontains $MyInvocation.MyCommand.ScriptBlock.Module.Name) { continue } 
+    })
+    if ($requiredModuleNames -notcontains $myModuleName -and
+        $m.PrivateData.PSData.Tags -notcontains $myModuleName) { continue }
     $d = [IO.DirectoryInfo][IO.Path]::GetDirectoryName($m.Path)
     foreach ($id in $d.GetDirectories()) {
         if ($id.Name -ine 'ado') { continue }
@@ -40,7 +40,7 @@ foreach ($rootDir in $dirList) {
     $fileList = Get-ChildItem -Filter * -Recurse -Path $rootDir.FullName
     foreach ($f in $fileList) {
         if ($f.Directory -eq $rootDir) { continue }
-        if ($f -is [IO.DirectoryInfo]) { continue }  
+        if ($f -is [IO.DirectoryInfo]) { continue }
         $n = $f.Name.Substring(0, $f.Name.Length - $f.Extension.Length)
         $t = $f.Directory.Name.TrimEnd('s')
 

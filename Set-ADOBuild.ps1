@@ -17,7 +17,9 @@
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
     [CmdletBinding(PositionalBinding=$false)]
-    param(    
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
+    param(
     # A new build number (or identifier)
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('BN')]
@@ -43,7 +45,7 @@
     )
 
     process {
-        $out = & {           
+        $out = & {
             if ($BuildNumber) {
                 "##vso[build.updatebuildnumber]$BuildNumber"
             }

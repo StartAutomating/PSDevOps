@@ -12,6 +12,8 @@
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
     param(
     # The identifier.
     [Parameter(Mandatory,ParameterSetName='Url',ValueFromPipelineByPropertyName)]
@@ -21,7 +23,7 @@
     $ID,
 
     # The endpoint URL.
-    [Parameter(Mandatory,ParameterSetName='Url',ValueFromPipelineByPropertyName)]    
+    [Parameter(Mandatory,ParameterSetName='Url',ValueFromPipelineByPropertyName)]
     [Alias('URI','EndpointURL')]
     [uri]
     $Url,
@@ -47,7 +49,7 @@
     )
 
     process {
-        
+
         if ($PSCmdlet.ParameterSetName -eq 'Url') {
             $out = "##vso[task.setendpoint id=$ID;field=url]$Url"
         }

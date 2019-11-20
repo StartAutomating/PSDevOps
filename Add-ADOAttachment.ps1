@@ -15,6 +15,8 @@
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
     [CmdletBinding(DefaultParameterSetName='task.uploadfile')]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     param(
     [Parameter(Mandatory,ParameterSetName='task.uploadfile',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='task.addattachment',ValueFromPipelineByPropertyName)]
@@ -44,13 +46,13 @@
     [Parameter(Mandatory,ParameterSetName='artifact.upload',ValueFromPipelineByPropertyName)]
     [string]
     $ArtifactName,
-    
+
     # If set, the upload will be treated as a summary.  Summary uploads must be markdown.
     [Parameter(Mandatory,ParameterSetName='task.uploadsummary',ValueFromPipelineByPropertyName)]
     [Alias('Summary')]
     [switch]
     $IsSummary,
-    
+
     # If set, the upload will be treated as a log file.
     [Parameter(Mandatory,ParameterSetName='task.uploadlog',ValueFromPipelineByPropertyName)]
     [Alias('Log')]
@@ -68,7 +70,7 @@
         } else {
             $rp = $Path
         }
-         
+
         $properties = # Collect the optional properties
             @(foreach ($kv in $PSBoundParameters.GetEnumerator()) {
                 if ($kv.Key -eq 'Path') { continue } # (anything parameter but Path
@@ -76,7 +78,7 @@
                 if (-not $cmdMd.Parameters.ContainsKey($kv.Key)) { continue }
                 "$($kv.Key.ToLower())=$($kv.Value)"
             }) -join ';'
-                
+
         $out = "##vso[$($pscmdlet.ParameterSetName)$(if ($properties) {" $properties"})]$rp"
         if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out

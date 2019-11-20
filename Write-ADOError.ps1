@@ -12,6 +12,7 @@
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     param(
     # The error message.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -50,7 +51,7 @@
         $properties = # Collect the optional properties
             @(foreach ($kv in $PSBoundParameters.GetEnumerator()) {
                 if ('Message' -contains $kv.Key) { continue } # (anything but Message).
-                if (-not $cmdMd.Parameters.ContainsKey($kv.Key)) { continue } 
+                if (-not $cmdMd.Parameters.ContainsKey($kv.Key)) { continue }
                 "$($kv.Key.ToLower())=$($kv.Value)"
             }) -join ';'
         # Then output the error with it's message.

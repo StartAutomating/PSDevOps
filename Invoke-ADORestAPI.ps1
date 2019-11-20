@@ -9,7 +9,7 @@
         # Uses the Azure DevOps REST api to get builds from a project
         $org = 'StartAutomating'
         $project = 'PSDevOps'
-        Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" 
+        Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1"
     .Link
         Invoke-RestMethod
     #>
@@ -19,7 +19,7 @@
     [Alias('Url')]
     [uri]
     $Uri,
-    
+
     # A Personal Access Token
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('PAT')]
@@ -37,7 +37,7 @@ Specifies the method used for the web request. The acceptable values for this pa
  - Patch
  - Post
  - Put
- - Trace                        
+ - Trace
     #>
     [Parameter(ValueFromPipelineByPropertyName)]
     [ValidateSet('GET','DELETE','HEAD','MERGE','OPTIONS','PATCH','POST', 'PUT', 'TRACE')]
@@ -96,7 +96,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     process {
         #region Prepare Parameters
         $irmSplat = @{} + $PSBoundParameters    # First, copy PSBoundParameters and remove the parameters that aren't Invoke-RestMethod's
-        $irmSplat.Remove('PersonalAccessToken') # * -PersonalAccessToken 
+        $irmSplat.Remove('PersonalAccessToken') # * -PersonalAccessToken
         $irmSplat.Remove('PSTypeName') # * -PSTypeName
 
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
@@ -104,7 +104,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                 $irmSplat.Headers.Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":$PersonalAccessToken")))"
             }
             else {
-                
+
                 $irmSplat.Headers = @{ # If you were wondering, the Personal Access Token is passed like an HTTP credential,
                     Authorization = # (by setting the authorization header to Basic Base64EncodedBytesOf UserName:Password).
                         # The very slight trick is that PersonalAccessToken's don't have a username
@@ -121,22 +121,22 @@ Specifies the method used for the web request. The acceptable values for this pa
         #endregion Prepare Parameters
 
         #region Call Invoke-RestMethod
-        
-        # We call Invoke-RestMethod with the parameters we've passed in.  
+
+        # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
-        Invoke-RestMethod @irmSplat | 
-            & { process { 
+        Invoke-RestMethod @irmSplat |
+            & { process {
                 # What it will not do is "unroll" them.
                 # A lot of things in the Azure DevOps REST apis come back as a count/value pair
                 if ($_.Value -and $_.Count) {  # If that's what we're dealing with
                     $_.Value # pass value down the pipe.
                 } elseif ($_ -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
                     $_ # pass it down the pipe.
-                } else { # If it happened to look like HTML, write an error 
+                } else { # If it happened to look like HTML, write an error
                     Write-Error "Response was HTML, Request Failed.  Use -Verbose to see the full response"
                     Write-Verbose "$_" # and write the full content to verbose.
                     return
-                }            
+                }
             } } |
             & { process { # One more step of the pipeline will unroll each of the values.
                 if ($PSTypeName) { # If we have a PSTypeName (to apply formatting)

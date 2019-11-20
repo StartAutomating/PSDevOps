@@ -12,6 +12,7 @@
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     param(
     # The Warning message.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -55,7 +56,7 @@
             }) -join ';'
         # Then output the Warning with it's message.
         $out = "##vso[task.logissue type=warning$(if ($properties){";$properties"})]$Message"
-    
+
         if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out
         } else {

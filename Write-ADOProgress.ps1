@@ -7,13 +7,14 @@
     .Example
         Write-ADOProgress -Activity "Doing Stuff" -Status "And Things" -PercentComplete 50
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     param(
     # This text describes the activity whose progress is being reported.
     [Parameter(Mandatory=$true, Position=0)]
     [string]
     $Activity,
 
-    # This text describes current state of the activity. 
+    # This text describes current state of the activity.
     [Parameter(Position=1)]
     [ValidateNotNullOrEmpty()]
     [string]
@@ -26,7 +27,7 @@
     [int]
     $Id,
 
-    # Specifies the percentage of the activity that is completed. 
+    # Specifies the percentage of the activity that is completed.
     # Use the value -1 if the percentage complete is unknown or not applicable.
     [ValidateRange(-1, 100)]
     [int]
@@ -63,7 +64,7 @@
             $script:ADOProgressIds[$id] = [GUID]::NewGuid()
             $isFirst = $true
         }
-        
+
         if ($ParentId -and -not $script:ADOProgressIds[$ParentId]) {
             $script:ADOProgressIds[$ParentId] = [GUID]::NewGuid()
             $isFirst = $true
