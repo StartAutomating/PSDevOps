@@ -139,7 +139,7 @@ stages:
               summaryFileLocation: "**/*.Coverage.xml"
               reportDirectory: $(System.DefaultWorkingDirectory)
 
-    condition: and(succeeded())
+    condition: succeeded()
   - stage: UpdatePowerShellGallery
     displayName: Update
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
