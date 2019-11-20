@@ -1,5 +1,40 @@
 ﻿
 stages: 
+  - stage: PowerShellStaticAnalysis
+    displayName: Static Analysis
+    condition: and(succeeded())
+    jobs: 
+      - job: PSScriptAnalyzer
+        displayName: PSScriptAnalyzer
+        pool: 
+          vmImage: vs2017-win2016
+        steps: 
+          - powershell: |
+              Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
+              Import-Module PSDevOps -Force -PassThru
+            displayName: InstallPSDevOps
+          - powershell: |
+              Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
+              Import-Module PSScriptAnalyzer -Force -PassThru
+            displayName: InstallPSScriptAnalyzer
+          - powershell: |
+              Import-Module PSScriptAnalyzer, PSDevOps
+              $invokeScriptAnalyzerSplat = @{Path='.\'}
+              if ($ENV:PSScriptAnalyzer_Recurse) {
+                  $invokeScriptAnalyzerSplat.Recurse = $true
+              }
+              $result = Invoke-ScriptAnalyzer @invokeScriptAnalyzerSplat
+              
+              foreach ($r in $result) {
+                  if ('information', 'warning' -contains $r.Severity) {
+                      Write-ADOWarning -Message $r.Message -SourcePath $r.ScriptPath -LineNumber $r.LineNumber -ColumnNumber $r.ColumnNumber
+                  }
+                  elseif ($r.Severity -eq 'Error') {
+                      Write-ADOError -Message $r.Message -SourcePath $r.ScriptPath -LineNumber $r.LineNumber -ColumnNumber $r.ColumnNumber
+                  }
+              }
+            displayName: RunPSScriptAnalyzer
+
   - stage: TestPowerShellCrossPlatform
     displayName: Test
     jobs: 
@@ -104,6 +139,7 @@ stages:
               summaryFileLocation: "**/*.Coverage.xml"
               reportDirectory: $(System.DefaultWorkingDirectory)
 
+    condition: and(succeeded())
   - stage: UpdatePowerShellGallery
     displayName: Update
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
