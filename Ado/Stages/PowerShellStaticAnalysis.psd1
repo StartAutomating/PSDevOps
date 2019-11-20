@@ -1,7 +1,7 @@
 ﻿@{
     stage = 'PowerShellStaticAnalysis'
     displayName = 'Static Analysis'
-    condition= "and(succeeded())"
+    condition= "succeeded()"
     jobs = @(@{
         job = 'PSScriptAnalyzer'
         displayName = 'PSScriptAnalyzer'
