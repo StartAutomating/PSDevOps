@@ -136,4 +136,10 @@ describe 'Calling REST APIs' {
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
+
+    it 'Can get a work item' {
+        Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType | 
+            Select-Object -ExpandProperty 'System.WorkItemType' |
+            should be Epic
+    }
 }
