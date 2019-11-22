@@ -138,7 +138,7 @@ describe 'Calling REST APIs' {
     }
 
     it 'Can get a work item' {
-        Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType | 
+        Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
             Select-Object -ExpandProperty 'System.WorkItemType' |
             should be Epic
     }

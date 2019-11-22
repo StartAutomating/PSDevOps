@@ -135,7 +135,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                 } else { # If it happened to look like HTML, write an error
                     $PSCmdlet.WriteError(
                         [Management.Automation.ErrorRecord]::new(
-                            [Exception]::new("Response was HTML, Request Failed."), 
+                            [Exception]::new("Response was HTML, Request Failed."),
                             "ResultWasHTML", "NotSpecified", $_))
                     $psCmdlet.WriteVerbose("$_") # and write the full content to verbose.
                     return

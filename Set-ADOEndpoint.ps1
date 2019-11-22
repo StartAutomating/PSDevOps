@@ -12,6 +12,7 @@
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
+    [CmdletBinding(DefaultParameterSetName='Url')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
     param(
