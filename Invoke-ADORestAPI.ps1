@@ -2,9 +2,9 @@
 {
     <#
     .Synopsis
-        Uses the ADO Rest API
+        Invokes the ADO Rest API
     .Description
-        Uses the Azure DevOps REST API
+        Invokes the Azure DevOps REST API
     .Example
         # Uses the Azure DevOps REST api to get builds from a project
         $org = 'StartAutomating'
@@ -133,8 +133,11 @@ Specifies the method used for the web request. The acceptable values for this pa
                 } elseif ($_ -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
                     $_ # pass it down the pipe.
                 } else { # If it happened to look like HTML, write an error
-                    Write-Error "Response was HTML, Request Failed.  Use -Verbose to see the full response"
-                    Write-Verbose "$_" # and write the full content to verbose.
+                    $PSCmdlet.WriteError(
+                        [Management.Automation.ErrorRecord]::new(
+                            [Exception]::new("Response was HTML, Request Failed."), 
+                            "ResultWasHTML", "NotSpecified", $_))
+                    $psCmdlet.WriteVerbose("$_") # and write the full content to verbose.
                     return
                 }
             } } |
