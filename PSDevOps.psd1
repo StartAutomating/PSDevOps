@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.2'
+    ModuleVersion = '0.2.1'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -7,9 +7,14 @@
         PSData = @{
             Tags = 'ADO', 'AzureDevOps', 'PSDevOps', 'DevOps'
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
+            LicenseURI = 'https://github.com/StartAutomating/PSDevOps/LICENSE/'
             ReleaseNotes = @'
-0.2 - Added Invoke-ADORestAPI
-0.1 - Initial Commit
+### 0.2.1 : 
+Added Get-ADOWorkItem
+##  0.2   :
+Added Invoke-ADORestAPI
+## 0.1    :
+Initial Commit
 '@
         }
     }
