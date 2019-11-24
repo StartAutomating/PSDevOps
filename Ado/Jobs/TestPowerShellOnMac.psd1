@@ -1,6 +1,6 @@
 ﻿@{
     job = 'MacOS'
     displayName = 'MacOS'
-    pool = @{vmImage='xcode9-macos10.13'}
+    pool = @{vmImage='macos-latest'}
     steps = 'InstallPowerShellCoreOnMacOS','InstallPester', 'RunPester','PublishTestResults','PublishCodeCoverage'
 }
