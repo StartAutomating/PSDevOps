@@ -41,7 +41,7 @@ stages:
       - job: Windows
         displayName: Windows
         pool: 
-          vmImage: vs2017-win2016
+          vmImage: windows-latest
         steps: 
           - powershell: |
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
@@ -70,7 +70,7 @@ stages:
       - job: Linux
         displayName: Linux
         pool: 
-          vmImage: ubuntu-16.04
+          vmImage: ubuntu-latest
         steps: 
           - script: |
               
@@ -107,7 +107,7 @@ stages:
       - job: MacOS
         displayName: MacOS
         pool: 
-          vmImage: xcode9-macos10.13
+          vmImage: macos-latest
         steps: 
           - script: |
               brew update
@@ -181,9 +181,4 @@ stages:
               }
             displayName: PublishPowerShellGallery
 
-trigger: 
-  paths: 
-    exclude: 
-      - "*.md"
-      - "*.txt"
 
