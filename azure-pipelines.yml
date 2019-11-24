@@ -7,7 +7,7 @@ stages:
       - job: PSScriptAnalyzer
         displayName: PSScriptAnalyzer
         pool: 
-          vmImage: vs2017-win2016
+          vmImage: windows-latest
         steps: 
           - powershell: |
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
