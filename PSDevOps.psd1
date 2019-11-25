@@ -7,9 +7,9 @@
         PSData = @{
             Tags = 'ADO', 'AzureDevOps', 'PSDevOps', 'DevOps'
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
-            LicenseURI = 'https://github.com/StartAutomating/PSDevOps/LICENSE/'
+            LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
-### 0.2.1 : 
+### 0.2.1 :
 Added Get-ADOWorkItem
 ##  0.2   :
 Added Invoke-ADORestAPI
@@ -18,6 +18,7 @@ Initial Commit
 '@
         }
     }
+    FormatsToProcess = 'PSDevOps.format.ps1xml'
     Author = 'James Brundage'
     Copyright = '2019 Start-Automating'
     PowerShellVersion ='3.0'
