@@ -15,7 +15,7 @@
     # If set, will use map the system access token to an environment variable in each script step.
     [switch]
     $UseSystemAccessToken,
-    
+
     # Optional changes to a part.
     # A table of additional settings to apply wherever a part is used.
     # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
@@ -79,9 +79,9 @@
                     if ($propName -eq $thingType -and -not $singleton) {
                         $kv.Value; continue nextValue
                     }
-                    
-                    
-                    $o = 
+
+
+                    $o =
                         if ($md.Extension -eq '.ps1') {
                             $sb = [ScriptBlock]::Create($ft)
                             if (-not $sb) { continue }
@@ -96,7 +96,7 @@
                                 $out.env = @{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}
                             }
                             $out
-                        } 
+                        }
                         elseif ($md.Extension -eq '.psd1') {
                             $data = Import-LocalizedData -BaseDirectory ([IO.Path]::GetDirectoryName($md.Path)) -FileName ([IO.PATH]::GetFileName($md.Path))
                             if (-not $data) {
@@ -106,7 +106,7 @@
                             if ($htStart -eq '-1') { continue nextValue }
                             $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
                             & $joinPipelineParts $data -Parent $partTable -singleton:$Singleton
-                        } 
+                        }
                         elseif ($md.Extension -eq '.sh') {
                             $out = [Ordered]@{bash="$ft";displayName=$md.Name}
                             $out
@@ -117,7 +117,7 @@
                             $v
                         }
 
-                    
+
                     if ($md.Name -and $Option.$($md.Name) -is [Collections.IDictionary]) {
                         $o2 = [Ordered]@{} + $o
                         foreach ($ov in @($Option.($md.Name).GetEnumerator())) {
@@ -126,10 +126,10 @@
                         $o2
                     } else {
                         $o
-                    } 
+                    }
                     #$o
                     #>
-                    
+
                 }
 
                 $outObject[$propName] = $outValue
@@ -254,7 +254,7 @@
         }
 
         $yamlToBe = & $joinPipelineParts $stepsByType
-                
+
 
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
     }

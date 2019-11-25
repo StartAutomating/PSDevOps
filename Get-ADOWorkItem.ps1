@@ -51,7 +51,7 @@
     [string[]]
     $Field,
 
-    # If set, will get related items 
+    # If set, will get related items
     [Parameter(ValueFromPipelineByPropertyName)]
     [switch]
     $Related,
@@ -129,7 +129,7 @@
                 if (-not $out.Project -and $Project) {
                     $out.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
                 }
-                
+
                 $out.pstypenames.clear() # and we want them to by formattable, we we give them the following typenames
                 $wiType = $out.'System.WorkItemType'
                 if ($workItemType) {
@@ -196,8 +196,8 @@
             }
             $invokeParams.Uri =  $uri
             $workItemTypes = Invoke-ADORestAPI @invokeParams
-            $workItemTypes -replace '"":', '"_blank":' | 
-                ConvertFrom-Json | 
+            $workItemTypes -replace '"":', '"_blank":' |
+                ConvertFrom-Json |
                 Select-Object -ExpandProperty Value
         }
     }

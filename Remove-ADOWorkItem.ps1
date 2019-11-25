@@ -5,10 +5,10 @@
         Remove work items from Azure DevOps
     .Description
         Remove work item from Azure DevOps or Team Foundation Server.
-    .Example       
-        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 10 
     .Example
-        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.ID] = 10"        
+        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 10
+    .Example
+        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.ID] = 10"
     .Link
         Invoke-ADORestAPI
     .Link
@@ -99,8 +99,8 @@
         if ($PSCmdlet.ParameterSetName -eq 'ByID') { # If we're removing by ID
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
             $uri = $uriBase, "_apis/wit/workitems", "${ID}?" -join '/'
-            
-            $uri += 
+
+            $uri +=
                 if ($ApiVersion) {
                     "api-version=$ApiVersion"
                 }
@@ -108,10 +108,10 @@
             $invokeParams.Uri = $uri
             $invokeParams.Method = 'DELETE'
             if (-not $PSCmdlet.ShouldProcess("Remove Work Item $ID")) { return }
-            Invoke-ADORestAPI @invokeParams            
+            Invoke-ADORestAPI @invokeParams
         } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
-            
-            
+
+
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
             $uri += if ($ApiVersion) {
                 "api-version=$ApiVersion"
@@ -127,7 +127,7 @@
             $myParams.Remove('Query')
             foreach ($wi in $queryResult.workItems) {
                 $c++
-                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId                
+                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId
                 Remove-ADOWorkItem @myParams -ID $wi.ID
             }
 

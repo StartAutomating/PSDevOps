@@ -7,11 +7,11 @@
         Sets work item from Azure DevOps or Team Foundation Server.
     .Example
         @{ 'Verb' ='Get' ;'Noun' = 'ADOWorkItem' } |
-            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4 
+            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4
     .Example
         Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.State] = 'To Do' and [System.AssignedTo] = @Me" -InputObject @{
             State = 'Doing'
-        }        
+        }
     .Link
         Invoke-ADORestAPI
     .Link
@@ -109,14 +109,14 @@
         #endregion Copy Invoke-ADORestAPI parameters
         $fixField = {
             param($prop, $validFieldTable)
-            
-            $fieldName = 
+
+            $fieldName =
                 if ($validFieldTable.Contains($prop.Name)) {
                     $validFieldTable[$prop.Name].ReferenceName
                 } else {
                     $noSpacesPropName = $prop.Name -replace '\s', ''
                     foreach ($v in $validFieldTable.Values) {
-                        if ($v.Name -replace '\s', '' -eq $noSpacesPropName -or 
+                        if ($v.Name -replace '\s', '' -eq $noSpacesPropName -or
                             $v.referenceName -eq $noSpacesPropName) {
                             $v.referenceName
                             break
@@ -134,7 +134,7 @@
                 path = '/fields/' + $fieldName
                 value = $prop.Value
             }
-            
+
         }
 
         #region Output Work Item
@@ -154,7 +154,7 @@
                 if (-not $out.Project -and $Project) {
                     $out.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
                 }
-                
+
                 $out.pstypenames.clear() # and we want them to by formattable, we we give them the following typenames
                 $wiType = $out.'System.WorkItemType'
                 if ($workItemType) {
@@ -176,10 +176,10 @@
 
     process {
         if ($PSCmdlet.ParameterSetName -eq 'ByID') {
-            
+
 
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
-            $validFields = 
+            $validFields =
                     if ($script:ADOFieldCache.$uribase) {
                         $script:ADOFieldCache.$uribase
                     } else {
@@ -188,8 +188,8 @@
 
             $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
             $uri = $uriBase, "_apis/wit/workitems", "${ID}?" -join '/'
-            
-            $uri += 
+
+            $uri +=
                 if ($ApiVersion) {
                     "api-version=$ApiVersion"
                 }
@@ -199,9 +199,9 @@
                 $InputObject = [PSCustomObject]$InputObject
             }
 
-            
 
-            $patchOperations = 
+
+            $patchOperations =
                 @(foreach ($prop in $InputObject.psobject.properties) {
                     if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
                     & $fixField $prop $validFieldTable
@@ -215,7 +215,7 @@
                     if ($rel.rel -eq 'System.LinkTypes.Hierarchy-Reverse') {
                         @{
                             op = 'remove'
-                            path = "/relations/$c"                            
+                            path = "/relations/$c"
                         }
                     }
                     $c++
@@ -238,13 +238,13 @@
             $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
             $invokeParams.Method = 'PATCH'
             $invokeParams.ContentType = 'application/json-patch+json'
-            if (-not $PSCmdlet.ShouldProcess("Patch $uri with $($invokeParams.body)")) { return } 
+            if (-not $PSCmdlet.ShouldProcess("Patch $uri with $($invokeParams.body)")) { return }
             $restResponse =  Invoke-ADORestAPI @invokeParams
             if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
             & $outWorkItem $restResponse
         } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
-            
-            
+
+
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
             $uri += if ($ApiVersion) {
                 "api-version=$ApiVersion"
@@ -260,7 +260,7 @@
             $myParams.Remove('Query')
             foreach ($wi in $queryResult.workItems) {
                 $c++
-                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId                
+                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId
                 Set-ADOWorkItem @myParams -ID $wi.ID
             }
 

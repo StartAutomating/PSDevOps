@@ -15,39 +15,39 @@ $formatting = @(
         $titleLineStart = $wi.'System.Title'
         $titleLineEnd = "$($wi.'System.State') [$($wi.ID)]"
         $titleMiddleSpace  = $bufferWidth - $titleLineStart.Length -  $titleLineEnd.Length
-        
+
         $changedBy   = "$($wi.'System.ChangedBy'.displayName)"
         $changedDate = "$($wi.'System.ChangedDate' -as [DateTime])"
         $changedLine = 'Last Updated' + (' ' *
             ($uiBuffer - "Last Updated".Length - "$changedBy @ $changedDate".Length)
         ) + "$changedBy @ $changedDate"
-        
+
         $createdBy   = "$($wi.'System.CreatedBy'.displayName)"
         $createdDate = "$($wi.'System.CreatedDate' -as [DateTime])"
         $createdLine = 'Created' + (' ' *
             ($uiBuffer - "Created".Length - "$createdBy @ $createdDate".Length)
         ) + "$createdBy @ $createdDate"
-        
+
 
         $lines = @(
             ('-' * $uiBuffer)
-            "$titleLineStart $(' ' * $titleMiddleSpace) $titleLineEnd"        
+            "$titleLineStart $(' ' * $titleMiddleSpace) $titleLineEnd"
             ('-' * $uiBuffer)
             $changedLine
-            $createdLine     
-            ('-' * $uiBuffer)        
-            "$($wi.'System.Description')" -replace 
+            $createdLine
+            ('-' * $uiBuffer)
+            "$($wi.'System.Description')" -replace
                 '<br(?:/)?>', [Environment]::NewLine -replace
-                '</div>', [Environment]::NewLine -replace 
+                '</div>', [Environment]::NewLine -replace
                 '<li>',"* " -replace
                 '</li>', [Environment]::NewLine -replace
-                '\<[^\>]+\>', '' -replace 
+                '\<[^\>]+\>', '' -replace
                 '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
         )
-        
+
         $lines -join [Environment]::NewLine
-        
-        
+
+
     }
 )
 

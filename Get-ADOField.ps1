@@ -2,11 +2,11 @@
 {
     <#
     .Synopsis
-    
+
     .Description
 
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1       
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
     #>
     param(
     # The Organization

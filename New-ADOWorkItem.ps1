@@ -7,11 +7,11 @@
         Creates new work items in Azure DevOps or Team Foundation Server.
     .Example
         @{ 'Verb' ='Get' ;'Noun' = 'ADOWorkItem' } |
-            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4 
+            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4
     .Link
         Invoke-ADORestAPI
     #>
-    [CmdletBinding(DefaultParameterSetName='ByID')]
+    [CmdletBinding(DefaultParameterSetName='ByID',SupportsShouldProcess=$true)]
     param(
     # The InputObject
     [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
@@ -98,14 +98,14 @@
         #endregion Copy Invoke-ADORestAPI parameters
         $fixField = {
             param($prop, $validFieldTable)
-            
-            $fieldName = 
+
+            $fieldName =
                 if ($validFieldTable.Contains($prop.Name)) {
                     $validFieldTable[$prop.Name].ReferenceName
                 } else {
                     $noSpacesPropName = $prop.Name -replace '\s', ''
                     foreach ($v in $validFieldTable.Values) {
-                        if ($v.Name -replace '\s', '' -eq $noSpacesPropName -or 
+                        if ($v.Name -replace '\s', '' -eq $noSpacesPropName -or
                             $v.referenceName -eq $noSpacesPropName) {
                             $v.referenceName
                             break
@@ -123,7 +123,7 @@
                 path = '/fields/' + $fieldName
                 value = $prop.Value
             }
-            
+
         }
 
         #region Output Work Item
@@ -143,7 +143,7 @@
                 if (-not $out.Project -and $Project) {
                     $out.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
                 }
-                
+
                 $out.pstypenames.clear() # and we want them to by formattable, we we give them the following typenames
                 $wiType = $out.'System.WorkItemType'
                 if ($workItemType) {
@@ -166,7 +166,7 @@
     process {
         $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
 
-        $validFields = 
+        $validFields =
                 if ($script:ADOFieldCache.$uribase) {
                     $script:ADOFieldCache.$uribase
                 } else {
@@ -175,21 +175,21 @@
 
         $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
         $uri = $uriBase, "_apis/wit/workitems", "`$$($Type -replace '\s', '')?" -join '/'
-            
-        $uri += 
+
+        $uri +=
             if ($ApiVersion) {
                 "api-version=$ApiVersion"
             }
 
-        
+
 
         $invokeParams.Uri = $uri
-        
+
         if ($InputObject -is [Collections.IDictionary]) {
             $InputObject = [PSCustomObject]$InputObject
         }
 
-        $patchOperations = 
+        $patchOperations =
             @(foreach ($prop in $InputObject.psobject.properties) {
                 if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
                 & $fixField $prop $validFieldTable
@@ -209,6 +209,7 @@
         $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
         $invokeParams.Method = 'POST'
         $invokeParams.ContentType = 'application/json-patch+json'
+        if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
         $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
 
         if ($restResponse.ErrorDetails.Message) {
@@ -220,7 +221,7 @@
                             "Use Get-ADOWorkItem -WorkItemType to find valid types"
                         ),'UnknownWorkItemType', 'NotSpecified', $restResponse)
                 )
-                  
+
             } else {
                 return $restResponse
             }
