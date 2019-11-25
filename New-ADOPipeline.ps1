@@ -11,7 +11,16 @@
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Does not change state")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for null (0 is ok)")]
-    param()
+    param(
+    # If set, will use map the system access token to an environment variable in each script step.
+    [switch]
+    $UseSystemAccessToken,
+    
+    # Optional changes to a part.
+    # A table of additional settings to apply wherever a part is used.
+    # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
+    [Collections.IDictionary]
+    $Option)
 
     dynamicParam {
         $newDynamicParameter = {
@@ -47,7 +56,7 @@
             param([Collections.IDictionary]$partTable, $Parent, [switch]$Singleton)
 
             $outObject = [Ordered]@{}
-            foreach ($kv in $partTable.GetEnumerator()) {
+            :nextKey foreach ($kv in $partTable.GetEnumerator()) {
                 if ($kv.Key.EndsWith('s') -and -not $singleton) { # Already pluralized
                     $thingType = $kv.Key.Substring(0,$kv.Key.Length -1)
                     $propName = $kv.Key
@@ -64,39 +73,67 @@
                             $singleton = $true
                         }
                 }
-                $outObject[$propName] = foreach ($v in $kv.Value) {
+                $outValue = :nextValue foreach ($v in $kv.Value) {
                     $md = $script:ThingData["$thingType.$v"]
                     $ft = if ($md.Path) { [IO.File]::ReadAllText($md.Path) }
                     if ($propName -eq $thingType -and -not $singleton) {
-                        $kv.Value; continue
+                        $kv.Value; continue nextValue
                     }
-                    if ($md.Extension -eq '.ps1') {
-                        $sb = [ScriptBlock]::Create($ft)
-                        if (-not $sb) { continue }
-                        $out = [Ordered]@{}
-                        if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
-                            $out.pwsh = "$sb"
+                    
+                    
+                    $o = 
+                        if ($md.Extension -eq '.ps1') {
+                            $sb = [ScriptBlock]::Create($ft)
+                            if (-not $sb) { continue }
+                            $out = [Ordered]@{}
+                            if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
+                                $out.pwsh = "$sb"
+                            } else {
+                                $out.powershell = "$sb"
+                            }
+                            $out.displayName = $md.Name
+                            if ($UseSystemAccessToken) {
+                                $out.env = @{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}
+                            }
+                            $out
+                        } 
+                        elseif ($md.Extension -eq '.psd1') {
+                            $data = Import-LocalizedData -BaseDirectory ([IO.Path]::GetDirectoryName($md.Path)) -FileName ([IO.PATH]::GetFileName($md.Path))
+                            if (-not $data) {
+                                continue nextValue
+                            }
+                            $htStart = $ft.IndexOf('@{')
+                            if ($htStart -eq '-1') { continue nextValue }
+                            $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
+                            & $joinPipelineParts $data -Parent $partTable -singleton:$Singleton
+                        } 
+                        elseif ($md.Extension -eq '.sh') {
+                            $out = [Ordered]@{bash="$ft";displayName=$md.Name}
+                            $out
+                        }
+                        elseif ($v -is [Collections.IDictionary]) {
+                            & $joinPipelineParts $v -parent $partTable -singleton:$Singleton
                         } else {
-                            $out.powershell = "$sb"
+                            $v
                         }
-                        $out.displayName = $md.Name
-                        $out
-                    } elseif ($md.Extension -eq '.psd1') {
-                        $data = Import-LocalizedData -BaseDirectory ([IO.Path]::GetDirectoryName($md.Path)) -FileName ([IO.PATH]::GetFileName($md.Path))
-                        if (-not $data) {
-                            continue
-                        }
-                        $htStart = $ft.IndexOf('@{')
-                        if ($htStart -eq '-1') { continue }
-                        $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
-                        & $joinPipelineParts $data -Parent $partTable -singleton:$Singleton
 
-                    } elseif ($v -is [Collections.IDictionary]) {
-                        & $joinPipelineParts $v -parent $partTable -singleton:$Singleton
+                    
+                    if ($md.Name -and $Option.$($md.Name) -is [Collections.IDictionary]) {
+                        $o2 = [Ordered]@{} + $o
+                        foreach ($ov in @($Option.($md.Name).GetEnumerator())) {
+                            $o2[$ov.Key] = $ov.Value
+                        }
+                        $o2
                     } else {
-                        $v
-                    }
+                        $o
+                    } 
+                    #$o
+                    #>
+                    
                 }
+
+                $outObject[$propName] = $outValue
+
 
                 if ($outObject[$propName] -isnot [Collections.IList] -and $kv.Value -is [Collections.IList] -and -not $singleton) {
                     $outObject[$propName] = @($outObject[$propName])
@@ -217,6 +254,7 @@
         }
 
         $yamlToBe = & $joinPipelineParts $stepsByType
+                
 
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
     }
