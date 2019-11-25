@@ -167,7 +167,7 @@ describe 'Working with Work Items' {
             $wi2.'System.Description'| should be 'Testing Creating Work Items'
             $wi2 = Set-ADOWorkItem -InputObject @{Description='Updating via Query'} -Query "select [System.ID] from WorkItems Where [System.ID] = $($wi2.ID)" @splat
             $wi2.'System.Description'| should be 'Updating Via query'
-            Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.ID] = $($WI.ID)" -Confirm:$false
+            Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
     }
 }
