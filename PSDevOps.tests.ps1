@@ -136,10 +136,29 @@ describe 'Calling REST APIs' {
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
+}
 
+describe 'Working with Work Items' {
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
             Select-Object -ExpandProperty 'System.WorkItemType' |
             should be Epic
+    }
+
+    if ($PersonalAccessToken -or $env:SYSTEM_ACCESS_TOKEN) {
+        $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESS_TOKEN }
+        
+        it 'Can query work items' {
+            $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems' -PersonalAccessToken $testPat
+            $queryResults[0].id | should be 1
+        }
+        
+        it 'Can create, update, and remove a work item' {
+            $wi = New-ADOWorkItem -InputObject @{Title='Test-WorkItem'} -Type Issue -ParentID 1 -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat
+            $wi.'System.Title' | should be 'Test-WorkItem'
+            $wi2 = Set-ADOWorkItem -InputObject @{Description='Testing Creating Work Items'} -ID $wi.ID -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat
+            $wi2.'System.Description'| should be 'Testing Creating Work Items'
+            $wi2 | Remove-ADOWorkItem -PersonalAccessToken $testPat -Confirm:$false
+        }
     }
 }
