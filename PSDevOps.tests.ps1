@@ -151,6 +151,14 @@ describe 'Working with Work Items' {
             should be Epic
     }
 
+    it 'Can get work item types' {
+        $wiTypes = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WorkItemType
+        $wiTypeNames = $wiTypes | Select-Object -ExpandProperty Name
+        if ($wiTypeNames -notcontains 'Epic') {
+            throw "Expected to find an epic type"
+        }
+    }
+
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
         $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
 
