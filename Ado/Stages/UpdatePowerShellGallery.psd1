@@ -9,7 +9,7 @@
         job = 'Publish'
         displayName = 'PowerShell Gallery'
         pool=@{
-            vmImage= 'vs2017-win2016'
+            vmImage= 'windows-latest'
         }
         steps = @('PublishPowerShellGallery')
     })
