@@ -165,10 +165,9 @@ describe 'Working with Work Items' {
             $wi.'System.Title' | should be 'Test-WorkItem'                        
             $wi2 = Set-ADOWorkItem -InputObject @{Description='Testing Creating Work Items'} -ID $wi.ID @splat
             $wi2.'System.Description'| should be 'Testing Creating Work Items'
-            $wi2 = Set-ADOWorkItem -InputObject @{Description='Updating via Query'} -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" @splat
+            $wi2 = Set-ADOWorkItem -InputObject @{Description='Updating via Query'} -Query "select [System.ID] from WorkItems Where [System.ID] = $($wi2.ID)" @splat
             $wi2.'System.Description'| should be 'Updating Via query'
-            Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
-            { $wi2 | Remove-ADOWorkItem -PersonalAccessToken $testPat -Confirm:$false } | should throw
+            Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.ID] = $($WI.ID)" -Confirm:$false
         }
     }
 }
