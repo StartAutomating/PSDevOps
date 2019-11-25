@@ -1,23 +1,34 @@
-﻿function Get-ADOWorkItem
+﻿function New-ADOWorkItem
 {
     <#
     .Synopsis
-        Gets work items from Azure DevOps
+        Creates new work items in Azure DevOps
     .Description
-        Gets work item from Azure DevOps or Team Foundation Server.
+        Creates new work items in Azure DevOps or Team Foundation Server.
     .Example
-        Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1
-    .Example
-        Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems'
+        @{ 'Verb' ='Get' ;'Noun' = 'ADOWorkItem' } |
+            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4 
     .Link
         Invoke-ADORestAPI
-    .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/get%20work%20item?view=azure-devops-rest-5.1
-    .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='ByID')]
     param(
+    # The InputObject
+    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [PSObject]
+    $InputObject,
+
+    # The type of the work item.
+    [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+    [Alias('WorkItemType')]
+    [string]
+    $Type,
+
+    # The work item ParentID
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string]
+    $ParentID,
+
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
@@ -29,32 +40,6 @@
     [string]
     $Project,
 
-    # The Work Item ID
-    [Parameter(Mandatory,ParameterSetName='ByID',ValueFromPipelineByPropertyName)]
-    [string]
-    $ID,
-
-    # A query
-    [Parameter(Mandatory,ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
-    [string]
-    $Query,
-
-    # If set, will return work item types.
-    [Parameter(Mandatory,ParameterSetName='WorkItemTypes',ValueFromPipelineByPropertyName)]
-    [Alias('WorkItemTypes','Type','Types')]
-    [switch]
-    $WorkItemType,
-
-    # One or more fields.
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('Fields','Select')]
-    [string[]]
-    $Field,
-
-    # If set, will get related items 
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [switch]
-    $Related,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -111,6 +96,35 @@
             }
         }
         #endregion Copy Invoke-ADORestAPI parameters
+        $fixField = {
+            param($prop, $validFieldTable)
+            
+            $fieldName = 
+                if ($validFieldTable.Contains($prop.Name)) {
+                    $validFieldTable[$prop.Name].ReferenceName
+                } else {
+                    $noSpacesPropName = $prop.Name -replace '\s', ''
+                    foreach ($v in $validFieldTable.Values) {
+                        if ($v.Name -replace '\s', '' -eq $noSpacesPropName -or 
+                            $v.referenceName -eq $noSpacesPropName) {
+                            $v.referenceName
+                            break
+                        }
+                    }
+                }
+
+            if (-not $fieldName) {
+                Write-Warning "Could not map $($prop.Name) to a field"
+                return
+            }
+
+            @{
+                op = "add"
+                path = '/fields/' + $fieldName
+                value = $prop.Value
+            }
+            
+        }
 
         #region Output Work Item
         $outWorkItem = {
@@ -150,55 +164,71 @@
     }
 
     process {
+        $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
 
-        if ($PSCmdlet.ParameterSetName -eq 'ByID') {
-            # Build the URI out of it's parts.
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitems", "${ID}?" -join '/'
-            $uri += @(if ($Field) { # If fields were provided, add it as a query parameter
-               "fields=$($Field -join ',')"
-            }
-            if ($Related) {
-                '$expand=related'
-            }
-            if ($ApiVersion) { # If any api-version was provided, add it as a query parameter.
-                "api-version=$ApiVersion"
-            }) -join '&'
+        $validFields = 
+                if ($script:ADOFieldCache.$uribase) {
+                    $script:ADOFieldCache.$uribase
+                } else {
+                    Get-ADOField -Organization $Organization -Project $Project -Server $Server @invokeParams
+                }
 
-            $invokeParams.Uri = $uri
-            $restResponse = Invoke-ADORestAPI @invokeParams # Invoke the REST API.
-            if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
-            & $outWorkItem $restResponse
-        } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
-            $uri += if ($ApiVersion) {
+        $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
+        $uri = $uriBase, "_apis/wit/workitems", "`$$($Type -replace '\s', '')?" -join '/'
+            
+        $uri += 
+            if ($ApiVersion) {
                 "api-version=$ApiVersion"
             }
 
-            $invokeParams.Method = "POST"
-            $invokeParams.Body = ConvertTo-Json @{query=$Query}
-            $invokeParams["Uri"] = $uri
+        
 
-            Invoke-ADORestAPI @invokeParams |
-                Select-Object -ExpandProperty workItems |
-                & { process {
-                    $_.psobject.properties.add([PSNoteProperty]::new('Organization', $Organization))
-                    $_.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
-                    $_.psobject.properties.add([PSNoteProperty]::new('Server', $Server))
-                    $_.pstypenames.clear()
-                    $_.pstypenames.Add("$organization.$project.WorkItem.ID")
-                    $_.pstypenames.Add("PSDevOps.WorkItem.ID")
-                    $_
-                } }
-        } elseif ($PSCmdlet.ParameterSetName -eq 'WorkItemTypes') {
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitemtypes?" -join '/'
-            $uri += if ($ApiVersion) {
-                "api-version=$ApiVersion"
-            }
-            $invokeParams.Uri =  $uri
-            $workItemTypes = Invoke-ADORestAPI @invokeParams
-            $workItemTypes -replace '"":', '"_blank":' | 
-                ConvertFrom-Json | 
-                Select-Object -ExpandProperty Value
+        $invokeParams.Uri = $uri
+        
+        if ($InputObject -is [Collections.IDictionary]) {
+            $InputObject = [PSCustomObject]$InputObject
         }
+
+        $patchOperations = 
+            @(foreach ($prop in $InputObject.psobject.properties) {
+                if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
+                & $fixField $prop $validFieldTable
+            })
+
+        if ($parentID) {
+            $patchOperations += @{
+                op='add'
+                path ='/relations/-'
+                value = @{
+                    rel = 'System.LinkTypes.Hierarchy-Reverse'
+                    url = $uriBase, '_apis/wit', $ParentID -join '/'
+                }
+            }
+        }
+
+        $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
+        $invokeParams.Method = 'POST'
+        $invokeParams.ContentType = 'application/json-patch+json'
+        $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
+
+        if ($restResponse.ErrorDetails.Message) {
+            $errorDetails = $restResponse.ErrorDetails.Message | ConvertFrom-Json
+            if ($errorDetails.message -like 'VS402323*') {
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                        [Exception]::new(
+                            $errorDetails.message + [Environment]::NewLine +
+                            "Use Get-ADOWorkItem -WorkItemType to find valid types"
+                        ),'UnknownWorkItemType', 'NotSpecified', $restResponse)
+                )
+                  
+            } else {
+                return $restResponse
+            }
+        } elseif ($restResponse.Exception) {
+            return $restResponse
+        }
+
+        if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
+        & $outWorkItem $restResponse
     }
 }
