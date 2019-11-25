@@ -57,6 +57,8 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -94,6 +96,8 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -128,6 +132,8 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -149,7 +155,7 @@ stages:
       - job: Publish
         displayName: PowerShell Gallery
         pool: 
-          vmImage: vs2017-win2016
+          vmImage: windows-latest
         steps: 
           - powershell: |
               $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
