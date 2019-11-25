@@ -8,7 +8,7 @@
     .Example
         Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 10
     .Example
-        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.ID] = 10"
+        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -PersonalAccessToken $pat -Confirm:$false
     .Link
         Invoke-ADORestAPI
     .Link
