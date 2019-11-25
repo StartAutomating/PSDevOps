@@ -145,8 +145,8 @@ describe 'Working with Work Items' {
             should be Epic
     }
 
-    if ($PersonalAccessToken -or $env:SYSTEM_ACCESS_TOKEN) {
-        $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESS_TOKEN }
+    if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
+        $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
         
         it 'Can query work items' {
             $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems' -PersonalAccessToken $testPat
