@@ -1,4 +1,10 @@
 ﻿#requires -Module PSDevOps, Pester
+param(
+[string]
+$TestOrg = 'StartAutomating',
+[string]
+$TestProject = 'PSDevOps'
+)
 
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
@@ -154,11 +160,15 @@ describe 'Working with Work Items' {
         }
         
         it 'Can create, update, and remove a work item' {
-            $wi = New-ADOWorkItem -InputObject @{Title='Test-WorkItem'} -Type Issue -ParentID 1 -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat
-            $wi.'System.Title' | should be 'Test-WorkItem'
-            $wi2 = Set-ADOWorkItem -InputObject @{Description='Testing Creating Work Items'} -ID $wi.ID -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat
+            $splat = @{Organization=$TestOrg;Project=$TestProject;PersonalAccessToken=$testPat}
+            $wi = New-ADOWorkItem -InputObject @{Title='Test-WorkItem'} -Type Issue -ParentID 1 @splat
+            $wi.'System.Title' | should be 'Test-WorkItem'                        
+            $wi2 = Set-ADOWorkItem -InputObject @{Description='Testing Creating Work Items'} -ID $wi.ID @splat
             $wi2.'System.Description'| should be 'Testing Creating Work Items'
-            $wi2 | Remove-ADOWorkItem -PersonalAccessToken $testPat -Confirm:$false
+            $wi2 = Set-ADOWorkItem -InputObject @{Description='Updating via Query'} -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" @splat
+            $wi2.'System.Description'| should be 'Updating Via query'
+            Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
+            { $wi2 | Remove-ADOWorkItem -PersonalAccessToken $testPat -Confirm:$false } | should throw
         }
     }
 }
