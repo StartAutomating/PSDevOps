@@ -11,7 +11,6 @@
         New-ADOField -Name IsDCR -Type Boolean -Description "Is this a direct custom request?"
     .Link
         Invoke-ADORestAPI
-
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
@@ -28,7 +27,7 @@
     [string]
     $ReferenceName,
 
-    <# 
+    <#
     The type of the field.
 
     This can be any of the following:
@@ -52,15 +51,35 @@
     [string]
     $Type = 'string',
 
+    # A description for the field.
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Description,
 
+    # A list of valid values.
+    # If provided, an associated picklist will be created with these values.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('ValidValues','Picklist')]
     [string[]]
     $ValidValue,
 
+    # If set, the field can be used to sort.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $CanSortBy,
+
+    # If set, the field can be used in queries.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $IsQueryable,
+
+    # If set, the field will be read only.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $ReadOnly,
+
+    # If set, custom values can be provided into the field.
+    # This is ignored if not used with -ValidValue.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('IsPickListSuggestable','OpenEnded')]
     [switch]
@@ -149,24 +168,24 @@
             }
 
 
-        
+
         $postContent = [Ordered]@{}
         $postContent.name = $Name
-        $postContent.referenceName = 
+        $postContent.referenceName =
             if ($ReferenceName) { $ReferenceName }
             else {
                 "Custom." + $Name -replace '\s',''
             }
-        
-        
-        
+
+
+
         $postContent.type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
         $postContent.readOnly = $readOnly -as [bool]
         $postContent.canSortBy = $canSortBy -as [bool]
         $postContent.isQueryable = $isQueryable -as [bool]
         $postContent.isIdentity = $type -eq 'identity'
         $postContent.description = $Description
-        
+
         if ($ValidValue) {
             if ($Type -ne 'string' -and $type -ne 'integer' -and $type -ne 'double') {
                 Write-Error "Can only provide a list of valid values fields of type string, integer, or double"
@@ -179,7 +198,7 @@
                 type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
             }
             $pickListCreate.type= $pickListCreate.type.Substring(0,1).ToUpper() + $pickListCreate.type.Substring(1)
-            $pickListCreate.items = 
+            $pickListCreate.items =
                 if ($type -eq 'string') {
                     $ValidValue
                 } else {
