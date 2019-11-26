@@ -28,7 +28,7 @@
     [string]
     $ReferenceName,
 
-    <# 
+    <#
     The type of the field.
 
     This can be any of the following:
@@ -149,24 +149,24 @@
             }
 
 
-        
+
         $postContent = [Ordered]@{}
         $postContent.name = $Name
-        $postContent.referenceName = 
+        $postContent.referenceName =
             if ($ReferenceName) { $ReferenceName }
             else {
                 "Custom." + $Name -replace '\s',''
             }
-        
-        
-        
+
+
+
         $postContent.type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
         $postContent.readOnly = $readOnly -as [bool]
         $postContent.canSortBy = $canSortBy -as [bool]
         $postContent.isQueryable = $isQueryable -as [bool]
         $postContent.isIdentity = $type -eq 'identity'
         $postContent.description = $Description
-        
+
         if ($ValidValue) {
             if ($Type -ne 'string' -and $type -ne 'integer' -and $type -ne 'double') {
                 Write-Error "Can only provide a list of valid values fields of type string, integer, or double"
@@ -179,7 +179,7 @@
                 type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
             }
             $pickListCreate.type= $pickListCreate.type.Substring(0,1).ToUpper() + $pickListCreate.type.Substring(1)
-            $pickListCreate.items = 
+            $pickListCreate.items =
                 if ($type -eq 'string') {
                     $ValidValue
                 } else {
@@ -198,6 +198,6 @@
         $invokeParams.Body = ConvertTo-Json $postContent -Depth 100
         $invokeParams.Method = 'POST'
         if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
-        Invoke-ADORestAPI @invokeParams 2>&1        
+        Invoke-ADORestAPI @invokeParams 2>&1
     }
 }

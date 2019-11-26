@@ -104,8 +104,8 @@
 
         $invokeParams.Uri = $uri
         $invokeParams.Method = 'DELETE'
-        if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return }       
-        
+        if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return }
+
         Invoke-ADORestAPI @invokeParams
     }
 }
