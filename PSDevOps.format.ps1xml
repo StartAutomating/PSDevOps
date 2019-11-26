@@ -49,14 +49,45 @@
         )
 
         $lines -join [Environment]::NewLine
-
-
     </ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>
         </CustomEntries>
       </CustomControl>
+    </View>
+    <View>
+      <Name>PSDevOps.Field</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Field</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize />
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ReferenceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>

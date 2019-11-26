@@ -46,9 +46,9 @@ $formatting = @(
         )
 
         $lines -join [Environment]::NewLine
-
-
     }
+
+    Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap
 )
 
 $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
