@@ -2,9 +2,9 @@
 {
     <#
     .Synopsis
-
+        Gets fields from Azure DevOps
     .Description
-
+        Gets fields from Azure DevOps or Team Foundation Server.
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
     #>
@@ -16,7 +16,7 @@
     $Organization,
 
     # The Project
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Project,
 
