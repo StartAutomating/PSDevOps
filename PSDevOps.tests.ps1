@@ -177,8 +177,10 @@ describe 'Working with Work Items' {
             $wi2.'System.Description'| should be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
+    }
 
-
+    if ($PersonalAccessToken) { # These tests will not run with the system access token in AzureDevOps
+        $testPat = $PersonalAccessToken
         it 'Can create and remove custom fields' {
             $splat = @{Organization=$TestOrg;Project=$TestProject;PersonalAccessToken=$testPat}
             $testFieldNumber = "TestField$([Random]::new().Next())"
