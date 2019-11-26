@@ -177,5 +177,13 @@ describe 'Working with Work Items' {
             $wi2.'System.Description'| should be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
+
+
+        it 'Can create and remove custom fields' {
+            $splat = @{Organization=$TestOrg;Project=$TestProject;PersonalAccessToken=$testPat}
+            $testFieldNumber = "TestField$([Random]::new().Next())"
+            New-ADOField -Name $testFieldNumber @splat
+            Remove-ADOField -Name $testFieldNumber -Confirm:$false @splat
+        }
     }
 }
