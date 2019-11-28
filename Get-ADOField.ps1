@@ -6,6 +6,10 @@
     .Description
         Gets fields from Azure DevOps or Team Foundation Server.
     .Link
+        New-ADOField
+    .Link
+        Remove-ADOField
+    .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
     #>
     param(
@@ -71,38 +75,63 @@
     )
 
     begin {
-        $invokeRestApi = [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = @{} + $PSBoundParameters
-        foreach ($k in @($invokeParams.Keys)) {
+        # Because this command wraps Invoke-ADORestAPI, we want to copy over all shared parameters.
+        $invokeRestApi = # To do this, first we get the commandmetadata for Invoke-ADORestAPI.
+            [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
+
+        $invokeParams = @{} + $PSBoundParameters # Then we copy our parameters
+        foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
+            # If a parameter isn't found in Invoke-ADORestAPI
             if (-not $invokeRestApi.Parameters.ContainsKey($k)) {
-                $invokeParams.Remove($k)
+                $invokeParams.Remove($k) # we remove it.
             }
         }
+        # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
         #endregion Copy Invoke-ADORestAPI parameters
 
-        if (-not $Script:ADOFieldCache) {
-            $Script:ADOFieldCache = @{}
+        # Because fields don't change often,
+        if (-not $Script:ADOFieldCache) { # if we haven't already created a cache
+            $Script:ADOFieldCache = @{} # create a cache.
         }
     }
 
     process {
-        $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
-        $uri = $uriBase, "_apis/wit/fields?" -join '/'
-        if ($ApiVersion) {
+        # First, construct a base URI.  It's made up of:
+        $uriBase = $null -ne "$Server".TrimEnd('/'), # * The server
+            $Organization, # * The organization
+            $(if ($Project) { $project}) -join
+            '/'
+
+        $uri = $uriBase, "_apis/wit/fields?" -join '/' # Next, add on the REST api endpoint
+        if ($ApiVersion) { # If an -ApiVersion exists, add that to query parameters.
             $uri += "api-version=$ApiVersion"
         }
         $invokeParams.Uri = $uri
-        if ($Force) {
-            $Script:ADOFieldCache.Remove($uriBase)
+
+        if ($Force) { # If we're forcing a refresh
+            $Script:ADOFieldCache.Remove($uriBase) # clear the cached results for $uriBase.
         }
 
-        if (-not $Script:ADOFieldCache.$uriBase) {
+
+        if (-not $Script:ADOFieldCache.$uriBase) { # If we have nothing cached,
+            $typenames = @( # Prepare a list of typenames so we can customize formatting:
+                if ($Organization -and $Project) {
+                    "$Organization.$Project.Field" # * $Organization.$Project.Field (if $product exists)
+                }
+                "$Organization.Field" # * $Organization.Field
+                'PSDevOps.Field' # * PSDevOps.Field
+            )
+
             Write-Verbose "Caching ADO Fields for $uriBase"
+
+            # Invoke the REST api
             $Script:ADOFieldCache.$uriBase =
-                Invoke-ADORestAPI @invokeParams -PSTypeName "$Organization.$Project.Field", "PSDevOps.Field"
+                Invoke-ADORestAPI @invokeParams -PSTypeName $typenames # decorate results with the Typenames,
+            # and cache the result.
         }
 
-        $Script:ADOFieldCache.$uriBase
+
+        $Script:ADOFieldCache.$uriBase # Last but not least, output what was in the cache.
     }
 }
