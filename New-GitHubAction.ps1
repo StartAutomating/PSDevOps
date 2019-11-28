@@ -13,5 +13,32 @@ function New-GitHubAction {
     param(
     )
 
-    "Hello from New-GitHubAction"
+    dynamicParam {
+        $newDynamicParameter = {
+            param([string]$name, [string[]]$ValidSet, [type]$type = [string], [string]$ParameterSet = '__AllParameterSets', [switch]$Mandatory)
+
+            $ParamAttr = [Management.Automation.ParameterAttribute]::new()
+            $ParamAttr.Mandatory = $Mandatory
+            $ParamAttr.ParameterSetName = $ParameterSet
+
+            $ParamAttributes = [Collections.ObjectModel.Collection[System.Attribute]]::new()
+            $ParamAttributes.Add($ParamAttr)
+
+            if ($ValidSet) {
+                $ParamAttributes.Add([Management.Automation.ValidateSetAttribute]::new($ValidSet))
+            }
+
+            [Management.Automation.RuntimeDefinedParameter]::new($name, $type, $ParamAttributes)
+        }
+
+        $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        if ($script:ThingNames) {
+            foreach ($kv in $script:ThingNames.GetEnumerator()) {
+                $k = $kv.Key.Substring(0, 1).ToUpper() + $kv.Key.Substring(1)
+                $DynamicParameters.Add($k, $(& $newDynamicParameter $k $kv.Value ([string[]])))
+            }
+        }
+        return $DynamicParameters
+    }
 }
