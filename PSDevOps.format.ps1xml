@@ -14,9 +14,9 @@
                 <ScriptBlock>
         $wi = $_
         $uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
-        $bufferWidth = $uiBuffer 
+        $bufferWidth = $uiBuffer
         $justify = {param($l, $r)
-            
+
             $d = $bufferWidth - $l.Length - $r.Length
             $l + (' ' * $d) + $r
         }
@@ -74,6 +74,43 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>ReferenceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkProcess</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkProcess</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsEnabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsDefault</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>

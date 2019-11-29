@@ -43,6 +43,7 @@ $formatting = @(
     }
 
     Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap
+    Write-FormatView -TypeName PSDevOps.WorkProcess -Property Name, IsEnabled, IsDefault, Description -Wrap
 )
 
 $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
