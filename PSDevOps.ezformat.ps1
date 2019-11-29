@@ -11,41 +11,35 @@ $formatting = @(
     Write-FormatView -TypeName PSDevOps.WorkItem -Action {
         $wi = $_
         $uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
-        $bufferWidth = $uiBuffer - 2
-        $titleLineStart = $wi.'System.Title'
-        $titleLineEnd = "$($wi.'System.State') [$($wi.ID)]"
-        $titleMiddleSpace  = $bufferWidth - $titleLineStart.Length -  $titleLineEnd.Length
+        $bufferWidth = $uiBuffer
+        $justify = {param($l, $r)
 
-        $changedBy   = "$($wi.'System.ChangedBy'.displayName)"
-        $changedDate = "$($wi.'System.ChangedDate' -as [DateTime])"
-        $changedLine = 'Last Updated' + (' ' *
-            ($uiBuffer - "Last Updated".Length - "$changedBy @ $changedDate".Length)
-        ) + "$changedBy @ $changedDate"
+            $d = $bufferWidth - $l.Length - $r.Length
+            $l + (' ' * $d) + $r
+        }
 
-        $createdBy   = "$($wi.'System.CreatedBy'.displayName)"
-        $createdDate = "$($wi.'System.CreatedDate' -as [DateTime])"
-        $createdLine = 'Created' + (' ' *
-            ($uiBuffer - "Created".Length - "$createdBy @ $createdDate".Length)
-        ) + "$createdBy @ $createdDate"
+        @(
+        ('-' * $uiBuffer)
+        & $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
+        ('-' * $uiBuffer)
+        if ($wi.'System.AssignedTo') {
+            & $justify "Assigned To:" $wi.'System.AssignedTo'.displayName
+        }
+        if ($wi.'System.IterationPath') {
+            & $justify "Iteration Path:" $wi.'System.IterationPath'
+        }
+        & $justify "Last Updated:" "$($wi.'System.ChangedBy'.displayName) @ $($wi.'System.ChangedDate' -as [DateTime])"
+        & $justify "Created:" "$($wi.'System.CreatedBy'.displayName) @ $($wi.'System.CreatedDate' -as [DateTime])"
+        ('-' * $uiBuffer)
+        "$($wi.'System.Description')" -replace
+            '<br(?:/)?>', [Environment]::NewLine -replace
+            '</div>', [Environment]::NewLine -replace
+            '<li>',"* " -replace
+            '</li>', [Environment]::NewLine -replace
+            '\<[^\>]+\>', '' -replace
+            '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+        ) -join [Environment]::NewLine
 
-
-        $lines = @(
-            ('-' * $uiBuffer)
-            "$titleLineStart $(' ' * $titleMiddleSpace) $titleLineEnd"
-            ('-' * $uiBuffer)
-            $changedLine
-            $createdLine
-            ('-' * $uiBuffer)
-            "$($wi.'System.Description')" -replace
-                '<br(?:/)?>', [Environment]::NewLine -replace
-                '</div>', [Environment]::NewLine -replace
-                '<li>',"* " -replace
-                '</li>', [Environment]::NewLine -replace
-                '\<[^\>]+\>', '' -replace
-                '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
-        )
-
-        $lines -join [Environment]::NewLine
     }
 
     Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap
