@@ -12,6 +12,7 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -98,9 +99,9 @@
 
     process {
         # First, construct a base URI.  It's made up of:
-        $uriBase = $null -ne "$Server".TrimEnd('/'), # * The server
+        $uriBase = "$Server".TrimEnd('/'), # * The server
             $Organization, # * The organization
-            $(if ($Project) { $project}) -join
+            $(if ($Project) { $project}) -ne $null -join
             '/'
 
         $uri = $uriBase, "_apis/wit/fields?" -join '/' # Next, add on the REST api endpoint
