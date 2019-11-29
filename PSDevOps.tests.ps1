@@ -177,6 +177,12 @@ describe 'Working with Work Items' {
             $wi2.'System.Description'| should be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
+
+        it 'Can get work proccesses' {
+            Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat | 
+                Select-Object -First 1 -ExpandProperty name |
+                should be Basic
+        }
     }
 
     if ($PersonalAccessToken) { # These tests will not run with the system access token in AzureDevOps
