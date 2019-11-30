@@ -162,10 +162,25 @@ describe 'Working with Work Items' {
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
         $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
 
-        it 'Can query work items' {
-            $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems' -PersonalAccessToken $testPat
-            $queryResults[0].id | should be 1
+        context 'Querying Work Items' {
+
+            it 'Can query work items' {
+                $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems' -PersonalAccessToken $testPat -NoDetail
+                $queryResults[0].id | should be 1
+            }
+
+            it 'Can will get work item detail by default' {
+                $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat
+                $queryResults[0].'System.WorkItemType'| should be Epic
+            }
+
+            it 'Will not use workitemsbatch when using an old version of the REST api' {
+                $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
+                $queryResults[0].'System.WorkItemType' | should be Epic
+            }
         }
+
+
 
         it 'Can create, update, and remove a work item' {
             $splat = @{Organization=$TestOrg;Project=$TestProject;PersonalAccessToken=$testPat}
@@ -179,7 +194,7 @@ describe 'Working with Work Items' {
         }
 
         it 'Can get work proccesses' {
-            Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat | 
+            Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty name |
                 should be Basic
         }
