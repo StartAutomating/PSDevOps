@@ -22,14 +22,34 @@ $formatting = @(
         ('-' * $uiBuffer)
         & $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
         ('-' * $uiBuffer)
-        if ($wi.'System.AssignedTo') {
-            & $justify "Assigned To:" $wi.'System.AssignedTo'.displayName
-        }
         if ($wi.'System.IterationPath') {
             & $justify "Iteration Path:" $wi.'System.IterationPath'
         }
-        & $justify "Last Updated:" "$($wi.'System.ChangedBy'.displayName) @ $($wi.'System.ChangedDate' -as [DateTime])"
-        & $justify "Created:" "$($wi.'System.CreatedBy'.displayName) @ $($wi.'System.CreatedDate' -as [DateTime])"
+        if ($wi.'System.AssignedTo') {
+            & $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
+                $wi.'System.AssignedTo'.displayName
+            } else {
+                $wi.'System.AssignedTo'
+            })
+        }
+        $changedBy =
+            if ($wi.'System.ChangedBy'.displayName) {
+                $wi.'System.ChangedBy'.displayName
+            } elseif ($wi.'System.ChangedBy') {
+                $wi.'System.ChangedBy'
+            }
+        if ($changedBy) {
+            & $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
+        }
+        $createdBy =
+            if ($wi.'System.CreatedBy'.displayName) {
+                $wi.'System.CreatedBy'.displayName
+            } elseif ($wi.'System.CreatedBy') {
+                $wi.'System.CreatedBy'
+            }
+        if ($createdby) {
+            & $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
+        }
         ('-' * $uiBuffer)
         "$($wi.'System.Description')" -replace
             '<br(?:/)?>', [Environment]::NewLine -replace
@@ -39,7 +59,6 @@ $formatting = @(
             '\<[^\>]+\>', '' -replace
             '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
         ) -join [Environment]::NewLine
-
     }
 
     Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap

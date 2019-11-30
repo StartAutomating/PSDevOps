@@ -25,14 +25,34 @@
         ('-' * $uiBuffer)
         &amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
         ('-' * $uiBuffer)
-        if ($wi.'System.AssignedTo') {
-            &amp; $justify "Assigned To:" $wi.'System.AssignedTo'.displayName
-        }
         if ($wi.'System.IterationPath') {
             &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
         }
-        &amp; $justify "Last Updated:" "$($wi.'System.ChangedBy'.displayName) @ $($wi.'System.ChangedDate' -as [DateTime])"
-        &amp; $justify "Created:" "$($wi.'System.CreatedBy'.displayName) @ $($wi.'System.CreatedDate' -as [DateTime])"
+        if ($wi.'System.AssignedTo') {
+            &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
+                $wi.'System.AssignedTo'.displayName
+            } else {
+                $wi.'System.AssignedTo'
+            })
+        }
+        $changedBy =
+            if ($wi.'System.ChangedBy'.displayName) {
+                $wi.'System.ChangedBy'.displayName
+            } elseif ($wi.'System.ChangedBy') {
+                $wi.'System.ChangedBy'
+            }
+        if ($changedBy) {
+            &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
+        }
+        $createdBy =
+            if ($wi.'System.CreatedBy'.displayName) {
+                $wi.'System.CreatedBy'.displayName
+            } elseif ($wi.'System.CreatedBy') {
+                $wi.'System.CreatedBy'
+            }
+        if ($createdby) {
+            &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
+        }
         ('-' * $uiBuffer)
         "$($wi.'System.Description')" -replace
             '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
@@ -42,7 +62,6 @@
             '\&lt;[^\&gt;]+\&gt;', '' -replace
             '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
         ) -join [Environment]::NewLine
-
     </ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
