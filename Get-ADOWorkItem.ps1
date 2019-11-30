@@ -16,8 +16,31 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='ByID')]
+    [CmdletBinding(DefaultParameterSetName='ByTitle')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     param(
+    # The Work Item Title
+    [Parameter(Mandatory,ParameterSetName='ByTitle',ValueFromPipelineByPropertyName,Position=0)]
+    [string]
+    $Title,
+
+    # A query
+    [Parameter(Mandatory,ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
+    [string]
+    $Query,
+
+    # If set, queries will output the IDs of matching work items.
+    # If not provided, details will be retreived for all work items.
+    [Parameter(ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
+    [Alias('OutputID')]
+    [switch]
+    $NoDetail,
+
+    # The Work Item ID
+    [Parameter(Mandatory,ParameterSetName='ByID',ValueFromPipelineByPropertyName)]
+    [string]
+    $ID,
+
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
@@ -29,16 +52,6 @@
     [string]
     $Project,
 
-    # The Work Item ID
-    [Parameter(Mandatory,ParameterSetName='ByID',ValueFromPipelineByPropertyName)]
-    [string]
-    $ID,
-
-    # A query
-    [Parameter(Mandatory,ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
-    [string]
-    $Query,
-
     # If set, will return work item types.
     [Parameter(Mandatory,ParameterSetName='WorkItemTypes',ValueFromPipelineByPropertyName)]
     [Alias('WorkItemTypes','Type','Types')]
@@ -46,13 +59,11 @@
     $WorkItemType,
 
     # One or more fields.
-    [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('Fields','Select')]
     [string[]]
     $Field,
 
     # If set, will get related items
-    [Parameter(ValueFromPipelineByPropertyName)]
     [switch]
     $Related,
 
@@ -147,28 +158,23 @@
             }
         }
         #endregion Output Work Item
+
+        $allIDS = [Collections.ArrayList]::new()
     }
 
     process {
-
-        if ($PSCmdlet.ParameterSetName -eq 'ByID') {
+        $selfSplat = @{} + $PSBoundParameters
+        if ($PSCmdlet.ParameterSetName -eq 'ByTitle') {
+            $selfSplat.Remove('Title')
+            $selfSplat.Query = "Select [System.ID] from WorkItems Where [System.Title] contains '$title'"
+            Get-ADOWorkItem @selfSplat
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'ByID') {
             # Build the URI out of it's parts.
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitems", "${ID}?" -join '/'
-            $uri += @(if ($Field) { # If fields were provided, add it as a query parameter
-               "fields=$($Field -join ',')"
-            }
-            if ($Related) {
-                '$expand=related'
-            }
-            if ($ApiVersion) { # If any api-version was provided, add it as a query parameter.
-                "api-version=$ApiVersion"
-            }) -join '&'
-
-            $invokeParams.Uri = $uri
-            $restResponse = Invoke-ADORestAPI @invokeParams # Invoke the REST API.
-            if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
-            & $outWorkItem $restResponse
-        } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
+            $null = $allIDS.Add($id)
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery')
+        {
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
             $uri += if ($ApiVersion) {
                 "api-version=$ApiVersion"
@@ -178,9 +184,10 @@
             $invokeParams.Body = ConvertTo-Json @{query=$Query}
             $invokeParams["Uri"] = $uri
 
-            Invoke-ADORestAPI @invokeParams |
-                Select-Object -ExpandProperty workItems |
-                & { process {
+            $queryResults = Invoke-ADORestAPI @invokeParams |
+                    Select-Object -ExpandProperty workItems
+            if ($NoDetail) {
+                foreach ($_ in $queryResults) {
                     $_.psobject.properties.add([PSNoteProperty]::new('Organization', $Organization))
                     $_.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
                     $_.psobject.properties.add([PSNoteProperty]::new('Server', $Server))
@@ -188,7 +195,12 @@
                     $_.pstypenames.Add("$organization.$project.WorkItem.ID")
                     $_.pstypenames.Add("PSDevOps.WorkItem.ID")
                     $_
-                } }
+                }
+            } else {
+                $selfSplat.Remove('Query')
+                $queryResults |
+                    Get-ADOWorkItem @selfSplat
+            }
         } elseif ($PSCmdlet.ParameterSetName -eq 'WorkItemTypes') {
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitemtypes?" -join '/'
             $uri += if ($ApiVersion) {
@@ -199,6 +211,73 @@
             $workItemTypes -replace '"":', '"_blank":' |
                 ConvertFrom-Json |
                 Select-Object -ExpandProperty Value
+        }
+    }
+
+    end {
+        if (-not $allIDS.Count) { return }
+        $av =
+            if ($ApiVersion -and $ApiVersion.IndexOf('-') -ne -1) {
+                $ApiVersion.Substring(0, $ApiVersion.IndexOf('-'))
+            } else {
+                $ApiVersion
+            }
+        $c, $t, $progID = 0, $allIDS.Count, [Random]::new().Next()
+        if ($av -as [Version] -ge '5.1' -and $allIDS.Count -gt 1) { # We can use WorkItemsBatch
+
+            $uri = "$Server".TrimEnd('/'),
+                $Organization,
+                $(if ($Project) { $Project}),
+                "_apis/wit/workitemsbatch?" -ne $null -join '/'
+            $uri += "api-version=$ApiVersion"
+            for ($c=0;$c -lt $allIDS.Count; $c+= 200) {
+                $postBody = @{
+                    ids = $allIDS[$c..($c + 199)]
+                }
+                if ($Field) {
+                    $postBody.fields = $Field
+                }
+                if ($Related) {
+                    $postBody.expand = 'Related'
+                }
+                $invokeParams.Uri = $uri
+                $invokeParams.Method = 'POST'
+                $invokeParams.Body = $postBody
+                $p = $c * 100 / $t
+                Write-Progress "Getting Work Items" "$c - $(($allIDS.Count - $c) % 200)" -PercentComplete $p -Id $progID
+                foreach ($restResponse in Invoke-ADORestAPI @invokeParams) {
+                    if ($field) {
+                        $restResponse
+                    } else {
+                        & $outWorkItem $restResponse
+                    }
+                }
+            }
+        } else {
+            foreach ($id in $allIDS) {
+                $c++
+                $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitems", "${ID}?" -join '/'
+                $uri += @(if ($Field) { # If fields were provided, add it as a query parameter
+                    "fields=$($Field -join ',')"
+                }
+                if ($Related) {
+                    '$expand=related'
+                }
+                if ($ApiVersion) { # If any api-version was provided, add it as a query parameter.
+                    "api-version=$ApiVersion"
+                }) -join '&'
+
+                $invokeParams.Uri = $uri
+                $p = $c * 100 / $t
+                Write-Progress "Getting Work Items" "$id" -PercentComplete $p -Id $progid
+                $restResponse = Invoke-ADORestAPI @invokeParams # Invoke the REST API.
+                if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
+                if ($field) {
+                    $restResponse
+                } else {
+                    & $outWorkItem $restResponse
+                }
+            }
         }
     }
 }
