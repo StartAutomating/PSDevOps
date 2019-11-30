@@ -247,7 +247,8 @@
                 Write-Progress "Getting Work Items" "$c - $(($allIDS.Count - $c) % 200)" -PercentComplete $p -Id $progID
                 foreach ($restResponse in Invoke-ADORestAPI @invokeParams) {
                     if ($field) {
-                        $restResponse
+                        $restResponse |
+                        Add-Member NoteProperty ID $ID -PassThru
                     } else {
                         & $outWorkItem $restResponse
                     }
@@ -273,11 +274,13 @@
                 $restResponse = Invoke-ADORestAPI @invokeParams # Invoke the REST API.
                 if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
                 if ($field) {
-                    $restResponse
+                    $restResponse.fields |
+                        Add-Member NoteProperty ID $ID -PassThru
                 } else {
                     & $outWorkItem $restResponse
                 }
             }
         }
+        Write-Progress "Getting Work Items" "Complete" -Completed -Id $progID
     }
 }
