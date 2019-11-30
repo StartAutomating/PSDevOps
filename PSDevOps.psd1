@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.2.4'
+    ModuleVersion = '0.2.5'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,17 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.2.5
+---
+* Improving Get-ADOWorkItem:
+** -Title allows getting work items by title
+** -NoDetail allows for queries to only return IDs
+** Passing -Field will skip formatting
+** WorkItemsBatch will be used for query results.
+** Passing an old -ApiVersion will not use workItemsBatch
+** Formatting improved
+* Adding Get-ADOWorkProcess
+* Fixing issues with -ADOField commands when not provided a -Project
 0.2.4
 ---
 * Adding Adding -CanSortBy, -IsQueryable, and -ReadOnly to New-ADOField.
