@@ -6,7 +6,9 @@
     .Description
         Create a new Azure DevOps Pipeline.
     .Example
-        New-ADOPipeline -Stage TestPowerShellCrossPlatForm, UpdatePowerShellGallery
+        New-ADOPipeline -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery
+    .Example
+        New-ADOPipeline -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}}
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Does not change state")]
