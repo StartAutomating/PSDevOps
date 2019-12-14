@@ -357,14 +357,7 @@ function New-GitHubAction {
             }
 
         }
-
-
-
-
-
     }
-
-
 
     process {
 
@@ -374,24 +367,13 @@ function New-GitHubAction {
 
         foreach ($kv in $myParams.GetEnumerator()) {
 
-            if ($script:ThingNames[$kv.Key]) {
-
+            if ($script:GitHubActionPartNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
-
             }
-
         }
 
-
-
         $yamlToBe = & $joinPipelineParts $stepsByType
-
-
-
-
-
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
-
     }
 
 }
