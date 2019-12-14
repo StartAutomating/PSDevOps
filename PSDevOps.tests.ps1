@@ -5,6 +5,10 @@
     $TestProject = 'PSDevOps'
 )
 
+# if ($env:BUILD_REQUESTEDFOR -like '*doug*') {
+#     "Time to make the donuts" | Out-Host
+# }
+
 import-module .\PSDevOps.psd1 -Force
 
 describe 'Making Azure DevOps Output Look Nicer' {
@@ -146,6 +150,10 @@ describe 'Calling REST APIs' {
 }
 
 describe 'Working with Work Items' {
+    if ($env:BUILD_REQUESTEDFOR -notlike '*james*') {
+        return
+    }
+
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
         Select-Object -ExpandProperty 'System.WorkItemType' |
