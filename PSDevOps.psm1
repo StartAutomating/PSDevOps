@@ -14,10 +14,8 @@ Collections.Generic.List[string]
 $Script:ThingData = #* A map of thing type + thing name to thing metadata
 [Collections.Generic.Dictionary[string, PSObject]]::new([StringComparer]::OrdinalIgnoreCase)
 
-$script:GitHubActionPartNames = [Collections.Generic.Dictionary[
-string,
-Collections.Generic.List[string]
-]]::new([StringComparer]::OrdinalIgnoreCase)
+$script:GitHubActionPartNames =
+[Collections.Generic.Dictionary[string, Collections.Generic.List[string]]]::new([StringComparer]::OrdinalIgnoreCase)
 
 $script:GitHubPartData = [Collections.Generic.Dictionary[string, PSObject]]::new([StringComparer]::OrdinalIgnoreCase)
 
