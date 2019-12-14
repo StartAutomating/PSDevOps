@@ -1,0 +1,4 @@
+@{
+    'on' = '[push]'
+    step = 'TestPowerShellOnWindows'
+}
