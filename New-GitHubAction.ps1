@@ -17,7 +17,10 @@ function New-GitHubAction {
         # A table of additional settings to apply wherever a part is used.
         # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
         [Collections.IDictionary]
-        $Option)
+        $Option,
+        [Parameter(ValueFromPipeline)]
+        [PSObject]$InputObject
+    )
 
     dynamicParam {
 
@@ -69,7 +72,7 @@ function New-GitHubAction {
                 else {
                     $thingType = $kv.Key
                     $propName =
-                    if ('trigger' -notcontains $thingType) {
+                    if ('on', 'name' -notcontains $thingType) {
                         $kv.Key.Substring(0, 1).ToLower() + $kv.Key.Substring(1) + 's'
                     }
                     else {
@@ -366,10 +369,22 @@ function New-GitHubAction {
         $stepsByType = [Ordered]@{ }
 
         foreach ($kv in $myParams.GetEnumerator()) {
-
             if ($script:GitHubActionPartNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
             }
+        }
+
+        if ($InputObject -is [Collections.IDictionary]) {
+            foreach ($key in $InputObject.Keys) {
+                $stepsByType[$key] = $InputObject.$key
+            }
+        }
+
+        elseif ($InputObject) {
+            foreach ($property in $InputObject.psobject.properties) {
+                $stepsByType[$property.name] = $InputObject.$key
+            }
+
         }
 
         $yamlToBe = & $joinPipelineParts $stepsByType

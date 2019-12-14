@@ -1,4 +1,4 @@
 @{
-    'on' = '[push]'
-    step = 'TestPowerShellOnWindows'
+    'push' = @('push')
 }
+
