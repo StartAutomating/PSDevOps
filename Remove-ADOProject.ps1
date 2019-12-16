@@ -7,7 +7,7 @@
         Removes projects in Azure DevOps or TFS.
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/states/delete?view=azure-devops-rest-5.1
-    .Example        
+    .Example
         Remove-ADOProject -Organization StartAutomating -Project TestProject1 -PersonalAccessToken $pat
     #>
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
@@ -105,8 +105,8 @@
         if ($ApiVersion) {
             $uri += "api-version=$ApiVersion"
         }
-       
-        if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return } 
+
+        if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return }
         Invoke-ADORestAPI @invokeParams -uri $uri -Method DELETE
     }
 }
