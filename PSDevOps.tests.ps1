@@ -233,7 +233,7 @@ steps:
     shell: pwsh
 '@
          $actual = New-GitHubAction -Step InstallPester
-         $actual.Trim() | should be $expected.Trim()
+         $actual.Trim() | should be $expected.Trim() -replace '(?>\r\n|\n)',([Environment]::NewLine)
          #$actual.length | should be $expected.Length
      }
 }
