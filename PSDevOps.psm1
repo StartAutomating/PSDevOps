@@ -1,30 +1,41 @@
-﻿# First, import all *-*.ps1 files from the module's root directory.
+﻿#region Import Functions
 foreach ($file in Get-ChildItem -Path $psScriptRoot -Filter *-*.ps1) {
     . $file.FullName
 }
+#endregion Import Functions
 
+#region Import Parts
 
-$partsDirectory = $(
-    foreach ($dir in [IO.Directory]::GetDirectories($psScriptRoot)) {
-        if ($dir -match "\$([IO.Path]::DirectorySeparatorChar)Parts$") {[IO.DirectoryInfo]$dir;break}
+# Parts are simple .ps1 files beneath a /Parts directory that can be used throughout the module.
+$partsDirectory = $( # Because we want to be case-insensitive, and because it's fast
+    foreach ($dir in [IO.Directory]::GetDirectories($psScriptRoot)) { # [IO.Directory]::GetDirectories()
+        if ($dir -imatch "\$([IO.Path]::DirectorySeparatorChar)Parts$") { # and some Regex
+            [IO.DirectoryInfo]$dir;break # to find our parts directory.
+        } 
     })
 
-if ($partsDirectory) {
-    foreach ($partFile in $partsDirectory.EnumerateFileSystemInfos()) {
-        if ($partFile.Extension -ne '.ps1') { continue } 
-        $partName = $partFile.Name.Substring(0, $partFile.Name.Length - $partFile.Extension.Length)
-        $ExecutionContext.SessionState.PSVariable.Set(
-            $partName,
+if ($partsDirectory) { # If we have parts directory
+    foreach ($partFile in $partsDirectory.EnumerateFileSystemInfos()) { # enumerate all of the files.
+        if ($partFile.Extension -ne '.ps1') { continue } # Skip anything that's not a PowerShell script.
+        $partName = # Get the name of the script.
+            $partFile.Name.Substring(0, $partFile.Name.Length - $partFile.Extension.Length)
+        $ExecutionContext.SessionState.PSVariable.Set( # Set a variable
+            $partName, # named the script that points to the script (e.g. $foo = gcm .\Parts\foo.ps1)
             $ExecutionContext.SessionState.InvokeCommand.GetCommand($partFile.Fullname, 'ExternalScript')
         )
     }
 }
+#endregion Import Parts
 
+#region Load Extension Modules
 $extensionModules = 
     @(
         $myInvocation.MyCommand.ScriptBlock.Module
         . $GetExtensionModule $MyInvocation.MyCommand.ScriptBlock.Module.Name
     ) 
+#endregion Load Extension Modules
 
+#region Import Components
 $extensionModules | 
     . $importComponents -ComponentRoot 'ado', 'githubactions'
+#endregion Import Components
