@@ -112,18 +112,11 @@
         ) -join '&'
 
 
-        $invokeParams.Uri = $uri
-        $typenames = @( # Prepare a list of typenames so we can customize formatting:
-            if ($Organization -and $Project) {
-                "$Organization.$Project.ArtifactFeed" # * $Organization.$Project.ArtifactFeed (if $product exists)
-            }
-            "$Organization.ArtifactFeed" # * $Organization.ArtifactFeed
-            'PSDevOps.ArtifactFeed' # * PSDevOps.ArtifactFeed
-        )
+        $invokeParams.Uri = $uri        
         $invokeParams.Method = 'DELETE'
 
         if ($PSCmdlet.ShouldProcess("$($invokeParams.Method) $($invokeParams.Uri)")) {
-            Invoke-ADORestAPI @invokeParams -PSTypeName $typenames # decorate results with the Typenames.
+            $null = Invoke-ADORestAPI @invokeParams 
         }
     }
 }
