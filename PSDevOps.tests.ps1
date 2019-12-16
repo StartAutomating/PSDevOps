@@ -222,17 +222,18 @@ describe 'Working with Work Items' {
 }
 
 
-# describe 'Create GitHub Actions' {
-#     it 'should create yaml' {
-#         $expected = "
-# steps:
-#   - name: InstallPester
-#     runs: |
-#       pwsh -c Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-#       Import-Module Pester -Force -PassThru
-# "
-#         $actual = New-GitHubAction -Step InstallPester
-#         $actual | should be $expected
-#         #$actual.length | should be $expected.Length
-#     }
-# }
+describe 'New-GitHubAction' {
+     it 'should create yaml' {
+         $expected = @'
+steps: 
+  - name: InstallPester
+    runs: |
+      Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
+      Import-Module Pester -Force -PassThru
+    shell: pwsh
+'@
+         $actual = New-GitHubAction -Step InstallPester
+         $actual.Trim() | should be ($expected.Trim() -replace '(?>\r\n|\n)',([Environment]::NewLine))
+         #$actual.length | should be $expected.Length
+     }
+}
