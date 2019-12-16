@@ -5,10 +5,6 @@
     $TestProject = 'PSDevOps'
 )
 
-# if ($env:BUILD_REQUESTEDFOR -like '*doug*') {
-#     "Time to make the donuts" | Out-Host
-# }
-
 import-module .\PSDevOps.psd1 -Force
 
 describe 'Making Azure DevOps Output Look Nicer' {
@@ -150,9 +146,7 @@ describe 'Calling REST APIs' {
 }
 
 describe 'Working with Work Items' {
-    if ($env:BUILD_REQUESTEDFOR -notlike '*james*') {
-        return
-    }
+
 
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
@@ -168,6 +162,9 @@ describe 'Working with Work Items' {
         }
     }
 
+    if ($env:BUILD_REQUESTEDFOR -and $env:BUILD_REQUESTEDFOR -notlike '*james*') {
+        return
+    }
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
         $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
 
@@ -218,22 +215,21 @@ describe 'Working with Work Items' {
             New-ADOField -Name $testFieldNumber @splat
             Remove-ADOField -Name $testFieldNumber -Confirm:$false @splat
         }
+
+        it 'Can create and remove custom feeds' {
+            $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
+            $TestFeedName = "TestFeed$([Random]::new().Next())"
+            New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName |
+                Remove-ADOArtifactFeed @splat -Confirm:$false
+        }
+
     }
 }
 
 
 describe 'New-GitHubAction' {
      it 'should create yaml' {
-         $expected = @'
-steps: 
-  - name: InstallPester
-    runs: |
-      Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-      Import-Module Pester -Force -PassThru
-    shell: pwsh
-'@
          $actual = New-GitHubAction -Step InstallPester
-         $actual.Trim() | should be ($expected.Trim() -replace '(?>\r\n|\n)',([Environment]::NewLine))
-         #$actual.length | should be $expected.Length
+         $actual.Trim() | should belike "*runs:*shell:?pwsh*"
      }
 }
