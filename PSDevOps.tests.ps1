@@ -222,17 +222,17 @@ describe 'Working with Work Items' {
 }
 
 
-# describe 'Create GitHub Actions' {
-#     it 'should create yaml' {
-#         $expected = "
-# steps:
-#   - name: InstallPester
-#     runs: |
-#       pwsh -c Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-#       Import-Module Pester -Force -PassThru
-# "
-#         $actual = New-GitHubAction -Step InstallPester
-#         $actual | should be $expected
-#         #$actual.length | should be $expected.Length
-#     }
-# }
+describe 'Create GitHub Actions' {
+     it 'should create yaml' {
+         $expected = @'
+steps: 
+  - name: InstallPester
+    runs: |
+      pwsh -c Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
+      Import-Module Pester -Force -PassThru
+'@
+         $actual = New-GitHubAction -Step InstallPester
+         $actual | should be $expected
+         #$actual.length | should be $expected.Length
+     }
+}
