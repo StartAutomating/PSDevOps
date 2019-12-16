@@ -17,6 +17,7 @@
         Invoke-ADORestAPI
     #>
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     param(
     # The name or reference name of the field
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
@@ -93,7 +94,7 @@
     }
 
     process {
-        $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
+        $uriBase = "$Server".TrimEnd('/'), $Organization, $(if ($Project) {$Project }) -ne $null -join '/'
 
         $uri = $uriBase, '_apis/wit/fields', "${name}?" -join '/'
 
