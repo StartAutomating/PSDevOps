@@ -112,11 +112,11 @@
         ) -join '&'
 
 
-        $invokeParams.Uri = $uri        
+        $invokeParams.Uri = $uri
         $invokeParams.Method = 'DELETE'
 
         if ($PSCmdlet.ShouldProcess("$($invokeParams.Method) $($invokeParams.Uri)")) {
-            $null = Invoke-ADORestAPI @invokeParams 
+            $null = Invoke-ADORestAPI @invokeParams
         }
     }
 }

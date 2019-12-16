@@ -44,7 +44,7 @@
     [switch]
     $BadgesEnabled,
 
-    # If set, all packages in the feed are immutable. 
+    # If set, all packages in the feed are immutable.
     # It is important to note that feed views are immutable; therefore, this flag will always be set for views.
     [switch]
     $IsReadOnly,
@@ -157,7 +157,7 @@
 
         if ($FeedRole) {
             $invokeParams.Body.Permissions = @(@{
-                role = $FeedRole   
+                role = $FeedRole
             })
         }
 

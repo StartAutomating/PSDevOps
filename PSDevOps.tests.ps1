@@ -220,7 +220,7 @@ describe 'Working with Work Items' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
             $TestFeedName = "TestFeed$([Random]::new().Next())"
             New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName |
-                Remove-ADOArtifactFeed @splat -Confirm:$false 
+                Remove-ADOArtifactFeed @splat -Confirm:$false
         }
 
     }
