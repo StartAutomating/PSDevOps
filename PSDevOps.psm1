@@ -11,7 +11,7 @@ $partsDirectory = $( # Because we want to be case-insensitive, and because it's 
     foreach ($dir in [IO.Directory]::GetDirectories($psScriptRoot)) { # [IO.Directory]::GetDirectories()
         if ($dir -imatch "\$([IO.Path]::DirectorySeparatorChar)Parts$") { # and some Regex
             [IO.DirectoryInfo]$dir;break # to find our parts directory.
-        } 
+        }
     })
 
 if ($partsDirectory) { # If we have parts directory
@@ -28,14 +28,14 @@ if ($partsDirectory) { # If we have parts directory
 #endregion Import Parts
 
 #region Load Extension Modules
-$extensionModules = 
+$extensionModules =
     @(
         $myInvocation.MyCommand.ScriptBlock.Module
         . $GetExtensionModule $MyInvocation.MyCommand.ScriptBlock.Module.Name
-    ) 
+    )
 #endregion Load Extension Modules
 
 #region Import Components
-$extensionModules | 
+$extensionModules |
     . $importComponents -ComponentRoot 'ado', 'githubactions'
 #endregion Import Components

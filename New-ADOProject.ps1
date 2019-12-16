@@ -22,7 +22,7 @@
     [string]
     $Description,
 
-    # The process template used by the project.  By default, 'Agile'    
+    # The process template used by the project.  By default, 'Agile'
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('ProcessTemplate')]
     [string]
@@ -107,9 +107,9 @@
 
     }
     process {
-        
+
         if (-not ($Process -as [guid])) {
-            #region Get Work Processes 
+            #region Get Work Processes
             # Because the process was not a GUID, we have to call Get-ADOWorkProcess.
             $getAdoWorkProcess = # To do this, first we get the commandmetadata for Invoke-ADORestAPI.
                 [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Get-ADOWorkProcess', 'Function')
@@ -122,7 +122,7 @@
                 }
             }
 
-            $processExists = Get-ADOWorkProcess @getWorkProcessParams | Where-Object { $_.Name -eq $Process } 
+            $processExists = Get-ADOWorkProcess @getWorkProcessParams | Where-Object { $_.Name -eq $Process }
             if (-not $processExists) {
                 Write-Error "No Work Process named $process exists in $Organization"
                 return
@@ -151,7 +151,7 @@
         } | ConvertTo-Json
 
 
-        if (-not $PSCmdlet.ShouldProcess("POST $uri $body")) { return } 
+        if (-not $PSCmdlet.ShouldProcess("POST $uri $body")) { return }
         Invoke-ADORestAPI @invokeParams -uri $uri -Method POST -Body $body
     }
 }
