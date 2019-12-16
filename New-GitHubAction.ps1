@@ -14,7 +14,6 @@ function New-GitHubAction {
         [Parameter(ValueFromPipeline)]
         [PSObject]$InputObject,
 
-        
         # Optional changes to a component.
         # A table of additional settings to apply wherever a part is used.
         # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
@@ -75,7 +74,6 @@ function New-GitHubAction {
             foreach ($property in $InputObject.psobject.properties) {
                 $stepsByType[$property.name] = $InputObject.$key
             }
-
         }
 
         $yamlToBe = & $expandComponents $stepsByType -ComponentType GitHubActions -SingleItemName On, Name
