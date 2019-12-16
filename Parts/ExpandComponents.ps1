@@ -64,7 +64,8 @@ $splatMe.Remove('PartTable')
                     }
                 } elseif ($ComponentType -eq 'GitHubActions') {
                     $out.name = $metaData.Name
-                    $out.runs = "pwsh -c $sb"   
+                    $out.runs = "$sb"   
+                    $out.shell = 'pwsh'
                 }
                 $out
             }
