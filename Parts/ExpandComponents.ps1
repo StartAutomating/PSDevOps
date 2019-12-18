@@ -42,7 +42,7 @@ $splatMe.Remove('PartTable')
         $metaData = $theComponentMetaData["$thingType.$v"]
         $ft = if ($metaData.Path) { [IO.File]::ReadAllText($metaData.Path) }
         if ($propName -eq $thingType -and -not $singleton) {
-            $kv.Value; continue nextValue
+            $v; continue nextValue
         }
 
 
