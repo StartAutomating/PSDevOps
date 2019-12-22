@@ -9,7 +9,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/create%20feed?view=azure-devops-rest-5.1
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
-    [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='High')]
+    [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='High',DefaultParameterSetName='packaging/feeds/{feedId}')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -22,18 +22,24 @@
     [string]
     $Project,
 
-    # The Feed Name
-    [Parameter(ValueFromPipelineByPropertyName)]
+    # The Feed Name or ID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [ValidatePattern(
+        #?<> -LiteralCharacter '|?/\:&$*"[]>' -CharacterClass Whitespace -Not -Repeat -StartAnchor StringStart -EndAnchor StringEnd
+        '\A[^\s\|\?\/\\\:\&\$\*\"\[\]\>]+\z'
+    )]
+    [Alias('FullyQualifiedID')]
+    [string]
+    $FeedID,
+
+    # The View Name or ID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views/{viewId}')]
     [ValidatePattern(
         #?<> -LiteralCharacter '|?/\:&$*"[]>' -CharacterClass Whitespace -Not -Repeat -StartAnchor StringStart -EndAnchor StringEnd
         '\A[^\s\|\?\/\\\:\&\$\*\"\[\]\>]+\z'
     )]
     [string]
-    $Name,
-
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [Guid]
-    $FullyQualifiedID = [Guid]::NewGuid(),
+    $ViewID,
 
     # The server.  By default https://feeds.dev.azure.com/.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -95,25 +101,25 @@
     }
 
     process {
-        # First, construct a base URI.  It's made up of:
-        $uriBase = "$Server".TrimEnd('/'), # * The server
-            $Organization, # * The organization
-            $(if ($Project) { $project}) -ne $null -join # * an optional project
-            '/'
-
-        $specificFeed = $(if ($FullyQualifiedID) { "/$fullyQualifiedID"} elseif ($name) { "/$name"})
-        $uri = $uriBase, "_apis/packaging/feeds${specificFeed}?" -join '/' # Next, add on the REST api endpoint
-
-
-        $uri += @(
-            if ($ApiVersion) { # If an -ApiVersion exists, add that to query parameters.
-                "api-version=$ApiVersion"
-            }
-        ) -join '&'
-
-
-        $invokeParams.Uri = $uri
+        $invokeParams.Uri = # First construct the URI.  It's made up of:
+            "$(@(
+                "$server".TrimEnd('/') # * The Server
+                $Organization # * The Organization
+                $(if ($Project) { $Project }) # * The Project
+                '_apis' #* '_apis'
+                . $ReplaceRouteParameter $PSCmdlet.ParameterSetName #* and the replaced route parameters.
+            )  -join '/')?$( # Followed by a query string, containing
+            @(
+                if ($ApiVersion) { # an api-version (if one exists)
+                    "api-version=$ApiVersion"
+                }
+            ) -join '&'
+            )"
         $invokeParams.Method = 'DELETE'
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccessToken')
+            return $invokeParams
+        }
 
         if ($PSCmdlet.ShouldProcess("$($invokeParams.Method) $($invokeParams.Uri)")) {
             $null = Invoke-ADORestAPI @invokeParams

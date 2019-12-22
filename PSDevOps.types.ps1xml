@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<!-- Generated with EZOut 1.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<Types>
+  <Type>
+    <Name>StartAutomating.PSDevOps.ArtifactFeed.View</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ViewID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.ArtifactFeed</Name>
+    <Members>
+      <AliasProperty>
+        <Name>FeedID</Name>
+        <ReferencedMemberName>FullyQualifiedID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+</Types>

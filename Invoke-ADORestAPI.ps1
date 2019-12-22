@@ -91,14 +91,25 @@ Specifies the method used for the web request. The acceptable values for this pa
     # The typename of the results.
     [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
-    $PSTypeName)
+    $PSTypeName,
+
+    # A set of additional properties to add to an object
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Collections.IDictionary]
+    $Property,
+
+    # A list of property names to remove from an object
+    [string[]]
+    $RemoveProperty
+    )
 
     process {
         #region Prepare Parameters
         $irmSplat = @{} + $PSBoundParameters    # First, copy PSBoundParameters and remove the parameters that aren't Invoke-RestMethod's
         $irmSplat.Remove('PersonalAccessToken') # * -PersonalAccessToken
         $irmSplat.Remove('PSTypeName') # * -PSTypeName
-
+        $irmSplat.Remove('Property') # *-Property
+        $irmSplat.Remove('RemoveProperty') # *-RemoveProperty
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
                 $irmSplat.Headers.Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":$PersonalAccessToken")))"
@@ -126,8 +137,12 @@ Specifies the method used for the web request. The acceptable values for this pa
         # It will take care of converting the results from JSON.
         Invoke-RestMethod @irmSplat |
             & { process {
+
                 # What it will not do is "unroll" them.
                 # A lot of things in the Azure DevOps REST apis come back as a count/value pair
+                if ($_ -eq 'null') {
+                    return
+                }
                 if ($_.Value -and $_.Count) {  # If that's what we're dealing with
                     $_.Value # pass value down the pipe.
                 } elseif ($_ -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
@@ -146,6 +161,24 @@ Specifies the method used for the web request. The acceptable values for this pa
                     $_.PSTypeNames.Clear() # clear the existing typenames and decorate the object.
                     foreach ($t in $PSTypeName) {
                         $_.PSTypeNames.add($T)
+                    }
+                }
+                if ($Property) {
+                    foreach ($propKeyValue in $Property.GetEnumerator()) {
+                        if ($_.PSObject.Properties[$propKeyValue.Key]) {
+                            $_.PSObject.Properties.Remove($propKeyValue.Key)
+                        }
+                        $_.PSObject.Properties.Add($(
+                        if ($propKeyValue.Value -as [ScriptBlock[]]) {
+                            [PSScriptProperty]::new.Invoke(@($propKeyValue.Key) + $propKeyValue.Value)
+                        } else {
+                            [PSNoteProperty]::new($propKeyValue.Key, $propKeyValue.Value)
+                        }))
+                    }
+                }
+                if ($RemoveProperty) {
+                    foreach ($propToRemove in $RemoveProperty) {
+                        $_.PSObject.Properties.Remove($propToRemove)
                     }
                 }
                 return $_ # output the object and we're done.
