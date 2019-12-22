@@ -57,6 +57,7 @@ Initial Commit
         }
     }
     FormatsToProcess = 'PSDevOps.format.ps1xml'
+    TypesToProcess = 'PSDevOps.types.ps1xml'
     Author = 'James Brundage'
     Copyright = '2019 Start-Automating'
     PowerShellVersion ='3.0'

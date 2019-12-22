@@ -67,3 +67,15 @@ $formatting = @(
 
 $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
 $formatting | Out-FormatData | Set-Content $myFormatFile -Encoding UTF8
+
+$types = @(
+    Write-TypeView -TypeName StartAutomating.PSDevOps.ArtifactFeed.View -AliasProperty @{
+        ViewID = 'ID'
+    }
+    Write-TypeView -TypeName StartAutomating.PSDevOps.ArtifactFeed -AliasProperty @{
+        FeedID = 'FullyQualifiedID'
+    } -HideProperty ViewID
+)
+
+$myTypesFile = Join-Path $myRoot "$myModuleName.types.ps1xml"
+$types | Out-TypeData | Set-Content $myTypesFile -Encoding UTF8
