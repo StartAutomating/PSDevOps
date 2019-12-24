@@ -42,7 +42,13 @@ $splatMe.Remove('PartTable')
         $metaData = $theComponentMetaData["$thingType.$v"]
         $ft = if ($metaData.Path) { [IO.File]::ReadAllText($metaData.Path) }
         if ($propName -eq $thingType -and -not $singleton) {
-            $v; continue nextValue
+            if ($v -is [Collections.IDictionary]) {
+                & $ExpandComponents $v @splatMe
+            } else {
+                $v
+            }
+            
+            continue nextValue
         }
 
 
@@ -76,7 +82,11 @@ $splatMe.Remove('PartTable')
                 }
                 $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
                 $splatMe.Parent = $partTable
-                & $ExpandComponents $data @splatMe
+                if ($data -is [Collections.IDictionary]) {
+                    & $ExpandComponents $data @splatMe
+                } else {
+                    $data
+                }
             }
             elseif ($metaData.Extension -eq '.sh') {
                 $out = [Ordered]@{bash="$ft";displayName=$metaData.Name}
