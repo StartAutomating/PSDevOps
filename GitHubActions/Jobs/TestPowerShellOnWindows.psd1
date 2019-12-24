@@ -1,9 +1,8 @@
 ﻿@{
-  build = @{
-    "runs-on" = "ubuntu-latest"
-  }
-
-  steps = 'PSCore'
+    build = @{
+        "runs-on" = "ubuntu-latest"
+        steps = @('PSCore')
+    }
 }
 
 # @{
