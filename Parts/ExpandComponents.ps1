@@ -31,7 +31,7 @@ $splatMe.Remove('PartTable')
     } else {
         $thingType = $kv.Key
         $propName =
-            if ($SingleItemName -notcontains $thingType) {
+            if ($SingleItemName -notcontains $thingType -and $thingType -notmatch '\W$') {
                 $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1) + 's'
             } else {
                 $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1)
