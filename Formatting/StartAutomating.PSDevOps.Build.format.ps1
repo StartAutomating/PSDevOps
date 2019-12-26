@@ -51,13 +51,13 @@
     Write-FormatViewExpression -Newline
 
     Write-FormatViewExpression -ScriptBlock {
-        $_.Reason + ' of ' + @($build.sourceBranch -split '/')[-1] + ' for ' + $_.RequestedFor.DisplayName 
+        $_.Reason + ' of ' + @($_.sourceBranch -split '/')[-1] + ' for ' + $_.RequestedFor.DisplayName 
     }
 
     Write-FormatViewExpression -Newline
 
     Write-FormatViewExpression -ScriptBlock {
-        '-' * ($_.Reason.Length + 4 + @($build.sourceBranch -split '/')[-1].Length + 5 + $_.RequestedFor.DisplayName.Length)
+        '-' * ($_.Reason.Length + 4 + @($_.sourceBranch -split '/')[-1].Length + 5 + $_.RequestedFor.DisplayName.Length)
     }
 
     Write-FormatViewExpression -Newline
