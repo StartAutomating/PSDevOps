@@ -150,6 +150,52 @@
     [switch]
     $Metric,
 
+    # If provided, will get the first N builds or build definitions
+    [Parameter(ParameterSetName='build/builds')]
+    [Parameter(ParameterSetName='build/definitions')]
+    [Alias('Top')]
+    [Uint32]    
+    $First,
+
+    # If provided, will only return builds for a given branch.
+    [Parameter(ParameterSetName='build/builds')]
+    [string]
+    $BranchName,
+
+    # If provided, will only return builds one of these tags.
+    [Parameter(ParameterSetName='build/builds')]
+    [string[]]
+    $Tag,
+
+    # If provided, will only return builds queued after this point in time.
+    [Parameter(ParameterSetName='build/builds')]
+    [Alias('MinTime')]
+    [DateTime]
+    $After,
+
+    # If provided, will only return builds queued before this point in time.
+    [Parameter(ParameterSetName='build/builds')]
+    [Alias('MaxTime')]
+    [DateTime]
+    $Before,
+
+    # If provided, will only return builds with this result.
+    [Parameter(ParameterSetName='build/builds')]
+    [ValidateSet('Canceled','Failed','None','Succeeded','PartiallySucceeded')]
+    [string]
+    $BuildResult,
+
+    # If provided, will only return build definitions that have been built after this date.
+    [Parameter(ParameterSetName='build/definitions')]
+    [DateTime]
+    $BuiltAfter,
+
+    # If provided, will only return build definitions that have not been built since this date.
+    [Parameter(ParameterSetName='build/definitions')]
+    [Alias('NotBuiltAfter')]
+    [DateTime]
+    $NotBuiltSince,
+
     # A Personal Access Token
     [Alias('PAT')]
     [string]
@@ -222,6 +268,34 @@
                 . $ReplaceRouteParameter $ParameterSet #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
             @(
+                if ($First) {
+                    "`$top=$first"
+                }
+                if ($BranchName) {
+                    if ($BranchName -notlike '*/*') {
+                        $BranchName = "refs/heads/$branchName"
+                    }
+                    "branchName=$branchName"
+                }
+                if ($After) {
+                    "minTime=$($after.tolocalTime().ToString('o'))"
+                }
+                if ($before) {
+                    "maxTime=$($before.ToLocalTime().ToString('o'))"
+                }
+                if ($BuiltAfter) {
+                    "builtAfter=$($BuiltAfter.ToLocalTime().ToString('o'))"
+                }
+                if ($NotBuiltSince) {
+                    "notBuiltAfter=$($NotBuiltSince.ToLocalTime().ToString('o'))"
+                }                
+                if ($tag) {
+                    "tagFilters=$($tag -join ',')"
+                }
+
+                if ($BuildResult) {
+                    "resultFilter=$buildResult"
+                }
                 if ($ApiVersion) { # an api-version (if one exists)
                     "api-version=$ApiVersion"
                 }
