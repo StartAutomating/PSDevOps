@@ -498,13 +498,13 @@ if ($ci -like ([string][char]0x1b +'*')) {
               <NewLine />
               <ExpressionBinding>
                 <ScriptBlock>
-        $_.Reason + ' for ' + $_.RequestedFor.DisplayName 
+        $_.Reason + ' of ' + @($build.sourceBranch -split '/')[-1] + ' for ' + $_.RequestedFor.DisplayName 
     </ScriptBlock>
               </ExpressionBinding>
               <NewLine />
               <ExpressionBinding>
                 <ScriptBlock>
-        '-' * ($_.Reason.Length + 5 + $_.RequestedFor.DisplayName.Length)
+        '-' * ($_.Reason.Length + 4 + @($build.sourceBranch -split '/')[-1].Length + 5 + $_.RequestedFor.DisplayName.Length)
     </ScriptBlock>
               </ExpressionBinding>
               <NewLine />
