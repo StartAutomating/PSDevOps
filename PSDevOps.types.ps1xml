@@ -19,4 +19,22 @@
       </AliasProperty>
     </Members>
   </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.Build</Name>
+    <Members>
+      <AliasProperty>
+        <Name>BuildID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.Build.Definition</Name>
+    <Members>
+      <AliasProperty>
+        <Name>DefinitionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
 </Types>
