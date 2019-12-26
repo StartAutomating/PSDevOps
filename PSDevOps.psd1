@@ -59,6 +59,12 @@
 Initial Commit
 '@
         }
+        Colors = @{
+            Build = @{
+                Succeeded = '#00ff00'
+                Failed = '#ff0000'
+            }
+        }
     }
     FormatsToProcess = 'PSDevOps.format.ps1xml'
     TypesToProcess = 'PSDevOps.types.ps1xml'
