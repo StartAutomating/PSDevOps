@@ -165,7 +165,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                         $_.PSTypeNames.add($T)
                     }
                 }
-                
+
                 if ($Property) {
                     foreach ($propKeyValue in $Property.GetEnumerator()) {
                         if ($_.PSObject.Properties[$propKeyValue.Key]) {
