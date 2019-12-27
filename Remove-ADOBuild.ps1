@@ -10,6 +10,8 @@
             Select-Object -Last 1 |
             Remove-ADOBuild
     .Link
+        Get-ADOBuild
+    .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/delete?view=azure-devops-rest-5.1
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/delete?view=azure-devops-rest-5.1
@@ -45,7 +47,6 @@
     [Parameter(Mandatory,ParameterSetName='build/definitions/{definitionId}',ValueFromPipelineByPropertyName)]
     [string]
     $DefinitionID,
-
 
     # A Personal Access Token
     [Alias('PAT')]
@@ -95,12 +96,12 @@
             }
         }
         # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
-        #endregion Copy Invoke-ADORestAPI parameters   
+        #endregion Copy Invoke-ADORestAPI parameters
     }
 
 
     process {
-        
+
 
         $invokeParams.Uri = # First construct the URI.  It's made up of:
             "$(@(
@@ -110,7 +111,7 @@
                 '_apis' #* '_apis'
                 . $ReplaceRouteParameter $PSCmdlet.ParameterSetName #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
-            @(                
+            @(
                 if ($ApiVersion) { # an api-version (if one exists)
                     "api-version=$ApiVersion"
                 }
@@ -118,14 +119,14 @@
             )"
 
         $subtypename = @($pscmdlet.ParameterSetName -replace '/{\w+}', '' -split '/')[-1].TrimEnd('s')
-        $subtypeName = 
+        $subtypeName =
             if ($subtypename -eq 'Build') {
                 ''
             } else {
                 '.' + $subtypename.Substring(0,1).ToUpper() + $subtypename.Substring(1)
             }
-        $invokeParams.PSTypeName = @( # Prepare a list of typenames so we can customize formatting:            
-            "$Organization.$Project.Build$subTypeName" # * $Organization.$Project.Build           
+        $invokeParams.PSTypeName = @( # Prepare a list of typenames so we can customize formatting:
+            "$Organization.$Project.Build$subTypeName" # * $Organization.$Project.Build
             "$Organization.Build$subTypeName" # * $Organization.Build
             "StartAutomating.PSDevOps.Build$subTypeName" # * PSDevOps.Build
         )
@@ -136,7 +137,7 @@
             $invokeParams.Remove('PersonalAccessToken')
             return $invokeParams
         }
-        
+
 
         if ($PSCmdlet.ShouldProcess("$($invokeParams.Method) $($invokeParams.Uri)")) {
             Invoke-ADORestAPI @invokeParams -Property @{
