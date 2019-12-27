@@ -5,11 +5,11 @@
         Gets Azure DevOps Builds, Definitions, and associated information.
     .Description
         Gets Azure DevOps Builds or Definitions and associated information.
-        
+
         Gets builds by default.  To get build definitions, use -Definition
-        
+
         Given a -BuildID, we can can get associated information:
-        
+
         |Parameter | Effect                                       |
         |----------|----------------------------------------------|
         |-Artfiact      |  Get a list of all build artifacts      |
@@ -26,7 +26,7 @@
         |-Status            | Gets the status of the build definition |
         |-Metric            | Gets metrics about the build definition |
         |-Revision          | Gets the revisions of a build definition|
-        |-DefinitionMetadata| Gets metadata about a build definition  |  
+        |-DefinitionMetadata| Gets metadata about a build definition  |
     .Example
         Get-ADOBuild -Organization StartAutomating -Project PSDevOps
     #>
@@ -57,7 +57,7 @@
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/properties',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/logs',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/logs/{logId}',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/changes',ValueFromPipelineByPropertyName)]    
+    [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/changes',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/artifacts',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/report',ValueFromPipelineByPropertyName)]
@@ -66,7 +66,7 @@
 
     # If set
     [Parameter(ParameterSetName='build/builds/{buildId}')]
-    [Alias('Details')]    
+    [Alias('Details')]
     [switch]
     $Detail,
 
@@ -102,7 +102,7 @@
     [switch]
     $Report,
 
-    # If set, will return the timeline for build -BuildID 
+    # If set, will return the timeline for build -BuildID
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline')]
     [switch]
     $Timeline,
@@ -123,7 +123,7 @@
     $DefinitionID,
 
     # If set, will get the status of a defined build.
-    [Parameter(Mandatory,ParameterSetName='build/status/{definitionId}')]    
+    [Parameter(Mandatory,ParameterSetName='build/status/{definitionId}')]
     [Alias('DefinitionStatus')]
     [switch]
     $Status,
@@ -154,7 +154,7 @@
     [Parameter(ParameterSetName='build/builds')]
     [Parameter(ParameterSetName='build/definitions')]
     [Alias('Top')]
-    [Uint32]    
+    [Uint32]
     $First,
 
     # If provided, will only return builds for a given branch.
@@ -243,7 +243,7 @@
             }
         }
         # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
-        #endregion Copy Invoke-ADORestAPI parameters   
+        #endregion Copy Invoke-ADORestAPI parameters
     }
 
     process {
@@ -288,7 +288,7 @@
                 }
                 if ($NotBuiltSince) {
                     "notBuiltAfter=$($NotBuiltSince.ToLocalTime().ToString('o'))"
-                }                
+                }
                 if ($tag) {
                     "tagFilters=$($tag -join ',')"
                 }
@@ -303,14 +303,14 @@
             )"
 
         $subtypename = @($parameterSet -replace '/{\w+}', '' -split '/')[-1].TrimEnd('s')
-        $subtypeName = 
+        $subtypeName =
             if ($subtypename -eq 'Build') {
                 ''
             } else {
                 '.' + $subtypename.Substring(0,1).ToUpper() + $subtypename.Substring(1)
             }
-        $invokeParams.PSTypeName = @( # Prepare a list of typenames so we can customize formatting:            
-            "$Organization.$Project.Build$subTypeName" # * $Organization.$Project.Build           
+        $invokeParams.PSTypeName = @( # Prepare a list of typenames so we can customize formatting:
+            "$Organization.$Project.Build$subTypeName" # * $Organization.$Project.Build
             "$Organization.Build$subTypeName" # * $Organization.Build
             "StartAutomating.PSDevOps.Build$subTypeName" # * PSDevOps.Build
         )
