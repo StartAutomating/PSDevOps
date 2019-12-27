@@ -29,6 +29,24 @@
         |-DefinitionMetadata| Gets metadata about a build definition  |
     .Example
         Get-ADOBuild -Organization StartAutomating -Project PSDevOps
+    .Example
+        Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/artifacts/list?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get%20build%20logs?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20build%20properties?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/get?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20definition%20properties?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/metrics/get%20definition%20metrics?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='build/builds')]
     param(
