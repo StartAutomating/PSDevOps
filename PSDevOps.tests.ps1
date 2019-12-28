@@ -149,11 +149,17 @@ describe 'Builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
             $mostRecentBuild.definition.name | should belike *PSDevOps*
         }
+        it 'Can get -Detail on a particular build' {
+            $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
+            $detailedBuild = $mostRecentBuild | Get-ADOBuild -Detail
+            $detailedBuild.Timeline | should not be $null            
+        }
         it 'Can get build definitions' {
             $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps)
             $buildDefinitions.Count | should be 1
             $buildDefinitions[0].Name  |should belike *PSDevOps*
         }
+        
     }
 }
 
