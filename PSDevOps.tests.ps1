@@ -5,8 +5,6 @@
     $TestProject = 'PSDevOps'
 )
 
-import-module .\PSDevOps.psd1 -Force
-
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
@@ -142,6 +140,20 @@ describe 'Calling REST APIs' {
         $org = 'StartAutomating'
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
+    }
+}
+
+describe 'Builds' {
+    context 'Get-ADOBuild' {
+        it 'Can get builds' {
+            $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
+            $mostRecentBuild.definition.name | should belike *PSDevOps*
+        }
+        it 'Can get build definitions' {
+            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps)
+            $buildDefinitions.Count | should be 1
+            $buildDefinitions[0].Name  |should belike *PSDevOps*
+        }
     }
 }
 
