@@ -5,7 +5,7 @@
         Starts an Azure DevOps Build
     .Description
         Starts a build in Azure DevOps, using an existing BuildID,
-        
+
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
