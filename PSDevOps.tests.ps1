@@ -152,12 +152,27 @@ describe 'Builds' {
         it 'Can get -Detail on a particular build' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
             $detailedBuild = $mostRecentBuild | Get-ADOBuild -Detail
-            $detailedBuild.Timeline | should not be $null            
+            $detailedBuild.Timeline | should not be $null
         }
         it 'Can get build definitions' {
-            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps)
+            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
             $buildDefinitions.Count | should be 1
             $buildDefinitions[0].Name  |should belike *PSDevOps*
+        }
+        it 'Can Start a Build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $latestBuild.Definition.ID
+
+            $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1 
+            $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf 
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+
+            $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
         }
         
     }
