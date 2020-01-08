@@ -178,9 +178,16 @@ describe 'Builds' {
         it 'Can stop a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $stopWhatIf = $latestBuild | Stop-ADOBuild -WhatIf
-            $stopWhatIf.Method | should be POST
+            $stopWhatIf.Method | should be PATCH
             $stopWhatIf.Body.Status | should be cancelling
-        }        
+        }
+
+        it 'Could remove a build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
+            $whatIf.Method | should be DELETE
+            $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+        }
     }
 }
 
