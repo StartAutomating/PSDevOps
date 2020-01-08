@@ -174,7 +174,13 @@ describe 'Builds' {
             $startWhatIf.Method | should be POST
             $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
         }
-        
+
+        it 'Can stop a Build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $stopWhatIf = $latestBuild | Stop-ADOBuild -WhatIf
+            $stopWhatIf.Method | should be POST
+            $stopWhatIf.Body.Status | should be cancelling
+        }        
     }
 }
 
