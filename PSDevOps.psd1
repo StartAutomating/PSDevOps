@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.2.7'
+    ModuleVersion = '0.2.8'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,12 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.2.8
+---
+* Get/New/Update-ADOBuild
+* Improving New-ADOPipeline:
+** Unknown -InputObject properties will no longer be pluralized
+** Added 'Pool' to list of known singletons
 0.2.7
 ---
 * New Cmdlet: Set-ADOArtifactFeed
