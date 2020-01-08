@@ -5,8 +5,6 @@
     $TestProject = 'PSDevOps'
 )
 
-import-module .\PSDevOps.psd1 -Force
-
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
@@ -142,6 +140,54 @@ describe 'Calling REST APIs' {
         $org = 'StartAutomating'
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
+    }
+}
+
+describe 'Builds' {
+    context 'Get-ADOBuild' {
+        it 'Can get builds' {
+            $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
+            $mostRecentBuild.definition.name | should belike *PSDevOps*
+        }
+        it 'Can get -Detail on a particular build' {
+            $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
+            $detailedBuild = $mostRecentBuild | Get-ADOBuild -Detail
+            $detailedBuild.Timeline | should not be $null
+        }
+        it 'Can get build definitions' {
+            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
+            $buildDefinitions.Count | should be 1
+            $buildDefinitions[0].Name  |should belike *PSDevOps*
+        }
+        it 'Can Start a Build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $latestBuild.Definition.ID
+
+            $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1 
+            $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf 
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+
+            $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name
+            $startWhatIf.Method | should be POST
+            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+        }
+
+        it 'Can stop a Build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $stopWhatIf = $latestBuild | Stop-ADOBuild -WhatIf
+            $stopWhatIf.Method | should be PATCH
+            $stopWhatIf.Body.Status | should be cancelling
+        }
+
+        it 'Could remove a build' {
+            $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
+            $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
+            $whatIf.Method | should be DELETE
+            $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+        }
     }
 }
 

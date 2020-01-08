@@ -63,6 +63,8 @@ $formatting = @(
 
     Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap
     Write-FormatView -TypeName PSDevOps.WorkProcess -Property Name, IsEnabled, IsDefault, Description -Wrap
+
+    Import-FormatView -FilePath (Join-Path $myRoot Formatting)
 )
 
 $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
@@ -75,6 +77,12 @@ $types = @(
     Write-TypeView -TypeName StartAutomating.PSDevOps.ArtifactFeed -AliasProperty @{
         FeedID = 'FullyQualifiedID'
     } -HideProperty ViewID
+    Write-TypeView -TypeName StartAutomating.PSDevOps.Build -AliasProperty @{
+        BuildID = 'ID'
+    }
+    Write-TypeView -TypeName StartAutomating.PSDevOps.Build.Definition -AliasProperty @{
+        DefinitionID = 'ID'
+    }
 )
 
 $myTypesFile = Join-Path $myRoot "$myModuleName.types.ps1xml"

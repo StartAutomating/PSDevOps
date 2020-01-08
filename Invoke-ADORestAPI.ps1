@@ -157,12 +157,15 @@ Specifies the method used for the web request. The acceptable values for this pa
                 }
             } } |
             & { process { # One more step of the pipeline will unroll each of the values.
+                if ($_ -is [string]) { return $_ }
+                if ($null -ne $_.Count -and $_.Count -eq 0) { return }
                 if ($PSTypeName) { # If we have a PSTypeName (to apply formatting)
                     $_.PSTypeNames.Clear() # clear the existing typenames and decorate the object.
                     foreach ($t in $PSTypeName) {
                         $_.PSTypeNames.add($T)
                     }
                 }
+
                 if ($Property) {
                     foreach ($propKeyValue in $Property.GetEnumerator()) {
                         if ($_.PSObject.Properties[$propKeyValue.Key]) {

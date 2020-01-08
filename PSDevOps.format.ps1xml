@@ -140,5 +140,475 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <View>
+      <Name>StartAutomating.PSDevOps.Build.Change</Name>
+      <ViewSelectedBy>
+        <TypeName>StartAutomating.PSDevOps.Build.Change</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Author</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Timestamp</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock> $_.Author.DisplayName </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+        ([DateTime]$_.TimeStamp).ToLocalTime().ToString()
+    </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Message</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>StartAutomating.PSDevOps.Build.Change</Name>
+      <ViewSelectedBy>
+        <TypeName>StartAutomating.PSDevOps.Build.Change</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Author</Label>
+                <ScriptBlock> $_.Author.DisplayName </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Timestamp</Label>
+                <ScriptBlock>
+        ([DateTime]$_.TimeStamp).ToLocalTime().ToString()
+    </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Message</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>Type</PropertyName>
+              </ListItem>
+              <ListItem>
+                <PropertyName>DisplayUri</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>StartAutomating.PSDevOps.Build</Name>
+      <ViewSelectedBy>
+        <TypeName>StartAutomating.PSDevOps.Build</TypeName>
+      </ViewSelectedBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock> $_.Definition.Name + ' ' + $_.BuildNumber + ' [' </ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:PSDevOps.Build.Succeeded -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>$ci = 'PSDevOps.Build.Succeeded', '';
+
+if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
+if ($ci -like ([string][char]0x1b +'*')) {
+    $ci
+} else {
+    $n =0
+    $ci =@(foreach ($hc in $ci) {
+        if (-not $hc) { continue }
+        if ($hc -and -not $hc.StartsWith('#')) {
+            $placesToLook=
+                @(if ($hc.Contains('.')) {
+                    $module, $setting = $hc -split '\.', 2
+                    $theModule = Get-Module $module
+                    $theModule.PrivateData.Color,
+                        $theModule.PrivateData.Colors,
+                        $theModule.PrivateData.Colour,
+                        $theModule.PrivateData.Colours,
+                        $theModule.PrivateData.EZOut,
+                        $global:PSColors,
+                        $global:PSColours
+                } else {
+                    $setting = $hc
+                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                })
+
+            foreach ($place in $placesToLook) {
+                if (-not $place) { continue }
+                foreach ($propName in $setting -split '\.') {
+                    $place = $place.$propName
+                    if (-not $place) { break }
+                }
+                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                    $hc = $place
+                    continue
+                }
+            }
+            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                continue
+            }
+        }
+        $r,$g,$b = if ($hc.Length -eq 7) {
+            [int]::Parse($hc[1..2]-join'', 'HexNumber')
+            [int]::Parse($hc[3..4]-join '', 'HexNumber')
+            [int]::Parse($hc[5..6] -join'', 'HexNumber')
+        }elseif ($hc.Length -eq 4) {
+            [int]::Parse($hc[1], 'HexNumber') * 16
+            [int]::Parse($hc[2], 'HexNumber') * 16
+            [int]::Parse($hc[3], 'HexNumber') * 16
+        }
+
+        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+        $n++
+    }) -join ';'
+}
+
+;$ci -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Succeeded'
+    </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        $_.Result
+    </ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:unset -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:PSDevOps.Build.Failed -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>$ci = 'PSDevOps.Build.Failed', '';
+
+if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
+if ($ci -like ([string][char]0x1b +'*')) {
+    $ci
+} else {
+    $n =0
+    $ci =@(foreach ($hc in $ci) {
+        if (-not $hc) { continue }
+        if ($hc -and -not $hc.StartsWith('#')) {
+            $placesToLook=
+                @(if ($hc.Contains('.')) {
+                    $module, $setting = $hc -split '\.', 2
+                    $theModule = Get-Module $module
+                    $theModule.PrivateData.Color,
+                        $theModule.PrivateData.Colors,
+                        $theModule.PrivateData.Colour,
+                        $theModule.PrivateData.Colours,
+                        $theModule.PrivateData.EZOut,
+                        $global:PSColors,
+                        $global:PSColours
+                } else {
+                    $setting = $hc
+                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                })
+
+            foreach ($place in $placesToLook) {
+                if (-not $place) { continue }
+                foreach ($propName in $setting -split '\.') {
+                    $place = $place.$propName
+                    if (-not $place) { break }
+                }
+                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                    $hc = $place
+                    continue
+                }
+            }
+            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                continue
+            }
+        }
+        $r,$g,$b = if ($hc.Length -eq 7) {
+            [int]::Parse($hc[1..2]-join'', 'HexNumber')
+            [int]::Parse($hc[3..4]-join '', 'HexNumber')
+            [int]::Parse($hc[5..6] -join'', 'HexNumber')
+        }elseif ($hc.Length -eq 4) {
+            [int]::Parse($hc[1], 'HexNumber') * 16
+            [int]::Parse($hc[2], 'HexNumber') * 16
+            [int]::Parse($hc[3], 'HexNumber') * 16
+        }
+
+        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+        $n++
+    }) -join ';'
+}
+
+;$ci -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Failed'
+    </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        $_.Result
+    </ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:unset -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:PSDevOps.Build.NotStarted -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>$ci = 'PSDevOps.Build.NotStarted', '';
+
+if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
+if ($ci -like ([string][char]0x1b +'*')) {
+    $ci
+} else {
+    $n =0
+    $ci =@(foreach ($hc in $ci) {
+        if (-not $hc) { continue }
+        if ($hc -and -not $hc.StartsWith('#')) {
+            $placesToLook=
+                @(if ($hc.Contains('.')) {
+                    $module, $setting = $hc -split '\.', 2
+                    $theModule = Get-Module $module
+                    $theModule.PrivateData.Color,
+                        $theModule.PrivateData.Colors,
+                        $theModule.PrivateData.Colour,
+                        $theModule.PrivateData.Colours,
+                        $theModule.PrivateData.EZOut,
+                        $global:PSColors,
+                        $global:PSColours
+                } else {
+                    $setting = $hc
+                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                })
+
+            foreach ($place in $placesToLook) {
+                if (-not $place) { continue }
+                foreach ($propName in $setting -split '\.') {
+                    $place = $place.$propName
+                    if (-not $place) { break }
+                }
+                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                    $hc = $place
+                    continue
+                }
+            }
+            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                continue
+            }
+        }
+        $r,$g,$b = if ($hc.Length -eq 7) {
+            [int]::Parse($hc[1..2]-join'', 'HexNumber')
+            [int]::Parse($hc[3..4]-join '', 'HexNumber')
+            [int]::Parse($hc[5..6] -join'', 'HexNumber')
+        }elseif ($hc.Length -eq 4) {
+            [int]::Parse($hc[1], 'HexNumber') * 16
+            [int]::Parse($hc[2], 'HexNumber') * 16
+            [int]::Parse($hc[3], 'HexNumber') * 16
+        }
+
+        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+        $n++
+    }) -join ';'
+}
+
+;$ci -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'notStarted'
+    </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        $_.Status
+    </ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:unset -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:PSDevOps.Build.InProgress -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>$ci = 'PSDevOps.Build.InProgress', '';
+
+if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
+if ($ci -like ([string][char]0x1b +'*')) {
+    $ci
+} else {
+    $n =0
+    $ci =@(foreach ($hc in $ci) {
+        if (-not $hc) { continue }
+        if ($hc -and -not $hc.StartsWith('#')) {
+            $placesToLook=
+                @(if ($hc.Contains('.')) {
+                    $module, $setting = $hc -split '\.', 2
+                    $theModule = Get-Module $module
+                    $theModule.PrivateData.Color,
+                        $theModule.PrivateData.Colors,
+                        $theModule.PrivateData.Colour,
+                        $theModule.PrivateData.Colours,
+                        $theModule.PrivateData.EZOut,
+                        $global:PSColors,
+                        $global:PSColours
+                } else {
+                    $setting = $hc
+                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                })
+
+            foreach ($place in $placesToLook) {
+                if (-not $place) { continue }
+                foreach ($propName in $setting -split '\.') {
+                    $place = $place.$propName
+                    if (-not $place) { break }
+                }
+                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                    $hc = $place
+                    continue
+                }
+            }
+            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                continue
+            }
+        }
+        $r,$g,$b = if ($hc.Length -eq 7) {
+            [int]::Parse($hc[1..2]-join'', 'HexNumber')
+            [int]::Parse($hc[3..4]-join '', 'HexNumber')
+            [int]::Parse($hc[5..6] -join'', 'HexNumber')
+        }elseif ($hc.Length -eq 4) {
+            [int]::Parse($hc[1], 'HexNumber') * 16
+            [int]::Parse($hc[2], 'HexNumber') * 16
+            [int]::Parse($hc[3], 'HexNumber') * 16
+        }
+
+        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+        $n++
+    }) -join ';'
+}
+
+;$ci -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'inProgress'
+    </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        if ($_.QueueTime -and -not $_.StartTime) {
+            'Queued'
+        } elseif ($_.StartTime -and -not $_.FinishTime) {
+            'Running'
+        }        
+    </ScriptBlock>
+              </ExpressionBinding>
+              <!-- color:unset -->
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ScriptBlock>
+        if ($_.Status -eq 'inProgress') {
+            if ($_.QueueTime -and -not $_.StartTime) {
+                ' for ' + ([DateTime]::Now - $([Datetime]$_.QueueTime).ToLocalTime()).ToString().Substring(0,8)
+            } else {
+                ' for ' + ([DateTime]::Now - $([DateTime]$_.StartTime).ToLocalTime()).ToString().Substring(0,8)
+            }
+        } else {
+            " in " + ([DateTime]($_.FinishTime) - [DateTime]($_.StartTime)).ToString().Substring(0,8)
+        }    
+    </ScriptBlock>
+              </ExpressionBinding>
+              <Text>]</Text>
+              <NewLine />
+              <ExpressionBinding>
+                <ScriptBlock>
+        '=' * ($_.Definition.Name.Length + 
+            $_.BuildNumber.Length + 
+            $_.Result.Length + 4 + $(
+                if ($_.FinishTime) { 4 + 8 }
+                else { 
+                    5 + 8 + $(if (-not $_.StartTime) { 'Queued'.Length} else { 'Running'.Length }) 
+                })
+            )
+    </ScriptBlock>
+              </ExpressionBinding>
+              <NewLine />
+              <ExpressionBinding>
+                <ScriptBlock>
+        $_.Reason + ' of ' + $_.sourceBranch + ' for ' + $_.RequestedFor.DisplayName 
+    </ScriptBlock>
+              </ExpressionBinding>
+              <NewLine />
+              <ExpressionBinding>
+                <ScriptBlock>
+        '-' * ($_.Reason.Length + 4 + $_.sourceBranch.Length + 5 + $_.RequestedFor.DisplayName.Length)
+    </ScriptBlock>
+              </ExpressionBinding>
+              <NewLine />
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.ChangeSet </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        "### Changes:" + [Environment]::NewLine
+    </ScriptBlock>
+              </ExpressionBinding>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.ChangeSet </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock>
+        '  * ' + (@($_.ChangeSet | Select-Object -ExpandProperty Message) -join "$([Environment]::NewLine)  * ")
+    </ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </View>
   </ViewDefinitions>
 </Configuration>
