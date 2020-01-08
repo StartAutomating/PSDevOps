@@ -16,7 +16,8 @@ $Parent,
 [string]$ComponentType
 )
 
-$theComponentMetaData = $ComponentMetaData[$ComponentType]
+$theComponentMetaData = $ComponentMetaData.$ComponentType
+$theComponentNames = $ComponentNames.$ComponentType
 
 $outObject = [Ordered]@{}
 $splatMe = @{} + $PSBoundParameters
@@ -31,7 +32,9 @@ $splatMe.Remove('PartTable')
     } else {
         $thingType = $kv.Key
         $propName =
-            if ($SingleItemName -notcontains $thingType -and $thingType -notmatch '\W$') {
+            if ($SingleItemName -notcontains $thingType -and 
+                $thingType -notmatch '\W$' -and
+                $theComponentNames.Keys -contains $thingType) {
                 $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1) + 's'
             } else {
                 $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1)

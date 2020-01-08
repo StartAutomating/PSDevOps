@@ -6,9 +6,9 @@
     .Description
         Create a new Azure DevOps Pipeline.
     .Example
-        New-ADOPipeline -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery
+        New-ADOPipeline -Trigger SourceChanged -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery
     .Example
-        New-ADOPipeline -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}}
+        New-ADOPipeline -Trigger SourceChanged -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}}
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Does not change state")]
@@ -29,23 +29,6 @@
     $Option)
 
     dynamicParam {
-        $newDynamicParameter = {
-            param([string]$name, [string[]]$ValidSet, [type]$type = [string],[string]$ParameterSet = '__AllParameterSets', [switch]$Mandatory)
-
-            $ParamAttr = [Management.Automation.ParameterAttribute]::new()
-            $ParamAttr.Mandatory = $Mandatory
-            $ParamAttr.ParameterSetName = $ParameterSet
-
-            $ParamAttributes = [Collections.ObjectModel.Collection[System.Attribute]]::new()
-            $ParamAttributes.Add($ParamAttr)
-
-            if ($ValidSet) {
-                $ParamAttributes.Add([Management.Automation.ValidateSetAttribute]::new($ValidSet))
-            }
-
-            [Management.Automation.RuntimeDefinedParameter]::new($name,  $type, $ParamAttributes)
-        }
-
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
         $ThingNames = $script:ComponentNames.'ADO'
         if ($ThingNames) {
@@ -61,26 +44,25 @@
         $myParams = [Ordered]@{} + $PSBoundParameters
         $stepsByType = [Ordered]@{}
         $ThingNames = $script:ComponentNames.'ADO'
-        foreach ($kv in $myParams.GetEnumerator()) {
+        foreach ($kv in $PSBoundParameters.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
+            } elseif ($kv.Key -eq 'InputObject') {
+                if ($InputObject -is [Collections.IDictionary]) {
+                    foreach ($key in $InputObject.Keys) {
+                        $stepsByType[$key] = $InputObject.$key
+                    }
+                }
+
+                elseif ($InputObject) {
+                    foreach ($property in $InputObject.psobject.properties) {
+                        $stepsByType[$property.name] = $InputObject.$key
+                    }
+                }            
             }
         }
 
-
-        if ($InputObject -is [Collections.IDictionary]) {
-            foreach ($key in $InputObject.Keys) {
-                $stepsByType[$key] = $InputObject.$key
-            }
-        }
-
-        elseif ($InputObject) {
-            foreach ($property in $InputObject.psobject.properties) {
-                $stepsByType[$property.name] = $InputObject.$key
-            }
-        }
-
-        $yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger -ComponentType ADO
+        $yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
 
 
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
