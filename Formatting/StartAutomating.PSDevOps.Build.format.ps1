@@ -13,6 +13,12 @@
         $_.Result
     }
 
+    Write-FormatViewExpression -ForegroundColor 'PSDevOps.Build.NotStarted' -If {
+        $_.Status -eq 'notStarted'
+    } -ScriptBlock {
+        $_.Status
+    }
+
     Write-FormatViewExpression -ForegroundColor 'PSDevOps.Build.InProgress' -If {
         $_.Status -eq 'inProgress'
     } -ScriptBlock {
@@ -51,13 +57,13 @@
     Write-FormatViewExpression -Newline
 
     Write-FormatViewExpression -ScriptBlock {
-        $_.Reason + ' of ' + @($_.sourceBranch -split '/')[-1] + ' for ' + $_.RequestedFor.DisplayName 
+        $_.Reason + ' of ' + $_.sourceBranch + ' for ' + $_.RequestedFor.DisplayName 
     }
 
     Write-FormatViewExpression -Newline
 
     Write-FormatViewExpression -ScriptBlock {
-        '-' * ($_.Reason.Length + 4 + @($_.sourceBranch -split '/')[-1].Length + 5 + $_.RequestedFor.DisplayName.Length)
+        '-' * ($_.Reason.Length + 4 + $_.sourceBranch.Length + 5 + $_.RequestedFor.DisplayName.Length)
     }
 
     Write-FormatViewExpression -Newline
