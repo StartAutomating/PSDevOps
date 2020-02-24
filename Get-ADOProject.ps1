@@ -10,12 +10,13 @@
     .Example
         Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat
     #>
+    [CmdletBinding(DefaultParameterSetName='projects')]
     param(
     # The project name or identifier.
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('ProjectName', 'ProjectID','ID')]
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}',ValueFromPipelineByPropertyName)]
+    [Alias('ProjectID')]
     [string]
-    $NameOrID,
+    $Project,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -70,38 +71,27 @@
 
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        # Because this command wraps Invoke-ADORestAPI, we want to copy over all shared parameters.
-        $invokeRestApi = # To do this, first we get the commandmetadata for Invoke-ADORestAPI.
-            [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
-
-        $invokeParams = @{} + $PSBoundParameters # Then we copy our parameters
-        foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
-            # If a parameter isn't found in Invoke-ADORestAPI
-            if (-not $invokeRestApi.Parameters.ContainsKey($k)) {
-                $invokeParams.Remove($k) # we remove it.
-            }
-        }
-        # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
+        $invokeParams = & $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-
     }
     process {
-        $uri = @(
-            "$Server".TrimEnd('/')
-            $Organization
-            '_apis'
-            'projects'
-            if ($NameOrID -as [Guid]) { $NameOrID }
-        ) -join '/'
-        $uri += '?'
-        if ($ApiVersion) {
-            $uri += "api-version=$ApiVersion"
+        $uri = 
+            "$(@(
+                "$server".TrimEnd('/') # * The Server
+                $Organization # * The Organization
+                '_apis' #* '_apis'
+                . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
+            )  -join '/')?$( # Followed by a query string, containing
+            @(
+                if ($ApiVersion) { # an api-version (if one exists)
+                    "api-version=$ApiVersion"
+                }
+            ) -join '&'
+            )"        
+        
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.Project", "PSDevOps.Project" -Property @{
+            Organization = $Organization
         }
-        if (-not $NameOrID -or $NameOrID -as [guid]) {
-            Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.Project", "PSDevOps.Project"
-        } else {
-            Invoke-ADORestAPI @invokeParams -Uri $uri -PSTypeName "$Organization.Project", "PSDevOps.Project" |
-                Where-Object { $_.Name -like $NameOrID }
-        }
+        
     }
 }
