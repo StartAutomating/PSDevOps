@@ -100,7 +100,11 @@ Specifies the method used for the web request. The acceptable values for this pa
 
     # A list of property names to remove from an object
     [string[]]
-    $RemoveProperty
+    $RemoveProperty,
+
+    # If provided, will expand a given property returned from the REST api.
+    [string]
+    $ExpandProperty
     )
 
     process {
@@ -110,6 +114,7 @@ Specifies the method used for the web request. The acceptable values for this pa
         $irmSplat.Remove('PSTypeName') # * -PSTypeName
         $irmSplat.Remove('Property') # *-Property
         $irmSplat.Remove('RemoveProperty') # *-RemoveProperty
+        $irmSplat.Remove('ExpandProperty') # *-ExpandProperty
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
                 $irmSplat.Headers.Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":$PersonalAccessToken")))"
@@ -143,7 +148,11 @@ Specifies the method used for the web request. The acceptable values for this pa
                 if ($_ -eq 'null') {
                     return
                 }
-                if ($_.Value -and $_.Count) {  # If that's what we're dealing with
+                if ($ExpandProperty) {
+                    if ($_.$ExpandProperty) {
+                        $_.$ExpandProperty
+                    }
+                } elseif ($_.Value -and $_.Count) {  # If that's what we're dealing with
                     $_.Value # pass value down the pipe.
                 } elseif ($_ -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
                     $_ # pass it down the pipe.
