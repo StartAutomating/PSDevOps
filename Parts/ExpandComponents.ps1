@@ -6,12 +6,17 @@
 
 #>
 param(
+# A table of data that could contain components.
 [Parameter(Mandatory)]
 [Collections.IDictionary]
-$partTable, 
+$PartTable,
+# The parent object
 $Parent, 
-[switch]$Singleton, 
-[string[]]$SingleItemName,  
+# If set, the component will be expanded as a singleton (single object)
+[switch]$Singleton,
+# A list of item names that automatically become singletons 
+[string[]]$SingleItemName,
+# The type of component, currently, ADO or GitHubActions.  
 [ValidateSet('ADO','GitHubActions')]
 [string]$ComponentType
 )
@@ -22,7 +27,7 @@ $theComponentNames = $ComponentNames.$ComponentType
 $outObject = [Ordered]@{}
 $splatMe = @{} + $PSBoundParameters
 $splatMe.Remove('PartTable')
-:nextKey foreach ($kv in $partTable.GetEnumerator()) {
+:nextKey foreach ($kv in $PartTable.GetEnumerator()) {
     if ($kv.Key.EndsWith('s') -and -not $singleton) { # Already pluralized
         $thingType = $kv.Key.Substring(0,$kv.Key.Length -1)
         $propName = $kv.Key
@@ -85,7 +90,7 @@ $splatMe.Remove('PartTable')
                     continue nextValue
                 }
                 $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
-                $splatMe.Parent = $partTable
+                $splatMe.Parent = $PartTable
                 if ($data -is [Collections.IDictionary]) {
                     $splatMe.PartTable = $data
                     try { & $ExpandComponents @splatMe }
@@ -101,7 +106,7 @@ $splatMe.Remove('PartTable')
                 $out
             }
             elseif ($v -is [Collections.IDictionary]) {
-                $splatMe.Parent = $partTable
+                $splatMe.Parent = $PartTable
                 $splatMe.PartTable = $v 
                 & $ExpandComponents @splatMe
             } else {
