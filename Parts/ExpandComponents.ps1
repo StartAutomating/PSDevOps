@@ -88,7 +88,10 @@ $splatMe.Remove('PartTable')
                 $splatMe.Parent = $partTable
                 if ($data -is [Collections.IDictionary]) {
                     $splatMe.PartTable = $data
-                    & $ExpandComponents @splatMe
+                    try { & $ExpandComponents @splatMe }
+                    catch { 
+                        Write-Debug "Could not Expand $($kv.Id): $_"
+                    }
                 } else {
                     $data
                 }
