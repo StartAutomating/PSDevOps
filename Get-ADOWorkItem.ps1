@@ -238,7 +238,7 @@
                     $postBody.fields = $Field
                 }
                 if ($Related) {
-                    $postBody.expand = 'Related'
+                    $postBody.expand = 'relations'
                 }
                 $invokeParams.Uri = $uri
                 $invokeParams.Method = 'POST'
@@ -262,7 +262,7 @@
                     "fields=$($Field -join ',')"
                 }
                 if ($Related) {
-                    '$expand=related'
+                    '$expand=relations'
                 }
                 if ($ApiVersion) { # If any api-version was provided, add it as a query parameter.
                     "api-version=$ApiVersion"

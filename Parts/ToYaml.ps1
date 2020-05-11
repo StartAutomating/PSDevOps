@@ -25,8 +25,8 @@ process {
                 $l
             }
             $indent-=2
-        } elseif ($object -match '\*') {
-            "`"$($Object -replace '\"','\')`""
+        } elseif ("$object".Contains('*')) {
+            "'$($Object -replace "'","''")'"
         } else {
             $object
         }
