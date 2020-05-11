@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.2.8'
+    ModuleVersion = '0.2.9'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,12 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.2.9
+---
+* Get/New/Remove-ADORepository
+* Get/New/Remove-ADOServiceEndpoint
+* Get-ADOAgentPool
+** Improvements to New-ADOPipeline to avoid unexpected singletons 
 0.2.8
 ---
 * Get/New/Update-ADOBuild
