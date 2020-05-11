@@ -1,75 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <ViewDefinitions>
-    <View>
-      <Name>PSDevOps.WorkItem</Name>
-      <ViewSelectedBy>
-        <TypeName>PSDevOps.WorkItem</TypeName>
-      </ViewSelectedBy>
-      <CustomControl>
-        <CustomEntries>
-          <CustomEntry>
-            <CustomItem>
-              <ExpressionBinding>
-                <ScriptBlock>
-        $wi = $_
-        $uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
-        $bufferWidth = $uiBuffer
-        $justify = {param($l, $r)
-
-            $d = $bufferWidth - $l.Length - $r.Length
-            $l + (' ' * $d) + $r
-        }
-
-        @(
-        ('-' * $uiBuffer)
-        &amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
-        ('-' * $uiBuffer)
-        if ($wi.'System.IterationPath') {
-            &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
-        }
-        if ($wi.'System.AssignedTo') {
-            &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
-                $wi.'System.AssignedTo'.displayName
-            } else {
-                $wi.'System.AssignedTo'
-            })
-        }
-        $changedBy =
-            if ($wi.'System.ChangedBy'.displayName) {
-                $wi.'System.ChangedBy'.displayName
-            } elseif ($wi.'System.ChangedBy') {
-                $wi.'System.ChangedBy'
-            }
-        if ($changedBy) {
-            &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
-        }
-        $createdBy =
-            if ($wi.'System.CreatedBy'.displayName) {
-                $wi.'System.CreatedBy'.displayName
-            } elseif ($wi.'System.CreatedBy') {
-                $wi.'System.CreatedBy'
-            }
-        if ($createdby) {
-            &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
-        }
-        ('-' * $uiBuffer)
-        "$($wi.'System.Description')" -replace
-            '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
-            '&lt;/div&gt;', [Environment]::NewLine -replace
-            '&lt;li&gt;',"* " -replace
-            '&lt;/li&gt;', [Environment]::NewLine -replace
-            '\&lt;[^\&gt;]+\&gt;', '' -replace
-            '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
-        ) -join [Environment]::NewLine
-    </ScriptBlock>
-              </ExpressionBinding>
-            </CustomItem>
-          </CustomEntry>
-        </CustomEntries>
-      </CustomControl>
-    </View>
     <View>
       <Name>PSDevOps.Field</Name>
       <ViewSelectedBy>
@@ -139,6 +71,150 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkItem</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkItem</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+            <Width>8</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AssignedTo</Label>
+            <Alignment>left</Alignment>
+            <Width>20</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ID</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock> if ($_.AssignedTo.DisplayName) { $_.AssignedTo.DisplayName } else { $_.AssignedTo } </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Title</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkItem</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkItem</TypeName>
+      </ViewSelectedBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>$moduleName = 'PSDevOps'
+do {
+    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+    if ($lm.FormatPartsLoaded) { break }    
+    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+            $ParentNode = $partNodeName.Node.ParentNode
+            "$($ParentNode.Name)={
+$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+        }
+    }) -join [Environment]::NewLine
+    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+        Import-Module -Global
+    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    if (-not $lm.OnRemove) {
+        $lm.OnRemove = $onRemove
+    } else {
+        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+    }
+    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+} while ($false)
+
+
+$wi = $_
+$uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
+$bufferWidth = $uiBuffer
+$justify = {param($l, $r)
+    
+    $d = $host.UI.RawUI.BufferSize.Width - 1 - $l.Length - $r.Length
+    if ($d -lt 0) { $d = 0 }
+    $l + (' ' * $d) + $r
+            
+}
+
+@(
+. $PSDevOps_HorizontalRule
+#('-' * $uiBuffer)
+&amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
+. $PSDevOps_HorizontalRule
+#('-' * $uiBuffer)
+if ($wi.'System.IterationPath') {
+    &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
+}
+if ($wi.'System.AssignedTo') {
+    &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
+        $wi.'System.AssignedTo'.displayName
+    } else {
+        $wi.'System.AssignedTo'
+    })
+}
+$changedBy =
+    if ($wi.'System.ChangedBy'.displayName) {
+        $wi.'System.ChangedBy'.displayName
+    } elseif ($wi.'System.ChangedBy') {
+        $wi.'System.ChangedBy'
+    }
+if ($changedBy) {
+    &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
+}
+$createdBy =
+    if ($wi.'System.CreatedBy'.displayName) {
+        $wi.'System.CreatedBy'.displayName
+    } elseif ($wi.'System.CreatedBy') {
+        $wi.'System.CreatedBy'
+    }
+if ($createdby) {
+    &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
+}
+if ($wi.'System.Description') {
+    "Description:"
+    . $PSDevOps_HorizontalRule -Character '_'
+    $wi.HTMLToText("$($wi.'System.Description')")
+    . $PSDevOps_HorizontalRule -Character '_'
+}
+
+if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
+    "Repro Steps:"
+    . $PSDevOps_HorizontalRule -Character '_'
+    [Environment]::NewLine
+    $wi.HTMLToText("$($wi.'Microsoft.VSTS.TCM.ReproSteps')")
+    . $PSDevOps_HorizontalRule -Character '_'
+    [Environment]::NewLine
+}
+
+
+
+
+        
+) -join [Environment]::NewLine
+</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
     </View>
     <View>
       <Name>StartAutomating.PSDevOps.Build.Change</Name>
@@ -221,69 +297,30 @@
               <ExpressionBinding>
                 <ScriptBlock> $_.Definition.Name + ' ' + $_.BuildNumber + ' [' </ScriptBlock>
               </ExpressionBinding>
-              <!-- color:PSDevOps.Build.Succeeded -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>$ci = 'PSDevOps.Build.Succeeded', '';
-
-if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
-if ($ci -like ([string][char]0x1b +'*')) {
-    $ci
-} else {
-    $n =0
-    $ci =@(foreach ($hc in $ci) {
-        if (-not $hc) { continue }
-        if ($hc -and -not $hc.StartsWith('#')) {
-            $placesToLook=
-                @(if ($hc.Contains('.')) {
-                    $module, $setting = $hc -split '\.', 2
-                    $theModule = Get-Module $module
-                    $theModule.PrivateData.Color,
-                        $theModule.PrivateData.Colors,
-                        $theModule.PrivateData.Colour,
-                        $theModule.PrivateData.Colours,
-                        $theModule.PrivateData.EZOut,
-                        $global:PSColors,
-                        $global:PSColours
-                } else {
-                    $setting = $hc
-                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
-                })
-
-            foreach ($place in $placesToLook) {
-                if (-not $place) { continue }
-                foreach ($propName in $setting -split '\.') {
-                    $place = $place.$propName
-                    if (-not $place) { break }
-                }
-                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
-                    $hc = $place
-                    continue
-                }
-            }
-            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
-                continue
-            }
+                <ScriptBlock>$moduleName = 'PSDevOps'
+do {
+    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+    if ($lm.FormatPartsLoaded) { break }    
+    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+            $ParentNode = $partNodeName.Node.ParentNode
+            "$($ParentNode.Name)={
+$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
         }
-        $r,$g,$b = if ($hc.Length -eq 7) {
-            [int]::Parse($hc[1..2]-join'', 'HexNumber')
-            [int]::Parse($hc[3..4]-join '', 'HexNumber')
-            [int]::Parse($hc[5..6] -join'', 'HexNumber')
-        }elseif ($hc.Length -eq 4) {
-            [int]::Parse($hc[1], 'HexNumber') * 16
-            [int]::Parse($hc[2], 'HexNumber') * 16
-            [int]::Parse($hc[3], 'HexNumber') * 16
-        }
+    }) -join [Environment]::NewLine
+    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+        Import-Module -Global
+    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    if (-not $lm.OnRemove) {
+        $lm.OnRemove = $onRemove
+    } else {
+        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+    }
+    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+} while ($false)
 
-        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
-        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
-        $n++
-    }) -join ';'
-}
-
-;$ci -join ""</ScriptBlock>
+. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Succeeded' -BackgroundColor ''  </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -295,76 +332,11 @@ if ($ci -like ([string][char]0x1b +'*')) {
         $_.Result
     </ScriptBlock>
               </ExpressionBinding>
-              <!-- color:unset -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
-              <!-- color:PSDevOps.Build.Failed -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>$ci = 'PSDevOps.Build.Failed', '';
-
-if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
-if ($ci -like ([string][char]0x1b +'*')) {
-    $ci
-} else {
-    $n =0
-    $ci =@(foreach ($hc in $ci) {
-        if (-not $hc) { continue }
-        if ($hc -and -not $hc.StartsWith('#')) {
-            $placesToLook=
-                @(if ($hc.Contains('.')) {
-                    $module, $setting = $hc -split '\.', 2
-                    $theModule = Get-Module $module
-                    $theModule.PrivateData.Color,
-                        $theModule.PrivateData.Colors,
-                        $theModule.PrivateData.Colour,
-                        $theModule.PrivateData.Colours,
-                        $theModule.PrivateData.EZOut,
-                        $global:PSColors,
-                        $global:PSColours
-                } else {
-                    $setting = $hc
-                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
-                })
-
-            foreach ($place in $placesToLook) {
-                if (-not $place) { continue }
-                foreach ($propName in $setting -split '\.') {
-                    $place = $place.$propName
-                    if (-not $place) { break }
-                }
-                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
-                    $hc = $place
-                    continue
-                }
-            }
-            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
-                continue
-            }
-        }
-        $r,$g,$b = if ($hc.Length -eq 7) {
-            [int]::Parse($hc[1..2]-join'', 'HexNumber')
-            [int]::Parse($hc[3..4]-join '', 'HexNumber')
-            [int]::Parse($hc[5..6] -join'', 'HexNumber')
-        }elseif ($hc.Length -eq 4) {
-            [int]::Parse($hc[1], 'HexNumber') * 16
-            [int]::Parse($hc[2], 'HexNumber') * 16
-            [int]::Parse($hc[3], 'HexNumber') * 16
-        }
-
-        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
-        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
-        $n++
-    }) -join ';'
-}
-
-;$ci -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Failed' -BackgroundColor ''  </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -376,76 +348,11 @@ if ($ci -like ([string][char]0x1b +'*')) {
         $_.Result
     </ScriptBlock>
               </ExpressionBinding>
-              <!-- color:unset -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
-              <!-- color:PSDevOps.Build.NotStarted -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>$ci = 'PSDevOps.Build.NotStarted', '';
-
-if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
-if ($ci -like ([string][char]0x1b +'*')) {
-    $ci
-} else {
-    $n =0
-    $ci =@(foreach ($hc in $ci) {
-        if (-not $hc) { continue }
-        if ($hc -and -not $hc.StartsWith('#')) {
-            $placesToLook=
-                @(if ($hc.Contains('.')) {
-                    $module, $setting = $hc -split '\.', 2
-                    $theModule = Get-Module $module
-                    $theModule.PrivateData.Color,
-                        $theModule.PrivateData.Colors,
-                        $theModule.PrivateData.Colour,
-                        $theModule.PrivateData.Colours,
-                        $theModule.PrivateData.EZOut,
-                        $global:PSColors,
-                        $global:PSColours
-                } else {
-                    $setting = $hc
-                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
-                })
-
-            foreach ($place in $placesToLook) {
-                if (-not $place) { continue }
-                foreach ($propName in $setting -split '\.') {
-                    $place = $place.$propName
-                    if (-not $place) { break }
-                }
-                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
-                    $hc = $place
-                    continue
-                }
-            }
-            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
-                continue
-            }
-        }
-        $r,$g,$b = if ($hc.Length -eq 7) {
-            [int]::Parse($hc[1..2]-join'', 'HexNumber')
-            [int]::Parse($hc[3..4]-join '', 'HexNumber')
-            [int]::Parse($hc[5..6] -join'', 'HexNumber')
-        }elseif ($hc.Length -eq 4) {
-            [int]::Parse($hc[1], 'HexNumber') * 16
-            [int]::Parse($hc[2], 'HexNumber') * 16
-            [int]::Parse($hc[3], 'HexNumber') * 16
-        }
-
-        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
-        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
-        $n++
-    }) -join ';'
-}
-
-;$ci -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.NotStarted' -BackgroundColor ''  </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -457,76 +364,11 @@ if ($ci -like ([string][char]0x1b +'*')) {
         $_.Status
     </ScriptBlock>
               </ExpressionBinding>
-              <!-- color:unset -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
-              <!-- color:PSDevOps.Build.InProgress -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>$ci = 'PSDevOps.Build.InProgress', '';
-
-if ($ci -and -not $Host.ui.SupportsVirtualTerminal) { $ci = $null }
-if ($ci -like ([string][char]0x1b +'*')) {
-    $ci
-} else {
-    $n =0
-    $ci =@(foreach ($hc in $ci) {
-        if (-not $hc) { continue }
-        if ($hc -and -not $hc.StartsWith('#')) {
-            $placesToLook=
-                @(if ($hc.Contains('.')) {
-                    $module, $setting = $hc -split '\.', 2
-                    $theModule = Get-Module $module
-                    $theModule.PrivateData.Color,
-                        $theModule.PrivateData.Colors,
-                        $theModule.PrivateData.Colour,
-                        $theModule.PrivateData.Colours,
-                        $theModule.PrivateData.EZOut,
-                        $global:PSColors,
-                        $global:PSColours
-                } else {
-                    $setting = $hc
-                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
-                })
-
-            foreach ($place in $placesToLook) {
-                if (-not $place) { continue }
-                foreach ($propName in $setting -split '\.') {
-                    $place = $place.$propName
-                    if (-not $place) { break }
-                }
-                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
-                    $hc = $place
-                    continue
-                }
-            }
-            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
-                continue
-            }
-        }
-        $r,$g,$b = if ($hc.Length -eq 7) {
-            [int]::Parse($hc[1..2]-join'', 'HexNumber')
-            [int]::Parse($hc[3..4]-join '', 'HexNumber')
-            [int]::Parse($hc[5..6] -join'', 'HexNumber')
-        }elseif ($hc.Length -eq 4) {
-            [int]::Parse($hc[1], 'HexNumber') * 16
-            [int]::Parse($hc[2], 'HexNumber') * 16
-            [int]::Parse($hc[3], 'HexNumber') * 16
-        }
-
-        if ($n -eq 1) { [char]0x1b+"[48;2;$r;$g;${b}m" }
-        elseif (-not $n) { [char]0x1b+"[38;2;$r;$g;${b}m" }
-        $n++
-    }) -join ';'
-}
-
-;$ci -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.InProgress' -BackgroundColor ''  </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -542,12 +384,8 @@ if ($ci -like ([string][char]0x1b +'*')) {
         }        
     </ScriptBlock>
               </ExpressionBinding>
-              <!-- color:unset -->
               <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock>$host.ui.SupportsVirtualTerminal</ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock>@([char]0x1b + "[39m" + [char]0x1b + "[49m") -join ""</ScriptBlock>
+                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ScriptBlock>
@@ -611,4 +449,257 @@ if ($ci -like ([string][char]0x1b +'*')) {
       </CustomControl>
     </View>
   </ViewDefinitions>
+  <Controls>
+    <Control>
+      <Name>$PSDevOps_HorizontalRule</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>&lt;#
+.Synopsis
+    Renders a HorizontalRule
+.Description
+    Renders a HorizontalRule.
+
+    If $request or $host.UI.SupportsHTML, this will render a &lt;hr/&gt; tag.
+
+    Otherwise, this will render a line filled with a given -Character (by default, a '-')
+.Notes
+    IsFormatPart: true
+#&gt;
+param(
+# The Character used for a Horizontal Rule
+[char]
+$Character = '-',
+
+# The CSS Class used for the Horizontal Rule (If ($request -or $host.SupportsHTML))
+[string]
+$Class
+)
+$canUseHTML = $Request -or $host.UI.SupportsHTML
+
+if ($canUseHTML) {
+    if (-not $Class) {
+        '&lt;hr/&gt;'
+    } else {
+        "&lt;hr class='$class' /&gt;"
+    }
+    return
+}
+
+return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
+</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <Control>
+      <Name>$PSDevOps_SetOutputStyle</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>&lt;#
+.Synopsis
+    Adds style to a format output
+.Description
+    Adds style information to a format output, including:
+
+    * ForegroundColor
+    * BackgroundColor
+    * Bold
+    * Underline
+.Notes
+    Stylized Output works in two contexts at present:
+    * Rich consoles (Windows Terminal, PowerShell.exe, Pwsh.exe) (when $host.UI.SupportsVirtualTerminal)
+    * Web pages (Based off the presence of a $Request variable, or when $host.UI.SupportsHTML (you must add this property to $host.UI))
+
+    IsFormatPart: true
+#&gt;
+param(
+[string]$ForegroundColor,
+[string]$BackgroundColor,
+[switch]$Bold,
+[switch]$Underline,
+[switch]$Invert
+)
+
+$canUseANSI = $host.UI.SupportsVirtualTerminal
+$canUseHTML = $Request -or $host.UI.SupportsHTML
+if (-not ($canUseANSI -or $canUseHTML)) { return }
+
+$n =0
+$styleAttributes =
+    @(foreach ($hc in $ForegroundColor,$BackgroundColor) {
+        $n++
+        if (-not $hc) { continue }
+        if ($hc[0] -eq [char]0x1b) {
+            if ($canUseANSI) { 
+                $hc; continue
+            }
+        }
+        if ($hc -and -not $hc.StartsWith('#')) {
+            $placesToLook=
+                @(if ($hc.Contains('.')) {
+                    $module, $setting = $hc -split '\.', 2
+                    $theModule = Get-Module $module
+                    $theModule.PrivateData.Color,
+                        $theModule.PrivateData.Colors,
+                        $theModule.PrivateData.Colour,
+                        $theModule.PrivateData.Colours,
+                        $theModule.PrivateData.EZOut,
+                        $global:PSColors,
+                        $global:PSColours
+                } else {
+                    $setting = $hc
+                    $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                })
+
+            foreach ($place in $placesToLook) {
+                if (-not $place) { continue }
+                foreach ($propName in $setting -split '\.') {
+                    $place = $place.$propName
+                    if (-not $place) { break }
+                }
+                if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                    $hc = $place
+                    continue
+                }
+            }
+            if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                continue
+            }
+        }
+        $r,$g,$b = if ($hc.Length -eq 7) {
+            [int]::Parse($hc[1..2]-join'', 'HexNumber')
+            [int]::Parse($hc[3..4]-join '', 'HexNumber')
+            [int]::Parse($hc[5..6] -join'', 'HexNumber')
+        }elseif ($hc.Length -eq 4) {
+            [int]::Parse($hc[1], 'HexNumber') * 16
+            [int]::Parse($hc[2], 'HexNumber') * 16
+            [int]::Parse($hc[3], 'HexNumber') * 16
+        }
+
+        if ($canUseHTML) {
+            if ($n -eq 1) { "color:$hc" }
+            elseif ($n -eq 2) { "background-color:$hc"} 
+        }
+        elseif ($canUseANSI) {
+            if ($n -eq 1) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+            elseif ($n -eq 2) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+        }
+        
+    })
+
+
+if ($Bold) {
+    $styleAttributes += 
+        if ($canUseHTML) {
+            "font-weight:bold"
+        }
+        elseif ($canUseANSI) 
+        {
+            [char]0x1b + "[1m"
+        }
+}
+
+if ($Underline) {
+    $styleAttributes += 
+        if ($canUseHTML) {
+            "text-decoration:underline"
+        } elseif ($canUseANSI) {
+            [char]0x1b + "[4m"
+        }
+}
+
+if ($Invert) {
+    $styleAttributes += 
+        if ($canUseHTML) {
+            "filter:invert(100%)"
+        } elseif ($canUseANSI) {
+            [char]0x1b + "[7m"            
+        }
+}
+
+if ($canUseHTML) {
+    "&lt;span style='$($styleAttributes -join ';')'&gt;"
+} elseif ($canUseANSI) {
+    $styleAttributes -join ''
+}</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <Control>
+      <Name>$PSDevOps_ClearOutputStyle</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>&lt;#
+.Synopsis
+    Clears the output style
+.Description
+    Clears ANSI output style or closes the most recent span element.
+
+    ANSI stylization can be toggled off individually (for instance, to stop applying an -Underline but leave the color unchanged)
+.Notes
+    IsFormatPart: true
+#&gt;
+param(
+# If set, will explicitly clear ANSI Bold
+[switch]
+$Bold,
+# If set, will explicitly clear ANSI Underline
+[switch]
+$Underline,
+# If set, will explicitly clear ANSI Invert
+[switch]
+$Invert,
+# If set, will explicitly clear ANSI Foreground Color
+[switch]
+$ForegroundColor,
+# If set, will explicitly clear ANSI Background Color
+[switch]
+$BackgroundColor
+)
+@(if ($request -or $host.UI.SupportsHTML) {
+    "&lt;/span&gt;"
+} elseif ($Host.UI.SupportsVirtualTerminal) {
+    if ($Underline) {
+        [char]0x1b + "[24m"
+    }
+    if ($Bold) {        
+        [char]0x1b + "[21m"
+    }
+    if ($Invert) {
+        [char]0x1b + '[27m'
+    }
+    if ($ForegroundColor) {
+        [char]0x1b + '[39m'
+    }
+    if ($BackgroundColor) {
+        [char]0x1b + '[49m'
+    }
+
+    if (-not ($Underline -or $Bold -or $Invert -or $ForegroundColor -or $BackgroundColor)) {
+        [char]0x1b + '[0m'
+    }
+    
+}) -join ''</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
 </Configuration>
