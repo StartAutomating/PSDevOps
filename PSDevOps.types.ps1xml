@@ -1,6 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
+  <Type>
+    <Name>PSDevOps.WorkItem</Name>
+    <Members>
+      <AliasProperty>
+        <Name>LastUpdated</Name>
+        <ReferencedMemberName>ChangedDate</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>HTMLToText</Name>
+        <Script>
+                    param([string]$html)
+            $html -replace
+            '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
+            '&lt;/div&gt;', [Environment]::NewLine -replace
+            '&lt;li&gt;',"* " -replace
+            '&lt;/li&gt;', [Environment]::NewLine -replace
+            '\&lt;[^\&gt;]+\&gt;', '' -replace
+            '&amp;quot;', '"' -replace 
+            '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+        
+                </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ChangedDate</Name>
+        <GetScriptBlock>
+                     [DateTime]$this.'System.ChangedDate' 
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Title</Name>
+        <GetScriptBlock>
+                     $this.'System.Title' 
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>CreatedDate</Name>
+        <GetScriptBlock>
+                     [DateTime]$this.'System.CreatedDate' 
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>AssignedTo</Name>
+        <GetScriptBlock>
+                     $this.'System.AssignedTo' 
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ID</Name>
+        <GetScriptBlock>
+                     $this.'System.ID' 
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
   <Type>
     <Name>StartAutomating.PSDevOps.ArtifactFeed.View</Name>
     <Members>
@@ -34,6 +88,37 @@
       <AliasProperty>
         <Name>DefinitionID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.Repository</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RepositoryID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.ServiceEndpoint</Name>
+    <Members>
+      <AliasProperty>
+        <Name>EndpointID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>EndpointType</Name>
+        <ReferencedMemberName>Type</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>StartAutomating.PSDevOps.Repository.SourceProvider</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ProviderName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
