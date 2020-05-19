@@ -134,8 +134,8 @@
                     $paramType = $tempCmdMd.Parameters[$parameterName].ParameterType
 
                     $defaultValue =
-                        if ($DefaultParameter[$thisParameter.Name]) {
-                            $DefaultParameter[$thisParameter.Name]
+                        if ($DefaultParameter[$parameterName]) {
+                            $DefaultParameter[$parameterName]
                         } elseif ($DefaultParameter[$disambiguatedParameter]) {
                             $DefaultParameter[$disambiguatedParameter]
                         }
