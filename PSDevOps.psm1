@@ -37,5 +37,6 @@ $extensionModules =
 
 #region Import Components
 $extensionModules |
-    . $importComponents -ComponentRoot 'ado', 'githubactions'
+    Import-BuildStep -BuildSystem ADO, GitHubActions
+    #. $importComponents -ComponentRoot 'ado', 'githubactions'
 #endregion Import Components
