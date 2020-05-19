@@ -26,7 +26,31 @@
     # A table of additional settings to apply wherever a part is used.
     # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
     [Collections.IDictionary]
-    $Option)
+    $Option,
+    
+    # The name of parameters that should be supplied from build variables.
+    # Wildcards accepted.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $VariableParameter,
+
+    # The name of parameters that should be supplied from the environment.
+    # Wildcards accepted.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $EnvironmentParameter,
+
+    # The name of parameters that should be referred to uniquely.
+    # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
+    # The build parameter would be foo_bar.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $UniqueParameter,
+
+    # A collection of default parameters.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Collections.IDictionary]
+    $DefaultParameter = @{})
 
     dynamicParam {
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
@@ -38,6 +62,11 @@
             }
         }
         return $DynamicParameters
+    }
+
+    begin {
+        $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
+
     }
 
     process {
@@ -62,7 +91,15 @@
             }
         }
 
-        $yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
+        $expandSplat = @{} + $PSBoundParameters
+        foreach ($k in @($expandSplat.Keys)) {
+            if (-not $expandBuildStepCmd.Parameters[$k]) {
+                $expandSplat.Remove($k)
+            }
+        }
+        $yamlToBe = Expand-BuildStep -SingleItemName Trigger, Pool -BuildSystem ADO -StepMap $stepsByType @expandSplat
+
+        #$yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
 
 
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
