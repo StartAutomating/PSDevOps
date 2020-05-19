@@ -5,7 +5,12 @@
         Expands Build Steps in a single build object
     .Description
         Component Files are .ps1 or datafiles within a directory that tells you what type they are.
-
+    .Example
+        Expand-BuildStep -StepMap @{Steps='InstallPester','RunPester'}
+    .Link
+        Convert-BuildStep
+    .Link
+        Import-BuildStep
     #>
     param(
     # A map of step properties to underlying data.
@@ -27,7 +32,7 @@
     [switch]
     $Singleton,
 
-    # A list of item names that automatically become singletons 
+    # A list of item names that automatically become singletons
     [string[]]$SingleItemName,
 
     [ValidateSet('ADO', 'GitHubActions')]
@@ -52,24 +57,30 @@
     [string[]]
     $UniqueParameter,
 
+    # A collection of default parameters.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
     $DefaultParameter = @{}
     )
 
+    begin {
+        $convertBuildStepCmd = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Convert-BuildStep','Function')
+
+    }
+
     process {
-    
+
         $theComponentMetaData = $ComponentMetaData.$BuildSystem
         $theComponentNames = $ComponentNames.$BuildSystem
 
         $outObject = [Ordered]@{}
         $splatMe = @{} + $PSBoundParameters
-        if (-not $Root) { 
+        if (-not $Root) {
             $Root = $outObject
             $splatMe.Root = $outObject
         }
-        
-        $splatMe.Remove('PartTable')
+
+        $splatMe.Remove('StepMap')
         :nextKey foreach ($kv in $stepMap.GetEnumerator()) {
             if ($kv.Key.EndsWith('s') -and -not $singleton) { # Already pluralized
                 $thingType = $kv.Key.Substring(0,$kv.Key.Length -1)
@@ -80,7 +91,7 @@
             } else {
                 $thingType = $kv.Key
                 $propName =
-                    if ($SingleItemName -notcontains $thingType -and 
+                    if ($SingleItemName -notcontains $thingType -and
                         $thingType -notmatch '\W$' -and
                         $theComponentNames.Keys -contains $thingType) {
                         $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1) + 's'
@@ -91,9 +102,7 @@
             }
             $outValue = :nextValue foreach ($v in $kv.Value) {
                 $metaData = $theComponentMetaData["$thingType.$v"]
-                $ft = 
-                    if ($metaData.Path) { [IO.File]::ReadAllText($metaData.Path) }
-                    elseif ($metaData.ScriptBlock) { $metaData.ScriptBlock.ToString() }    
+
                 if ($propName -eq $thingType -and -not $singleton) {
                     if ($v -is [Collections.IDictionary]) {
                         $splatMe.StepMap = $v
@@ -101,63 +110,61 @@
                     } else {
                         $v
                     }
-            
+
                     continue nextValue
                 }
 
 
                 $o =
-                    if ($metaData.Extension -eq '.ps1') {
-                        $sb = [ScriptBlock]::Create($ft)
-                        if (-not $sb) { continue }
+                    if ($metaData.Extension -eq '.psd1') {
 
-                
-                        $out = [Ordered]@{}
-                        if ($BuildSystem -eq 'ADO') {
-                            if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
-                                $out.pwsh = "$sb"
-                            } else {
-                                $out.powershell = "$sb"
-                            }
-                            $out.displayName = $metaData.Name
-                
-                            if ($UseSystemAccessToken) {
-                                $out.env = @{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}
-                            }
-                        } elseif ($BuildSystem -eq 'GitHubActions') {
-                            $out.name = $metaData.Name
-                            $out.runs = "$sb"   
-                            $out.shell = 'pwsh'
-                        }
-                        $out
-                    }
-                    elseif ($metaData.Extension -eq '.psd1') {
                         $data = Import-LocalizedData -BaseDirectory ([IO.Path]::GetDirectoryName($metaData.Path)) -FileName ([IO.PATH]::GetFileName($metaData.Path))
                         if (-not $data) {
                             continue nextValue
                         }
-                        $data = & ([ScriptBlock]::Create(($ft -replace '@{', '[Ordered]@{')))
+                        $fileText = [IO.File]::ReadAllText($metaData.Path)
+                        $data = & ([ScriptBlock]::Create(($FileText -replace '@{', '[Ordered]@{')))
                         $splatMe.Parent = $stepMap
                         if ($data -is [Collections.IDictionary]) {
                             $splatMe.StepMap = $data
                             try { Expand-BuildStep @splatMe }
-                            catch { 
+                            catch {
                                 Write-Debug "Could not Expand $($kv.Id): $_"
                             }
                         } else {
                             $data
                         }
                     }
-                    elseif ($metaData.Extension -eq '.sh') {
-                        $out = [Ordered]@{bash="$ft";displayName=$metaData.Name}
-                        $out
-                    }
-                    elseif ($v -is [Collections.IDictionary]) {
+                    elseif ($v -is [Collections.IDictionary])
+                    {
                         $splatMe.Parent = $stepMap
-                        $splatMe.StepMap = $v 
+                        $splatMe.StepMap = $v
                         Expand-BuildStep @splatMe
-                    } else {
-                        $v
+                    } else
+                    {
+                        $convertedBuildStep =
+                            if ($metaData) {
+                                $convertSplat = @{} + $PsBoundParameters
+                                foreach ($k in @($convertSplat.Keys)) {
+                                    if (-not $convertBuildStepCmd.Parameters[$k]) {
+                                        $convertSplat.Remove($k)
+                                    }
+                                }
+                                $metaData |
+                                    Convert-BuildStep @convertSplat
+                            }
+
+                        if ($convertedBuildStep) {
+                            if ($convertedBuildStep.parameters) {
+                                if ($BuildSystem -eq 'ADO' -and $Root) {
+                                    $root.parameters = $convertedBuildStep.parameters
+                                    $convertedBuildStep.Remove('parameters')
+                                }
+                            }
+                            $convertedBuildStep
+                        } else {
+                            $v
+                        }
                     }
 
 
@@ -175,7 +182,7 @@
             $outObject[$propName] = $outValue
 
 
-            if ($outObject[$propName] -isnot [Collections.IList] -and 
+            if ($outObject[$propName] -isnot [Collections.IList] -and
                 $kv.Value -is [Collections.IList] -and -not $singleton) {
                 $outObject[$propName] = @($outObject[$propName])
             } elseif ($outObject[$propName] -is [Collections.IList] -and $kv.Value -isnot [Collections.IList]) {
@@ -183,6 +190,6 @@
             }
         }
         $outObject
-    
+
     }
 }
