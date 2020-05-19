@@ -9,6 +9,11 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.0
+---
+* Added Convert/Import/Expand-BuildStep
+* Allowing build steps to be defined in functions
+* Automagically importing build step parameters
 0.2.9
 ---
 * Get/New/Remove-ADORepository
