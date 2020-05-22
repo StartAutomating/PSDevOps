@@ -187,7 +187,7 @@
 
                             if (-not $isMandatory) {
                                 $thisParameter.default = ''
-                                if ($thisParameter.ContainsKey('values')) {
+                                if ($thisParameter.Contains('values')) {
                                     $thisParameter.values = @('') + $thisParameter.values
                                 }
                             }
