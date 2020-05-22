@@ -4,9 +4,13 @@
     .Synopsis
         Converts Build Steps into build system input
     .Description
-        Converts Build Steps defined in a PowerShell script into build steps in a build system
+        Converts Build Steps defined in a PowerShell script into build steps in a build system    
     .Example
         Get-Command Convert-BuildStep | Convert-BuildStep
+    .Link
+        Import-BuildStep
+    .Link
+        Expand-BuildStep
     #>
     param(
     # The name of the build step
@@ -83,7 +87,6 @@
 
     process {
         if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') {
-
             if ($Extension -eq '.ps1')
             {
                 $splatMe=  @{} + $PSBoundParameters
@@ -153,7 +156,7 @@
                         }
                         else
                         {
-                            $thisParameter = @{
+                            $thisParameter = [Ordered]@{
                                 name = $stepParamName
                                 type =
                                     $(if ([switch], [bool] -contains $paramType)
@@ -183,14 +186,14 @@
                             }
 
                             if (-not $isMandatory) {
-                                $thisParameter.defaultValue = ''
+                                $thisParameter.default = ''
                                 if ($thisParameter.ContainsKey('values')) {
                                     $thisParameter.values = @('') + $thisParameter.values
                                 }
                             }
 
                             if ($null -ne $defaultValue) {
-                                $thisParameter.defaultValue = $DefaultParameter
+                                $thisParameter.default = $defaultValue
                             }
 
 
