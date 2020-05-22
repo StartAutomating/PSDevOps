@@ -119,8 +119,6 @@ describe 'Build metadata' {
     it 'Can change the release name' {
         Set-ADOBuild -ReleaseName myRelease -Debug | should be '##vso[build.updatereleasename]myRelease'
     }
-
-
 }
 
 describe 'Creating Pipelines' {
@@ -132,6 +130,11 @@ describe 'Creating Pipelines' {
         $adoDef | should belike '*Install PowerShell Core*'
         $adoDef | should belike '*pwsh*'
         $adoDef | should belike '*trigger:*paths:*exclude:*.md*.txt*'
+    }
+
+    it 'Can create a pipeline with a trigger and a single step' {
+        New-ADOPipeline -Trigger SourceChanged -Step InstallPester |
+            should belike '*trigger:*steps:*-*powershell:*'
     }
 }
 
