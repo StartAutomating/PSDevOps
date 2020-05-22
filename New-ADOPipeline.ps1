@@ -105,6 +105,10 @@
         }
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep #> -SingleItemName Trigger, Pool -BuildSystem ADO 
 
+
+        if ($yamlToBe.parameters) {
+            $yamlToBe.parameters = @($yamlToBe.parameters)
+        }
         #$yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
 
 
