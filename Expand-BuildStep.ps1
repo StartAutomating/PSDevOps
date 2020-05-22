@@ -161,15 +161,13 @@
                             if ($convertedBuildStep.parameters) {
                                 if ($BuildSystem -eq 'ADO' -and $Root) {
                                     
-                                    $root.parameters = 
-                                        if ($root.parameters) {
-                                            $root.parameters += @($convertedBuildStep.parameters) 
-                                            $root.parameters = @($root.parameters| 
-                                                Select-Object -Unique)
-
-                                        } else {
-                                            @($root.parameters)
+                                    if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
+                                        foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
+                                            $root.Parameters[$keyValue.Key] = $keyValue.Value
                                         }
+                                    } else {
+                                        $root.parameters = $convertedBuildStep.parameters
+                                    }
                                         
                                     $convertedBuildStep.Remove('parameters')
                                 }
