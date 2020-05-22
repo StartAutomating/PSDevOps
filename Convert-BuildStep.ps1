@@ -4,7 +4,7 @@
     .Synopsis
         Converts Build Steps into build system input
     .Description
-        Converts Build Steps defined in a PowerShell script into build steps in a build system    
+        Converts Build Steps defined in a PowerShell script into build steps in a build system
     .Example
         Get-Command Convert-BuildStep | Convert-BuildStep
     .Link
@@ -167,7 +167,7 @@
                                     {
                                         'number'
                                     }
-                                    elseif ([string], [ScriptBlock] -contains $paramType -or
+                                    elseif ([string], [ScriptBlock],[string[]],[int[]],[float[]] -contains $paramType -or
                                         $paramType.IsSubclassOf([Enum])) {
                                         'string'
                                     } else {
@@ -200,6 +200,14 @@
 
                             $definedParameters += $thisParameter
                             "`$Parameters.$ParameterName = `${{parameters.$stepParamName}}"
+
+                        }
+
+                        if ([int[]], [string[]],[float[]] -contains $paramType) {
+                            "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
+                        }
+                        if ([ScriptBlock] -contains $paramType) {
+                            "`$Parameters.$ParameterName = [ScriptBlock]::Create(`$parameters.$ParameterName)"
                         }
                     }
                 }
