@@ -1,9 +1,14 @@
-﻿
+
 trigger: 
   paths: 
     exclude: 
-      - "*.md"
-      - "*.txt"
+    - '*.md'
+    - '*.txt'
+    - '*.gif'
+    - '*.png'
+    - '*.jpg'
+    - '*.mp3'
+    - '*.mp4'
 stages: 
   - stage: PowerShellStaticAnalysis
     displayName: Static Analysis
@@ -80,17 +85,15 @@ stages:
                   }
               }
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
-              testResultsFiles: "**/*.TestResults.xml"
+              testResultsFiles: '**/*.TestResults.xml'
               mergeTestResults: true
           - task: PublishCodeCoverageResults@1
             inputs: 
               codeCoverageTool: JaCoCo
-              summaryFileLocation: "**/*.Coverage.xml"
+              summaryFileLocation: '**/*.Coverage.xml'
               reportDirectory: $(System.DefaultWorkingDirectory)
       - job: Linux
         displayName: Linux
@@ -137,17 +140,15 @@ stages:
                   }
               }
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
-              testResultsFiles: "**/*.TestResults.xml"
+              testResultsFiles: '**/*.TestResults.xml'
               mergeTestResults: true
           - task: PublishCodeCoverageResults@1
             inputs: 
               codeCoverageTool: JaCoCo
-              summaryFileLocation: "**/*.Coverage.xml"
+              summaryFileLocation: '**/*.Coverage.xml'
               reportDirectory: $(System.DefaultWorkingDirectory)
       - job: MacOS
         displayName: MacOS
@@ -191,17 +192,15 @@ stages:
                   }
               }
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
-              testResultsFiles: "**/*.TestResults.xml"
+              testResultsFiles: '**/*.TestResults.xml'
               mergeTestResults: true
           - task: PublishCodeCoverageResults@1
             inputs: 
               codeCoverageTool: JaCoCo
-              summaryFileLocation: "**/*.Coverage.xml"
+              summaryFileLocation: '**/*.Coverage.xml'
               reportDirectory: $(System.DefaultWorkingDirectory)
 
     condition: succeeded()
