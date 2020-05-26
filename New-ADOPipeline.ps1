@@ -67,6 +67,12 @@
     begin {
         $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
 
+        $expandADOBuildStep = @{
+            BuildSystem = 'ADO'
+            SingleItemName = 'Trigger','Pool'
+            PluralItemName = 'Steps', 'Stages','Jobs','Pipelines','Repositories', 'Schedules'
+        }
+
     }
 
     process {
@@ -97,8 +103,12 @@
                 $expandSplat.Remove($k)
             }
         }
-        $yamlToBe = Expand-BuildStep -SingleItemName Trigger, Pool -BuildSystem ADO -StepMap $stepsByType @expandSplat
+        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep #> -SingleItemName Trigger, Pool -BuildSystem ADO 
 
+
+        if ($yamlToBe.parameters) {
+            $yamlToBe.parameters = @($yamlToBe.parameters)
+        }
         #$yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
 
 

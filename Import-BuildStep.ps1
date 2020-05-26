@@ -18,6 +18,11 @@
     [string]
     $ModuleName,
 
+    # A list of commands to include.
+    [string[]]
+    $IncludeCommand = '*',
+
+
     # A list of commands to exclude
     [string[]]
     $ExcludeCommand,
@@ -93,6 +98,12 @@
         }
 
         :nextCmd foreach ($exCmd in $Module.ExportedCommands.Values) {
+            $shouldInclude = $false
+            foreach ($Inclusion in $IncludeCommand) {
+                $shouldInclude = $exCmd -like $Inclusion
+                if ($shouldInclude) { break }
+            }
+            if (-not $shouldInclude)  { continue }
             foreach ($exclusion in $ExcludeCommand) {
                 if ($exCmd -like $exclusion) {
                     continue nextCmd
@@ -116,11 +127,11 @@
                 if (-not $ThingNames.ContainsKey($t)) {
                     $ThingNames[$t] = [Collections.Generic.List[string]]::new()
                 }
+                $n = $exCmd.Name
                 if (-not $ThingNames[$t].Contains($n)) {
                     $ThingNames[$t].Add($n)
                 }
-
-                $n = $exCmd.Name
+                
                 $ThingData["$($t).$($n)"] = [PSCustomObject][Ordered]@{
                     Name      = $n
                     Type      = $t

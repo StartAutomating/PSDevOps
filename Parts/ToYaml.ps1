@@ -66,8 +66,22 @@ process {
 
 
     #region Nested
-    if ($Object -is [Collections.IDictionary] -or $Object  -is [PSObject] -or $Object -is [Collections.IList]) {
+    if ($Object -is [Collections.IDictionary] -or $Object  -is [PSObject]) {
         $Indent += 2
+    } 
+    elseif ($object -is [Collections.IList]) {
+        $allPrimitive = 1
+        foreach ($Obj in $Object) { 
+            $allPrimitive = $allPrimitive -band (
+                $Obj -is [string] -or 
+                $obj -is [int] -or 
+                $obj -is [float] -or 
+                $obj -is [bool]
+            ) 
+        }
+        if (-not $allPrimitive) {
+            $Indent += 2
+        }            
     }
 
 

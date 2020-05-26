@@ -35,6 +35,9 @@
     # A list of item names that automatically become singletons
     [string[]]$SingleItemName,
 
+    # A list of item names that automatically become plurals
+    [string[]]$PluralItemName,
+
     [ValidateSet('ADO', 'GitHubActions')]
     [string]$BuildSystem = 'ADO',
 
@@ -157,7 +160,15 @@
                         if ($convertedBuildStep) {
                             if ($convertedBuildStep.parameters) {
                                 if ($BuildSystem -eq 'ADO' -and $Root) {
-                                    $root.parameters = $convertedBuildStep.parameters
+                                    
+                                    if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
+                                        foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
+                                            $root.Parameters[$keyValue.Key] = $keyValue.Value
+                                        }
+                                    } else {
+                                        $root.parameters = $convertedBuildStep.parameters
+                                    }
+                                        
                                     $convertedBuildStep.Remove('parameters')
                                 }
                             }
@@ -179,6 +190,8 @@
                 }
             }
 
+            
+
             $outObject[$propName] = $outValue
 
 
@@ -187,6 +200,11 @@
                 $outObject[$propName] = @($outObject[$propName])
             } elseif ($outObject[$propName] -is [Collections.IList] -and $kv.Value -isnot [Collections.IList]) {
                 $outObject[$propName] = $outObject[$propName][0]
+            }
+
+            if ($PluralItemName -contains $propName -and 
+                $outObject[$propName] -isnot [Collections.IList]) {
+                $outObject[$propName] = @($outObject[$propName])
             }
         }
         $outObject
