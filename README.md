@@ -1,25 +1,11 @@
-﻿## PSDevOps is a PowerShell module that makes working with Azure DevOps more elegant
+### PSDevOps is a collection of PowerShell tools for DevOps.
 
-It helps to:
-* Simplify Azure DevOps logging
+
+Using PSDevOps, you can:
+
 * Elegantly Create Azure DevOps pipelines
- 
-
-### Simplify Azure DevOps Logging
-
-If you've ever visited the [Logging Commands Documentation](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands), you might have noticed just how ugly the console logging of Azure DevOps is.  
-
-TL;DR, everything is prefixed by ##vso[ , and some complicated setting arguments.
-
-PSDevOps makes this much nicer by abstracting away this ugliness into easy-to-use commands:
-
-* Add-ADOAttachment
-* Set-ADOBuild
-* Set-ADOEndpoint
-* Set-ADOVariable
-* Write-ADOError
-* Write-ADOProgress
-* Write-ADOWarning
+* Invoke Azure DevOps REST APIs
+* Simplify Azure DevOps logging
 
 ### Elegantly Create Azure DevOps Pipelines
 
@@ -42,3 +28,20 @@ PSD1 files will be treated as task metadata, and can reference other parts.
 
 Any module that contains an \ADO directory and is tagged 'PSDevOps' or requires PSDevOps can contain parts.
 Parts found in these modules will override parts found in PSDevOps.
+
+
+### Simplify Azure DevOps Logging
+
+If you've ever visited the [Logging Commands Documentation](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands), you might have noticed just how ugly the console logging of Azure DevOps is.  
+
+TL;DR, everything is prefixed by ##vso[ , and some complicated setting arguments.
+
+PSDevOps makes this much nicer by abstracting away this ugliness into easy-to-use commands:
+
+* Add-ADOAttachment
+* Set-ADOBuild
+* Set-ADOEndpoint
+* Set-ADOVariable
+* Write-ADOError
+* Write-ADOProgress
+* Write-ADOWarning
