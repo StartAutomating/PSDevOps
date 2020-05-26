@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3'
+    ModuleVersion = '0.3.1'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,12 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.1
+---
+* Bugfixes and Improvements to Convert/Import/Expand-BuildStep:
+1. Enforcing pluralization of certain fields within Azure DevOps
+2. Handling [string[]], [int[]], [float[]], or [ScriptBlock] parameters
+* Allowing lists of primitives to not be indented in YAML.
 0.3.0
 ---
 * Added Convert/Import/Expand-BuildStep
