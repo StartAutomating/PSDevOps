@@ -27,7 +27,7 @@
     # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
     [Collections.IDictionary]
     $Option,
-    
+
     # The name of parameters that should be supplied from build variables.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -39,6 +39,11 @@
     [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
     $EnvironmentParameter,
+
+    # The name of parameters that should be excluded.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $ExcludeParameter,
 
     # The name of parameters that should be referred to uniquely.
     # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
@@ -79,7 +84,7 @@
         $myParams = [Ordered]@{} + $PSBoundParameters
         $stepsByType = [Ordered]@{}
         $ThingNames = $script:ComponentNames.'ADO'
-        foreach ($kv in $PSBoundParameters.GetEnumerator()) {
+        foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
             } elseif ($kv.Key -eq 'InputObject') {
@@ -93,7 +98,7 @@
                     foreach ($property in $InputObject.psobject.properties) {
                         $stepsByType[$property.name] = $InputObject.$key
                     }
-                }            
+                }
             }
         }
 
@@ -103,13 +108,11 @@
                 $expandSplat.Remove($k)
             }
         }
-        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep #> -SingleItemName Trigger, Pool -BuildSystem ADO 
-
+        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep
 
         if ($yamlToBe.parameters) {
             $yamlToBe.parameters = @($yamlToBe.parameters)
         }
-        #$yamlToBe = & $ExpandComponents $stepsByType -SingleItemName Trigger, Pool -ComponentType ADO
 
 
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine

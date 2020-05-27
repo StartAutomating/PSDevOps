@@ -60,6 +60,11 @@
     [string[]]
     $UniqueParameter,
 
+    # The name of parameters that should be excluded.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $ExcludeParameter,
+
     # A collection of default parameters.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]

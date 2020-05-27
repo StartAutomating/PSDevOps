@@ -136,6 +136,22 @@ describe 'Creating Pipelines' {
         New-ADOPipeline -Trigger SourceChanged -Step InstallPester |
             should belike '*trigger:*steps:*-*powershell:*'
     }
+
+    it "Can import any module's commands and the contents of an ADO folder into build steps" {
+        Get-Module PSDevOps | Import-BuildStep
+    }
+
+    it 'Can create a pipeline with parameters' {
+        $createdPipeline =
+            New-ADOPipeline -Step Get-ADOWorkProcess -ExcludeParameter Credential, Server, ApiVersion, UseDefaultCredentials, Proxy* -VariableParameter PersonalAccessToken
+
+        $keyParts  =
+            'steps:','- powershell','$Parameters*=*@{}','$Parameters.Organization',
+            '=','${{parameters.Organization}}','Import-Module','$(PSDevOpsPath)',
+            'Get-ADOWorkProcess','@Parameters'
+
+        $createdPipeline | should belike "*$($keyParts -join '*')*"
+    }
 }
 
 describe 'Calling REST APIs' {
@@ -155,7 +171,7 @@ describe 'Builds' {
         it 'Can get -Detail on a particular build' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
             $detailedBuild = $mostRecentBuild | Get-ADOBuild -Detail
-            $detailedBuild.Timeline | should not be $null
+            $detailedBuild.Timeline | should -not -be $null
         }
         it 'Can get build definitions' {
             $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
@@ -168,8 +184,8 @@ describe 'Builds' {
             $startWhatIf.Method | should be POST
             $startWhatIf.Body.Definition.ID | should be $latestBuild.Definition.ID
 
-            $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1 
-            $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf 
+            $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
+            $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
             $startWhatIf.Method | should be POST
             $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
 
@@ -250,8 +266,8 @@ describe 'Working with Work Items' {
 
         it 'Can get work proccesses' {
             Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |
-            Select-Object -First 1 -ExpandProperty name |
-            should be Basic
+                Select-Object -First 1 -ExpandProperty name |
+                    should be Basic
         }
     }
 

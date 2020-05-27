@@ -60,6 +60,11 @@
     [string[]]
     $UniqueParameter,
 
+    # The name of parameters that should be excluded.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $ExcludeParameter,
+
     # Default parameters for a build step
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
@@ -128,7 +133,9 @@
 
                     $disambiguatedParameter = $tempCmdMd.Name + '_' + $parameterName
                     $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
-
+                    $shouldExclude = 
+                        & $MatchesAnyWildCard $disambiguatedParameter, $parameterName $ExcludeParameter
+                    if ($shouldExclude) { continue }
                     $VariableName =
                         & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
