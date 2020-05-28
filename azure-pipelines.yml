@@ -61,8 +61,7 @@ stages:
         steps: 
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -78,8 +77,7 @@ stages:
             displayName: InstallPester
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -143,8 +141,7 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -160,8 +157,7 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -222,8 +218,7 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -239,8 +234,7 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}};
-              if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
+              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
