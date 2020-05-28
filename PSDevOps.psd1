@@ -9,6 +9,11 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.2
+---
+* Pester workarounds - Steps/InstallPester and Steps/RunPester now accept a PesterMaxVersion (defaulting to 4.99.99)
+* Convert-BuildStep handles blank parameter defaults correctly
+* Get-ADOBuild can get yaml definitions directly, e.g Get-ADOBuild -DefinitionID 123 -DefinitionYaml
 0.3.1
 ---
 * Bugfixes and Improvements to Convert/Import/Expand-BuildStep:
