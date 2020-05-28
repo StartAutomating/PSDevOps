@@ -1,11 +1,17 @@
 ﻿param(
 [string]
+$ModulePath,
+[string]
 $PesterMaxVersion = '4.99.99'
 )
 
 $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+if (-not $ModulePath) {
+    $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+    $ModulePath = ".\$moduleName.psd1"
+}
 Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion | Out-Host
-Import-Module ".\$moduleName.psd1" -Force -PassThru | Out-Host
+Import-Module $ModulePath -Force -PassThru | Out-Host
 $result = 
     Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
         -CodeCoverage "$(Build.SourcesDirectory)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
