@@ -107,6 +107,7 @@
             }
             return
         }
+        $innerScript = "$ScriptBlock"
 
         $sbParams = 
             if ($ScriptBlock.Ast.ParamBlock) {
@@ -153,9 +154,8 @@
                             $DefaultParameter[$parameterName]           # use that as the default.
                         } else
                         {                            
-                            foreach ($param in $sbParams) {
-                                if ($param.Name -eq "`$$ParameterName") {
-                                    $paramAst = $param
+                            foreach ($param in $sbParams.Parameters) {
+                                if ($parameterName -eq $param.Name.VariablePath) {
                                     if ($param.DefaultValue.SubExpression) { # If the default value was a subexpression
                                         break # then break, which will actually have a blank default.  
                                         # This is desirable, because otherwise, we have to allow string expansion on _any_ incoming parameter
@@ -226,9 +226,7 @@
                             }
 
                             $definedParameters += $thisParameter
-                            "`$Parameters.$ParameterName = `${{parameters.$stepParamName}}"
-                            
-
+                            "`$Parameters.$ParameterName = `${{parameters.$stepParamName}};"
                         }
                                                                                                 
                         if ([int[]], [string[]],[float[]] -contains $paramType) {
@@ -260,23 +258,23 @@ foreach ($k in @($parameters.Keys)) {
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 $Name `@Parameters
-"@)
-                $ScriptBlock = $sb
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+                $innerScript = $sb 
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
 & {$ScriptBlock} `@Parameters
-"@)
-                $ScriptBlock = $sb
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+                $innerScript = $sb
             }
             Remove-Item -Force function:_TempFunction
         }
         $out = [Ordered]@{}
         if ($BuildSystem -eq 'ADO') {
             if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
-                $out.pwsh = "$ScriptBlock" -replace '`\$\{','${'
+                $out.pwsh = "$innerScript" -replace '`\$\{','${'
             } else {
-                $out.powershell = "$ScriptBlock" -replace '`\$\{','${'
+                $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
             $out.displayName = $Name
             if ($definedParameters) {
@@ -287,7 +285,7 @@ $CollectParameters
             }
         } elseif ($BuildSystem -eq 'GitHubActions') {
             $out.name = $Name
-            $out.runs = "$ScriptBlock"
+            $out.runs = "$innerScript"
             $out.shell = 'pwsh'
         }
         $out
