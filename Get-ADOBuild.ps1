@@ -214,6 +214,11 @@
     [DateTime]
     $NotBuiltSince,
 
+    # If provided, will return build definition YAML.  No other information will be returned.
+    [Parameter(ParameterSetName='build/definitions/{definitionId}')] 
+    [switch]
+    $DefinitionYAML,
+
     # A Personal Access Token
     [Alias('PAT')]
     [string]
@@ -262,6 +267,7 @@
         }
         # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
         #endregion Copy Invoke-ADORestAPI parameters
+        $authParams = @{} + $invokeParams
     }
 
     process {
@@ -333,7 +339,9 @@
             "StartAutomating.PSDevOps.Build$subTypeName" # * PSDevOps.Build
         )
 
-        if ($Detail) {
+        
+        if ($Detail)
+        {
             $null = $PSBoundParameters.Remove('Detail')
             Invoke-ADORestAPI @invokeParams -Property @{
                 Organization = $Organization
@@ -343,7 +351,26 @@
                 Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
                 Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @PSBoundParameters -Artifact) -Force -PassThru |
                 Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru
-        } else {
+        } 
+        elseif ($DefinitionYAML)
+        {
+            $definitionObject = Invoke-ADORestAPI @invokeParams
+            if ($definitionObject.process.yamlFileName) {
+                $repoParams = @{
+                    Organization = $Organization
+                    Project = $Project
+                    ProviderName = $definitionObject.repository.type
+                    RepositoryName = $definitionObject.repository.name
+                    Path = $definitionObject.process.yamlfilename
+                }
+                if ($definitionObject.repository.properties.connectedServiceId) {
+                    $repoParams.EndpointId = $definitionObject.repository.properties.connectedServiceId
+                }
+                Get-ADORepository @repoParams @authParams
+            }            
+        } 
+        else
+        {
             Invoke-ADORestAPI @invokeParams -Property @{
                 Organization = $Organization
                 Project = $Project
