@@ -1,4 +1,10 @@
-﻿$orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+﻿param(
+[string]
+$PesterMaxVersion = '4.9.9'
+)
+
+$orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion
 Import-Module ".\$moduleName.psd1" -Force -PassThru | Out-Host
 $result = 
     Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
