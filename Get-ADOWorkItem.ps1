@@ -141,6 +141,10 @@
                     $out.psobject.properties.add([PSNoteProperty]::new('Project', $Project))
                 }
 
+                if (-not $out.Url -and $restResponse.Url) {
+                    $out.psobject.properties.add([PSNoteProperty]::new('Url', $restResponse.url))
+                }
+
                 $out.pstypenames.clear() # and we want them to by formattable, we we give them the following typenames
                 $wiType = $out.'System.WorkItemType'
                 if ($workItemType) {

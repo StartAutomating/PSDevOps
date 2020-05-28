@@ -147,7 +147,7 @@ describe 'Creating Pipelines' {
 
         $keyParts  =
             'steps:','- powershell','$Parameters*=*@{}','$Parameters.Organization',
-            '=','${{parameters.Organization}}','Import-Module','$(PSDevOpsPath)',
+            '=','${{coalesce(parameters.Organization','}}','Import-Module','$(PSDevOpsPath)',
             'Get-ADOWorkProcess','@Parameters'
 
         $createdPipeline | should belike "*$($keyParts -join '*')*"

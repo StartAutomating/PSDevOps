@@ -107,12 +107,14 @@
             }
             return
         }
+        $innerScript = "$ScriptBlock"
 
-        $sbParams = "$(if ($ScriptBlock.Ast.ParamBlock) {
-            $ScriptBlock.Ast.ParamBlock
-        } elseif ($ScriptBlock.ast.Body.ParamBlock) {
-            $ScriptBlock.Ast.Body.ParamBlock
-        })"
+        $sbParams = 
+            if ($ScriptBlock.Ast.ParamBlock) {
+                $ScriptBlock.Ast.ParamBlock
+            } elseif ($ScriptBlock.ast.Body.ParamBlock) {
+                $ScriptBlock.Ast.Body.ParamBlock
+            }
         $definedParameters = @()
         if ($sbParams) {
             $function:_TempFunction = $ScriptBlock
@@ -131,7 +133,7 @@
                         }
 
 
-                    $disambiguatedParameter = $tempCmdMd.Name + '_' + $parameterName
+                    $disambiguatedParameter = $Name + '_' + $parameterName
                     $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
                     $shouldExclude = 
                         & $MatchesAnyWildCard $disambiguatedParameter, $parameterName $ExcludeParameter
@@ -144,10 +146,25 @@
                     $paramType = $tempCmdMd.Parameters[$parameterName].ParameterType
 
                     $defaultValue =
-                        if ($DefaultParameter[$parameterName]) {
-                            $DefaultParameter[$parameterName]
-                        } elseif ($DefaultParameter[$disambiguatedParameter]) {
-                            $DefaultParameter[$disambiguatedParameter]
+                        if ($DefaultParameter[$disambiguatedParameter]) # If we provided a default value for the disambiguated parameter,
+                        { 
+                            $DefaultParameter[$disambiguatedParameter]  # use that as the default value.
+                        } elseif ($DefaultParameter[$parameterName])    # Otherwise, if we have provided a default by name,
+                        {  
+                            $DefaultParameter[$parameterName]           # use that as the default.
+                        } else
+                        {                            
+                            foreach ($param in $sbParams.Parameters) {
+                                if ($parameterName -eq $param.Name.VariablePath) {
+                                    if ($param.DefaultValue.SubExpression) { # If the default value was a subexpression
+                                        break # then break, which will actually have a blank default.  
+                                        # This is desirable, because otherwise, we have to allow string expansion on _any_ incoming parameter
+                                        # Doing that would allow generic code injection into a pipeline, which we do not want.
+                                    }
+                                    "$($param.DefaultValue)"
+                                    break
+                                }
+                            }     
                         }
                     if ($BuildSystem -eq 'ado') {
 
@@ -174,7 +191,12 @@
                                     {
                                         'number'
                                     }
-                                    elseif ([string], [ScriptBlock],[string[]],[int[]],[float[]] -contains $paramType -or
+                                    elseif ([string],
+                                        [Version], 
+                                        [ScriptBlock],[ScriptBlock[]],
+                                        [string[]],
+                                        [int[]],
+                                        [float[]] -contains $paramType -or
                                         $paramType.IsSubclassOf([Enum])) {
                                         'string'
                                     } else {
@@ -203,18 +225,15 @@
                                 $thisParameter.default = $defaultValue
                             }
 
-
-
                             $definedParameters += $thisParameter
-                            "`$Parameters.$ParameterName = `${{parameters.$stepParamName}}"
-
+                            "`$Parameters.$ParameterName = `${{parameters.$stepParamName}};"
                         }
-
+                                                                                                
                         if ([int[]], [string[]],[float[]] -contains $paramType) {
                             "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
-                        }
-                        if ([ScriptBlock] -contains $paramType) {
-                            "`$Parameters.$ParameterName = [ScriptBlock]::Create(`$parameters.$ParameterName)"
+                        }                        
+                        if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
+                            "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
                         }
                     }
                 }
@@ -239,23 +258,23 @@ foreach ($k in @($parameters.Keys)) {
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 $Name `@Parameters
-"@)
-                $ScriptBlock = $sb
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+                $innerScript = $sb 
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
 & {$ScriptBlock} `@Parameters
-"@)
-                $ScriptBlock = $sb
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+                $innerScript = $sb
             }
             Remove-Item -Force function:_TempFunction
         }
         $out = [Ordered]@{}
         if ($BuildSystem -eq 'ADO') {
             if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
-                $out.pwsh = "$ScriptBlock" -replace '`\$\{','${'
+                $out.pwsh = "$innerScript" -replace '`\$\{','${'
             } else {
-                $out.powershell = "$ScriptBlock" -replace '`\$\{','${'
+                $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
             $out.displayName = $Name
             if ($definedParameters) {
@@ -266,7 +285,7 @@ $CollectParameters
             }
         } elseif ($BuildSystem -eq 'GitHubActions') {
             $out.name = $Name
-            $out.runs = "$ScriptBlock"
+            $out.runs = "$innerScript"
             $out.shell = 'pwsh'
         }
         $out
