@@ -1,6 +1,6 @@
 ﻿param(
 [string]
-$PesterMaxVersion = '4.9.9'
+$PesterMaxVersion = '4.99.99'
 )
 
 $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
