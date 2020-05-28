@@ -1,4 +1,4 @@
-
+﻿
 trigger: 
   paths: 
     exclude: 
@@ -9,6 +9,10 @@ trigger:
     - '*.jpg'
     - '*.mp3'
     - '*.mp4'
+parameters: 
+  - name: PesterMaxVersion
+    type: string
+    default: 
 stages: 
   - stage: PowerShellStaticAnalysis
     displayName: Static Analysis
@@ -54,8 +58,19 @@ stages:
           vmImage: windows-latest
         steps: 
           - powershell: |
-              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-              Import-Module Pester -Force -PassThru
+              $Parameters = @{}
+              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}}
+              foreach ($k in @($parameters.Keys)) {
+                  if ([String]::IsNullOrEmpty($parameters[$k])) {
+                      $parameters.Remove($k)
+                  }
+              }
+              & {param(
+              [string]
+              $PesterMaxVersion = '4.9.9'
+              )
+              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion
+              Import-Module Pester -Force -PassThru} @Parameters
             displayName: InstallPester
           - powershell: |
               $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
@@ -109,8 +124,19 @@ stages:
                   
             displayName: Install PowerShell Core
           - pwsh: |
-              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-              Import-Module Pester -Force -PassThru
+              $Parameters = @{}
+              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}}
+              foreach ($k in @($parameters.Keys)) {
+                  if ([String]::IsNullOrEmpty($parameters[$k])) {
+                      $parameters.Remove($k)
+                  }
+              }
+              & {param(
+              [string]
+              $PesterMaxVersion = '4.9.9'
+              )
+              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion
+              Import-Module Pester -Force -PassThru} @Parameters
             displayName: InstallPester
           - pwsh: |
               $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
@@ -161,8 +187,19 @@ stages:
               brew cask install powershell
             displayName: Install PowerShell Core
           - pwsh: |
-              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser
-              Import-Module Pester -Force -PassThru
+              $Parameters = @{}
+              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}}
+              foreach ($k in @($parameters.Keys)) {
+                  if ([String]::IsNullOrEmpty($parameters[$k])) {
+                      $parameters.Remove($k)
+                  }
+              }
+              & {param(
+              [string]
+              $PesterMaxVersion = '4.9.9'
+              )
+              Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion
+              Import-Module Pester -Force -PassThru} @Parameters
             displayName: InstallPester
           - pwsh: |
               $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
