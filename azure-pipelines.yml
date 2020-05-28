@@ -61,7 +61,7 @@ stages:
         steps: 
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '') }};
+              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
               if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
@@ -78,7 +78,7 @@ stages:
             displayName: InstallPester
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '') }};
+              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
               if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
@@ -143,7 +143,7 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}};
+              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
               if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
@@ -160,7 +160,7 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{parameters.PesterMaxVersion}};
+              $Parameters.PesterMaxVersion = ${{ coalesce(parameters.PesterMaxVersion, '$null') }};
               if (-not "$($Parameters.PesterMaxVersion)".Trim()) { $parameters.Remove('PesterMaxVersion')}
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
