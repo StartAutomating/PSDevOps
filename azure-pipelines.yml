@@ -12,7 +12,7 @@ trigger:
 parameters: 
   - name: PesterMaxVersion
     type: string
-    default:
+    default: 
 stages: 
   - stage: PowerShellStaticAnalysis
     displayName: Static Analysis
