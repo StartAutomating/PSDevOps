@@ -4,6 +4,8 @@ foreach ($file in Get-ChildItem -Path $psScriptRoot -Filter *-*.ps1) {
 }
 #endregion Import Functions
 
+Add-Type -AssemblyName System.Web # Add System.Web now, in the unlikely event it was not already loaded.
+
 #region Import Parts
 
 # Parts are simple .ps1 files beneath a /Parts directory that can be used throughout the module.
@@ -37,6 +39,5 @@ $extensionModules =
 
 #region Import Components
 $extensionModules |
-    Import-BuildStep -BuildSystem ADO, GitHubActions
-    #. $importComponents -ComponentRoot 'ado', 'githubactions'
+    Import-BuildStep -BuildSystem ADO, GitHubActions    
 #endregion Import Components
