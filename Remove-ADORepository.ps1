@@ -2,9 +2,9 @@
 {
     <#
     .Synopsis
-    
+        Removes an Azure DevOps Repository
     .Description
-
+        Removes repositories from Azure DevOps.
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories/{RepositoryId}',SupportsShouldProcess,ConfirmImpact='High')]
     param(
@@ -70,14 +70,8 @@
     )
 
     begin {
-        $invokeRestApi = [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = @{} + $PSBoundParameters
-        foreach ($k in @($invokeParams.Keys)) {
-            if (-not $invokeRestApi.Parameters.ContainsKey($k)) {
-                $invokeParams.Remove($k)
-            }
-        }
+        $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
     }
 

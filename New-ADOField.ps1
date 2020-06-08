@@ -142,14 +142,8 @@
     )
 
     begin {
-        $invokeRestApi = [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = @{} + $PSBoundParameters
-        foreach ($k in @($invokeParams.Keys)) {
-            if (-not $invokeRestApi.Parameters.ContainsKey($k)) {
-                $invokeParams.Remove($k)
-            }
-        }
+        $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
 
         $validFieldTypes = foreach ($_ in $MyInvocation.MyCommand.Parameters['Type'].Attributes) {

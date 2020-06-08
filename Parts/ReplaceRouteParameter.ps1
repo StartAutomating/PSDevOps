@@ -13,11 +13,11 @@ $Route
 
 [Regex]::Replace(
     "$Route",
-    '/\{(?<Variable>\w+)\}', 
+    '/\{(?<Variable>\w+)\}',
     {param($match)
         $var = $ExecutionContext.SessionState.PSVariable.Get($match.Groups['Variable'].ToString())
-        if ($null -ne $var.Value) {
-            return '/' + ($var.Value.ToString()) 
+        if (-not [string]::IsNullOrWhiteSpace($var.Value)) {
+            return '/' + ([Web.HttpUtility]::UrlEncode($var.Value.ToString()).Replace('+','%20'))
         } else {
             return ''
         }
