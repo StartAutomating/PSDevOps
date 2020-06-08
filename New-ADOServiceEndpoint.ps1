@@ -125,7 +125,7 @@
 
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = & $getInvokeParameters $PSBoundParameters
+        $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
         $queryParameters = ,'apiVersion'
     }

@@ -64,20 +64,8 @@
 
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        # Because this command wraps Invoke-ADORestAPI, we want to copy over all shared parameters.
-        $invokeRestApi = # To do this, first we get the commandmetadata for Invoke-ADORestAPI.
-            [Management.Automation.CommandMetaData]$ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'Function')
-
-        $invokeParams = @{} + $PSBoundParameters # Then we copy our parameters
-        foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
-            # If a parameter isn't found in Invoke-ADORestAPI
-            if (-not $invokeRestApi.Parameters.ContainsKey($k)) {
-                $invokeParams.Remove($k) # we remove it.
-            }
-        }
-        # We're left with a hashtable containing only the parameters shared with Invoke-ADORestAPI.
+        $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-
     }
     process {
         $uri = $Server, $Organization, '_apis/work/processes?' -join '/'
