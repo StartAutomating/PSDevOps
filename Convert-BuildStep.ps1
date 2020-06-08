@@ -258,13 +258,13 @@ foreach ($k in @($parameters.Keys)) {
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 $Name `@Parameters
-"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(format(''"{0}"'',parameters.${Name}), ''$null'')}};'
                 $innerScript = $sb 
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
 & {$ScriptBlock} `@Parameters
-"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(parameters.${Name}, ''$null'')}};'
+"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(format(''"{0}"'',parameters.${Name}), ''$null'')}};'
                 $innerScript = $sb
             }
             Remove-Item -Force function:_TempFunction
