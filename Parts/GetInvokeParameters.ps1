@@ -27,5 +27,11 @@ process {
             $invokeParams.Remove($k) # we remove it.
         }
     }
+    if ($invokeParams.PersonalAccessToken) {
+        $Script:CachedPersonalAccessToken = $invokeParams.PersonalAccessToken    
+    }
+    if (-not $invokeParams.PersonalAccessToken -and $Script:CachedPersonalAccessToken) {
+        $invokeParams.PersonalAccessToken = $Script:CachedPersonalAccessToken
+    }
     return $invokeParams
 }
