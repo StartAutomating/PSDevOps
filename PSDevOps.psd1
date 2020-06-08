@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3.2'
+    ModuleVersion = '0.3.3'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,11 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.3
+---
+* Now Caching Personal Access Tokens!
+* URLEncoding all segments in Parts/ReplaceRouteParameter.
+* Ensuring all Azure DevOps YAML Parameters are wrapped in a string.
 0.3.2
 ---
 * Pester workarounds - Steps/InstallPester and Steps/RunPester now accept a PesterMaxVersion (defaulting to 4.99.99)
