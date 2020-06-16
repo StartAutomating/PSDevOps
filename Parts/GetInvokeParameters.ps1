@@ -6,10 +6,15 @@
 #>
 param(
 # A collection of parameters.  Parameters not used in Invoke-ADORestAPI will be removed
-[Parameter(ValueFromPipeline,Position=0,Mandatory)]
+[Parameter(ValueFromPipeline,Position=0,Mandatory,ParameterSetName='GetParameterValues')]
 [Alias('Parameters')]
 [Collections.IDictionary]
-$Parameter
+$Parameter,
+
+[Parameter(Mandatory,ParameterSetName='GetDynamicParameters')]
+[Alias('DynamicParameters')]
+[switch]
+$DynamicParameter
 )
 
 begin {
@@ -20,18 +25,45 @@ begin {
 }
 
 process {
-    $invokeParams = [Ordered]@{} + $Parameter # Then we copy our parameters
-    foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
-        # If a parameter isn't found in Invoke-ADORestAPI
-        if (-not ${script:Invoke-RestApi}.Parameters.ContainsKey($k)) {
-            $invokeParams.Remove($k) # we remove it.
+    if ($PSCmdlet.ParameterSetName -eq 'GetDynamicParameters') {
+        if (-not $script:InvokeADORestAPIParams) {
+            $script:InvokeADORestAPIParams = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
+            $InvokeADORestApi = $executionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestApi', 'All')
+            :nextInputParameter foreach ($in in ([Management.Automation.CommandMetaData]$InvokeADORestApi).Parameters.Keys) {
+                foreach ($ex in 'Uri','Method','Headers','Body','ContentType','ExpandProperty','Property','RemoveProperty','PSTypeName') {
+                    if ($in -like $ex) { continue nextInputParameter }
+                }
+
+                $script:InvokeADORestAPIParams.Add($in, [Management.Automation.RuntimeDefinedParameter]::new(
+                    $InvokeADORestApi.Parameters[$in].Name,
+                    $InvokeADORestApi.Parameters[$in].ParameterType,
+                    $InvokeADORestApi.Parameters[$in].Attributes
+                ))
+            }
+            foreach ($paramName in $script:InvokeADORestAPIParams.Keys) {
+                foreach ($attr in $script:InvokeADORestAPIParams[$paramName].Attributes) {
+                     if ($attr.ValueFromPipeline) {$attr.ValueFromPipeline = $false}
+                     if ($attr.ValueFromPipelineByPropertyName) {$attr.ValueFromPipelineByPropertyName = $false}
+                }
+            }
         }
+        return $script:InvokeADORestAPIParams
     }
-    if ($invokeParams.PersonalAccessToken) {
-        $Script:CachedPersonalAccessToken = $invokeParams.PersonalAccessToken    
+    if ($PSCmdlet.ParameterSetName -eq 'GetParameterValues') {
+        $invokeParams = [Ordered]@{} + $Parameter # Then we copy our parameters
+        foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
+            # If a parameter isn't found in Invoke-ADORestAPI
+            if (-not ${script:Invoke-RestApi}.Parameters.ContainsKey($k)) {
+                $invokeParams.Remove($k) # we remove it.
+            }
+        }
+        if ($invokeParams.PersonalAccessToken) {
+            $Script:CachedPersonalAccessToken = $invokeParams.PersonalAccessToken
+        }
+        if (-not $invokeParams.PersonalAccessToken -and $Script:CachedPersonalAccessToken) {
+            $invokeParams.PersonalAccessToken = $Script:CachedPersonalAccessToken
+        }
+        return $invokeParams
     }
-    if (-not $invokeParams.PersonalAccessToken -and $Script:CachedPersonalAccessToken) {
-        $invokeParams.PersonalAccessToken = $Script:CachedPersonalAccessToken
-    }
-    return $invokeParams
+    
 }
