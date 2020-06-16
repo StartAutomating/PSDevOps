@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.3: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <ViewDefinitions>
     <View>
@@ -8,7 +8,6 @@
         <TypeName>PSDevOps.Field</TypeName>
       </ViewSelectedBy>
       <TableControl>
-        <AutoSize />
         <TableHeaders>
           <TableColumnHeader>
           </TableColumnHeader>
@@ -73,153 +72,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>PSDevOps.WorkItem</Name>
+      <Name>PSDevOps.Build.Change</Name>
       <ViewSelectedBy>
-        <TypeName>PSDevOps.WorkItem</TypeName>
-      </ViewSelectedBy>
-      <TableControl>
-        <TableHeaders>
-          <TableColumnHeader>
-            <Alignment>left</Alignment>
-            <Width>8</Width>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>AssignedTo</Label>
-            <Alignment>left</Alignment>
-            <Width>20</Width>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-        </TableHeaders>
-        <TableRowEntries>
-          <TableRowEntry>
-            <Wrap />
-            <TableColumnItems>
-              <TableColumnItem>
-                <PropertyName>ID</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock> if ($_.AssignedTo.DisplayName) { $_.AssignedTo.DisplayName } else { $_.AssignedTo } </ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Title</PropertyName>
-              </TableColumnItem>
-            </TableColumnItems>
-          </TableRowEntry>
-        </TableRowEntries>
-      </TableControl>
-    </View>
-    <View>
-      <Name>PSDevOps.WorkItem</Name>
-      <ViewSelectedBy>
-        <TypeName>PSDevOps.WorkItem</TypeName>
-      </ViewSelectedBy>
-      <CustomControl>
-        <CustomEntries>
-          <CustomEntry>
-            <CustomItem>
-              <ExpressionBinding>
-                <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if ($lm.FormatPartsLoaded) { break }    
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
-} while ($false)
-
-
-$wi = $_
-$uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
-$bufferWidth = $uiBuffer
-$justify = {param($l, $r)
-    
-    $d = $host.UI.RawUI.BufferSize.Width - 1 - $l.Length - $r.Length
-    if ($d -lt 0) { $d = 0 }
-    $l + (' ' * $d) + $r
-            
-}
-
-@(
-. $PSDevOps_HorizontalRule
-#('-' * $uiBuffer)
-&amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
-. $PSDevOps_HorizontalRule
-#('-' * $uiBuffer)
-if ($wi.'System.IterationPath') {
-    &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
-}
-if ($wi.'System.AssignedTo') {
-    &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
-        $wi.'System.AssignedTo'.displayName
-    } else {
-        $wi.'System.AssignedTo'
-    })
-}
-$changedBy =
-    if ($wi.'System.ChangedBy'.displayName) {
-        $wi.'System.ChangedBy'.displayName
-    } elseif ($wi.'System.ChangedBy') {
-        $wi.'System.ChangedBy'
-    }
-if ($changedBy) {
-    &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
-}
-$createdBy =
-    if ($wi.'System.CreatedBy'.displayName) {
-        $wi.'System.CreatedBy'.displayName
-    } elseif ($wi.'System.CreatedBy') {
-        $wi.'System.CreatedBy'
-    }
-if ($createdby) {
-    &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
-}
-if ($wi.'System.Description') {
-    "Description:"
-    . $PSDevOps_HorizontalRule -Character '_'
-    $wi.HTMLToText("$($wi.'System.Description')")
-    . $PSDevOps_HorizontalRule -Character '_'
-}
-
-if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
-    "Repro Steps:"
-    . $PSDevOps_HorizontalRule -Character '_'
-    [Environment]::NewLine
-    $wi.HTMLToText("$($wi.'Microsoft.VSTS.TCM.ReproSteps')")
-    . $PSDevOps_HorizontalRule -Character '_'
-    [Environment]::NewLine
-}
-
-
-
-
-        
-) -join [Environment]::NewLine
-</ScriptBlock>
-              </ExpressionBinding>
-            </CustomItem>
-          </CustomEntry>
-        </CustomEntries>
-      </CustomControl>
-    </View>
-    <View>
-      <Name>StartAutomating.PSDevOps.Build.Change</Name>
-      <ViewSelectedBy>
-        <TypeName>StartAutomating.PSDevOps.Build.Change</TypeName>
+        <TypeName>PSDevOps.Build.Change</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -253,9 +108,9 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
       </TableControl>
     </View>
     <View>
-      <Name>StartAutomating.PSDevOps.Build.Change</Name>
+      <Name>PSDevOps.Build.Change</Name>
       <ViewSelectedBy>
-        <TypeName>StartAutomating.PSDevOps.Build.Change</TypeName>
+        <TypeName>PSDevOps.Build.Change</TypeName>
       </ViewSelectedBy>
       <ListControl>
         <ListEntries>
@@ -286,9 +141,9 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
       </ListControl>
     </View>
     <View>
-      <Name>StartAutomating.PSDevOps.Build</Name>
+      <Name>PSDevOps.Build</Name>
       <ViewSelectedBy>
-        <TypeName>StartAutomating.PSDevOps.Build</TypeName>
+        <TypeName>PSDevOps.Build</TypeName>
       </ViewSelectedBy>
       <CustomControl>
         <CustomEntries>
@@ -301,7 +156,8 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
                 <ScriptBlock>$moduleName = 'PSDevOps'
 do {
     $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if ($lm.FormatPartsLoaded) { break }    
+    if (-not $lm) { continue } 
+    if ($lm.FormatPartsLoaded) { break }
     $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
         foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
             $ParentNode = $partNodeName.Node.ParentNode
@@ -312,15 +168,17 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
         Import-Module -Global
     $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    
     if (-not $lm.OnRemove) {
         $lm.OnRemove = $onRemove
     } else {
         $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
     }
     $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+
 } while ($false)
 
-. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Succeeded' -BackgroundColor ''  </ScriptBlock>
+. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Succeeded'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -336,7 +194,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
                 <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Failed' -BackgroundColor ''  </ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Failed'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -352,7 +210,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
                 <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.NotStarted' -BackgroundColor ''  </ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.NotStarted'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -368,7 +226,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
                 <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.InProgress' -BackgroundColor ''  </ScriptBlock>
+                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.InProgress'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -448,55 +306,216 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
         </CustomEntries>
       </CustomControl>
     </View>
-  </ViewDefinitions>
-  <Controls>
-    <Control>
-      <Name>$PSDevOps_HorizontalRule</Name>
+    <View>
+      <Name>PSDevOps.IterationPath</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.IterationPath</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize />
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Path</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>StartDate</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>EndDate</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.Project</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Project</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>Organization</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Project</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkItem</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkItem</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+            <Width>8</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AssignedTo</Label>
+            <Alignment>left</Alignment>
+            <Width>20</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ID</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock> if ($_.AssignedTo.DisplayName) { $_.AssignedTo.DisplayName } else { $_.AssignedTo } </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Title</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkItem</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkItem</TypeName>
+      </ViewSelectedBy>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
             <CustomItem>
               <ExpressionBinding>
-                <ScriptBlock>&lt;#
-.Synopsis
-    Renders a HorizontalRule
-.Description
-    Renders a HorizontalRule.
-
-    If $request or $host.UI.SupportsHTML, this will render a &lt;hr/&gt; tag.
-
-    Otherwise, this will render a line filled with a given -Character (by default, a '-')
-.Notes
-    IsFormatPart: true
-#&gt;
-param(
-# The Character used for a Horizontal Rule
-[char]
-$Character = '-',
-
-# The CSS Class used for the Horizontal Rule (If ($request -or $host.SupportsHTML))
-[string]
-$Class
-)
-$canUseHTML = $Request -or $host.UI.SupportsHTML
-
-if ($canUseHTML) {
-    if (-not $Class) {
-        '&lt;hr/&gt;'
+                <ScriptBlock>$moduleName = 'PSDevOps'
+do {
+    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+    if (-not $lm) { continue } 
+    if ($lm.FormatPartsLoaded) { break }
+    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+            $ParentNode = $partNodeName.Node.ParentNode
+            "$($ParentNode.Name)={
+$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+        }
+    }) -join [Environment]::NewLine
+    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+        Import-Module -Global
+    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    
+    if (-not $lm.OnRemove) {
+        $lm.OnRemove = $onRemove
     } else {
-        "&lt;hr class='$class' /&gt;"
+        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
     }
-    return
+    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+
+} while ($false)
+
+
+$wi = $_
+$uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
+$bufferWidth = $uiBuffer
+$justify = {param($l, $r)
+    
+    $d = $host.UI.RawUI.BufferSize.Width - 1 - $l.Length - $r.Length
+    if ($d -lt 0) { $d = 0 }
+    $l + (' ' * $d) + $r
+            
 }
 
-return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
+@(
+. $PSDevOps_HorizontalRule
+#('-' * $uiBuffer)
+&amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
+. $PSDevOps_HorizontalRule
+#('-' * $uiBuffer)
+if ($wi.'System.IterationPath') {
+    &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
+}
+if ($wi.'System.AssignedTo') {
+    &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
+        $wi.'System.AssignedTo'.displayName
+    } else {
+        $wi.'System.AssignedTo'
+    })
+}
+$changedBy =
+    if ($wi.'System.ChangedBy'.displayName) {
+        $wi.'System.ChangedBy'.displayName
+    } elseif ($wi.'System.ChangedBy') {
+        $wi.'System.ChangedBy'
+    }
+if ($changedBy) {
+    &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
+}
+$createdBy =
+    if ($wi.'System.CreatedBy'.displayName) {
+        $wi.'System.CreatedBy'.displayName
+    } elseif ($wi.'System.CreatedBy') {
+        $wi.'System.CreatedBy'
+    }
+if ($createdby) {
+    &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
+}
+if ($wi.'System.Description') {
+    "Description:"
+    . $PSDevOps_HorizontalRule -Character '_'
+    $wi.HTMLToText("$($wi.'System.Description')")
+    . $PSDevOps_HorizontalRule -Character '_'
+}
+
+if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
+    "Repro Steps:"
+    . $PSDevOps_HorizontalRule -Character '_'
+    [Environment]::NewLine
+    $wi.HTMLToText("$($wi.'Microsoft.VSTS.TCM.ReproSteps')")
+    . $PSDevOps_HorizontalRule -Character '_'
+    [Environment]::NewLine
+}
+
+
+
+
+        
+) -join [Environment]::NewLine
 </ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>
         </CustomEntries>
       </CustomControl>
-    </Control>
+    </View>
+  </ViewDefinitions>
+  <Controls>
     <Control>
       <Name>$PSDevOps_SetOutputStyle</Name>
       <CustomControl>
@@ -533,9 +552,16 @@ $canUseANSI = $host.UI.SupportsVirtualTerminal
 $canUseHTML = $Request -or $host.UI.SupportsHTML
 if (-not ($canUseANSI -or $canUseHTML)) { return }
 
+$knownStreams = @{
+    Output='';Error='BrightRed';Warning='BrightYellow';
+    Verbose='BrightCyan';Debug='Yellow';Progress='Cyan';
+    Success='BrightGreen';Failure='Red';Default=''}
+$standardColors = 'Black', 'Red', 'Green', 'Yellow', 'Blue','Magenta', 'Cyan', 'White'
+$brightColors   = 'BrightBlack', 'BrightRed', 'BrightGreen', 'BrightYellow', 'BrightBlue','BrightMagenta', 'BrightCyan', 'BrightWhite'
 $n =0
+$cssClasses = @()
 $styleAttributes =
-    @(foreach ($hc in $ForegroundColor,$BackgroundColor) {
+    @(:nextColor foreach ($hc in $ForegroundColor,$BackgroundColor) {
         $n++
         if (-not $hc) { continue }
         if ($hc[0] -eq [char]0x1b) {
@@ -543,7 +569,52 @@ $styleAttributes =
                 $hc; continue
             }
         }
-        if ($hc -and -not $hc.StartsWith('#')) {
+
+        $ansiStartPoint = if ($n -eq 1) { 30 } else { 40 } 
+        if ($knownStreams.ContainsKey($hc)) {
+            $i = $brightColors.IndexOf($knownStreams[$hc])
+            if ($canUseHTML) {
+                $cssClasses += $hc
+            } else {
+                if ($i -ge 0 -and $canUseANSI) {
+                    '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                } else {
+                    $i = $standardColors.IndexOf($knownStreams[$hc])
+                    if ($i -ge 0 -and $canUseANSI) {
+                        '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                    } elseif ($i -le 0 -and $canUseANSI) {                        
+                        '' + [char]0x1b + "[$($ansistartpoint + 8):5m"
+                    }
+                }
+            }
+            continue nextColor
+        }
+        elseif ($standardColors -contains $hc) {
+            for ($i = 0; $i -lt $standardColors.Count;$i++) {
+                if ($standardColors[$i] -eq $hc) {
+                    if ($canUseANSI -and -not $canUseHTML) {
+                        '' + [char]0x1b + "[$($ansiStartPoint + $i)m"
+                    } else {
+                        $cssClasses += $standardColors[$i]
+                    }
+                    continue nextColor
+                }
+            }
+        } elseif ($brightColors -contains $hc) {
+            for ($i = 0; $i -lt $brightColors.Count;$i++) {
+                if ($brightColors[$i] -eq $hc) {
+                    if ($canUseANSI -and -not $canUseHTML) {
+                        '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                    } else {
+                        $cssClasses += $standardColors[$i]
+                    }
+                    continue nextColor
+                }
+            }
+        }
+
+
+        if ($hc -and -not $hc.StartsWith('#')) { 
             $placesToLook=
                 @(if ($hc.Contains('.')) {
                     $module, $setting = $hc -split '\.', 2
@@ -627,7 +698,12 @@ if ($Invert) {
 }
 
 if ($canUseHTML) {
-    "&lt;span style='$($styleAttributes -join ';')'&gt;"
+   
+    "&lt;span$(
+        if ($styleAttributes) { " style='$($styleAttributes -join ';')'"}
+    )$(
+        if ($cssClasses) { " class='$($cssClasses -join ' ')'"}
+    )&gt;"
 } elseif ($canUseANSI) {
     $styleAttributes -join ''
 }</ScriptBlock>
@@ -695,6 +771,53 @@ $BackgroundColor
     }
     
 }) -join ''</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <Control>
+      <Name>$PSDevOps_HorizontalRule</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>&lt;#
+.Synopsis
+    Renders a HorizontalRule
+.Description
+    Renders a HorizontalRule.
+
+    If $request or $host.UI.SupportsHTML, this will render a &lt;hr/&gt; tag.
+
+    Otherwise, this will render a line filled with a given -Character (by default, a '-')
+.Notes
+    IsFormatPart: true
+#&gt;
+param(
+# The Character used for a Horizontal Rule
+[char]
+$Character = '-',
+
+# The CSS Class used for the Horizontal Rule (If ($request -or $host.SupportsHTML))
+[string]
+$Class
+)
+$canUseHTML = $Request -or $host.UI.SupportsHTML
+
+if ($canUseHTML) {
+    if (-not $Class) {
+        '&lt;hr/&gt;'
+    } else {
+        "&lt;hr class='$class' /&gt;"
+    }
+    return
+}
+
+return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
+</ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>
