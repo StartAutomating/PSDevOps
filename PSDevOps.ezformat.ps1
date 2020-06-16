@@ -8,12 +8,9 @@ $myRoot = $myFile | Split-Path
 
 
 $formatting = @(
-    
-    
-
-    Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -AutoSize -Wrap
+    Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -Wrap
     Write-FormatView -TypeName PSDevOps.WorkProcess -Property Name, IsEnabled, IsDefault, Description -Wrap
-
+    
     Import-FormatView -FilePath (Join-Path $myRoot Formatting)
 )
 
@@ -21,7 +18,7 @@ $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
 $formatting | Out-FormatData -ModuleName PSDevOps | Set-Content $myFormatFile -Encoding UTF8
 
 $types = @(
-    Write-TypeView -TypeName PSDevOps.WorkItem -ScriptMethod @{
+    <#Write-TypeView -TypeName PSDevOps.WorkItem -ScriptMethod @{
         HTMLToText = {param([string]$html)
             $html -replace
             '<br(?:/)?>', [Environment]::NewLine -replace
@@ -40,29 +37,39 @@ $types = @(
         AssignedTo = { $this.'System.AssignedTo' }
     } -AliasProperty @{
         LastUpdated = 'ChangedDate'
+    }#>
+    Write-TypeView -TypeName PSDevOps.ArtifactFeed.View -AliasProperty @{
+        ViewID = 'id'
     }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.ArtifactFeed.View -AliasProperty @{
-        ViewID = 'ID'
-    }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.ArtifactFeed -AliasProperty @{
-        FeedID = 'FullyQualifiedID'
+    Write-TypeView -TypeName PSDevOps.ArtifactFeed -AliasProperty @{
+        FeedID = 'fullyQualifiedId'
     } -HideProperty ViewID
-    Write-TypeView -TypeName StartAutomating.PSDevOps.Build -AliasProperty @{
+    Write-TypeView -TypeName PSDevOps.Build -AliasProperty @{
         BuildID = 'ID'
     }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.Build.Definition -AliasProperty @{
+    Write-TypeView -TypeName PSDevOps.Build.Definition -AliasProperty @{
         DefinitionID = 'ID'
     }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.Repository -AliasProperty @{
+    Write-TypeView -TypeName PSDevOps.Repository -AliasProperty @{
         RepositoryID = 'ID'
     }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.ServiceEndpoint -AliasProperty @{
+    Write-TypeView -TypeName PSDevOps.ServiceEndpoint -AliasProperty @{
         EndpointID = 'ID'
         EndpointType = 'Type'
     }
-    Write-TypeView -TypeName StartAutomating.PSDevOps.Repository.SourceProvider -AliasProperty @{
+    Write-TypeView -TypeName PSDevOps.Repository.SourceProvider -AliasProperty @{
         ProviderName = 'Name'
     }
+    Write-TypeView -TypeName PSDevOps.Project -AliasProperty @{
+        Project = 'Name'
+    } -ScriptProperty @{
+        LastUpdated = {[DateTime]$this.LastUpdateTime}
+    } -DefaultDisplay Organization, Project, LastUpdateTime, Description
+    
+    Join-Path $myRoot Types |
+        Get-Item -ea ignore |
+        Import-TypeView
+
 )
 
 $myTypesFile = Join-Path $myRoot "$myModuleName.types.ps1xml"
