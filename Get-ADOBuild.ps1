@@ -321,6 +321,7 @@
                 Invoke-ADORestAPI @invokeParams -Property @{
                     Organization = $Organization
                     Project = $Project
+                    Server = $Server
                 } |
                     Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @PSBoundParameters -ChangeSet) -Force -PassThru |
                     Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
