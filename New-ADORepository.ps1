@@ -7,6 +7,7 @@
         Creates a new repository in Azure DevOps.
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories',SupportsShouldProcess)]
+    [OutputType('PSDevOps.Repository', [Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

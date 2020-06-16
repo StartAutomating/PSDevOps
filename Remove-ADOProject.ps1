@@ -58,7 +58,7 @@
             }
         ) -join '/'
         $uri += '?'
-        if ($Server -ne 'https://dev.azure.com/' -and 
+        if ($Server -ne 'https://dev.azure.com/' -and
             -not $PSBoundParameters.ApiVersion) {
             $ApiVersion = '2.0'
         }

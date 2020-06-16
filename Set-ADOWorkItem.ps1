@@ -208,7 +208,7 @@
 
 
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }

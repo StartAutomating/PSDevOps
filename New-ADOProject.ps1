@@ -55,7 +55,7 @@
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
     $ApiVersion = "5.1-preview")
-    
+
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
 
     begin {
@@ -89,7 +89,7 @@
         }
 
         $uri = "$Server".TrimEnd('/'), $Organization, '_apis/projects?' -join '/'
-        if ($Server -ne 'https://dev.azure.com/' -and 
+        if ($Server -ne 'https://dev.azure.com/' -and
             -not $PSBoundParameters.ApiVersion) {
             $ApiVersion = '2.0'
         }
