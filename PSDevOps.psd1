@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3.3'
+    ModuleVersion = '0.3.4'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,12 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.4
+---
+* New capability: Import-ADOProxy (Import a proxy module with for your ADO / TFS instance)
+* New REST Commands: Get-ADOAreaPath, Get-ADOIterationPath, Get-ADOExtension
+* More Features: Get-ADORepository -FileList
+* Massive Internal Refactoring (switching to dynamic parameters for -PersonalAccessToken etc, standardizing pstypenames)
 0.3.3
 ---
 * Now Caching Personal Access Tokens!
