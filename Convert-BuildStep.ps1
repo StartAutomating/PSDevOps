@@ -109,7 +109,7 @@
         }
         $innerScript = "$ScriptBlock"
 
-        $sbParams = 
+        $sbParams =
             if ($ScriptBlock.Ast.ParamBlock) {
                 $ScriptBlock.Ast.ParamBlock
             } elseif ($ScriptBlock.ast.Body.ParamBlock) {
@@ -135,7 +135,7 @@
 
                     $disambiguatedParameter = $Name + '_' + $parameterName
                     $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
-                    $shouldExclude = 
+                    $shouldExclude =
                         & $MatchesAnyWildCard $disambiguatedParameter, $parameterName $ExcludeParameter
                     if ($shouldExclude) { continue }
                     $VariableName =
@@ -147,24 +147,24 @@
 
                     $defaultValue =
                         if ($DefaultParameter[$disambiguatedParameter]) # If we provided a default value for the disambiguated parameter,
-                        { 
+                        {
                             $DefaultParameter[$disambiguatedParameter]  # use that as the default value.
                         } elseif ($DefaultParameter[$parameterName])    # Otherwise, if we have provided a default by name,
-                        {  
+                        {
                             $DefaultParameter[$parameterName]           # use that as the default.
                         } else
-                        {                            
+                        {
                             foreach ($param in $sbParams.Parameters) {
                                 if ($parameterName -eq $param.Name.VariablePath) {
                                     if ($param.DefaultValue.SubExpression) { # If the default value was a subexpression
-                                        break # then break, which will actually have a blank default.  
+                                        break # then break, which will actually have a blank default.
                                         # This is desirable, because otherwise, we have to allow string expansion on _any_ incoming parameter
                                         # Doing that would allow generic code injection into a pipeline, which we do not want.
                                     }
                                     "$($param.DefaultValue)"
                                     break
                                 }
-                            }     
+                            }
                         }
                     if ($BuildSystem -eq 'ado') {
 
@@ -192,7 +192,7 @@
                                         'number'
                                     }
                                     elseif ([string],
-                                        [Version], 
+                                        [Version],
                                         [ScriptBlock],[ScriptBlock[]],
                                         [string[]],
                                         [int[]],
@@ -228,10 +228,10 @@
                             $definedParameters += $thisParameter
                             "`$Parameters.$ParameterName = `${{parameters.$stepParamName}};"
                         }
-                                                                                                
+
                         if ([int[]], [string[]],[float[]] -contains $paramType) {
                             "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
-                        }                        
+                        }
                         if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
                             "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
                         }
@@ -259,7 +259,7 @@ $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 $Name `@Parameters
 "@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(format(''"{0}"'',parameters.${Name}), ''$null'')}};'
-                $innerScript = $sb 
+                $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters

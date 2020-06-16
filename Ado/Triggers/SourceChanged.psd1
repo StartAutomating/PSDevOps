@@ -1,5 +1,13 @@
 ﻿@{
+    batch = $true
     paths = @{
-        exclude = '*.md', '*.txt', '*.gif','*.png','*.jpg','*.mp3','*.mp4'
+        exclude = '*/*.md', 
+            '*/*.MD',
+            '*/*.txt', 
+            '*/*.gif',
+            '*/*.png',
+            '*/*.jpg',
+            '*/*.mp3',
+            '*/*.mp4'
     }
 }

@@ -1,80 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.3: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
-    <Name>PSDevOps.WorkItem</Name>
-    <Members>
-      <AliasProperty>
-        <Name>LastUpdated</Name>
-        <ReferencedMemberName>ChangedDate</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptMethod>
-        <Name>HTMLToText</Name>
-        <Script>
-                    param([string]$html)
-            $html -replace
-            '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
-            '&lt;/div&gt;', [Environment]::NewLine -replace
-            '&lt;li&gt;',"* " -replace
-            '&lt;/li&gt;', [Environment]::NewLine -replace
-            '\&lt;[^\&gt;]+\&gt;', '' -replace
-            '&amp;quot;', '"' -replace 
-            '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
-        
-                </Script>
-      </ScriptMethod>
-      <ScriptProperty>
-        <Name>ChangedDate</Name>
-        <GetScriptBlock>
-                     [DateTime]$this.'System.ChangedDate' 
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>Title</Name>
-        <GetScriptBlock>
-                     $this.'System.Title' 
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>CreatedDate</Name>
-        <GetScriptBlock>
-                     [DateTime]$this.'System.CreatedDate' 
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>AssignedTo</Name>
-        <GetScriptBlock>
-                     $this.'System.AssignedTo' 
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>ID</Name>
-        <GetScriptBlock>
-                     $this.'System.ID' 
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>StartAutomating.PSDevOps.ArtifactFeed.View</Name>
+    <Name>PSDevOps.ArtifactFeed.View</Name>
     <Members>
       <AliasProperty>
         <Name>ViewID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
+        <ReferencedMemberName>id</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.ArtifactFeed</Name>
+    <Name>PSDevOps.ArtifactFeed</Name>
     <Members>
       <AliasProperty>
         <Name>FeedID</Name>
-        <ReferencedMemberName>FullyQualifiedID</ReferencedMemberName>
+        <ReferencedMemberName>fullyQualifiedId</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.Build</Name>
+    <Name>PSDevOps.Build</Name>
     <Members>
       <AliasProperty>
         <Name>BuildID</Name>
@@ -83,7 +29,7 @@
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.Build.Definition</Name>
+    <Name>PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>
         <Name>DefinitionID</Name>
@@ -92,7 +38,7 @@
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.Repository</Name>
+    <Name>PSDevOps.Repository</Name>
     <Members>
       <AliasProperty>
         <Name>RepositoryID</Name>
@@ -101,7 +47,7 @@
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.ServiceEndpoint</Name>
+    <Name>PSDevOps.ServiceEndpoint</Name>
     <Members>
       <AliasProperty>
         <Name>EndpointID</Name>
@@ -114,12 +60,120 @@
     </Members>
   </Type>
   <Type>
-    <Name>StartAutomating.PSDevOps.Repository.SourceProvider</Name>
+    <Name>PSDevOps.Repository.SourceProvider</Name>
     <Members>
       <AliasProperty>
         <Name>ProviderName</Name>
         <ReferencedMemberName>Name</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Project</Name>
+    <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Organization</Name>
+              <Name>Project</Name>
+              <Name>LastUpdateTime</Name>
+              <Name>Description</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
+      <AliasProperty>
+        <Name>Project</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                    [DateTime]$this.LastUpdateTime
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.IterationPath</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>StartDate</Name>
+        <GetScriptBlock>
+                    $this.Attributes.StartDate -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>EndDate</Name>
+        <GetScriptBlock>
+                    $this.Attributes.FinishDate -as [DateTime]
+
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishDate</Name>
+        <GetScriptBlock>
+                    $this.Attributes.FinishDate -as [DateTime]
+
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.WorkItem</Name>
+    <Members>
+      <AliasProperty>
+        <Name>Title</Name>
+        <ReferencedMemberName>System.Title</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>AssignedTo</Name>
+        <ReferencedMemberName>System.AssignedTo</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>LastUpdated</Name>
+        <ReferencedMemberName>ChangedDate</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ID</Name>
+        <ReferencedMemberName>System.ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>HTMLToText</Name>
+        <Script>
+                    {param([string]$html)
+    $html -replace
+    '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
+    '&lt;/div&gt;', [Environment]::NewLine -replace
+    '&lt;li&gt;',"* " -replace
+    '&lt;/li&gt;', [Environment]::NewLine -replace
+    '\&lt;[^\&gt;]+\&gt;', '' -replace
+    '&amp;quot;', '"' -replace 
+    '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+}
+
+                </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ChangedDate</Name>
+        <GetScriptBlock>
+                    [DateTime]$this.'System.ChangedDate'
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>CreatedDate</Name>
+        <GetScriptBlock>
+                    [DateTime]$this.'System.CreatedDate'
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
 </Types>

@@ -5,6 +5,8 @@
     $TestProject = 'PSDevOps'
 )
 
+Write-Verbose "Testing with $testOrg/$TestProject"
+
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
@@ -284,7 +286,8 @@ describe 'Working with Work Items' {
         it 'Can create and remove custom feeds' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
             $TestFeedName = "TestFeed$([Random]::new().Next())"
-            New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName |
+            $newFeed = New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName
+            $newFeed |
                 Remove-ADOArtifactFeed @splat -Confirm:$false
         }
 
