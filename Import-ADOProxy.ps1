@@ -97,6 +97,13 @@
                 $cmd
             })
 
+        $override = @{Organization=$Organization}
+        if ($Project) { $override += @{Project=$Project} }
+        if ($Server)  { $override += @{Server =$Server } }
+
+        $overrideJson = $(ConvertTo-Json $override -Depth 100)
+
+
         $proxyCommands =
             @(foreach ($cmd in $filteredCommands) {
                 $cmdMd = [Management.Automation.CommandMetaData]$cmd
