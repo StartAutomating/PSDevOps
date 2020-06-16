@@ -45,7 +45,7 @@
     )
 
     process {
-        $out = & {
+        $out = @(
             if ($BuildNumber) {
                 "##vso[build.updatebuildnumber]$BuildNumber"
             }
@@ -63,12 +63,12 @@
             if ($EnvironmentPath) {
                 "##vso[task.prependpath]$EnvironmentPath"
             }
-        }
+        )
 
         if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
             $out | Out-Host
         } else {
-            $out
+            $out -join [Environment]::NewLine
         }
     }
 }
