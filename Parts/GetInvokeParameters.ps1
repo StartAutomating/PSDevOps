@@ -63,6 +63,13 @@ process {
         if (-not $invokeParams.PersonalAccessToken -and $Script:CachedPersonalAccessToken) {
             $invokeParams.PersonalAccessToken = $Script:CachedPersonalAccessToken
         }
+        if ($invokeParams.Credential) {
+            $script:CachedCredential = $invokeParams.Credential
+        }
+        if (-not $invokeParams.Credential -and $script:CachedCredential) {
+            $invokeParams.Credential = $script:CachedCredential
+        }
+
         return $invokeParams
     }
     
