@@ -15,7 +15,7 @@
         New-ADOServiceEndpoint
     #>
     [CmdletBinding(DefaultParameterSetName='serviceendpoint/endpoints/{EndpointId}',SupportsShouldProcess,ConfirmImpact='High')]
-    [OutputType([Nullable], [PSObject])]
+    [OutputType([Nullable], [Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

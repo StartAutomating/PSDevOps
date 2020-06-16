@@ -284,7 +284,7 @@ describe 'Working with Work Items' {
         it 'Can create and remove custom feeds' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
             $TestFeedName = "TestFeed$([Random]::new().Next())"
-            $newFeed = New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName 
+            $newFeed = New-ADOArtifactFeed @splat -Description "Test Feed" -Name $TestFeedName
             $newFeed |
                 Remove-ADOArtifactFeed @splat -Confirm:$false
         }

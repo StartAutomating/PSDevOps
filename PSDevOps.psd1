@@ -35,7 +35,7 @@
 * Get/New/Remove-ADORepository
 * Get/New/Remove-ADOServiceEndpoint
 * Get-ADOAgentPool
-** Improvements to New-ADOPipeline to avoid unexpected singletons 
+** Improvements to New-ADOPipeline to avoid unexpected singletons
 0.2.8
 ---
 * Get/New/Update-ADOBuild

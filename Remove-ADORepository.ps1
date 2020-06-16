@@ -7,6 +7,7 @@
         Removes repositories from Azure DevOps.
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories/{RepositoryId}',SupportsShouldProcess,ConfirmImpact='High')]
+    [OutputType([Nullable],[Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

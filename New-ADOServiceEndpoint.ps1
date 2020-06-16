@@ -20,7 +20,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/create?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='serviceendpoint/endpoints',SupportsShouldProcess)]
-    [OutputType('PSDevOps.ServiceEndpoint')]
+    [OutputType('PSDevOps.ServiceEndpoint', [Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
