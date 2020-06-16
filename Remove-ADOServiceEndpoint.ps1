@@ -2,13 +2,13 @@
 {
     <#
     .Synopsis
-        Removes Azure DevOps Service Endpoints 
+        Removes Azure DevOps Service Endpoints
     .Description
         Removes Azure DevOps Service Endpoints.
         Service Endpoints allow you to connect an Azure DevOps project with to one or more web services.
     .Example
         # clears the service endpoints for MyOrg/MyProject.  -PersonalAccessToken must be provided
-        Get-ADOServiceEndpoint -Organization MyOrg -Project MyProject | Remove-ADOServiceEndpoint 
+        Get-ADOServiceEndpoint -Organization MyOrg -Project MyProject | Remove-ADOServiceEndpoint
     .Link
         Get-ADOServiceEndpoint
     .Link
@@ -53,7 +53,7 @@
     }
 
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/') # the Server (minus any trailing slashes),
                 $Organization          # the Organization,
@@ -64,7 +64,7 @@
             ) -as [string[]] -ne '' -join '/'
         $uri += '?' # The URI has a query string containing:
         $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
@@ -72,10 +72,10 @@
                 "api-version=$ApiVersion"
             }
         ) -join '&'
-            
+
         $invokeParams += @{Method='DELETE';Uri=$uri} # we are DELETEing that URI.
 
-        if ($WhatIfPreference) { # If -WhatIf was passed, 
+        if ($WhatIfPreference) { # If -WhatIf was passed,
             $invokeParams.Remove('PersonalAccessToken') # remove the personal access token
             return $invokeParams # and return the invoke parameters
         }

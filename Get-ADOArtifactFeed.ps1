@@ -171,7 +171,7 @@
         $uri += @(
             if ($FeedRole) { "feedRole=$($FeedRole.ToLower())" }
             if ($IncludeDeleted) { "includeDeletedUpstreams=true" }
-            if ($Server -ne 'https://feeds.dev.azure.com/' -and 
+            if ($Server -ne 'https://feeds.dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }

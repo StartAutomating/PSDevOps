@@ -10,7 +10,7 @@ $myRoot = $myFile | Split-Path
 $formatting = @(
     Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -Wrap
     Write-FormatView -TypeName PSDevOps.WorkProcess -Property Name, IsEnabled, IsDefault, Description -Wrap
-    
+
     Import-FormatView -FilePath (Join-Path $myRoot Formatting)
 )
 
@@ -26,11 +26,11 @@ $types = @(
             '<li>',"* " -replace
             '</li>', [Environment]::NewLine -replace
             '\<[^\>]+\>', '' -replace
-            '&quot;', '"' -replace 
+            '&quot;', '"' -replace
             '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
         }
     } -ScriptProperty @{
-        Title = { $this.'System.Title' } 
+        Title = { $this.'System.Title' }
         ID    = { $this.'System.ID' }
         ChangedDate = { [DateTime]$this.'System.ChangedDate' }
         CreatedDate =  { [DateTime]$this.'System.CreatedDate' }
@@ -65,7 +65,7 @@ $types = @(
     } -ScriptProperty @{
         LastUpdated = {[DateTime]$this.LastUpdateTime}
     } -DefaultDisplay Organization, Project, LastUpdateTime, Description
-    
+
     Join-Path $myRoot Types |
         Get-Item -ea ignore |
         Import-TypeView

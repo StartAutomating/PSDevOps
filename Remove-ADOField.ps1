@@ -60,7 +60,7 @@
 
         $uri = $uriBase, '_apis/wit/fields', "${name}?" -join '/'
 
-        if ($Server -ne 'https://dev.azure.com/' -and 
+        if ($Server -ne 'https://dev.azure.com/' -and
             -not $PSBoundParameters.ApiVersion) {
             $ApiVersion = '2.0'
         }

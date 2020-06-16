@@ -52,7 +52,7 @@
 
         $RepositoryID = $realRepositoryId
 
-        $uri = 
+        $uri =
             "$(@(
                 "$server".TrimEnd('/') # * The Server
                 $Organization # * The Organization
@@ -61,7 +61,7 @@
                 . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
             @(
-                if ($Server -ne 'https://dev.azure.com/' -and 
+                if ($Server -ne 'https://dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
                 }
@@ -74,7 +74,7 @@
 
 
         $invokeParams += @{Uri = $uri;Method = 'DELETE'}
-        
+
 
         if ($WhatIfPreference) {
             $invokeParams.Remove('PersonalAccessToken')

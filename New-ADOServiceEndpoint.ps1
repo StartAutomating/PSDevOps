@@ -5,7 +5,7 @@
         Creates Azure DevOps Service Endpoints
     .Description
         Creates Service Endpoints in Azure DevOps.
-        
+
         Service Endpoints are used to connect an Azure DevOps project to one or more web services.
 
         To see the types of service endpoints, use Get-ADOServiceEndpoint -GetEndpointType
@@ -43,7 +43,7 @@
     [PSObject]
     $AdministratorsGroup,
 
-    # Endpoint authorization data 
+    # Endpoint authorization data
     [Parameter(ValueFromPipelineByPropertyName)]
     [PSObject]
     $Authorization,
@@ -77,7 +77,7 @@
     [Parameter(ValueFromPipelineByPropertyName)]
     [switch]
     $IsShared,
-    
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -98,7 +98,7 @@
     }
 
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/') # the Server (minus any trailing slashes),
                 $Organization          # the Organization,
@@ -109,7 +109,7 @@
             ) -as [string[]] -ne '' -join '/'
         $uri += '?' # The URI has a query string containing:
         $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
@@ -117,8 +117,8 @@
                 "api-version=$ApiVersion"
             }
         ) -join '&'
-        
-        $notInvokeParams = . $getNotInvokeParameters $PSBoundParameters         
+
+        $notInvokeParams = . $getNotInvokeParameters $PSBoundParameters
         foreach ($k in @($notInvokeParams.Keys)) {
             if ($queryParameters -contains $k) {
                 $notInvokeParams.Remove($k)
@@ -134,7 +134,7 @@
 
 
         if (-not $psCmdlet.ShouldProcess("$($invokeParams.method) $($invokeParams.Uri)")) { return }
-        
+
         Invoke-ADORestAPI @invokeParams -PSTypeName @( # Prepare a list of typenames so we can customize formatting:
             "$Organization.$Project.ServiceEndpoint" # * $Organization.$Project.ServiceEndpoint
             "$Organization.ServiceEndpoint" # * $Organization.ServiceEndpoint

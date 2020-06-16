@@ -81,7 +81,7 @@
                 . $ReplaceRouteParameter $parameterSetName #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
             @(
-                if ($Server -ne 'https://feeds.dev.azure.com/' -and 
+                if ($Server -ne 'https://feeds.dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
                 }

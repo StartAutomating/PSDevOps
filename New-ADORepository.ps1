@@ -57,7 +57,7 @@
     }
 
     process {
-        $uri = 
+        $uri =
             "$(@(
                 "$server".TrimEnd('/') # * The Server
                 $Organization # * The Organization
@@ -66,7 +66,7 @@
                 . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
             @(
-                if ($Server -ne 'https://dev.azure.com/' -and 
+                if ($Server -ne 'https://dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
                 }
@@ -78,7 +78,7 @@
 
         $projectID = Get-ADOProject @invokeParams -Organization $Organization -Project $Project |
             Select-Object -ExpandProperty ID
-        if (-not $projectId) { return } 
+        if (-not $projectId) { return }
 
         $body = @{
             name = $RepositoryName
@@ -92,7 +92,7 @@
             $body.parentRepository = @{ID=$UpstreamID}
         }
         $invokeParams += @{Uri = $uri;Method = 'POST';Body=$body}
-        
+
 
         if ($WhatIfPreference) {
             $invokeParams.Remove('PersonalAccessToken')
