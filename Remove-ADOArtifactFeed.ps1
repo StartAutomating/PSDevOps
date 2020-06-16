@@ -39,13 +39,17 @@
     $FeedID,
 
     # The View Name or ID
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views/{viewId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [ValidatePattern(
         #?<> -LiteralCharacter '|?/\:&$*"[]>' -CharacterClass Whitespace -Not -Repeat -StartAnchor StringStart -EndAnchor StringEnd
         '\A[^\s\|\?\/\\\:\&\$\*\"\[\]\>]{0,}\z'
     )]
     [string]
     $ViewID,
+
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views/{viewId}')]
+    [switch]
+    $View,
 
     # The server.  By default https://feeds.dev.azure.com/.
     [Parameter(ValueFromPipelineByPropertyName)]
