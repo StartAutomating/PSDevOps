@@ -120,11 +120,11 @@ $overrideJson
 "@ + [Environment]::NewLine + ' ' * 8)
 
                 $insertDynamicParamsAt = $proxy.IndexOf('begin' + [Environment]::NewLine)
-                $proxy = $proxy.Insert($insertDynamicParamsAt, {
+                $proxy = $proxy.Insert($insertDynamicParamsAt, @"
 dynamicParam {
-    & (Get-Module PSDevOps) { . $GetInvokeParameters -DynamicParameter }
+    . {$($GetInvokeParameters.ScriptBlock)} -DynamicParameter
 }
-})
+"@)
 
                 @(
                     "function $($cmdMd.Name -replace 'ADO', $prefix) {"
