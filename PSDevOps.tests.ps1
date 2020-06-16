@@ -294,6 +294,14 @@ describe 'Working with Work Items' {
     }
 }
 
+describe 'Import-ADOProxy' {
+    it 'Should Import a proxy module' {
+        $saProxy = Import-ADOProxy -Force -Organization StartAutomating -PassThru -Prefix SA
+        $saProxy.Name | should -Be SA
+        Get-Command -Name Get-SABuild | Select-Object -ExpandProperty Name | should -be Get-SABuild
+    }
+}
+
 
 describe 'New-GitHubAction' {
      it 'should create yaml' {
