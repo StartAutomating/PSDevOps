@@ -45,7 +45,7 @@
     [switch]
     $SourceProvider,
 
-    # The name of the Source Provider.  This will get all repositories associated with the project.  
+    # The name of the Source Provider.  This will get all repositories associated with the project.
     # If the -ProviderName is not TFVC or TFGit, an -EndpointID is also required
     [Parameter(Mandatory,ParameterSetName='sourceproviders/{ProviderName}/repositories',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='sourceProviders/{ProviderName}/filecontents',ValueFromPipelineByPropertyName)]
@@ -53,7 +53,7 @@
     [string]
     $ProviderName,
 
-    # The name of the Source Provider.  This will get all repositories associated with the project.  
+    # The name of the Source Provider.  This will get all repositories associated with the project.
     # If the -ProviderName is not TFVC or TFGit, an -EndpointID is also required
     [Parameter(ParameterSetName='sourceproviders/{ProviderName}/repositories',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='sourceProviders/{ProviderName}/filecontents',ValueFromPipelineByPropertyName)]
@@ -112,7 +112,7 @@
     [string]
     $VersionType,
 
-    # If -IncludeContentMetadata is set a -FileList will include content metadata. 
+    # If -IncludeContentMetadata is set a -FileList will include content metadata.
     [Parameter(ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]
     [Alias('IncludeContentMetadata')]
     [switch]
@@ -123,7 +123,7 @@
     [switch]
     $Download,
 
-    
+
     # If set, will include the parent repository
     [Parameter(ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
     [switch]
@@ -156,7 +156,7 @@
     }
 
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/') # the Server (minus any trailing slashes),
                 $Organization          # the Organization,
@@ -166,9 +166,9 @@
                                        # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
         $uri += '?' # The URI has a query string containing:
-        $uri += @(            
+        $uri += @(
             if ($IncludeParent) { # includeParent=True (if it was set)
-                "includeParent=True" 
+                "includeParent=True"
             }
 
             if ($EndpointID) {
@@ -214,16 +214,16 @@
             if ($path) {
                 "path=$path"
             }
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
-            }  
+            }
             if ($ApiVersion) { # and the apiVersion
                 "api-version=$ApiVersion"
             }
         ) -join '&'
 
-        $InvokeParams.Property = 
+        $InvokeParams.Property =
             @{
                 # Because we want to pipeline properly, also return the -Organization and -Project as properties.
                 Organization = $Organization
@@ -231,10 +231,10 @@
                 Server = $Server
             }
 
-        $subTypeName = 
+        $subTypeName =
             if ($psCmdlet.ParameterSetName -eq 'git/recycleBin/repositories') {
                 '.Recycled'
-            } 
+            }
             elseif ($psCmdlet.ParameterSetName -eq 'sourceProviders') {
                 '.SourceProvider'
             }

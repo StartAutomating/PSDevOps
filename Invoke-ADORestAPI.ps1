@@ -170,7 +170,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                 if ($null -ne $_.Count -and $_.Count -eq 0) { return }
                 if ($PSTypeName -and # If we have a PSTypeName (to apply formatting)
                     $_ -isnot [Management.Automation.ErrorRecord] # and it is not an error (which we do not want to format)
-                ) { 
+                ) {
                     $_.PSTypeNames.Clear() # then clear the existing typenames and decorate the object.
                     foreach ($t in $PSTypeName) {
                         $_.PSTypeNames.add($T)

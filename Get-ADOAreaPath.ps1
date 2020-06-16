@@ -62,26 +62,26 @@
                     "$organization.$Project.AreaPath",
                     "PSDevOps.AreaPath"
                 ) {
-                    $node.pstypenames.Add($typeName)    
+                    $node.pstypenames.Add($typeName)
                 }
                 $node
                 if ($node.haschildren) {
-                    $node.children | 
+                    $node.children |
                         & $MyInvocation.MyCommand.ScriptBlock
                 }
             }
         }
     }
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
-        
+
         $uri += '?' # The URI has a query string containing:
         $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
@@ -93,7 +93,7 @@
             }
         ) -join '&'
 
-        Invoke-ADORestAPI -Uri $uri @invokeParams | 
+        Invoke-ADORestAPI -Uri $uri @invokeParams |
             & $expandAreaPaths
     }
 }

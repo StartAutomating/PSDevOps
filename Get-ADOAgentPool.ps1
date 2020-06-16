@@ -8,7 +8,7 @@
 
         Queues associate a given project with a pool.
         Pools are shared by organization.
-        
+
         Thus providing a project will return the queues associated with the project,
         and just providing the organization will return all of the common pools.
     .Example
@@ -52,7 +52,7 @@
     }
 
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 $Organization            # the Organization,
@@ -61,10 +61,10 @@
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
-        
+
         $uri += '?' # The URI has a query string containing:
         $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }

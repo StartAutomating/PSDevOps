@@ -5,7 +5,7 @@
         Gets Azure DevOps Service Endpoints
     .Description
         Gets Service Endpoints from Azure DevOps.
-        
+
         Service Endpoints are used to connect an Azure DevOps project to one or more web services.
 
         To see the types of service endpoints, use Get-ADOServiceEndpoint -GetEndpointType
@@ -14,9 +14,9 @@
     .Example
         Get-ADOServiceEndpoint -Organization MyOrg -GetEndpointType -PersonalAccessToken $myPersonalAccessToken
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get%20service%20endpoints?view=azure-devops-rest-5.1        
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get%20service%20endpoints?view=azure-devops-rest-5.1
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get?view=azure-devops-rest-5.1   
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='serviceendpoint/endpoints')]
     [OutputType('PSDevOps.ServiceEndpoint', 'StartAutomating.PSDevOps.ServiceEndpoint.History', 'StartAutomating.PSDevOps.ServiceEndpoint.Type')]
@@ -75,7 +75,7 @@
     }
 
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 $Organization            # the Organization,
@@ -86,7 +86,7 @@
             ) -as [string[]] -ne '' -join '/'
         $uri += '?'
         $uri += $(@(
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
@@ -94,9 +94,9 @@
                 "api-version=$ApiVersion"
             }
         ) -join '&')
-            
 
-        $subTypeName = 
+
+        $subTypeName =
             if ($History) {
                 '.History'
             } elseif ($GetEndpointType) {

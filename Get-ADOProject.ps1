@@ -44,7 +44,7 @@
         #endregion Copy Invoke-ADORestAPI parameters
     }
     process {
-        $uri = 
+        $uri =
             "$(@(
                 "$server".TrimEnd('/') # * The Server
                 . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
@@ -54,8 +54,8 @@
                     "api-version=$ApiVersion"
                 }
             ) -join '&'
-            )"        
-        
+            )"
+
         Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.Project", "PSDevOps.Project" -Property @{
             Organization = $Organization
             Server = $Server

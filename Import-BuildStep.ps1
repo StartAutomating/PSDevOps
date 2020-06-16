@@ -131,7 +131,7 @@
                 if (-not $ThingNames[$t].Contains($n)) {
                     $ThingNames[$t].Add($n)
                 }
-                
+
                 $ThingData["$($t).$($n)"] = [PSCustomObject][Ordered]@{
                     Name      = $n
                     Type      = $t

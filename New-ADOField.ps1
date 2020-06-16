@@ -123,7 +123,7 @@
         $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
 
         $uri = $uriBase, "_apis/wit/fields?" -join '/'
-        if ($Server -ne 'https://dev.azure.com/' -and 
+        if ($Server -ne 'https://dev.azure.com/' -and
             -not $PSBoundParameters.ApiVersion) {
             $ApiVersion = '2.0'
         }

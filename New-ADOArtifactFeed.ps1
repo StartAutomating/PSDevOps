@@ -126,7 +126,7 @@
                 . $ReplaceRouteParameter $PSCmdlet.ParameterSetName #* and the replaced route parameters.
             )  -join '/')?$( # Followed by a query string, containing
             @(
-                if ($Server -ne 'https://feeds.dev.azure.com/' -and 
+                if ($Server -ne 'https://feeds.dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
                 }
@@ -235,7 +235,7 @@
         }
 
         if ($PSCmdlet.ShouldProcess($shouldProcessMessage)) {
-            Invoke-ADORestAPI @invokeParams -Property @{ 
+            Invoke-ADORestAPI @invokeParams -Property @{
                 Organization = $Organization
                 Project = $Project
                 Server= $Server

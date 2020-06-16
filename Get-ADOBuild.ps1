@@ -215,7 +215,7 @@
     $NotBuiltSince,
 
     # If provided, will return build definition YAML.  No other information will be returned.
-    [Parameter(ParameterSetName='build/definitions/{definitionId}')] 
+    [Parameter(ParameterSetName='build/definitions/{definitionId}')]
     [switch]
     $DefinitionYAML)
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -227,7 +227,7 @@
 
         $accumulatedInput = [Collections.ArrayList]::new()
     }
-    
+
     process {
         $in = $_
         $ParameterSet = $psCmdlet.ParameterSetName
@@ -291,7 +291,7 @@
                     if ($BuildResult) {
                         "resultFilter=$buildResult"
                     }
-                    if ($Server -ne 'https://dev.azure.com/' -and 
+                    if ($Server -ne 'https://dev.azure.com/' -and
                         -not $PSBoundParameters.ApiVersion) {
                         $ApiVersion = '2.0'
                     }
@@ -314,7 +314,7 @@
                 "PSDevOps.Build$subTypeName" # * PSDevOps.Build
             )
 
-        
+
             if ($Detail)
             {
                 $null = $PSBoundParameters.Remove('Detail')
@@ -327,7 +327,7 @@
                     Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
                     Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @PSBoundParameters -Artifact) -Force -PassThru |
                     Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru
-            } 
+            }
             elseif ($DefinitionYAML)
             {
                 $definitionObject = Invoke-ADORestAPI @invokeParams
@@ -346,11 +346,11 @@
                     # Get the repository, and redirect errors into output.
                     Get-ADORepository @repoParams @authParams 2>&1 | # This way, we can add properties:
                         Add-Member NoteProperty Organization $Organization -Force -PassThru | # * .Organization
-                        Add-Member NoteProperty Project $Project -Force -PassThru |  # .Project 
+                        Add-Member NoteProperty Project $Project -Force -PassThru |  # .Project
                         Add-Member NoteProperty DefinitionID $definitionObject.ID -Force -PassThru | # .DefinitionID
                         Add-Member NoteProperty DefinitionName $definitionObject.Name -Force -PassThru # .DefinitionName
                 }
-            } 
+            }
             else
             {
                 Invoke-ADORestAPI @invokeParams -Property @{

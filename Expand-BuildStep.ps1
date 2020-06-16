@@ -165,7 +165,7 @@
                         if ($convertedBuildStep) {
                             if ($convertedBuildStep.parameters) {
                                 if ($BuildSystem -eq 'ADO' -and $Root) {
-                                    
+
                                     if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
                                         foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
                                             $root.Parameters[$keyValue.Key] = $keyValue.Value
@@ -173,7 +173,7 @@
                                     } else {
                                         $root.parameters = $convertedBuildStep.parameters
                                     }
-                                        
+
                                     $convertedBuildStep.Remove('parameters')
                                 }
                             }
@@ -195,7 +195,7 @@
                 }
             }
 
-            
+
 
             $outObject[$propName] = $outValue
 
@@ -207,7 +207,7 @@
                 $outObject[$propName] = $outObject[$propName][0]
             }
 
-            if ($PluralItemName -contains $propName -and 
+            if ($PluralItemName -contains $propName -and
                 $outObject[$propName] -isnot [Collections.IList]) {
                 $outObject[$propName] = @($outObject[$propName])
             }

@@ -64,26 +64,26 @@
                     "$organization.$Project.IterationPath",
                     "PSDevOps.IterationPath"
                 ) {
-                    $node.pstypenames.Add($typeName)    
+                    $node.pstypenames.Add($typeName)
                 }
                 $node |
                     Add-Member NoteProperty Organization $organization -Force -PassThru |
                     Add-Member NoteProperty Project $Project -Force -PassThru |
                     Add-Member NoteProperty Server $Server -Force -PassThru
                 if ($node.haschildren) {
-                    $node.children | 
+                    $node.children |
                         & $MyInvocation.MyCommand.ScriptBlock
                 }
             }
         }
     }
     process {
-        $uri = # The URI is comprised of:  
+        $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
-        
+
         $uri += '?' # The URI has a query string containing:
         $uri += @(
             if ($ApiVersion) { # the api-version
