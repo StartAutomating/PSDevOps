@@ -1,4 +1,4 @@
-﻿Write-FormatView -TypeName StartAutomating.PSDevOps.Build -Action {
+﻿Write-FormatView -TypeName PSDevOps.Build -Action {
     Write-FormatViewExpression -ScriptBlock { $_.Definition.Name + ' ' + $_.BuildNumber + ' [' }
     
     Write-FormatViewExpression -ForegroundColor 'PSDevOps.Build.Succeeded' -If {

@@ -1,0 +1,1 @@
+﻿Write-FormatView -TypeName PSDevOps.Project -Property Project, Description -GroupByProperty Organization
