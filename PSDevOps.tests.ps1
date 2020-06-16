@@ -5,6 +5,8 @@
     $TestProject = 'PSDevOps'
 )
 
+Write-Verbose "Testing with $testOrg/$TestProject"
+
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
