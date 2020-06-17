@@ -22,16 +22,19 @@
     [string]
     $Project,
 
+    # If set, will return teams in which the current user is a member.
     [Parameter(ParameterSetName='teams',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [Alias('My')]
     [switch]
     $Mine,
 
+    # The Team Identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
     [string]
     $TeamID,
 
+    # If set, will return members of a team.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members')]
     [Alias('Members','Membership')]
     [switch]
