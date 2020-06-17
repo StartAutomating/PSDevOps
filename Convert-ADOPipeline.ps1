@@ -4,7 +4,7 @@
     .Synopsis
         Converts builds to Azure DevOps Pipelines
     .Description
-        Converts builds to Azure DevOps YAML Pipelines.
+        Converts builds TFS or "Classic" builds to Azure DevOps YAML Pipelines.
     #>
     param(
     # A list of build steps.
@@ -29,12 +29,10 @@
 
     begin {
         $q = [Collections.Queue]::new()
-
     }
 
     process {
         $in = $_
-
 
         if (-not $BuildStep.Task) {
             Write-Error "Build Step must contain tasks"
