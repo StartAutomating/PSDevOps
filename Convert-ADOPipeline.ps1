@@ -46,7 +46,7 @@
     }
 
     end {
-        $c, $t, $id = 0, $q.Count, [Random]::new()
+        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
 
             $dequeued = $q.Dequeue()
