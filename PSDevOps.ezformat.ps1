@@ -18,35 +18,12 @@ $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
 $formatting | Out-FormatData -ModuleName PSDevOps | Set-Content $myFormatFile -Encoding UTF8
 
 $types = @(
-    <#Write-TypeView -TypeName PSDevOps.WorkItem -ScriptMethod @{
-        HTMLToText = {param([string]$html)
-            $html -replace
-            '<br(?:/)?>', [Environment]::NewLine -replace
-            '</div>', [Environment]::NewLine -replace
-            '<li>',"* " -replace
-            '</li>', [Environment]::NewLine -replace
-            '\<[^\>]+\>', '' -replace
-            '&quot;', '"' -replace
-            '&nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
-        }
-    } -ScriptProperty @{
-        Title = { $this.'System.Title' }
-        ID    = { $this.'System.ID' }
-        ChangedDate = { [DateTime]$this.'System.ChangedDate' }
-        CreatedDate =  { [DateTime]$this.'System.CreatedDate' }
-        AssignedTo = { $this.'System.AssignedTo' }
-    } -AliasProperty @{
-        LastUpdated = 'ChangedDate'
-    }#>
     Write-TypeView -TypeName PSDevOps.ArtifactFeed.View -AliasProperty @{
         ViewID = 'id'
     }
     Write-TypeView -TypeName PSDevOps.ArtifactFeed -AliasProperty @{
         FeedID = 'fullyQualifiedId'
     } -HideProperty ViewID
-    Write-TypeView -TypeName PSDevOps.Build -AliasProperty @{
-        BuildID = 'ID'
-    }
     Write-TypeView -TypeName PSDevOps.Build.Definition -AliasProperty @{
         DefinitionID = 'ID'
     }
