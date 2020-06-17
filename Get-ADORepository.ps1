@@ -153,110 +153,129 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = & $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
+        
+        $q = [Collections.Queue]::new()
+        
     }
 
     process {
-        $uri = # The URI is comprised of:
-            @(
-                "$server".TrimEnd('/') # the Server (minus any trailing slashes),
-                $Organization          # the Organization,
-                $Project               # the Project,
-                '_apis'                # the API Root ('_apis'),
-                (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
-                                       # and any parameterized URLs in this parameter set.
-            ) -as [string[]] -ne '' -join '/'
-        $uri += '?' # The URI has a query string containing:
-        $uri += @(
-            if ($IncludeParent) { # includeParent=True (if it was set)
-                "includeParent=True"
+        $q.Enqueue(@{psParameterSet= $psCmdlet.ParameterSetName} + $psBoundParameters)
+
+    }
+
+    end {
+        $c, $t, $progId =0, $q.Count, [Random]::new().Next()
+        while ($q.Count) {
+            . $DQ $q
+            if ($t -gt 1) {
+                $c++
+                Write-Progress "Getting Repositories" "$Server $Organization/$Project" -PercentComplete ($c * 100 / $t) -Id $progId
             }
 
-            if ($EndpointID) {
-                "serviceEndpointId=$EndpointID"
-            }
-
-            if ($repositoryName) {
-                "repository=$repositoryName"
-                "commitOrBranch=$CommitOrBranch"
-            }
-
-            if ($psCmdlet.ParameterSetName -eq 'git/repositories/{repositoryId}/items') {
-                if ($IncludeMetadata) {
-                    "includeContentMetadata=true"
-                }
-                if ($RecursionLevel) {
-                    "recursionLevel=$recursionLevel"
-                }
-                if ($Download) {
-                    "download=true"
-                } else {
-                    '$format=json'
+            $uri = # The URI is comprised of:
+                @(
+                    "$server".TrimEnd('/') # the Server (minus any trailing slashes),
+                    $Organization          # the Organization,
+                    $Project               # the Project,
+                    '_apis'                # the API Root ('_apis'),
+                    (. $ReplaceRouteParameter $PSParameterSet)
+                                           # and any parameterized URLs in this parameter set.
+                ) -as [string[]] -ne '' -join '/'
+            $uri += '?' # The URI has a query string containing:
+            $uri += @(
+                if ($IncludeParent) { # includeParent=True (if it was set)
+                    "includeParent=True"
                 }
 
-                if ($scopePath) {
-                    "scopePath=$scopePath"
+                if ($EndpointID) {
+                    "serviceEndpointId=$EndpointID"
                 }
 
-                if ($Latest) {
-                    "latestProcessedChange=true"
+                if ($repositoryName) {
+                    "repository=$repositoryName"
+                    "commitOrBranch=$CommitOrBranch"
                 }
-                if ($VersionDescriptor) {
-                    "versionDescriptor.version=$VersionDescriptor"
+
+                if ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
+                    if ($IncludeMetadata) {
+                        "includeContentMetadata=true"
+                    }
+                    if ($RecursionLevel) {
+                        "recursionLevel=$recursionLevel"
+                    }
+                    if ($Download) {
+                        "download=true"
+                    } else {
+                        '$format=json'
+                    }
+
+                    if ($scopePath) {
+                        "scopePath=$scopePath"
+                    }
+
+                    if ($Latest) {
+                        "latestProcessedChange=true"
+                    }
+                    if ($VersionDescriptor) {
+                        "versionDescriptor.version=$VersionDescriptor"
+                    }
+                    if ($VersionOption) {
+                        "versionDescriptor.option=$VersionOption"
+                    }
+                    if ($VersionType) {
+                        "versionDescriptor.type=$VersionType"
+                    }
                 }
-                if ($VersionOption) {
-                    "versionDescriptor.option=$VersionOption"
+
+                if ($path) {
+                    "path=$path"
                 }
-                if ($VersionType) {
-                    "versionDescriptor.type=$VersionType"
+                if ($Server -ne 'https://dev.azure.com/' -and
+                    -not $PSBoundParameters.ApiVersion) {
+                    $ApiVersion = '2.0'
                 }
-            }
+                if ($ApiVersion) { # and the apiVersion
+                    "api-version=$ApiVersion"
+                }
+            ) -join '&'
 
-            if ($path) {
-                "path=$path"
-            }
-            if ($Server -ne 'https://dev.azure.com/' -and
-                -not $PSBoundParameters.ApiVersion) {
-                $ApiVersion = '2.0'
-            }
-            if ($ApiVersion) { # and the apiVersion
-                "api-version=$ApiVersion"
-            }
-        ) -join '&'
+            $InvokeParams.Property =
+                @{
+                    # Because we want to pipeline properly, also return the -Organization and -Project as properties.
+                    Organization = $Organization
+                    Project = $Project
+                    Server = $Server
+                }
 
-        $InvokeParams.Property =
-            @{
-                # Because we want to pipeline properly, also return the -Organization and -Project as properties.
-                Organization = $Organization
-                Project = $Project
-                Server = $Server
-            }
+            $subTypeName =
+                if ($psParameterSet -eq 'git/recycleBin/repositories') {
+                    '.Recycled'
+                }
+                elseif ($psParameterSet -eq 'sourceProviders') {
+                    '.SourceProvider'
+                }
+                elseif ($psParameterSet -eq 'sourceproviders/{ProviderName}/repositories') {
+                    ".$ProviderName.Repository"
+                    $invokeParams.ExpandProperty = 'repositories'
+                    $invokeParams.Property.EndpointID = $EndpointID
+                    $invokeParams.Property.ProviderName = $ProviderName
+                }
+                elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
+                    ".File"
+                }
+                else {
+                    ''
+                }
 
-        $subTypeName =
-            if ($psCmdlet.ParameterSetName -eq 'git/recycleBin/repositories') {
-                '.Recycled'
-            }
-            elseif ($psCmdlet.ParameterSetName -eq 'sourceProviders') {
-                '.SourceProvider'
-            }
-            elseif ($psCmdlet.ParameterSetName -eq 'sourceproviders/{ProviderName}/repositories') {
-                ".$ProviderName.Repository"
-                $invokeParams.ExpandProperty = 'repositories'
-                $invokeParams.Property.EndpointID = $EndpointID
-                $invokeParams.Property.ProviderName = $ProviderName
-            }
-            elseif ($psCmdlet.ParameterSetName -eq 'git/repositories/{repositoryId}/items') {
-                ".File"
-            }
-            else {
-                ''
-            }
-
-        # Invoke the ADO Rest API.
-        Invoke-ADORestAPI @invokeParams -Uri $uri -PSTypeName @(
-            # Because we want to format the output, decorate the object with the following typenames:
-            "$Organization.$Project.Repository$subTypeName" # * $Organization.$Project.Repository$SubTypeName
-            "$Organization.Repository$subTypeName" # * $Organization.Repository$SubTypeName
-            "PSDevOps.Repository$subTypeName" # * PSDevOps.Repository$SubTypeName
-        )
+            # Invoke the ADO Rest API.
+            Invoke-ADORestAPI @invokeParams -Uri $uri -PSTypeName @(
+                # Because we want to format the output, decorate the object with the following typenames:
+                "$Organization.$Project.Repository$subTypeName" # * $Organization.$Project.Repository$SubTypeName
+                "$Organization.Repository$subTypeName" # * $Organization.Repository$SubTypeName
+                "PSDevOps.Repository$subTypeName" # * PSDevOps.Repository$SubTypeName
+            )
+        }
+    
+        Write-Progress "Getting Repositories" ' ' -Completed -Id $progId
     }
 }
