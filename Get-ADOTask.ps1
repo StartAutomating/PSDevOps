@@ -1,50 +1,43 @@
-﻿function Get-ADOTeam
+﻿function Get-ADOTask
 {
     <#
     .Synopsis
-        Gets Azure DevOps Teams
+        Gets Azure DevOps Tasks
     .Description
-        Gets teams from Azure DevOps or TFS
+        Gets Tasks and Task Groups from Azure DevOps
     .Example
-        Get-ADOTeam -Organization StartAutomating
+        Get-ADOTask -Organization StartAutomating
     #>
-    [CmdletBinding(DefaultParameterSetName='teams')]
+    [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/distributedTask/Tasks')]
     param(
-    # The Organization.
+    # The organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
-    
-    # The project name or identifier
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+
+    # The project.  Required to get task groups.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Organization}/{Project}/_apis/distributedTask/taskGroups/')]
     [string]
     $Project,
 
-    # If set, will return teams in which the current user is a member.
-    [Parameter(ParameterSetName='teams',ValueFromPipelineByPropertyName)]
-    [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
-    [Alias('My')]
+    # If set, will get task groups related to a project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Organization}/{Project}/_apis/distributedTask/taskGroups/')]
+    [Alias('TaskGroups')]
     [switch]
-    $Mine,
-
-    # The Team Identifier
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
-    [string]
-    $TeamID,
-
-    # If set, will return members of a team.
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members')]
-    [Alias('Members','Membership')]
-    [switch]
-    $Member,
+    $TaskGroup,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
     [uri]
-    $Server = "https://dev.azure.com/"
+    $Server = "https://dev.azure.com/",
+
+    # The api version.  By default, 5.1.
+    # If targeting TFS, this will need to change to match your server version.
+    # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
+    [string]
+    $ApiVersion = "5.1-preview"
     )
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -53,22 +46,15 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-        $authParams = @{} + $invokeParams
     }
 
     process {
         $psParameterSet = $psCmdlet.ParameterSetName
-        $in = $_
-        if ($in.Project -and $psParameterSet -notlike '*Project*') {
-            $psParameterSet = 'projects/{Project}/teams'
-            $project = $psBoundParameters['Project']  = $in.Project
-        }
+
 
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
-                $Organization            # the Organization,
-                '_apis'                  # the API Root ('_apis'),
                 (. $ReplaceRouteParameter $psParameterSet)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
@@ -78,9 +64,6 @@
             if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
-            }
-            if ($Mine) {
-                '$mine=true'
             }
             if ($ApiVersion) { # the api-version
                 "api-version=$apiVersion"
@@ -95,10 +78,22 @@
             "PSDevOps.$typename"
         )
 
-        Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
-            Organization = $Organization
-            Project = $Project
-            Server = $Server
+        $invokeResult = Invoke-ADORestAPI -Uri $uri @invokeParams
+        if ($invokeResult -is [string]) {
+            $invokeResult = ($invokeResult -replace '""', '"_blank"') |
+                Microsoft.PowerShell.Utility\ConvertFrom-Json |
+                Select-Object -ExpandProperty Value
+            $invokeResult = foreach ($ir in $invokeResult) {
+                $ir.pstypenames.clear()
+                foreach ($tn in $typeNames) {
+                    $ir.pstypenames.Add($tn)
+                }
+                $ir
+            }
         }
+
+        $invokeResult |
+            Add-Member NoteProperty Organization $Organization -Force -PassThru |
+            Add-Member NoteProperty Server $Server -Force -PassThru
     }
 }
