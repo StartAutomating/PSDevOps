@@ -153,9 +153,9 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = & $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-        
+
         $q = [Collections.Queue]::new()
-        
+
     }
 
     process {
@@ -275,7 +275,7 @@
                 "PSDevOps.Repository$subTypeName" # * PSDevOps.Repository$SubTypeName
             )
         }
-    
+
         Write-Progress "Getting Repositories" ' ' -Completed -Id $progId
     }
 }
