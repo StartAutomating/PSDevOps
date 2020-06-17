@@ -89,6 +89,15 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.Team</Name>
+    <Members>
+      <AliasProperty>
+        <Name>TeamID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.Build</Name>
     <Members>
       <AliasProperty>
