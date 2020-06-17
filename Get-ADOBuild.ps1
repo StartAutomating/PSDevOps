@@ -79,6 +79,7 @@
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/artifacts',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/report',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='test/codeCoverage',ValueFromPipelineByPropertyName)]
     [string]
     $BuildID,
 
@@ -124,6 +125,11 @@
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline')]
     [switch]
     $Timeline,
+
+    # If set, will return the code coverage associated with -BuildID
+    [Parameter(Mandatory,ParameterSetName='test/codeCoverage')]
+    [switch]
+    $CodeCoverage,
 
     # If set, will get build definitions.
     [Parameter(Mandatory,ParameterSetName='build/definitions')]
@@ -218,9 +224,9 @@
     [Parameter(ParameterSetName='build/definitions/{definitionId}')]
     [switch]
     $DefinitionYAML)
-    
+
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
-    
+
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
@@ -248,7 +254,7 @@
 
     end {
         $c, $t, $id = 0, $q.Count, [Random]::new().Next()
-        
+
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
             if ($t -gt 1) {
@@ -266,6 +272,9 @@
                 @(
                     if ($First) {
                         "`$top=$first"
+                    }
+                    if ($CodeCoverage) {
+                        "buildId=$buildId"
                     }
                     if ($BranchName) {
                         if ($BranchName -notlike '*/*') {
@@ -327,7 +336,8 @@
                     Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @PSBoundParameters -ChangeSet) -Force -PassThru |
                     Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
                     Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @PSBoundParameters -Artifact) -Force -PassThru |
-                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru
+                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru |
+                    Add-Member NoteProperty CodeCoverage -Value (Get-ADOBuild @PSBoundParameters -CodeCoverage) -Force -PassThru
             }
             elseif ($DefinitionYAML)
             {
