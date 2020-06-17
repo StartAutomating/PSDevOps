@@ -79,6 +79,7 @@
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/artifacts',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/report',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='test/codeCoverage',ValueFromPipelineByPropertyName)]
     [string]
     $BuildID,
 
@@ -124,6 +125,11 @@
     [Parameter(Mandatory,ParameterSetName='build/builds/{buildId}/timeline')]
     [switch]
     $Timeline,
+
+    # If set, will return the code coverage associated with -BuildID
+    [Parameter(Mandatory,ParameterSetName='test/codeCoverage')]
+    [switch]
+    $CodeCoverage,
 
     # If set, will get build definitions.
     [Parameter(Mandatory,ParameterSetName='build/definitions')]
@@ -218,14 +224,16 @@
     [Parameter(ParameterSetName='build/definitions/{definitionId}')]
     [switch]
     $DefinitionYAML)
+
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
+
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
         $authParams = @{} + $invokeParams
 
-        $accumulatedInput = [Collections.ArrayList]::new()
+        $q = [Collections.Queue]::new()
     }
 
     process {
@@ -234,22 +242,21 @@
         if ($ParameterSet -eq $MyInvocation.MyCommand.DefaultParameterSet) {
             if ($in.BuildID) {
                 $ParameterSet = 'build/builds/{buildId}'
-                $buildID = $in.BuildID
+                $buildID      = $psBoundParameters['BuildID'] = $in.BuildID
             } elseif ($in.DefinitionID) {
                 $ParameterSet = 'build/definitions/{definitionId}'
-                $definitionID = $in.DefinitionID
+                $definitionID = $psBoundParameters['DefinitionID'] = $in.DefinitionID
             }
         }
 
-        $null = $accumulatedInput.Add(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
+        $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
 
     end {
-        $c, $t, $id = 0, $accumulatedInput.Count, [Random]::new().Next()
-        foreach ($acc in $accumulatedInput) {
-            foreach ($kv in $acc.GetEnumerator()) {
-                $ExecutionContext.SessionState.PSVariable.set($kv.Key, $kv.Value)
-            }
+        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
+
+        while ($q.Count) {
+            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
             if ($t -gt 1) {
                 $c++
                 Write-Progress "Getting Builds" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
@@ -265,6 +272,9 @@
                 @(
                     if ($First) {
                         "`$top=$first"
+                    }
+                    if ($CodeCoverage) {
+                        "buildId=$buildId"
                     }
                     if ($BranchName) {
                         if ($BranchName -notlike '*/*') {
@@ -326,7 +336,8 @@
                     Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @PSBoundParameters -ChangeSet) -Force -PassThru |
                     Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
                     Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @PSBoundParameters -Artifact) -Force -PassThru |
-                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru
+                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru |
+                    Add-Member NoteProperty CodeCoverage -Value (Get-ADOBuild @PSBoundParameters -CodeCoverage) -Force -PassThru
             }
             elseif ($DefinitionYAML)
             {

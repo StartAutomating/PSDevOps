@@ -368,6 +368,38 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
+      <Name>PSDevOps.Repository</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Repository</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize />
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ID</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Size</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.WorkItem</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.WorkItem</TypeName>

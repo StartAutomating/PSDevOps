@@ -1,63 +1,72 @@
-﻿function Get-ADOAgentPool
+﻿function Get-ADOTeam
 {
     <#
     .Synopsis
-        Gets Azure DevOps Agent Pools
+        Gets Azure DevOps Teams
     .Description
-        Gets Agent Pools and their associated queues from Azure DevOps.
-
-        Queues associate a given project with a pool.
-        Pools are shared by organization.
-
-        Thus providing a project will return the queues associated with the project,
-        and just providing the organization will return all of the common pools.
+        Gets teams from Azure DevOps or TFS
     .Example
-        Get-ADOAgentPool -Organization MyOrganization -PersonalAccessToken $pat
-    .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/pools/get%20agent%20pools?view=azure-devops-rest-5.1
-    .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/queues/get%20agent%20queues?view=azure-devops-rest-5.1
+        Get-ADOTeam -Organization StartAutomating
     #>
-    [CmdletBinding(DefaultParameterSetName='distributedtask/pools')]
-    [OutputType('PSDevops.Pool')]
+    [CmdletBinding(DefaultParameterSetName='teams')]
     param(
-    # The Organization
+    # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
-
-    # The project name or identifier.
-    [Parameter(Mandatory,ParameterSetName='distributedtask/queues',ValueFromPipelineByPropertyName)]
+    
+    # The project name or identifier
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
     [string]
     $Project,
+
+    [Parameter(ParameterSetName='teams',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [Alias('My')]
+    [switch]
+    $Mine,
+
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+    [string]
+    $TeamID,
+
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members')]
+    [Alias('Members','Membership')]
+    [switch]
+    $Member,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
     [uri]
-    $Server = "https://dev.azure.com/",
+    $Server = "https://dev.azure.com/"
+    )
 
-    # The api version.  By default, 5.1.
-    # If targeting TFS, this will need to change to match your server version.
-    # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
-    [string]
-    $ApiVersion = "5.1-preview")
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
+
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
+        $authParams = @{} + $invokeParams
     }
 
     process {
+        $psParameterSet = $psCmdlet.ParameterSetName
+        $in = $_
+        if ($in.Project -and $psParameterSet -notlike '*Project*') {
+            $psParameterSet = 'projects/{Project}/teams'
+            $project = $psBoundParameters['Project']  = $in.Project
+        }
+
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 $Organization            # the Organization,
-                if ($Project) {$project} # the Project (if present),
                 '_apis'                  # the API Root ('_apis'),
-                (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
+                (. $ReplaceRouteParameter $psParameterSet)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
 
@@ -66,6 +75,9 @@
             if ($Server -ne 'https://dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
+            }
+            if ($Mine) {
+                '$mine=true'
             }
             if ($ApiVersion) { # the api-version
                 "api-version=$apiVersion"

@@ -1,0 +1,1 @@
+﻿$this.finishTime -as [DateTime]

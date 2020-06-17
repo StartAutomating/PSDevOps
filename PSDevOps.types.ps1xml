@@ -20,15 +20,6 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Build</Name>
-    <Members>
-      <AliasProperty>
-        <Name>BuildID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
     <Name>PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>
@@ -93,6 +84,52 @@
         <Name>LastUpdated</Name>
         <GetScriptBlock>
                     [DateTime]$this.LastUpdateTime
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Team</Name>
+    <Members>
+      <AliasProperty>
+        <Name>TeamID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Build</Name>
+    <Members>
+      <AliasProperty>
+        <Name>BuildID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>StartedAt</Name>
+        <GetScriptBlock>
+                    $this.StartTime -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ChangedAt</Name>
+        <GetScriptBlock>
+                    $this.LastChangedDate -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishedAt</Name>
+        <GetScriptBlock>
+                    $this.finishTime -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>QueuedAt</Name>
+        <GetScriptBlock>
+                    $this.queueTime -as [DateTime]
+
                 </GetScriptBlock>
       </ScriptProperty>
     </Members>
