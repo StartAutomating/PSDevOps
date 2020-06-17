@@ -29,7 +29,6 @@
 
     # The project name or identifier.
     [Parameter(Mandatory,ParameterSetName='distributedtask/queues',ValueFromPipelineByPropertyName)]
-    [Alias('ProjectID')]
     [string]
     $Project,
 
