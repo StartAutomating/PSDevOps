@@ -218,14 +218,16 @@
     [Parameter(ParameterSetName='build/definitions/{definitionId}')]
     [switch]
     $DefinitionYAML)
+    
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
+    
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
         $authParams = @{} + $invokeParams
 
-        $accumulatedInput = [Collections.ArrayList]::new()
+        $q = [Collections.Queue]::new()
     }
 
     process {
@@ -234,22 +236,21 @@
         if ($ParameterSet -eq $MyInvocation.MyCommand.DefaultParameterSet) {
             if ($in.BuildID) {
                 $ParameterSet = 'build/builds/{buildId}'
-                $buildID = $in.BuildID
+                $buildID      = $psBoundParameters['BuildID'] = $in.BuildID
             } elseif ($in.DefinitionID) {
                 $ParameterSet = 'build/definitions/{definitionId}'
-                $definitionID = $in.DefinitionID
+                $definitionID = $psBoundParameters['DefinitionID'] = $in.DefinitionID
             }
         }
 
-        $null = $accumulatedInput.Add(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
+        $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
 
     end {
-        $c, $t, $id = 0, $accumulatedInput.Count, [Random]::new().Next()
-        foreach ($acc in $accumulatedInput) {
-            foreach ($kv in $acc.GetEnumerator()) {
-                $ExecutionContext.SessionState.PSVariable.set($kv.Key, $kv.Value)
-            }
+        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
+        
+        while ($q.Count) {
+            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
             if ($t -gt 1) {
                 $c++
                 Write-Progress "Getting Builds" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
