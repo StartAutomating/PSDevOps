@@ -184,7 +184,7 @@
       <ScriptMethod>
         <Name>HTMLToText</Name>
         <Script>
-                    {param([string]$html)
+                    param([string]$html)
     $html -replace
     '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
     '&lt;/div&gt;', [Environment]::NewLine -replace
@@ -193,7 +193,7 @@
     '\&lt;[^\&gt;]+\&gt;', '' -replace
     '&amp;quot;', '"' -replace 
     '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
-}
+
 
                 </Script>
       </ScriptMethod>
