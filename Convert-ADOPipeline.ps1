@@ -17,7 +17,7 @@
     # An object containing build variables.
     # This will be automatically populated when piping in a TFS build definition.
     [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('Variable')]
+    [Alias('Variable','Variables')]
     [PSObject]
     $BuildVariable,
 
