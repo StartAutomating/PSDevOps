@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3.6.1'
+    ModuleVersion = '0.3.7'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,12 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.7
+---
+* Convert-ADOPipeline now has -Passthru and -Wherefore
+* Get-ADOWorkProcess now has -Behavior and -WorkItemType
+* Get-ADOWorkItem now has -Mine, -CurrentIteration, -Comment, -Update, -Revision.
+
 0.3.6.1
 ---
 * Convert-ADOPipeline now binds to .Variables property 
