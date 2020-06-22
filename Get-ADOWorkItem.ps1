@@ -52,6 +52,7 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}/comments',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/revisions',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/updates',ValueFromPipelineByPropertyName)]
     [int]
     $ID,
 
@@ -66,6 +67,12 @@
     [Alias('Revisions')]
     [switch]
     $Revision,
+
+    # If set, will get updates of a work item.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/updates',ValueFromPipelineByPropertyName)]
+    [Alias('Updates')]
+    [switch]
+    $Update,
 
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -171,7 +178,8 @@
             $PSCmdlet.ParameterSetName -in
             '/{Organization}/{Project}/_apis/wit/workitems/{id}',
             '/{Organization}/{Project}/_apis/wit/workitems/{id}/comments',
-            '/{Organization}/{Project}/_apis/wit/workitems/{id}/revisions'
+            '/{Organization}/{Project}/_apis/wit/workitems/{id}/revisions',
+            '/{Organization}/{Project}/_apis/wit/workitems/{id}/updates'
         ) {
             # Build the URI out of it's parts.
             $null = if (-not $id -and $in.Id) {
@@ -257,7 +265,7 @@
                 $ApiVersion
             }
         $c, $t, $progID = 0, $allIDS.Count, [Random]::new().Next()
-        if ($av -as [Version] -ge '5.1' -and $allIDS.Count -gt 1 -and -not ($Comment -or $Revision)) { # We can use WorkItemsBatch
+        if ($av -as [Version] -ge '5.1' -and $allIDS.Count -gt 1 -and -not ($Comment -or $Revision -or $Update)) { # We can use WorkItemsBatch
 
             $uri = "$Server".TrimEnd('/'),
                 $Organization,
@@ -310,9 +318,7 @@
                 if ($field) {
                     $restResponse.fields |
                         Add-Member NoteProperty ID $ID -PassThru
-                } elseif (-not $Comment) {
-                    & $outWorkItem $restResponse
-                } elseif ($restResponse.Comments) {
+                } elseif ($comment -and $restResponse.Comments) {
                     foreach ($wiComment in $restResponse.Comments) {
                         $wiComment.pstypenames.clear()
                         $wiComment.pstypenames.add("$Organization.WorkItem.Comment")
@@ -325,6 +331,9 @@
                         $wiComment
                     }
                 }
+                else {
+                    & $outWorkItem $restResponse
+                } 
             }
         }
         Write-Progress "Getting Work Items" "Complete" -Completed -Id $progID
