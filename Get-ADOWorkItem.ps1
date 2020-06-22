@@ -16,7 +16,7 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql')]
+    [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     param(
     # The Work Item Title
@@ -24,10 +24,10 @@
     [string]
     $Title,
 
-    # A query
-    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName,Position=0)]
+    # A query.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName,Position=0)]
     [string]
-    $Query = 'Select [System.ID] From WorkItems',
+    $Query,
 
     # Gets work items assigned to me.
     [Parameter(ValueFromPipelineByPropertyName)]
