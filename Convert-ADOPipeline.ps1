@@ -24,7 +24,30 @@
     # A list of task definitions.  This will normally be the output from Get-ADOTask.
     [Parameter(Mandatory)]
     [PSObject[]]
-    $TaskList
+    $TaskList,
+
+    # A dictionary of conditional transformations.
+    [Alias('WhereForeach','WhereFor')]
+    [ValidateScript({
+        foreach ($k in $_.Keys) {
+            if ($k -isnot [string] -and $k -isnot [ScriptBlock]) {
+                throw "Key must be a string or ScriptBlock"
+            }
+        }
+        foreach ($v in $_.Values) {
+            if ($v -isnot [ScriptBlock]) {
+                throw "Values must be script blocks"
+            }
+        }
+        return $true
+    })]
+    [Collections.IDictionary]
+    $WhereFore,
+
+    # If set, will output the dictionary used to create each pipeline.
+    # If not set, will output the pipeline YAML.
+    [switch]
+    $Passthru
     )
 
     begin {
@@ -74,10 +97,28 @@
                         }
                         foreach ($prop in $bs.inputs.psobject.properties) {
                             if (-not [String]::IsNullOrWhiteSpace($prop.Value)) {
-                                $newTask[$prop.Name] = $prop.Value
+                                $newTask.inputs[$prop.Name] = $prop.Value
                             }
                         }
-                        $newTask
+
+                        if (-not $WhereFore.Count) {
+                            $newTask
+                        } else {
+                            :outputted do {
+                                foreach ($wf in $WhereFore.GetEnumerator()) {
+                                    $this = $_ = $newTask
+                                    if (
+                                        $wf.Key -is [string] -and $newTask.task -like $wf.Key -or
+                                        $wf.Key -is [ScriptBlock] -and (& $wf.Key)
+                                    ) {
+                                        $this = $_ = $newTask
+                                        & $wf.Value
+                                        break outputted
+                                    }
+                                }
+                                $newTask
+                            } while ($false)
+                        }
                     }
                 })
 
@@ -89,15 +130,24 @@
                 }
             )
 
-            $newPipeline =
-                New-ADOPipeline -InputObject ([Ordered]@{variables=$BuildVariables;steps=$buildSteps})
+            if ($PassThru) {
+                $out = ([Ordered]@{variables=$BuildVariables;steps=$buildSteps})
+                if ($inputObject) {
+                    Add-Member -InputObject $out -MemberType NoteProperty -Name InputObject -Value $inputObject -Force
+                }
+                $out
+            } else {
 
-            if ($inputObject) {
-                $newPipeline |
-                    Add-Member NoteProperty InputObject $inputObject -Force
+                $newPipeline =
+                    New-ADOPipeline -InputObject ([Ordered]@{variables=$BuildVariables;steps=$buildSteps})
+
+                if ($inputObject) {
+                    $newPipeline |
+                        Add-Member NoteProperty InputObject $inputObject -Force
+                }
+
+                $newPipeline
             }
-
-            $newPipeline
         }
     }
 }
