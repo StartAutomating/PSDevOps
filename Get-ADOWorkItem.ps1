@@ -16,41 +16,72 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='ByTitle')]
+    [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     param(
     # The Work Item Title
-    [Parameter(Mandatory,ParameterSetName='ByTitle',ValueFromPipelineByPropertyName,Position=0)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Title,
 
     # A query
-    [Parameter(Mandatory,ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName,Position=0)]
     [string]
-    $Query,
+    $Query = 'Select [System.ID] From WorkItems',
+
+    # Gets work items assigned to me.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Me','My')]
+    [switch]
+    $Mine,
+
+    # Gets work items in the current iteration.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('CurrentSprint','ThisSprint')]
+    [switch]
+    $CurrentIteration,
 
     # If set, queries will output the IDs of matching work items.
     # If not provided, details will be retreived for all work items.
-    [Parameter(ParameterSetName='ByQuery',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName)]
     [Alias('OutputID')]
     [switch]
     $NoDetail,
 
     # The Work Item ID
-    [Parameter(Mandatory,ParameterSetName='ByID',ValueFromPipelineByPropertyName)]
-    [string]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}/comments',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/revisions',ValueFromPipelineByPropertyName)]
+    [int]
     $ID,
 
-    # The Organization
+    # If set, will get comments related to a work item.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/comments',ValueFromPipelineByPropertyName)]
+    [Alias('Comments')]
+    [switch]
+    $Comment,
+
+    # If set, will get revisions of a work item.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/workItems/{id}/revisions',ValueFromPipelineByPropertyName)]
+    [Alias('Revisions')]
+    [switch]
+    $Revision,
+
+    # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
 
-    # The Project
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    # The Project.
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Project,
+
+    # The Team.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName)]
+    [string]
+    $Team,
 
     # If set, will return work item types.
     [Parameter(Mandatory,ParameterSetName='WorkItemTypes',ValueFromPipelineByPropertyName)]
@@ -77,7 +108,7 @@
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1")
+    $ApiVersion = "5.1-preview")
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
     begin {
@@ -130,24 +161,61 @@
 
     process {
         $selfSplat = @{} + $PSBoundParameters
+        $in = $_
         if ($PSCmdlet.ParameterSetName -eq 'ByTitle') {
             $selfSplat.Remove('Title')
             $selfSplat.Query = "Select [System.ID] from WorkItems Where [System.Title] contains '$title'"
             Get-ADOWorkItem @selfSplat
         }
-        elseif ($PSCmdlet.ParameterSetName -eq 'ByID') {
+        elseif (
+            $PSCmdlet.ParameterSetName -in
+            '/{Organization}/{Project}/_apis/wit/workitems/{id}',
+            '/{Organization}/{Project}/_apis/wit/workitems/{id}/comments',
+            '/{Organization}/{Project}/_apis/wit/workitems/{id}/revisions'
+        ) {
             # Build the URI out of it's parts.
-            $null = $allIDS.Add($id)
+            $null = if (-not $id -and $in.Id) {
+                $allIDS.Add($in.id)
+            } else {
+                $allIDS.Add($id)
+            }
         }
-        elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery')
+        elseif ($PSCmdlet.ParameterSetName -eq '/{Organization}/{Project}/{Team}/_apis/wit/wiql')
         {
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
+            $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
             $uri += if ($ApiVersion) {
                 "api-version=$ApiVersion"
             }
 
+            $realQuery = $Query
+            if ($mine -or $CurrentIteration -or $Title -or $Project) {
+                if ($realQuery -notlike '*where*') {
+                    $realQuery += ' WHERE '
+                } else {
+                    $realQuery += ' AND '
+                }
+
+
+                $realQuery +=
+                    @(
+                    if ($Project) {
+                        '[Team Project] = @Project'
+                    }
+                    if ($Title) {
+                        "[System.Title] contains '$title'"
+                    }
+                    if ($Mine) {
+                        '[System.AssignedTo] = @Me'
+                    }
+                    if ($CurrentIteration) {
+                        '[System.IterationPath] = @currentIteration'
+                    }) -join ' AND '
+            }
+
+
+
             $invokeParams.Method = "POST"
-            $invokeParams.Body = ConvertTo-Json @{query=$Query}
+            $invokeParams.Body = ConvertTo-Json @{query=$realQuery}
             $invokeParams["Uri"] = $uri
 
             $queryResults = Invoke-ADORestAPI @invokeParams |
@@ -189,7 +257,7 @@
                 $ApiVersion
             }
         $c, $t, $progID = 0, $allIDS.Count, [Random]::new().Next()
-        if ($av -as [Version] -ge '5.1' -and $allIDS.Count -gt 1) { # We can use WorkItemsBatch
+        if ($av -as [Version] -ge '5.1' -and $allIDS.Count -gt 1 -and -not ($Comment -or $Revision)) { # We can use WorkItemsBatch
 
             $uri = "$Server".TrimEnd('/'),
                 $Organization,
@@ -223,7 +291,7 @@
         } else {
             foreach ($id in $allIDS) {
                 $c++
-                $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/workitems", "${ID}?" -join '/'
+                $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
                 $uri += @(if ($Field) { # If fields were provided, add it as a query parameter
                     "fields=$($Field -join ',')"
                 }
@@ -238,12 +306,24 @@
                 $p = $c * 100 / $t
                 Write-Progress "Getting Work Items" "$id" -PercentComplete $p -Id $progid
                 $restResponse = Invoke-ADORestAPI @invokeParams # Invoke the REST API.
-                if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
+                if (-not $restResponse.fields -and -not $Comment) { continue } # If the return value had no fields property, we're done.
                 if ($field) {
                     $restResponse.fields |
                         Add-Member NoteProperty ID $ID -PassThru
-                } else {
+                } elseif (-not $Comment) {
                     & $outWorkItem $restResponse
+                } elseif ($restResponse.Comments) {
+                    foreach ($wiComment in $restResponse.Comments) {
+                        $wiComment.pstypenames.clear()
+                        $wiComment.pstypenames.add("$Organization.WorkItem.Comment")
+                        $wiComment | Add-Member NoteProperty Organization $Organization
+                        if ($Project) {
+                            $wiComment.pstypenames.add("$Organization.$Project.WorkItem.Comment")
+                            $wiComment | Add-Member NoteProperty Project $Project
+                        }
+                        $wiComment.pstypenames.add('PSDevOps.WorkItem.Comment')
+                        $wiComment
+                    }
                 }
             }
         }
