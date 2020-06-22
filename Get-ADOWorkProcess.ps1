@@ -10,12 +10,29 @@
     .Example
         Get-ADOWorkProcess -Organization StartAutomating -PersonalAccessToken $pat
     #>
+    [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/work/processes')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
+
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workItemTypes',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors',ValueFromPipelineByPropertyName)]
+    [Alias('TypeID')]
+    [string]
+    $ProcessID,
+
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workItemTypes',ValueFromPipelineByPropertyName)]
+    [Alias('WorkItemTypes')]
+    [switch]
+    $WorkItemType,
+
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors',ValueFromPipelineByPropertyName)]
+    [Alias('Behaviors')]
+    [switch]
+    $Behavior,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -36,12 +53,14 @@
         #endregion Copy Invoke-ADORestAPI parameters
     }
     process {
-        $uri = $Server, $Organization, '_apis/work/processes?' -join '/'
+        $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
         if ($ApiVersion) {
             $uri += "api-version=$ApiVersion"
         }
 
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.WorkProcess", "PSDevOps.WorkProcess" -Property @{
+        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') -replace 'processe$', 'WorkProcess'
+
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property @{
             Organization = $Organization
             Server = $Server
         }
