@@ -12,7 +12,7 @@
     .Link
         Add-ADOAreaPath
     .Link
-        Remove-ADOAreaPath        
+        Remove-ADOAreaPath
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/_apis/wit/classificationnodes/Areas')]
     param(
@@ -68,7 +68,7 @@
                 ) {
                     $node.pstypenames.Add($typeName)
                 }
-                $node | 
+                $node |
                     Add-Member NoteProperty Organization $organization -Force -PassThru |
                     Add-Member NoteProperty Project $Project -Force -PassThru |
                     Add-Member NoteProperty Server $Server -Force -PassThru
