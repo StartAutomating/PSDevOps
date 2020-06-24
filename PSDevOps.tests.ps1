@@ -7,6 +7,11 @@
 
 Write-Verbose "Testing with $testOrg/$TestProject"
 
+$testPat =
+    if ($PersonalAccessToken) { $PersonalAccessToken }
+    else { $env:SYSTEM_ACCESSTOKEN }
+
+
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
@@ -208,6 +213,28 @@ describe 'Builds' {
             $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
             $whatIf.Method | should be DELETE
             $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+        }
+    }
+
+    context 'Agent Pools' {
+        it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
+            Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                should be default
+        }
+
+        it 'Can Get-ADOAgentPool for a given -Organization' {
+            Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                should be default
+        }
+    }
+
+    context 'Service Endpoints:' {
+        it 'Can Get-ADOServiceEndpoint' {
+            Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Type |
+                Should be GitHub
         }
     }
 }
