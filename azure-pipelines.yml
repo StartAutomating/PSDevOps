@@ -1,14 +1,16 @@
 ﻿
 trigger: 
+  batch: true
   paths: 
     exclude: 
-    - '*.md'
-    - '*.txt'
-    - '*.gif'
-    - '*.png'
-    - '*.jpg'
-    - '*.mp3'
-    - '*.mp4'
+    - '*/*.md'
+    - '*/*.MD'
+    - '*/*.txt'
+    - '*/*.gif'
+    - '*/*.png'
+    - '*/*.jpg'
+    - '*/*.mp3'
+    - '*/*.mp4'
 parameters: 
   - name: ModulePath
     type: string
@@ -31,11 +33,15 @@ stages:
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
             displayName: InstallPSDevOps
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSScriptAnalyzer -Force -PassThru
             displayName: InstallPSScriptAnalyzer
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               Import-Module PSScriptAnalyzer, PSDevOps
               $invokeScriptAnalyzerSplat = @{Path='.\'}
@@ -53,6 +59,8 @@ stages:
                   }
               }
             displayName: RunPSScriptAnalyzer
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - stage: TestPowerShellCrossPlatform
     displayName: Test
@@ -64,7 +72,7 @@ stages:
         steps: 
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -78,10 +86,12 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(parameters.ModulePath, '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -126,6 +136,8 @@ stages:
                   }
               }} @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -151,7 +163,7 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -165,10 +177,12 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(parameters.ModulePath, '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -213,6 +227,8 @@ stages:
                   }
               }} @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -235,7 +251,7 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -249,10 +265,12 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(parameters.ModulePath, '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(parameters.PesterMaxVersion, '$null')}};
+              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
+              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -297,6 +315,8 @@ stages:
                   }
               }} @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -349,5 +369,7 @@ stages:
                   }
               }
             displayName: PublishPowerShellGallery
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 

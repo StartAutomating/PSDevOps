@@ -7,6 +7,13 @@
 
 Write-Verbose "Testing with $testOrg/$TestProject"
 
+$testPat =
+    if ($PersonalAccessToken) { $PersonalAccessToken }
+    else { $env:SYSTEM_ACCESSTOKEN }
+
+
+if (-not $testPat) { throw "Must have a PersonalAccessToken to test" }
+
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
@@ -180,6 +187,12 @@ describe 'Builds' {
             $buildDefinitions.Count | should be 1
             $buildDefinitions[0].Name  |should belike *PSDevOps*
         }
+        it 'Can get build -DefinitionYAML, given a build definition' {
+            $buildDefinitionYaml = $(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition |
+                Select-Object -First 1 |
+                Get-ADOBuild -DefinitionYAML -PersonalAccessToken $testPat)
+            $buildDefinitionYaml | should belike *pester*
+        }
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
@@ -208,6 +221,38 @@ describe 'Builds' {
             $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
             $whatIf.Method | should be DELETE
             $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+        }
+    }
+
+    if ($testPat -ne $env:SYSTEM_ACCESSTOKEN) {
+        context 'Agent Pools' {
+            it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
+                Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Select-Object -First 1 -ExpandProperty Name |
+                    should be default
+            }
+
+            it 'Can Get-ADOAgentPool for a given -Organization' {
+                Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
+                    Select-Object -First 1 -ExpandProperty Name |
+                    should be default
+            }
+        }
+
+        context 'Service Endpoints:' {
+            it 'Can Get-ADOServiceEndpoint' {
+                Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Select-Object -First 1 -ExpandProperty Type |
+                    Should be GitHub
+            }
+        }
+    }
+
+    context 'Extensions' {
+        it 'Can Get-ADOExtension' {
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty PublisherName |
+                should be Microsoft
         }
     }
 }
