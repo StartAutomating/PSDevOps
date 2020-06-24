@@ -9,6 +9,10 @@
         Get-ADOAreaPath -Organization StartAutomating -Project PSDevOps
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/Classification%20Nodes/Get%20Classification%20Nodes?view=azure-devops-rest-5.1#get-the-root-area-tree
+    .Link
+        Add-ADOAreaPath
+    .Link
+        Remove-ADOAreaPath
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/_apis/wit/classificationnodes/Areas')]
     param(
@@ -64,7 +68,10 @@
                 ) {
                     $node.pstypenames.Add($typeName)
                 }
-                $node
+                $node |
+                    Add-Member NoteProperty Organization $organization -Force -PassThru |
+                    Add-Member NoteProperty Project $Project -Force -PassThru |
+                    Add-Member NoteProperty Server $Server -Force -PassThru
                 if ($node.haschildren) {
                     $node.children |
                         & $MyInvocation.MyCommand.ScriptBlock

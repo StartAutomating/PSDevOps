@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.3: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.3.1: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <ViewDefinitions>
     <View>
@@ -65,6 +65,32 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.AreaPath</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.AreaPath</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Organization</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Path</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -178,7 +204,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 
 } while ($false)
 
-. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Succeeded'</ScriptBlock>
+. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.Succeeded'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -191,10 +217,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.Failed'</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.Failed'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -207,10 +233,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.NotStarted'</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.NotStarted'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -223,10 +249,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_SetOutputStyle -ForegroundColor 'PSDevOps.Build.InProgress'</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.InProgress'</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -243,7 +269,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. $PSDevOps_ClearOutputStyle</ScriptBlock>
+                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ScriptBlock>
@@ -485,10 +511,10 @@ $justify = {param($l, $r)
 }
 
 @(
-. $PSDevOps_HorizontalRule
+. ${PSDevOps_HorizontalRule}
 #('-' * $uiBuffer)
 &amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
-. $PSDevOps_HorizontalRule
+. ${PSDevOps_HorizontalRule}
 #('-' * $uiBuffer)
 if ($wi.'System.IterationPath') {
     &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
@@ -520,17 +546,17 @@ if ($createdby) {
 }
 if ($wi.'System.Description') {
     "Description:"
-    . $PSDevOps_HorizontalRule -Character '_'
+    . ${PSDevOps_HorizontalRule} -Character '_'
     $wi.HTMLToText("$($wi.'System.Description')")
-    . $PSDevOps_HorizontalRule -Character '_'
+    . ${PSDevOps_HorizontalRule} -Character '_'
 }
 
 if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
     "Repro Steps:"
-    . $PSDevOps_HorizontalRule -Character '_'
+    . ${PSDevOps_HorizontalRule} -Character '_'
     [Environment]::NewLine
     $wi.HTMLToText("$($wi.'Microsoft.VSTS.TCM.ReproSteps')")
-    . $PSDevOps_HorizontalRule -Character '_'
+    . ${PSDevOps_HorizontalRule} -Character '_'
     [Environment]::NewLine
 }
 
@@ -549,7 +575,7 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
   </ViewDefinitions>
   <Controls>
     <Control>
-      <Name>$PSDevOps_SetOutputStyle</Name>
+      <Name>${PSDevOps_SetOutputStyle}</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
@@ -746,7 +772,7 @@ if ($canUseHTML) {
       </CustomControl>
     </Control>
     <Control>
-      <Name>$PSDevOps_ClearOutputStyle</Name>
+      <Name>${PSDevOps_ClearOutputStyle}</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
@@ -810,7 +836,7 @@ $BackgroundColor
       </CustomControl>
     </Control>
     <Control>
-      <Name>$PSDevOps_HorizontalRule</Name>
+      <Name>${PSDevOps_HorizontalRule}</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>

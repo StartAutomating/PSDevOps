@@ -271,6 +271,12 @@ describe 'Working with Work Items' {
                 Select-Object -First 1 -ExpandProperty name |
                     should be Basic
         }
+
+        it 'Can get area paths' {
+            Get-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Path |
+                should be '\PSDevOps\Area'
+        }
     }
 
     if ($PersonalAccessToken) {
