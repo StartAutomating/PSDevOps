@@ -224,7 +224,7 @@ describe 'Builds' {
         }
     }
 
-    #if ($testPat -ne $env:SYSTEM_ACCESSTOKEN) {
+    if ($testPat -ne $env:SYSTEM_ACCESSTOKEN) {
         context 'Agent Pools' {
             it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
                 Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
@@ -246,7 +246,7 @@ describe 'Builds' {
                     Should be GitHub
             }
         }
-    #}
+    }
 
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
