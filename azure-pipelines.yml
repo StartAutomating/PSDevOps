@@ -109,15 +109,17 @@ stages:
                   Tee-Object -Variable scriptCopIssues |
                   Out-Host
               
-              foreach ($issue in $scriptCopIssues) {
+              $issueList = @(foreach ($issue in $scriptCopIssues) {
+                  $issue
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
-              }
+              })
               
-              if ($scriptCopIssues) {
-                  $scriptCopIssues | 
+              if ($issueList) {
+                  "$($issueList.Count) Issues found" | Out-Host
+                  $issueList | 
                       Out-File -FilePath ".\ScriptCop.log" |
                   Get-Item .\ScriptCop.log |
-                      Add-ADOAttachment
+                      Add-ADOAttachment -IsLog
               }
                   } @Parameters
             displayName: RunScriptCop
