@@ -117,7 +117,7 @@ stages:
                   $scriptCopIssues | 
                       Out-File -FilePath ".\ScriptCop.log" |
                   Get-Item .\ScriptCop.log |
-                      Add-ADOAttachment -IsLog 
+                      Add-ADOAttachment
               }
                   } @Parameters
             displayName: RunScriptCop
