@@ -96,6 +96,7 @@ stages:
                   $ModulePath = ".\$moduleName.psd1"
               }
               
+              if ($ModulePath -like '*PSDevOps*') { Remove-Module PSDeVOps }
               $importedModule =Import-Module $ModulePath -Force -PassThru 
               
               $importedModule | Out-Host
