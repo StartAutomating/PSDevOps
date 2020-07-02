@@ -61,6 +61,57 @@ stages:
             displayName: RunPSScriptAnalyzer
             env: 
               SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      - job: ScriptCop
+        displayName: ScriptCop
+        pool: 
+          vmImage: windows-latest
+        steps: 
+          - powershell: |
+              [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+              Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
+              Import-Module PSDevOps -Force -PassThru
+            displayName: InstallPSDevOps
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          - powershell: |
+              [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+              Install-Module -Name ScriptCop -Repository PSGallery -Force -Scope CurrentUser
+              Import-Module ScriptCop -Force -PassThru
+            displayName: InstallScriptCop
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          - powershell: |
+              $Parameters = @{}
+              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
+              foreach ($k in @($parameters.Keys)) {
+                  if ([String]::IsNullOrEmpty($parameters[$k])) {
+                      $parameters.Remove($k)
+                  }
+              }
+              & {param([string]$ModulePath)
+              Import-Module ScriptCop, PSDevOps -PassThru | Out-Host
+              
+              if (-not $ModulePath) {
+                  $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+                  $ModulePath = ".\$moduleName.psd1"
+              }
+              
+              $importedModule =Import-Module $ModulePath -Force -PassThru 
+              
+              $importedModule | Out-Host
+              
+              $importedModule | 
+                  Test-Command |
+                  Tee-Object -Variable scriptCopIssues |
+                  Out-Host
+              
+              foreach ($issue in $scriptCopIssues) {
+                  Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
+              }
+                  } @Parameters
+            displayName: RunScriptCop
+            env: 
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - stage: TestPowerShellCrossPlatform
     displayName: Test
