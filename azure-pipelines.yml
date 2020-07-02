@@ -96,7 +96,10 @@ stages:
                   $ModulePath = ".\$moduleName.psd1"
               }
               
-              if ($ModulePath -like '*PSDevOps*') { Remove-Module PSDeVOps }
+              
+              if ($ModulePath -like '*PSDevOps*') { 
+                  Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
+              } 
               $importedModule =Import-Module $ModulePath -Force -PassThru 
               
               $importedModule | Out-Host
@@ -108,6 +111,12 @@ stages:
               
               foreach ($issue in $scriptCopIssues) {
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
+              }
+              
+              if ($scriptCopIssues) {
+                  $scriptCopIssues | 
+                      Out-File -FilePath ".\ScriptCop.log" |
+                      Add-ADOAttachment -IsLog
               }
                   } @Parameters
             displayName: RunScriptCop
