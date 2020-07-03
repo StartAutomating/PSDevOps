@@ -96,7 +96,6 @@ stages:
                   $ModulePath = ".\$moduleName.psd1"
               }
               
-              
               if ($ModulePath -like '*PSDevOps*') { 
                   Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
               } 
@@ -109,19 +108,10 @@ stages:
                   Tee-Object -Variable scriptCopIssues |
                   Out-Host
               
-              $issueList = @(foreach ($issue in $scriptCopIssues) {
-                  $issue
+              foreach ($issue in $scriptCopIssues) {
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
-              })
-              
-              if ($issueList) {
-                  "$($issueList.Count) Issues found" | Out-Host
-                  $issueList | 
-                      Out-File -FilePath ".\ScriptCop.log" |
-                  Get-Item .\ScriptCop.log |
-                      Add-ADOAttachment -IsLog
               }
-                  } @Parameters
+              } @Parameters
             displayName: RunScriptCop
             env: 
               SYSTEM_ACCESSTOKEN: $(System.AccessToken)

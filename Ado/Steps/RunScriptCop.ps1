@@ -6,7 +6,6 @@ if (-not $ModulePath) {
     $ModulePath = ".\$moduleName.psd1"
 }
 
-
 if ($ModulePath -like '*PSDevOps*') { 
     Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
 } 
@@ -22,4 +21,3 @@ $importedModule |
 foreach ($issue in $scriptCopIssues) {
     Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
 }
-    
