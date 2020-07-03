@@ -1,4 +1,7 @@
-﻿#region Import Functions
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ModuleManifestQuality*", "", Justification="FileList is unimportant")]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForSlowScript", "", Justification="Performance is not a priority for this module")]
+param()
+#region Import Functions
 foreach ($file in Get-ChildItem -Path $psScriptRoot -Filter *-*.ps1) {
     . $file.FullName
 }
