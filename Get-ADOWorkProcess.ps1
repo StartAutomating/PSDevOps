@@ -87,9 +87,11 @@
             'processe$', 'WorkProcess' -replace 
             '\{ProcessId\}', 'WorkProcess'
 
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property @{
-            Organization = $Organization
-            Server = $Server
+        $addProperty = @{Organization=$Organization; Server = $Server}
+        if ($ProcessID) {
+            $addProperty['ProcessID'] = $ProcessID
         }
+
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property $addProperty
     }
 }
