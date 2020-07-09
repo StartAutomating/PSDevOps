@@ -4,12 +4,12 @@
     .Synopsis
         Creates custom work item types
     .Description
-        Creates custom work item types in Azure DevOps.  
-        
+        Creates custom work item types in Azure DevOps.
+
         Also creates custom rules or states for a work item type.
     .Example
         Get-ADOProject -Organization StartAutomating -Project PSDevOps |
-            Get-ADOWorkProcess | 
+            Get-ADOWorkProcess |
                 New-ADOWorkItemType -Name ServiceRequest -Color 'ddee00' -Icon icon_flame
     .Link
         Get-ADOWorkItemType
@@ -49,12 +49,12 @@
     [Parameter(Mandatory, ValueFromPipelineByPropertyName, Position = 0,
         ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workitemtypes/{ReferenceName}/states')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName, Position = 0,
-        ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors')]    
+        ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors')]
     [string]
     $Name,
 
     # The name of the icon used for the custom work item.
-    # To list available icons, use Get-ADOWorkItemType -Icon 
+    # To list available icons, use Get-ADOWorkItemType -Icon
     [Parameter(ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workitemtypes',ValueFromPipelineByPropertyName)]
     [string]
     $Icon,
@@ -67,7 +67,7 @@
     [Parameter(Mandatory, ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors')]
     [string]
-    $Color,      
+    $Color,
 
     # The description for the custom work item type.
     [Parameter(ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workitemtypes',ValueFromPipelineByPropertyName)]
@@ -88,7 +88,7 @@
     [Alias('Disabled')]
     [switch]
     $IsDisabled,
-    
+
     # If set, will associate a given work item type with a behavior (for instance, adding a type of work item to be displayed in a backlog)
     [Parameter(ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypesbehaviors/{ReferenceName}/behaviors',ValueFromPipelineByPropertyName)]
     [string]
@@ -104,7 +104,7 @@
         ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors')]
     [switch]
     $Behavior,
-    
+
     # The Reference Name of a WorkItemType.
     [Parameter(Mandatory, ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workitemtypes/{ReferenceName}/states')]
@@ -203,14 +203,14 @@
         if (-not $ProcessID -and $in.ProcessID) {
             $ProcessID = $in.ProcessID
         }
-        
+
         $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $psParameterSet) + '?'
         if ($ApiVersion) {
             $uri += "api-version=$ApiVersion"
         }
 
-        $typeName = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace 
-            'processe$', 'WorkProcess' -replace 
+        $typeName = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace
+            'processe$', 'WorkProcess' -replace
             '\{ProcessId\}', 'WorkProcess'
 
         $invokeParams.Method = 'POST'
@@ -227,13 +227,13 @@
             $body.inherits = $body.inheritsfrom
             $body.Remove('inheritsFrom')
         }
-        
+
         if ($typeName -eq 'state' -or $typeName -eq 'behavior') {
             $body.Remove('IsDisabled')
         }
         if ($RuleConditionType) {
             $i = 0
-            $body.conditions = 
+            $body.conditions =
                 @(foreach ($rc in $RuleConditionType) {
                     $newRuleCondition = @{conditionType="$rc"}
                     if ($field -and -not [String]::IsNullOrEmpty($Field[$i])) {
@@ -249,7 +249,7 @@
 
         if ($RuleActionType) {
             $i = 0
-            $body.actions = 
+            $body.actions =
                 @(foreach ($ra in $RuleActionType) {
                     $newRuleAction = @{actionType="$ra"}
                     if ($TargetField -and -not [String]::IsNullOrEmpty($targetField[$i])) {
@@ -268,7 +268,7 @@
             $body.behavior = @{id=$BehaviorID}
             $body.isDefault = ($IsDefault -as [bool])
         }
-        
+
         $invokeParams.Body = $body
         $invokeParams.Uri = $uri
         if ($WhatIfPreference){
@@ -282,5 +282,5 @@
                 Server = $Server
             }
         }
-    }    
+    }
 }

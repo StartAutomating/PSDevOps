@@ -9,7 +9,7 @@
         Also removes custom work item type states, rules, and behaviors.
     .Example
         Get-ADOProject -Organization $myOrganization -Project $myProject -PersonalAccessToken $myPat |
-            Get-ADOWorkProcess | 
+            Get-ADOWorkProcess |
             Remove-ADOWorkItemType -WorkItemTypeName ServiceRequest
     .Link
         Get-ADOWorkItemType
@@ -75,7 +75,7 @@
     [string]
     $ApiVersion = "5.1-preview"
     )
-    
+
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
     begin {
         #region Copy Invoke-ADORestAPI parameters
@@ -85,7 +85,7 @@
     process {
         $in = $_
         $psParameterSet = $psCmdlet.ParameterSetName
-        if ($WorkItemTypeName -notlike '*.*' -and 
+        if ($WorkItemTypeName -notlike '*.*' -and
             $in.ProcessId -and $in.Name) {
             $WorkItemTypeName = $($in.Name -replace '\W') + '.' + $WorkItemTypeName
         }
@@ -102,15 +102,15 @@
         $invokeParams.Method = 'DELETE'
         $invokeParams.Uri    = $uri
 
-        if ($WhatIfPreference) { # If -WhatIf was passed, 
+        if ($WhatIfPreference) { # If -WhatIf was passed,
             $invokeParams.Remove('PersonalAccessToken') # remove any PersonalAccessToken from invokeparams
             return $invokeParams # and return what would be invoked.
         }
 
         if (-not $psCmdlet.ShouldProcess("DELETE $uri")) { # If we don't want to delete the endpoint
-            return 
+            return
         }
 
         Invoke-ADORestAPI @invokeParams
-    }    
+    }
 }

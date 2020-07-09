@@ -6,7 +6,7 @@
     .Description
         Gets work item types from Azure DevOps
     .Example
-        Get-ADOWorkProcess -Organization StartAutomating -Project PSDevOps | 
+        Get-ADOWorkProcess -Organization StartAutomating -Project PSDevOps |
             Get-ADOWorkItemType
     .Example
         Get-ADOWorkItemType -Organization StartAutomating -Icon
@@ -15,8 +15,8 @@
     .Link
         Get-ADOWorkProcess
     #>
-    [OutputType('PSDevOps.WorkItemType', 
-        'PSDevOps.State', 
+    [OutputType('PSDevOps.WorkItemType',
+        'PSDevOps.State',
         'PSDevOps.Rule',
         'PSDevOps.Behavior',
         'PSDevOps.Layout')]
@@ -33,7 +33,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/layout')]    
+        ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/layout')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/states')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
@@ -95,7 +95,7 @@
 
     # The name of the project.  If provided, will get work item type information related to the project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{organization}/{Project}/_apis/wit/workitemtypes')]   
+        ParameterSetName='/{organization}/{Project}/_apis/wit/workitemtypes')]
     [string]
     $Project,
 
@@ -131,9 +131,9 @@
         $psParameterSet = $PSCmdlet.ParameterSetName
         if ($in.TypeID -and $ReferenceName) { # If we're piping in a work process, clear reference name
             $psBoundParameters['ReferenceName'] = $ReferenceName = ''
-            
-            $psParameterSet = $MyInvocation.MyCommand.Parameters['ProcessID'].ParameterSets.Keys | 
-                Sort-Object Length | 
+
+            $psParameterSet = $MyInvocation.MyCommand.Parameters['ProcessID'].ParameterSets.Keys |
+                Sort-Object Length |
                 Select-Object -First 1
         }
         $q.Enqueue(@{psParameterSet = $psParameterSet}+ $psBoundParameters)
@@ -143,17 +143,17 @@
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
             . $dq $q
-            $uri = 
-                "$Server".TrimEnd('/') + 
-                    (. $ReplaceRouteParameter $psParameterSet) + 
+            $uri =
+                "$Server".TrimEnd('/') +
+                    (. $ReplaceRouteParameter $psParameterSet) +
                         '?'
 
-            if ($Server -ne 'https://dev.azure.com/' -and 
+            if ($Server -ne 'https://dev.azure.com/' -and
                     -not $psBoundParameters['apiVersion']) {
                 $ApiVersion = '2.0'
             }
 
-            $uri += 
+            $uri +=
                 @(
                     if ($ApiVersion) {
                         "api-version=$ApiVersion"
@@ -171,7 +171,7 @@
                 $c++
                 Write-Progress "Getting $(@($psParameterSet -split '/')[-1])" "[$c / $t]" -PercentComplete ($c*  100 /$t) -Id $progId
             }
-            
+
             $AddProperty = @{Organization=$Organization}
             if ($ProcessID) {
                 $AddProperty['ProcessID'] = $ProcessID
@@ -189,12 +189,12 @@
             $restResponse = Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName $typeNames -Property $AddProperty
 
             if ($restResponse -is [string]) {
-                $restResponse = 
+                $restResponse =
                     $restResponse -replace '"":', '"_blank":' |
                         ConvertFrom-Json |
                             Select-Object -ExpandProperty Value |
-                                & { process { 
-                                    $in = $_ 
+                                & { process {
+                                    $in = $_
                                     $in.pstypenames.clear()
                                     foreach ($tn in $typeNames) {
                                         $in.pstypenames.add($tn)
@@ -203,7 +203,7 @@
                                         $in | Add-Member NoteProperty $ap.Key $ap.Value -Force
                                     }
                                     $in
-                                } } 
+                                } }
             }
 
             $restResponse
