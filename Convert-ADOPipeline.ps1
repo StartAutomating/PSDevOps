@@ -6,6 +6,8 @@
     .Description
         Converts builds TFS or "Classic" builds to Azure DevOps YAML Pipelines.
     #>
+    [OutputType([string],[PSObject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "", Justification="Functionality is Desired")]
     param(
     # A list of build steps.
     # This will be automatically populated when piping in a TFS Build definition.
@@ -109,10 +111,10 @@
                                     $this = $_ = $newTask
                                     if (
                                         $wf.Key -is [string] -and $newTask.task -like $wf.Key -or
-                                        $wf.Key -is [ScriptBlock] -and (& $wf.Key)
+                                        $wf.Key -is [ScriptBlock] -and (. $wf.Key)
                                     ) {
                                         $this = $_ = $newTask
-                                        & $wf.Value
+                                        . $wf.Value
                                         break outputted
                                     }
                                 }
