@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3.8'
+    ModuleVersion = '0.3.9'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,10 +9,18 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.3.9
+---
+* New/Get/Remove-ADOWorkItemType:  Create/get/remove work custom work item types, states, rules, and behaviors.
+* Added Get-ADOBuild -IncludeAllProperty/-IncludeLatestBuild.
+* ScriptCop Integration:  PowerShelllStaticAnalysis stage now runs ScriptCop as well.
+* Improved ScriptAnalyzer Integration: Rule name is now outputted.
+
 0.3.8
 ---
 * Add/Remove-ADOAreaPath
 * Formatter for AreaPaths
+
 0.3.7
 ---
 * Convert-ADOPipeline now has -Passthru and -Wherefore
