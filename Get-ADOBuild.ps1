@@ -49,6 +49,10 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/metrics/get%20definition%20metrics?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='build/builds')]
+    [OutputType('PSDevOps.Build','PSDevOps.Build.Definition',
+        'PSDevOps.Build.Timeline', 'PSDevOps.Build.Change',
+        'PSDevOps.Build.Report', 'PSDevOps.Build.Artifact',
+        'PSDevOps.Build.CodeCoverage')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -220,6 +224,18 @@
     [DateTime]
     $NotBuiltSince,
 
+    # If set, will return extended properities of a build definition.
+    [Parameter(ParameterSetName='build/definitions')]
+    [Alias('IncludeAllProperties')]
+    [switch]
+    $IncludeAllProperty,
+
+    # If set, will include the latest build and latest completed build in a given build definition.
+    [Parameter(ParameterSetName='build/definitions')]
+    [Alias('IncludeLatestBuilds')]
+    [switch]
+    $IncludeLatestBuild,
+
     # If provided, will return build definition YAML.  No other information will be returned.
     [Parameter(ParameterSetName='build/definitions/{definitionId}')]
     [switch]
@@ -293,6 +309,12 @@
                     }
                     if ($NotBuiltSince) {
                         "notBuiltAfter=$($NotBuiltSince.ToLocalTime().ToString('o'))"
+                    }
+                    if ($IncludeAllProperty) {
+                        "includeAllProperties=true"
+                    }
+                    if ($IncludeLatestBuild) {
+                        "includeLatestBuilds=true"
                     }
                     if ($tag) {
                         "tagFilters=$($tag -join ',')"
