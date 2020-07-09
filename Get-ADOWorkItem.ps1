@@ -333,7 +333,7 @@
                 }
                 else {
                     & $outWorkItem $restResponse
-                } 
+                }
             }
         }
         Write-Progress "Getting Work Items" "Complete" -Completed -Id $progID

@@ -12,7 +12,7 @@
     .Example
         Get-ADOProject -Organization StartAutomating -Project PSDevOps
     .Example
-        Get-ADOProject -Organization StartAutomating -Project PSDevOps | 
+        Get-ADOProject -Organization StartAutomating -Project PSDevOps |
             Get-ADOProject -Metadata
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/projects')]
@@ -67,7 +67,7 @@
                 . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
             )  -join '')?$( # Followed by a query string, containing
             @(
-                if ($Server -ne 'https://dev.azure.com' -and 
+                if ($Server -ne 'https://dev.azure.com' -and
                         -not $psBoundParameters['apiVersion']) {
                     $apiVersion = '2.0'
                 }
@@ -77,10 +77,10 @@
             ) -join '&'
             )"
 
-        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1] -replace 
+        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1] -replace
             '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$'
 
-        
+
 
         Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property @{
             Organization = $Organization

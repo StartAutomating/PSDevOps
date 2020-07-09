@@ -10,7 +10,7 @@
     .Example
         Get-ADOWorkProcess -Organization StartAutomating -PersonalAccessToken $pat
     .Example
-        Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat | Get-ADOWorkProcess 
+        Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat | Get-ADOWorkProcess
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/work/processes')]
     [OutputType('PSDevOps.WorkProcess')]
@@ -67,24 +67,24 @@
     }
     process {
         $psParameterSet = $psCmdlet.ParameterSetName
-        if ($psParameterSet -eq '/{Organization}/_apis/projects/{ProjectID}/properties') 
-        { 
-            $processId = 
+        if ($psParameterSet -eq '/{Organization}/_apis/projects/{ProjectID}/properties')
+        {
+            $processId =
                 Get-ADOProject -Organization $Organization -ProjectID $ProjectID -Metadata @invokeParams -Server $Server |
                     Where-Object Name -EQ System.ProcessTemplateType |
                     Select-Object -ExpandProperty Value
-            $psParameterSet = $MyInvocation.MyCommand.Parameters['ProcessID'].ParameterSets.Keys | 
-                Sort-Object Length | 
+            $psParameterSet = $MyInvocation.MyCommand.Parameters['ProcessID'].ParameterSets.Keys |
+                Sort-Object Length |
                 Select-Object -First 1
         }
-        
+
         $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $psParameterSet) + '?'
         if ($ApiVersion) {
             $uri += "api-version=$ApiVersion"
         }
 
-        $typeName = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace 
-            'processe$', 'WorkProcess' -replace 
+        $typeName = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace
+            'processe$', 'WorkProcess' -replace
             '\{ProcessId\}', 'WorkProcess'
 
         $addProperty = @{Organization=$Organization; Server = $Server}
