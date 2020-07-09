@@ -5,17 +5,20 @@
         Gets Azure DevOps Teams
     .Description
         Gets teams from Azure DevOps or TFS
+    .Link
+        Get-ADOProject
     .Example
         Get-ADOTeam -Organization StartAutomating
     #>
     [CmdletBinding(DefaultParameterSetName='teams')]
+    [OutputType('PSDevOps.Team','PSDevOps.TeamMember')]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
-    
+
     # The project name or identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
@@ -53,7 +56,6 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-        $authParams = @{} + $invokeParams
     }
 
     process {
@@ -88,7 +90,8 @@
         ) -join '&'
 
         # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
-        $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
+        $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
+
         $typeNames = @(
             "$organization.$typename"
             if ($Project) { "$organization.$Project.$typename" }

@@ -33,15 +33,11 @@ stages:
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
             displayName: InstallPSDevOps
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSScriptAnalyzer -Force -PassThru
             displayName: InstallPSScriptAnalyzer
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               Import-Module PSScriptAnalyzer, PSDevOps
               $invokeScriptAnalyzerSplat = @{Path='.\'}
@@ -52,15 +48,13 @@ stages:
               
               foreach ($r in $result) {
                   if ('information', 'warning' -contains $r.Severity) {
-                      Write-ADOWarning -Message $r.Message -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
+                      Write-ADOWarning -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
                   }
                   elseif ($r.Severity -eq 'Error') {
-                      Write-ADOError -Message $r.Message -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
+                      Write-ADOError -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
                   }
               }
             displayName: RunPSScriptAnalyzer
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
       - job: ScriptCop
         displayName: ScriptCop
         pool: 
@@ -71,15 +65,11 @@ stages:
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
             displayName: InstallPSDevOps
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name ScriptCop -Repository PSGallery -Force -Scope CurrentUser
               Import-Module ScriptCop -Force -PassThru
             displayName: InstallScriptCop
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
               $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
@@ -113,8 +103,6 @@ stages:
               }
               } @Parameters
             displayName: RunScriptCop
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - stage: TestPowerShellCrossPlatform
     displayName: Test
@@ -140,8 +128,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
               $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
@@ -231,8 +217,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
               $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
@@ -319,8 +303,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
               $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
@@ -423,7 +405,5 @@ stages:
                   }
               }
             displayName: PublishPowerShellGallery
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 
