@@ -15,7 +15,6 @@
 * Added Get-ADOBuild -IncludeAllProperty/-IncludeLatestBuild.
 * ScriptCop Integration:  PowerShelllStaticAnalysis stage now runs ScriptCop as well.
 * Improved ScriptAnalyzer Integration: Rule name is now outputted.
-
 0.3.8
 ---
 * Add/Remove-ADOAreaPath
