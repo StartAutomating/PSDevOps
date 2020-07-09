@@ -9,8 +9,11 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/processes/list?view=azure-devops-rest-5.1
     .Example
         Get-ADOWorkProcess -Organization StartAutomating -PersonalAccessToken $pat
+    .Example
+        Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat | Get-ADOWorkProcess
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/work/processes')]
+    [OutputType('PSDevOps.WorkProcess')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -18,17 +21,27 @@
     [string]
     $Organization,
 
+    # The Project Identifier.  If this is provided, will get the work process associated with that project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/properties')]
+    [string]
+    $ProjectID,
+
+    # The process identifier
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workItemTypes',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors',ValueFromPipelineByPropertyName)]
     [Alias('TypeID')]
     [string]
     $ProcessID,
 
+    # If set, will list work item types in a given Work process.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workItemTypes',ValueFromPipelineByPropertyName)]
     [Alias('WorkItemTypes')]
     [switch]
     $WorkItemType,
 
+    # If set, will list behaviors associated with a given work process.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors',ValueFromPipelineByPropertyName)]
     [Alias('Behaviors')]
     [switch]
@@ -53,16 +66,32 @@
         #endregion Copy Invoke-ADORestAPI parameters
     }
     process {
-        $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
+        $psParameterSet = $psCmdlet.ParameterSetName
+        if ($psParameterSet -eq '/{Organization}/_apis/projects/{ProjectID}/properties')
+        {
+            $processId =
+                Get-ADOProject -Organization $Organization -ProjectID $ProjectID -Metadata @invokeParams -Server $Server |
+                    Where-Object Name -EQ System.ProcessTemplateType |
+                    Select-Object -ExpandProperty Value
+            $psParameterSet = $MyInvocation.MyCommand.Parameters['ProcessID'].ParameterSets.Keys |
+                Sort-Object Length |
+                Select-Object -First 1
+        }
+
+        $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $psParameterSet) + '?'
         if ($ApiVersion) {
             $uri += "api-version=$ApiVersion"
         }
 
-        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') -replace 'processe$', 'WorkProcess'
+        $typeName = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace
+            'processe$', 'WorkProcess' -replace
+            '\{ProcessId\}', 'WorkProcess'
 
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property @{
-            Organization = $Organization
-            Server = $Server
+        $addProperty = @{Organization=$Organization; Server = $Server}
+        if ($ProcessID) {
+            $addProperty['ProcessID'] = $ProcessID
         }
+
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property $addProperty
     }
 }
