@@ -6,13 +6,16 @@
     .Description
         Creates new work item fields in Azure DevOps or Team Foundation Server.
     .Example
-        New-ADOField -Name Verb -ReferenceName Cmdlet.Verb -Description "The PowerShell Verb" -ValidValue (Get-Verb | Select-Object -ExpandProperty Verb | Sort-Object)
+        New-ADOField -Name Verb -ReferenceName Cmdlet.Verb -Description "The PowerShell Verb" -ValidValue (Get-Verb | Select-Object -ExpandProperty Verb | Sort-Object) -Organization MyOrganization
     .Example
-        New-ADOField -Name IsDCR -Type Boolean -Description "Is this a direct custom request?"
+        New-ADOField -Name IsDCR -Type Boolean -Description "Is this a direct custom request?" -Organization MyOrganization
+    .Notes
+
     .Link
         Invoke-ADORestAPI
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
+    [OutputType('PSDevOps.Field')]
     param(
     # The friendly name of the field
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
@@ -106,7 +109,7 @@
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1")
+    $ApiVersion = "5.1-preview")
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
     begin {
@@ -144,8 +147,13 @@
             }
 
 
+        for ($i =0; $i -lt $validFieldTypes.Length; $i++) {
+            if ($validFieldTypes[$i] -ieq $type) {
+                $type  = $validFieldTypes[$i]
+            }
+        }
 
-        $postContent.type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
+        $postContent.type = $type
         $postContent.readOnly = $readOnly -as [bool]
         $postContent.canSortBy = $canSortBy -as [bool]
         $postContent.isQueryable = $isQueryable -as [bool]
@@ -153,23 +161,34 @@
         $postContent.description = $Description
 
         if ($ValidValue) {
-            if ($Type -ne 'string' -and $type -ne 'integer' -and $type -ne 'double') {
+            if ($type -notlike 'picklist*' -and
+                $Type -ne 'string' -and $type -ne 'integer' -and $type -ne 'double') {
                 Write-Error "Can only provide a list of valid values fields of type string, integer, or double"
                 return
             }
             $postContent.isPicklist = $true
-            $pickListCreate = [Ordered]@{
-                id = $null
-                name = "$($postContent.ReferenceName)_$([GUID]::NewGuid())" -replace '-','' -replace '\.',''
-                type = $validFieldTypes[$validFieldTypes.IndexOf($Type)]
-            }
+            $pickListCreate =
+                [Ordered]@{
+                    id = $null
+                    name = "$($postContent.ReferenceName)_$([GUID]::NewGuid())" -replace '-','' -replace '\.',''
+                    type =
+                        if ($type -like 'picklist*') {
+                            $validFieldTypes[$validFieldTypes.IndexOf($Type)]
+                        } else {
+                            $validFieldTypes[$validFieldTypes.IndexOf($Type)]
+                        }
+                }
             $pickListCreate.type= $pickListCreate.type.Substring(0,1).ToUpper() + $pickListCreate.type.Substring(1)
             $pickListCreate.items =
-                if ($type -eq 'string') {
+                @(if ($type -match 'string') {
                     $ValidValue
                 } else {
                     $ValidValue -as [double[]]
-                }
+                })
+
+            if (-not $pickListCreate.items) {
+                $pickListCreate.items = @('')
+            }
             $picklistCreateUri = "$Server".TrimEnd('/'), $Organization, '_apis/work/processes/lists?' -join '/'
             if ($ApiVersion) {
                 $picklistCreateUri += "api-version=$ApiVersion"
@@ -183,7 +202,12 @@
         $invokeParams.Body = ConvertTo-Json $postContent -Depth 100
         $invokeParams.Method = 'POST'
         if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
-        Invoke-ADORestAPI @invokeParams -PSTypeName "PSDevOps.Field" -Property @{
+
+        Invoke-ADORestAPI @invokeParams -PSTypeName @(
+            if ($Project) { "$Organization.$project.Field" }
+            "$Organization.Field"
+            "PSDevOps.Field"
+        ) -Property @{
             Organization = $Organization
             Project = $Project
             Server = $Server
