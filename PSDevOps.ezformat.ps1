@@ -39,6 +39,7 @@ $types = @(
     }
     Write-TypeView -TypeName PSDevOps.Project -AliasProperty @{
         Project = 'Name'
+        ProjectID = 'ID'
     } -ScriptProperty @{
         LastUpdated = {[DateTime]$this.LastUpdateTime}
     } -DefaultDisplay Organization, Project, LastUpdateTime, Description

@@ -572,6 +572,50 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
         </CustomEntries>
       </CustomControl>
     </View>
+    <View>
+      <Name>PSDevOps.WorkItemType</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkItemType</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Icon</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+        if ($_.Icon.id) {
+            $_.Icon.id
+        } else {
+            $_.Icon
+        }
+    </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Color</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
   <Controls>
     <Control>
