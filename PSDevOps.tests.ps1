@@ -254,6 +254,13 @@ describe 'Builds' {
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should be Microsoft
         }
+
+        it 'Get Get-ADOTask' {
+            Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty PSTypenames |
+                Select-Object -Last 1 |
+                should -Be 'PSDevOps.Task'
+        }
     }
 }
 
