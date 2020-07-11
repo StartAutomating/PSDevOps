@@ -38,7 +38,10 @@
     # A list of item names that automatically become plurals
     [string[]]$PluralItemName,
 
-    [ValidateSet('ADO', 'GitHubActions')]
+    # A list of item names that automatically become dictionaries.
+    [string[]]$DictionaryItemName,
+
+    [ValidateSet('ADO', 'GitHub')]
     [string]$BuildSystem = 'ADO',
 
     # The name of parameters that should be supplied from build variables.
@@ -183,7 +186,13 @@
                         }
                     }
 
-
+                if ($DictionaryItemName -contains $propName) {
+                    if (-not $outObject[$propName]) {
+                        $outObject[$propName] = [Ordered]@{}
+                    }
+                    $outObject[$propName][$v] = $o
+                    continue
+                }
                 if ($metaData.Name -and $Option.$($metaData.Name) -is [Collections.IDictionary]) {
                     $o2 = [Ordered]@{} + $o
                     foreach ($ov in @($Option.($metaData.Name).GetEnumerator())) {
@@ -195,21 +204,22 @@
                 }
             }
 
+            if ($outValue) {
+
+                $outObject[$propName] = $outValue
 
 
-            $outObject[$propName] = $outValue
+                if ($outObject[$propName] -isnot [Collections.IList] -and
+                    $kv.Value -is [Collections.IList] -and -not $singleton) {
+                    $outObject[$propName] = @($outObject[$propName])
+                } elseif ($outObject[$propName] -is [Collections.IList] -and $kv.Value -isnot [Collections.IList]) {
+                    $outObject[$propName] = $outObject[$propName][0]
+                }
 
-
-            if ($outObject[$propName] -isnot [Collections.IList] -and
-                $kv.Value -is [Collections.IList] -and -not $singleton) {
-                $outObject[$propName] = @($outObject[$propName])
-            } elseif ($outObject[$propName] -is [Collections.IList] -and $kv.Value -isnot [Collections.IList]) {
-                $outObject[$propName] = $outObject[$propName][0]
-            }
-
-            if ($PluralItemName -contains $propName -and
-                $outObject[$propName] -isnot [Collections.IList]) {
-                $outObject[$propName] = @($outObject[$propName])
+                if ($PluralItemName -contains $propName -and
+                    $outObject[$propName] -isnot [Collections.IList]) {
+                    $outObject[$propName] = @($outObject[$propName])
+                }
             }
         }
         $outObject
