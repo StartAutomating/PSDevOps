@@ -1,9 +1,9 @@
-function New-GitHubAction {
+function New-GitHubWorkflow {
     <#
     .Synopsis
-        Creates a new GitHub Action Pipeline
+        Creates a new GitHub Workflow
     .Example
-        New-GitHubAction -Step InstallPester
+        New-GitHubWorkflow -Step InstallPester
     #>
 
     [CmdletBinding()]
@@ -18,7 +18,30 @@ function New-GitHubAction {
         # A table of additional settings to apply wherever a part is used.
         # For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}
         [Collections.IDictionary]
-        $Option
+        $Option,
+
+        # The name of parameters that should be supplied from the environment.
+        # Wildcards accepted.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]]
+        $EnvironmentParameter,
+
+        # The name of parameters that should be excluded.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]]
+        $ExcludeParameter,
+
+        # The name of parameters that should be referred to uniquely.
+        # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
+        # The build parameter would be foo_bar.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]]
+        $UniqueParameter,
+
+        # A collection of default parameters.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [Collections.IDictionary]
+        $DefaultParameter = @{}
     )
 
     dynamicParam {
@@ -41,7 +64,7 @@ function New-GitHubAction {
 
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
-        $ThingNames = $script:ComponentNames.'GitHubActions'
+        $ThingNames = $script:ComponentNames.'GitHub'
         if ($ThingNames) {
             foreach ($kv in $ThingNames.GetEnumerator()) {
                 $k = $kv.Key.Substring(0,1).ToUpper() + $kv.Key.Substring(1)
@@ -52,12 +75,22 @@ function New-GitHubAction {
         return $DynamicParameters
     }
 
+    begin {
+        $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
+
+        $expandADOBuildStep = @{
+            BuildSystem = 'GitHub'
+            SingleItemName = 'On','Name'
+            DictionaryItemName = 'Jobs', 'Inputs','Outputs'
+        }
+    }
+
     process {
 
         $myParams = [Ordered]@{ } + $PSBoundParameters
 
         $stepsByType = [Ordered]@{ }
-        $ThingNames = $script:ComponentNames.'GitHubActions'
+        $ThingNames = $script:ComponentNames.'GitHub'
         foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
@@ -76,7 +109,16 @@ function New-GitHubAction {
             }
         }
 
-        $yamlToBe = & $expandComponents $stepsByType -ComponentType GitHubActions -SingleItemName On, Name
+        $expandSplat = @{} + $PSBoundParameters
+        foreach ($k in @($expandSplat.Keys)) {
+            if (-not $expandBuildStepCmd.Parameters[$k]) {
+                $expandSplat.Remove($k)
+            }
+        }
+
+        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep
+
+        #$yamlToBe = & $expandComponents $stepsByType -ComponentType GitHub -SingleItemName On, Name
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
     }
 }
