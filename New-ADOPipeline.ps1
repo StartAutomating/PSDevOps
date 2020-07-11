@@ -55,7 +55,8 @@
     # A collection of default parameters.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
-    $DefaultParameter = @{})
+    $DefaultParameter = @{}
+    )
 
     dynamicParam {
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
