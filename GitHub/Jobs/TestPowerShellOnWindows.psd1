@@ -1,8 +1,6 @@
 ﻿@{
-    build = @{
-        "runs-on" = "ubuntu-latest"
-        steps = @('PSCore')
-    }
+    "runs-on" = "ubuntu-latest"
+    steps = @('InstallPester', 'RunPester')
 }
 
 # @{
