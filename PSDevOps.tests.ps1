@@ -156,7 +156,7 @@ describe 'Creating Pipelines' {
 
         $keyParts  =
             'steps:','- powershell','$Parameters*=*@{}','$Parameters.Organization',
-            '=','${{coalesce(*parameters.Organization*','}}','Import-Module','$(PSDevOpsPath)',
+            '=','Import-Module','$(PSDevOpsPath)',
             'Get-ADOWorkProcess','@Parameters'
 
         $createdPipeline | should belike "*$($keyParts -join '*')*"
@@ -400,9 +400,9 @@ describe 'Import-ADOProxy' {
 }
 
 
-describe 'New-GitHubAction' {
+describe 'New-GitHubWorkflow' {
      it 'should create yaml' {
-         $actual = New-GitHubAction -Step InstallPester
+         $actual = New-GitHubWorkflow -Step InstallPester
          $actual.Trim() | should belike "*runs:*shell:?pwsh*"
      }
 }
