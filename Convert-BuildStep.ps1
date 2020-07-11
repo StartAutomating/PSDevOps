@@ -71,7 +71,7 @@
     $DefaultParameter = @{},
 
     # The build system.  Currently supported options, ADO and GitHubActions.  Defaulting to ADO.
-    [ValidateSet('ADO', 'GitHubActions')]
+    [ValidateSet('ADO', 'GitHub')]
     [string]
     $BuildSystem = 'ado'
 
@@ -91,68 +91,82 @@
     }
 
     process {
-        if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') {
-            if ($Extension -eq '.ps1')
+        # If we have been given a path and an extension, 
+        if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') { 
+            if ($Extension -eq '.ps1') # and that extension is .ps1
             {
-                $splatMe=  @{} + $PSBoundParameters
-                $splatMe.Remove('Path')
-                $splatMe.Remove('Extension')
-                Get-Item -Path $path |
-                    Get-Command { $_.FullName } |
-                    Convert-BuildStep @splatMe
+                $splatMe=  @{} + $PSBoundParameters # then we recursively call ourselves.
+                $splatMe.Remove('Path') # Before we do, take out the -Path and
+                $splatMe.Remove('Extension') # -Extension parameters.
+                Get-Item -LiteralPath $path |# Get the script file, 
+                    Get-Command { $_.FullName } | # resolve it to a command
+                    Convert-BuildStep @splatMe    # pipe that input to ourselves.
             }
-            elseif ($Extension -eq '.sh')
+            elseif ($Extension -eq '.sh') # The other extension we know how to deal with is .sh
             {
-                [Ordered]@{bash="$ft";displayName=$metaData.Name}
+                $shellScript = Get-Content -LiteralPath $path -Raw
+                if ($BuildSystem -eq 'ADO') { # If the buildsystem is Azure DevOps
+                    [Ordered]@{
+                        bash= $shellScript
+                        displayName=$Name
+                    } # echo out a bash: step.
+                } elseif ($BuildSystem -eq 'GitHub') {
+                    [Ordered]@{
+                        name=$Name
+                        run=$shellScript
+                        shell='bash'
+                    }
+                }
+
             }
             return
         }
-        $innerScript = "$ScriptBlock"
+        $innerScript = "$ScriptBlock" 
 
-        $sbParams =
+        $sbParams = # Determine if script block had parameters, by examining AST.
             if ($ScriptBlock.Ast.ParamBlock) {
                 $ScriptBlock.Ast.ParamBlock
             } elseif ($ScriptBlock.ast.Body.ParamBlock) {
                 $ScriptBlock.Ast.Body.ParamBlock
             }
         $definedParameters = @()
-        if ($sbParams) {
-            $function:_TempFunction = $ScriptBlock
+        if ($sbParams) { # If it had parameters,
+            $function:_TempFunction = $ScriptBlock # create a temporary function
             $tempCmd =
                 $ExecutionContext.SessionState.InvokeCommand.GetCommand("_TempFunction",'Function')
-            $tempCmdMd = [Management.Automation.CommandMetadata]$tempCmd
+            $tempCmdMd = [Management.Automation.CommandMetadata]$tempCmd # and get it's command metadata
 
+            #region Accumulate Parameter Script
             $collectParameters = @(
-                '$Parameters = @{}'
+                '$Parameters = @{}' # First, we'll create a hashtable to store the parameters.
 
-                foreach ($parameterName in $tempCmdMd.Parameters.Keys) {
+                foreach ($parameterName in $tempCmdMd.Parameters.Keys) { # Then we'll walk thru each parameter,
                     $parameterAttributes = $tempCmdMd.Parameters[$parameterName].Attributes
-                    $isMandatory =
+                    $isMandatory = # determine if it is mandatory
                         foreach ($attr in $parameterAttributes) {
                             if ($attr.IsMandatory) { $true; break }
                         }
 
-
-                    $disambiguatedParameter = $Name + '_' + $parameterName
-                    $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
-                    $shouldExclude =
+                    # and create a 'disambiguated' parameter name
+                    $disambiguatedParameter = $Name + '_' + $parameterName # (e.g. Get-Command_Syntax).
+                    $shouldExclude = # Next, we see if it should be excluded
                         & $MatchesAnyWildCard $disambiguatedParameter, $parameterName $ExcludeParameter
-                    if ($shouldExclude) { continue }
-                    $VariableName =
-                        & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
+                    if ($shouldExclude) { continue } # if so continue.
 
-                    $EnvVariableName =
-                        & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EnvironmentParameter
-                    $paramType = $tempCmdMd.Parameters[$parameterName].ParameterType
 
                     $defaultValue =
-                        if ($DefaultParameter[$disambiguatedParameter]) # If we provided a default value for the disambiguated parameter,
+                        # If we provided a default value for the disambiguated parameter,
+                        if ($DefaultParameter[$disambiguatedParameter]) 
                         {
                             $DefaultParameter[$disambiguatedParameter]  # use that as the default value.
-                        } elseif ($DefaultParameter[$parameterName])    # Otherwise, if we have provided a default by name,
+                        } 
+                        # Otherwise, if we have provided a default by name,
+                        elseif ($DefaultParameter[$parameterName])    
                         {
                             $DefaultParameter[$parameterName]           # use that as the default.
-                        } else
+                        } 
+                        # Otherwise, the default value can be found with the AST.
+                        else
                         {
                             foreach ($param in $sbParams.Parameters) {
                                 if ($parameterName -eq $param.Name.VariablePath) {
@@ -166,75 +180,114 @@
                                 }
                             }
                         }
+
+                    # No matter the build system, we'll probably want to know a few things about the parameter.
+                    $paramType = $tempCmdMd.Parameters[$parameterName].ParameterType
+
+
+                    # Determine if it needs to be made unique. 
+                    $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
+
+                    # What the step parameter name would be (which depends on -MakeUnique).
+                    $stepParamName = if ($makeUnique) { $disambiguatedParameter } else {$ParameterName}
+
                     if ($BuildSystem -eq 'ado') {
+                        # In Azure DevOps pipelines, we can pass parameters as a variable
+                        $VariableName = 
+                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
-                        $stepParamName = if ($makeUnique) { $disambiguatedParameter } else {$ParameterName}
+                        # or an environment variable, or a parameter.
+                        $EnvVariableName =
+                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EnvironmentParameter
 
-                        if ($variableName)
+                        
+                        # If we wanted to pass this parameter as a variable,
+                        if ($variableName) 
                         {
-                            "`$Parameters.$ParameterName = '`$($stepParamName)'"
+                            # The syntax is like PowerShell string expansion, so put it in single quotes to be safe.
+                            "`$Parameters.$ParameterName = '`$($stepParamName)'" 
                         }
+                        # If wanted to pass this parameter as an environment variable
                         elseif ($envVariableName)
-                        {
-                            "`$Parameters.$ParameterName = `$env:$($stepParamName)"
+                        {                            
+                            "`$Parameters.$ParameterName = `${env:$($stepParamName)}" # just use the environment provider.
                         }
+                        # If we wanted this parameter to become a parameter for the pipeline
                         else
                         {
+                            # We have to create it.
                             $thisParameter = [Ordered]@{
-                                name = $stepParamName
-                                type =
-                                    $(if ([switch], [bool] -contains $paramType)
+                                name = $stepParamName # The name we already know
+                                type = # how it maps to Azure DevOps' parameter types gets tedious:
+                                    $(
+                                    # If it was a [switch] or a [bool],
+                                    if ([switch], [bool] -contains $paramType) 
                                     {
-                                        'boolean'
+                                        'boolean' # in Azure DevOps, it's a boolean
                                     }
+                                    # [int]s, [float]s, [double]s, [uint32]s, [byte], and [long]s become
                                     elseif ([int],[float],[double],[uint32],[byte], [long] -contains $paramType)
                                     {
-                                        'number'
+                                        'number' # numbers in Azure DevOps.
                                     }
-                                    elseif ([string],
+                                    elseif ([string], # any number of other safe types
                                         [Version],
+                                        [DateTime],
+                                        [TimeSpan],
+                                        [DateTime[]],
                                         [ScriptBlock],[ScriptBlock[]],
                                         [string[]],
                                         [int[]],
                                         [float[]] -contains $paramType -or
                                         $paramType.IsSubclassOf([Enum])) {
-                                        'string'
-                                    } else {
-                                        'object'
-                                    })
+                                        'string' # will be considered a string
+                                    } 
+                                    # otherwise, we'll treat it as an object 
+                                    else
+                                    {
+                                        'object' 
+                                        # (though passing it down is currently so simple).
+                                    }
+                                    )
                             }
-                            if ($paramType.IsSubclassOf([Enum])) {
+                            if ($paramType.IsSubclassOf([Enum])) { # If the parameter is an enum, 
                                 $thisParameter.values = [Enum]::GetValues($paramType)
                             } else {
-                                foreach ($attr in $parameterAttributes) {
+                                foreach ($attr in $parameterAttributes) { # or if the parameter has a ValidateSet
                                     if ($attr -is [Management.Automation.ValidateSetAttribute]) {
-                                        $thisParameter.values = $attr.ValidValues
+                                        $thisParameter.values = $attr.ValidValues # we know a list of valid values
                                         break
                                     }
                                 }
                             }
 
-                            if (-not $isMandatory) {
-                                $thisParameter.default = ''
-                                if ($thisParameter.Contains('values')) {
-                                    $thisParameter.values = @('') + $thisParameter.values
+                            if (-not $isMandatory) { # If the parameter was not mandatory
+                                $thisParameter.default = '' # default to blank
+                                if ($thisParameter.Contains('values')) { # if it had valid values
+                                    $thisParameter.values = @('') + $thisParameter.values # default those values to blank.
                                 }
                             }
 
-                            if ($null -ne $defaultValue) {
-                                $thisParameter.default = $defaultValue
+                            if ($null -ne $defaultValue) { # If we have a default, 
+                                $thisParameter.default = $defaultValue # set it on the object
                             }
 
-                            $definedParameters += $thisParameter
-                            "`$Parameters.$ParameterName = `${{parameters.$stepParamName}};"
-                        }
+                            $definedParameters += $thisParameter # keep track of which parameters we define
+                            "`$Parameters.$ParameterName = '`$($stepParamName)'" # and output the text to bind to this parameter.
+                        }                       
+                    }
 
-                        if ([int[]], [string[]],[float[]] -contains $paramType) {
-                            "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
-                        }
-                        if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
-                            "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
-                        }
+                    if ($BuildSystem -eq 'GitHub') {
+                        "`$Parameters.$ParameterName = `${env:$($stepParamName)}"
+                    }
+                     # If the parameter type was and [int[]], [string[]], or [float[]],
+                    if ([int[]], [string[]],[float[]] -contains $paramType) {
+                        # it can be split by semicolons.
+                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
+                    }
+                    # If the parameter type was a scriptblock 
+                    if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) { 
+                        "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
                     }
                 }
 
@@ -251,20 +304,20 @@ foreach ($k in @($parameters.Keys)) {
             )
             $collectParameters =
                     $collectParameters -join [Environment]::NewLine -replace '\$\{','`${'
-
-            if ($Name -and $Module) {
+            #endregion Accumulate Parameter Script
+            if ($Name -and $Module) { # if the command we're converting came from a module
                 $modulePathVariable = "${Module}Path"
                 $sb = [ScriptBlock]::Create(@"
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 $Name `@Parameters
-"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(format(''"{0}"'',parameters.${Name}), ''$null'')}};'
+"@)
                 $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
 & {$ScriptBlock} `@Parameters
-"@) -replace "`\$\{\{parameters\.(?<Name>[^\}]+?)}};", '${{coalesce(format(''"{0}"'',parameters.${Name}), ''$null'')}};'
+"@)
                 $innerScript = $sb
             }
             Remove-Item -Force function:_TempFunction
@@ -283,9 +336,9 @@ $CollectParameters
             if ($UseSystemAccessToken) {
                 $out.env = @{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}
             }
-        } elseif ($BuildSystem -eq 'GitHubActions') {
+        } elseif ($BuildSystem -eq 'GitHub') {
             $out.name = $Name
-            $out.runs = "$innerScript"
+            $out.runs = "$innerScript" -replace '`\$\{','${'
             $out.shell = 'pwsh'
         }
         $out
