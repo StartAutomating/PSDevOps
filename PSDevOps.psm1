@@ -42,5 +42,5 @@ $extensionModules =
 
 #region Import Components
 $extensionModules |
-    Import-BuildStep -BuildSystem ADO, GitHubActions
+    Import-BuildStep -BuildSystem ADO, GitHub
 #endregion Import Components
