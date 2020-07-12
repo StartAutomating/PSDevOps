@@ -400,9 +400,33 @@ describe 'Import-ADOProxy' {
 }
 
 
-describe 'New-GitHubWorkflow' {
-     it 'should create yaml' {
-         $actual = New-GitHubWorkflow -Step InstallPester
-         $actual.Trim() | should belike "*run:*shell:?pwsh*"
-     }
+
+describe 'GitHub Worfklow tools' {
+    context New-GitHubWorkflow {
+         it 'should create yaml' {
+             $actual = New-GitHubWorkflow -Job TestPowerShellOnLinux
+             $actual.Trim() | should belike "*run:*shell:?pwsh*"
+         }
+    }
+    context GitHubWorkflowOutput {
+        it 'Can Write an GitHub Error' {
+            Write-GitHubError -Message "error!" -Debug |
+            should -Match '::error::error!'
+        }
+
+        it 'Can Write an GitHub Error with a SourcePath' {
+            Write-GitHubError -Message 'error!' -SourcePath file.cs -LineNumber 1 -Debug |
+            should -Be '::error file=file.cs,line=1::error!'
+        }
+
+        it 'Can Write an GitHub Warning' {
+            Write-GitHubWarning -Message "Warning!" -Debug |
+            should -Match '::warning::Warning!'
+        }
+
+        it 'Can Write an GitHub Warning with a SourcePath' {
+            Write-GitHubWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
+            should -Be '::warning file=file.cs,line=1::Warning!'
+        }
+    }
 }
