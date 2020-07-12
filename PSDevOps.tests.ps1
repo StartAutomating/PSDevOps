@@ -403,6 +403,6 @@ describe 'Import-ADOProxy' {
 describe 'New-GitHubWorkflow' {
      it 'should create yaml' {
          $actual = New-GitHubWorkflow -Step InstallPester
-         $actual.Trim() | should belike "*runs:*shell:?pwsh*"
+         $actual.Trim() | should belike "*run:*shell:?pwsh*"
      }
 }
