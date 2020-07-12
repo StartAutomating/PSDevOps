@@ -14,6 +14,8 @@
     #>
     [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
     [OutputType([Collections.IDictionary])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseOutputTypeCorrectly", "",
+        Justification="ScriptAnalyzer False Positive")]
     param(
     # The name of the build step
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -118,6 +120,25 @@
                     }
                 }
 
+            }
+            elseif ($Extension -eq '.py') {
+                $pythonScript = Get-Content -LiteralPath $path -Raw
+                if ($BuildSystem -eq 'ADO') {
+                    [Ordered]@{
+                        task = 'PythonScript@0'
+                        inputs = [Ordered]@{
+                            scriptSource = 'inline'
+                            script = $pythonScript
+                        }
+                    }
+                }
+                elseif ($BuildSystem -eq 'GitHub') {
+                    [Ordered]@{
+                        name = $Name
+                        run = $pythonScript
+                        shell = 'python'
+                    }
+                }
             }
             return
         }
@@ -334,7 +355,8 @@ $CollectParameters
                 $out.parameters = $definedParameters
             }
             if ($UseSystemAccessToken) {
-                $out.env = @{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}
+                if (-not $out.env) { $out.env = @{}}
+                $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
         } elseif ($BuildSystem -eq 'GitHub') {
             $out.name = $Name
