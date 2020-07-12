@@ -72,12 +72,10 @@
     [Collections.IDictionary]
     $DefaultParameter = @{},
 
-    # The build system.  Currently supported options, ADO and GitHubActions.  Defaulting to ADO.
+    # The build system.  Currently supported options, ADO and GitHub.  Defaulting to ADO.
     [ValidateSet('ADO', 'GitHub')]
     [string]
     $BuildSystem = 'ado'
-
-
     )
 
     begin {
@@ -340,7 +338,7 @@ $CollectParameters
             }
         } elseif ($BuildSystem -eq 'GitHub') {
             $out.name = $Name
-            $out.runs = "$innerScript" -replace '`\$\{','${'
+            $out.run = "$innerScript" -replace '`\$\{','${'
             $out.shell = 'pwsh'
         }
         $out
