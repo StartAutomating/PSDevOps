@@ -12,6 +12,7 @@
     .Link
         Import-BuildStep
     #>
+    [OutputType([PSObject])]
     param(
     # A map of step properties to underlying data.
     # Each key is the name of a property the output.
@@ -41,6 +42,7 @@
     # A list of item names that automatically become dictionaries.
     [string[]]$DictionaryItemName,
 
+    # The build system, either ADO or GitHub.
     [ValidateSet('ADO', 'GitHub')]
     [string]$BuildSystem = 'ADO',
 
@@ -80,9 +82,8 @@
     }
 
     process {
-
-        $theComponentMetaData = $ComponentMetaData.$BuildSystem
-        $theComponentNames = $ComponentNames.$BuildSystem
+        $theComponentMetaData = $script:ComponentMetaData.$BuildSystem
+        $theComponentNames = $script:ComponentNames.$BuildSystem
 
         $outObject = [Ordered]@{}
         $splatMe = @{} + $PSBoundParameters

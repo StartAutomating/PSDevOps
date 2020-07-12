@@ -12,6 +12,8 @@
     .Link
         Expand-BuildStep
     #>
+    [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
+    [OutputType([Collections.IDictionary])]
     param(
     # The name of the build step
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -91,14 +93,14 @@
     }
 
     process {
-        # If we have been given a path and an extension, 
-        if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') { 
+        # If we have been given a path and an extension,
+        if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') {
             if ($Extension -eq '.ps1') # and that extension is .ps1
             {
                 $splatMe=  @{} + $PSBoundParameters # then we recursively call ourselves.
                 $splatMe.Remove('Path') # Before we do, take out the -Path and
                 $splatMe.Remove('Extension') # -Extension parameters.
-                Get-Item -LiteralPath $path |# Get the script file, 
+                Get-Item -LiteralPath $path |# Get the script file,
                     Get-Command { $_.FullName } | # resolve it to a command
                     Convert-BuildStep @splatMe    # pipe that input to ourselves.
             }
@@ -121,7 +123,7 @@
             }
             return
         }
-        $innerScript = "$ScriptBlock" 
+        $innerScript = "$ScriptBlock"
 
         $sbParams = # Determine if script block had parameters, by examining AST.
             if ($ScriptBlock.Ast.ParamBlock) {
@@ -156,15 +158,15 @@
 
                     $defaultValue =
                         # If we provided a default value for the disambiguated parameter,
-                        if ($DefaultParameter[$disambiguatedParameter]) 
+                        if ($DefaultParameter[$disambiguatedParameter])
                         {
                             $DefaultParameter[$disambiguatedParameter]  # use that as the default value.
-                        } 
+                        }
                         # Otherwise, if we have provided a default by name,
-                        elseif ($DefaultParameter[$parameterName])    
+                        elseif ($DefaultParameter[$parameterName])
                         {
                             $DefaultParameter[$parameterName]           # use that as the default.
-                        } 
+                        }
                         # Otherwise, the default value can be found with the AST.
                         else
                         {
@@ -185,7 +187,7 @@
                     $paramType = $tempCmdMd.Parameters[$parameterName].ParameterType
 
 
-                    # Determine if it needs to be made unique. 
+                    # Determine if it needs to be made unique.
                     $makeUnique = & $MatchesAnyWildcard $parameterName,$disambiguatedParameter $UniqueParameter
 
                     # What the step parameter name would be (which depends on -MakeUnique).
@@ -193,23 +195,23 @@
 
                     if ($BuildSystem -eq 'ado') {
                         # In Azure DevOps pipelines, we can pass parameters as a variable
-                        $VariableName = 
+                        $VariableName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
                         # or an environment variable, or a parameter.
                         $EnvVariableName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EnvironmentParameter
 
-                        
+
                         # If we wanted to pass this parameter as a variable,
-                        if ($variableName) 
+                        if ($variableName)
                         {
                             # The syntax is like PowerShell string expansion, so put it in single quotes to be safe.
-                            "`$Parameters.$ParameterName = '`$($stepParamName)'" 
+                            "`$Parameters.$ParameterName = '`$($stepParamName)'"
                         }
                         # If wanted to pass this parameter as an environment variable
                         elseif ($envVariableName)
-                        {                            
+                        {
                             "`$Parameters.$ParameterName = `${env:$($stepParamName)}" # just use the environment provider.
                         }
                         # If we wanted this parameter to become a parameter for the pipeline
@@ -221,7 +223,7 @@
                                 type = # how it maps to Azure DevOps' parameter types gets tedious:
                                     $(
                                     # If it was a [switch] or a [bool],
-                                    if ([switch], [bool] -contains $paramType) 
+                                    if ([switch], [bool] -contains $paramType)
                                     {
                                         'boolean' # in Azure DevOps, it's a boolean
                                     }
@@ -241,16 +243,16 @@
                                         [float[]] -contains $paramType -or
                                         $paramType.IsSubclassOf([Enum])) {
                                         'string' # will be considered a string
-                                    } 
-                                    # otherwise, we'll treat it as an object 
+                                    }
+                                    # otherwise, we'll treat it as an object
                                     else
                                     {
-                                        'object' 
+                                        'object'
                                         # (though passing it down is currently so simple).
                                     }
                                     )
                             }
-                            if ($paramType.IsSubclassOf([Enum])) { # If the parameter is an enum, 
+                            if ($paramType.IsSubclassOf([Enum])) { # If the parameter is an enum,
                                 $thisParameter.values = [Enum]::GetValues($paramType)
                             } else {
                                 foreach ($attr in $parameterAttributes) { # or if the parameter has a ValidateSet
@@ -268,13 +270,13 @@
                                 }
                             }
 
-                            if ($null -ne $defaultValue) { # If we have a default, 
+                            if ($null -ne $defaultValue) { # If we have a default,
                                 $thisParameter.default = $defaultValue # set it on the object
                             }
 
                             $definedParameters += $thisParameter # keep track of which parameters we define
                             "`$Parameters.$ParameterName = '`$($stepParamName)'" # and output the text to bind to this parameter.
-                        }                       
+                        }
                     }
 
                     if ($BuildSystem -eq 'GitHub') {
@@ -285,8 +287,8 @@
                         # it can be split by semicolons.
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
                     }
-                    # If the parameter type was a scriptblock 
-                    if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) { 
+                    # If the parameter type was a scriptblock
+                    if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
                         "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
                     }
                 }
