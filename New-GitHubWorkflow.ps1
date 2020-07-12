@@ -3,16 +3,22 @@ function New-GitHubWorkflow {
     .Synopsis
         Creates a new GitHub Workflow
     .Example
-        New-GitHubWorkflow -Step InstallPester
+        New-GitHubWorkflow -Job TestPowerShellOnLinux
+    .Link
+        Import-BuildStep
     #>
-
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification = "Does not change state")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification = "Explicitly checking for null (0 is ok)")]
+    [OutputType([string])]
     param(
         # The input object.
         [Parameter(ValueFromPipeline)]
         [PSObject]$InputObject,
+
+        # The name of the workflow.
+        [string]
+        $Name,
 
         # Optional changes to a component.
         # A table of additional settings to apply wherever a part is used.
@@ -45,23 +51,6 @@ function New-GitHubWorkflow {
     )
 
     dynamicParam {
-
-        $newDynamicParameter = {
-            param([string]$name, [string[]]$ValidSet, [type]$type = [string], [string]$ParameterSet = '__AllParameterSets', [switch]$Mandatory)
-
-            $ParamAttr = [Management.Automation.ParameterAttribute]::new()
-            $ParamAttr.Mandatory = $Mandatory
-            $ParamAttr.ParameterSetName = $ParameterSet
-            $ParamAttributes = [Collections.ObjectModel.Collection[System.Attribute]]::new()
-            $ParamAttributes.Add($ParamAttr)
-
-            if ($ValidSet) {
-                $ParamAttributes.Add([Management.Automation.ValidateSetAttribute]::new($ValidSet))
-            }
-
-            [Management.Automation.RuntimeDefinedParameter]::new($name, $type, $ParamAttributes)
-        }
-
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
         $ThingNames = $script:ComponentNames.'GitHub'
@@ -89,7 +78,9 @@ function New-GitHubWorkflow {
 
         $myParams = [Ordered]@{ } + $PSBoundParameters
 
-        $stepsByType = [Ordered]@{ }
+        $stepsByType = [Ordered]@{}
+        if ($Name) {$stepsByType['Name'] = $name }
+        #region Map Dynamic Input
         $ThingNames = $script:ComponentNames.'GitHub'
         foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
@@ -108,13 +99,16 @@ function New-GitHubWorkflow {
                 $stepsByType[$property.name] = $InputObject.$key
             }
         }
+        #endregion Map Dynamic Input
 
+        #region Expand Input
         $expandSplat = @{} + $PSBoundParameters
         foreach ($k in @($expandSplat.Keys)) {
             if (-not $expandBuildStepCmd.Parameters[$k]) {
                 $expandSplat.Remove($k)
             }
         }
+        #endregion Expand Input
 
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep
 
