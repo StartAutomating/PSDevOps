@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.3.9'
+    ModuleVersion = '0.4'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,15 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4
+---
+* Overhaul of GitHub Workflow functionality.
+** New-GitHubAction renamed to New-GitHubWorkflow
+** /GitHubActions renamed to /GitHub
+** Added -EventParameter to allow for parameters from events such as workflow_dispatch
+** Added Write-GitHubError/GitHubWarning (updating Write-ADOError/Write-ADOWarning for consistency)
+** Cleaning up GitHub Workflow parts
+* Get-ADOTask no longer has -ApiVersion parameter
 0.3.9
 ---
 * New/Get/Remove-ADOWorkItemType:  Create/get/remove work custom work item types, states, rules, and behaviors.
