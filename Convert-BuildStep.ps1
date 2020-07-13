@@ -44,16 +44,24 @@
     [string]
     $Extension,
 
+    # The name of parameters that should be supplied from event input.
+    # Wildcards accepted.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('EventParameters')]
+    [string[]]
+    $EventParameter,
 
     # The name of parameters that should be supplied from build variables.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('VariableParameters')]
     [string[]]
     $VariableParameter,
 
     # The name of parameters that should be supplied from the environment.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('EnvironmentParameters')]
     [string[]]
     $EnvironmentParameter,
 
@@ -61,11 +69,13 @@
     # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
     # The build parameter would be foo_bar.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('UniqueParameters')]
     [string[]]
     $UniqueParameter,
 
     # The name of parameters that should be excluded.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('ExcludeParameters')]
     [string[]]
     $ExcludeParameter,
 
@@ -151,6 +161,7 @@
                 $ScriptBlock.Ast.Body.ParamBlock
             }
         $definedParameters = @()
+        $eventParameters   = @{}
         if ($sbParams) { # If it had parameters,
             $function:_TempFunction = $ScriptBlock # create a temporary function
             $tempCmd =
@@ -212,12 +223,16 @@
                     # What the step parameter name would be (which depends on -MakeUnique).
                     $stepParamName = if ($makeUnique) { $disambiguatedParameter } else {$ParameterName}
 
+
+
+
                     if ($BuildSystem -eq 'ado') {
-                        # In Azure DevOps pipelines, we can pass parameters as a variable
+                        # In Azure DevOps pipelines, we can pass parameters as a variable.
+                        # In GitHub Workflows, variables can come from an event.
                         $VariableName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
-                        # or an environment variable, or a parameter.
+                        # In Azure DevOps pipelines, we can also get parameters from the environment.
                         $EnvVariableName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EnvironmentParameter
 
@@ -299,6 +314,34 @@
                     }
 
                     if ($BuildSystem -eq 'GitHub') {
+                        # In GitHub Workflows, variables can come from an event.
+                        $eventName =
+                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EventParameter
+
+                        if ($eventName) {
+                            $eventParameters[$stepParamName] = "`${{github.events.inputs.$stepParamName}}"
+
+                            # Event parameters might come from workflow_dispatch, so we have to prepare the parameter information.
+
+                            $thisParameter = [Ordered]@{
+                                $stepParamName = [Ordered]@{
+                                    required = $isMandatory -as [bool]
+                                }
+                            }
+
+                            if (-not [String]::IsNullOrEmpty($defaultValue)) { # If we have a default,
+                                $thisParameter.$stepParamName.default = $defaultValue # set it on the object
+                            }
+
+                            $parameterHelp = Get-Command _tempFunction -ErrorAction SilentlyContinue |
+                                Get-Help -Parameter $parameterName -ErrorAction SilentlyContinue
+
+                            if ($parameterHelp.description.text) {
+                                $thisParameter.$stepParamName.description = ($parameterHelp.description.text | Out-String -Width 1kb).Trim()
+                            }
+
+                            $definedParameters += $thisParameter
+                        }
                         "`$Parameters.$ParameterName = `${env:$($stepParamName)}"
                     }
                      # If the parameter type was and [int[]], [string[]], or [float[]],
@@ -362,6 +405,15 @@ $CollectParameters
             $out.name = $Name
             $out.run = "$innerScript" -replace '`\$\{','${'
             $out.shell = 'pwsh'
+            if ($eventParameters.Count) {
+                if (-not $out.env) { $out.env = @{}}
+                foreach ($ep in $eventParameters.GetEnumerator()) {
+                    $out.env[$ep.Key] = $ep.value
+                }
+            }
+            if ($definedParameters) {
+                $out.parameters = $definedParameters
+            }
         }
         $out
     }
