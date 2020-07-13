@@ -29,11 +29,13 @@ function New-GitHubWorkflow {
         # The name of parameters that should be supplied from the environment.
         # Wildcards accepted.
         [Parameter(ValueFromPipelineByPropertyName)]
+        [Alias('EventParameters')]
         [string[]]
-        $EnvironmentParameter,
+        $EventParameter,
 
         # The name of parameters that should be excluded.
         [Parameter(ValueFromPipelineByPropertyName)]
+        [Alias('ExcludeParameters')]
         [string[]]
         $ExcludeParameter,
 
@@ -41,6 +43,7 @@ function New-GitHubWorkflow {
         # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
         # The build parameter would be foo_bar.
         [Parameter(ValueFromPipelineByPropertyName)]
+        [Alias('UniqueParameters')]
         [string[]]
         $UniqueParameter,
 
@@ -67,7 +70,7 @@ function New-GitHubWorkflow {
     begin {
         $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
 
-        $expandADOBuildStep = @{
+        $expandGitHubBuildStep = @{
             BuildSystem = 'GitHub'
             SingleItemName = 'On','Name'
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
@@ -110,7 +113,7 @@ function New-GitHubWorkflow {
         }
         #endregion Expand Input
 
-        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandADOBuildStep
+        $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep
 
         #$yamlToBe = & $expandComponents $stepsByType -ComponentType GitHub -SingleItemName On, Name
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
