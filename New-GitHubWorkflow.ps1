@@ -26,12 +26,25 @@ function New-GitHubWorkflow {
         [Collections.IDictionary]
         $Option,
 
-        # The name of parameters that should be supplied from the environment.
+        # A collection of environment variables used throughout the build.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [Alias('Env')]
+        [Collections.IDictionary]
+        $Environment,
+
+        # The name of parameters that should be supplied from an event.
         # Wildcards accepted.
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias('EventParameters')]
         [string[]]
         $EventParameter,
+
+        # The name of parameters that should be supplied from build variables.
+        # Wildcards accepted.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [Alias('VariableParameters')]
+        [string[]]
+        $VariableParameter,
 
         # The name of parameters that should be excluded.
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -112,10 +125,16 @@ function New-GitHubWorkflow {
             }
         }
         #endregion Expand Input
-
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep
+        if ($Environment) {
+            if (-not $yamlToBe.env) {
+                $yamlToBe.env = [Ordered]@{}
+            }
+            foreach ($kv in $Environment.GetEnumerator()) {
+                $yamlToBe.env[$kv.Key] = $kv.Value
+            }
+        }
 
-        #$yamlToBe = & $expandComponents $stepsByType -ComponentType GitHub -SingleItemName On, Name
         @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
     }
 }
