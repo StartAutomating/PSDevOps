@@ -49,12 +49,21 @@
     # The name of parameters that should be supplied from build variables.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('VariableParameters')]
     [string[]]
     $VariableParameter,
+
+    # The name of parameters that should be supplied from webhook events.
+    # Wildcards accepted.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('EventParameters')]
+    [string[]]
+    $EventParameter,
 
     # The name of parameters that should be supplied from the environment.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('EnvironmentParameters')]
     [string[]]
     $EnvironmentParameter,
 
@@ -62,11 +71,13 @@
     # For instance, if converting function foo($bar) {} and -UniqueParameter is 'bar'
     # The build parameter would be foo_bar.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('UniqueParameters')]
     [string[]]
     $UniqueParameter,
 
     # The name of parameters that should be excluded.
     [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('ExcludeParameters')]
     [string[]]
     $ExcludeParameter,
 
@@ -77,8 +88,8 @@
     )
 
     begin {
-        $convertBuildStepCmd = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Convert-BuildStep','Function')
-
+        $convertBuildStepCmd = # Get the command Convert-BuildStep, for we will need it later to splat.
+            $ExecutionContext.SessionState.InvokeCommand.GetCommand('Convert-BuildStep','Function')
     }
 
     process {
@@ -112,6 +123,8 @@
                         $singleton = $true
                     }
             }
+
+            # Expand each value
             $outValue = :nextValue foreach ($v in $kv.Value) {
                 $metaData = $theComponentMetaData["$thingType.$v"]
 
@@ -128,12 +141,15 @@
 
 
                 $o =
+                    #region Expand PSD1 Files
                     if ($metaData.Extension -eq '.psd1') {
-
-                        $data = Import-LocalizedData -BaseDirectory ([IO.Path]::GetDirectoryName($metaData.Path)) -FileName ([IO.PATH]::GetFileName($metaData.Path))
-                        if (-not $data) {
-                            continue nextValue
-                        }
+                        $data =
+                            Import-LocalizedData -BaseDirectory (
+                                [IO.Path]::GetDirectoryName($metaData.Path)
+                            ) -FileName (
+                                [IO.PATH]::GetFileName($metaData.Path)
+                            )
+                        if (-not $data) { continue nextValue }
                         $fileText = [IO.File]::ReadAllText($metaData.Path)
                         $data = & ([ScriptBlock]::Create(($FileText -replace '@{', '[Ordered]@{')))
                         $splatMe.Parent = $stepMap
@@ -147,6 +163,7 @@
                             $data
                         }
                     }
+                    #endregion Expand PSD1 Files
                     elseif ($v -is [Collections.IDictionary])
                     {
                         $splatMe.Parent = $stepMap
@@ -167,15 +184,63 @@
                             }
 
                         if ($convertedBuildStep) {
-                            if ($convertedBuildStep.parameters) {
-                                if ($BuildSystem -eq 'ADO' -and $Root) {
+                            if ($BuildSystem -eq 'ADO' -and
+                                $Root -and
+                                $convertedBuildStep.parameters) {
 
-                                    if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
-                                        foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
-                                            $root.Parameters[$keyValue.Key] = $keyValue.Value
+
+                                if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
+                                    foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
+                                        $root.Parameters[$keyValue.Key] = $keyValue.Value
+                                    }
+                                } else {
+                                    $root.parameters = $convertedBuildStep.parameters
+                                }
+
+                                $convertedBuildStep.Remove('parameters')
+                            }
+                            if ($BuildSystem -eq 'GitHub' -and $Root -and # If the BuildSystem was GitHub
+                                $convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
+                                ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
+                                $root.on -eq 'workflow_dispatch')) {
+
+                                $ComparisonResult = $root.on -eq 'workflow_dispatch'
+                                $workflowDispatch =
+                                    $workflowDispatch = [Ordered]@{ # Create an empty workflow_dispatch
+                                        inputs = [Ordered]@{} # for inputs.
+                                    }
+                                # If the result of root.on -eq 'workflow_dispatch' is a string
+                                if ($ComparisonResult -and $ComparisonResult -is [Object[]]) {
+                                    $root.on = @( # on is already a list, so let's keep it that way.
+                                        foreach ($o in $root.on) {
+                                            if ($o -ne 'workflow_dispatch') { # anything that's not workflow_dispatch
+                                                $o # gets put back in order.
+                                            } else {
+                                                [Ordered]@{ # and workflow_dispatch becomes
+                                                    workflow_dispatch = $workflowDispatch
+                                                }
+                                            }
                                         }
-                                    } else {
-                                        $root.parameters = $convertedBuildStep.parameters
+                                    )
+                                }
+                                elseif ($ComparisonResult -and # If root.on was 'workflow_dispatch'
+                                    $ComparisonResult -is [bool]) { # and the result was a bool.
+                                    $root.on = [Ordered]@{ # and workflow_dispatch becomes
+                                                    workflow_dispatch = $workflowDispatch
+                                                }
+                                }
+                                else { # Otherwise, we know that workflow_dispatch is already a dictionary
+                                    $workflowDispatch = $root.on.workflow_dispatch
+                                }
+
+
+
+                                if ($workflowDispatch) {
+                                    foreach ($convertedParam in $convertedBuildStep.parameters) {
+
+                                        foreach ($keyValue in $convertedParam.GetEnumerator()) {
+                                            $workflowDispatch.Inputs[$keyValue.Key] = $keyValue.Value
+                                        }
                                     }
 
                                     $convertedBuildStep.Remove('parameters')
