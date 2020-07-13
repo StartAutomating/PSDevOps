@@ -12,7 +12,11 @@
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
+        Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "",
+        Justification="Directly outputs in certain scenarios")]
     param(
     # The Warning message.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -21,7 +25,7 @@
 
     # An optional source path.
     [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('Source','FullName')]
+    [Alias('Source','FullName','File')]
     [string]
     $SourcePath,
 
@@ -33,7 +37,7 @@
 
     # An optional column number.
     [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('Column')]
+    [Alias('Column', 'Col')]
     [uint32]
     $ColumnNumber,
 
@@ -48,12 +52,14 @@
     }
 
     process {
+        #region Collect Optional Properties
         $properties = # Collect the optional properties
             @(foreach ($kv in $PSBoundParameters.GetEnumerator()) {
                 if ($kv.Key -eq 'Message') { continue } # (anything but Message).
                 if (-not $cmdMd.Parameters.ContainsKey($kv.Key)) { continue }
                 "$($kv.Key.ToLower())=$($kv.Value)"
             }) -join ';'
+        #endregion Collect Optional Properties
         # Then output the Warning with it's message.
         $out = "##vso[task.logissue type=warning$(if ($properties){";$properties"})]$Message"
 

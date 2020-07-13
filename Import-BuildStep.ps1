@@ -27,9 +27,9 @@
     [string[]]
     $ExcludeCommand,
 
-    [ValidateSet('ADO', 'GitHubActions')]
+    [ValidateSet('ADO', 'GitHub')]
     [string[]]
-    $BuildSystem = @('ado', 'githubactions')
+    $BuildSystem = @('ado', 'github')
     )
 
     begin {
