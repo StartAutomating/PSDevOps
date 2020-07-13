@@ -1,6 +1,14 @@
-﻿param(
+﻿<#
+.Synopsis
+    Runs Pester
+.Description
+    Runs Pester tests after importing a PowerShell module
+#>
+param(
+# The module path.  If not provided, will default to the second half of the repository ID.
 [string]
 $ModulePath,
+# The Pester max version.  By default, this is pinned to 4.99.99.
 [string]
 $PesterMaxVersion = '4.99.99'
 )
