@@ -200,51 +200,54 @@
                                 $convertedBuildStep.Remove('parameters')
                             }
                             if ($BuildSystem -eq 'GitHub' -and $Root -and # If the BuildSystem was GitHub
-                                $convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
-                                ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
-                                $root.on -eq 'workflow_dispatch')) {
+                                $convertedBuildStep.parameters) {
 
-                                $ComparisonResult = $root.on -eq 'workflow_dispatch'
-                                $workflowDispatch =
-                                    $workflowDispatch = [Ordered]@{ # Create an empty workflow_dispatch
-                                        inputs = [Ordered]@{} # for inputs.
-                                    }
-                                # If the result of root.on -eq 'workflow_dispatch' is a string
-                                if ($ComparisonResult -and $ComparisonResult -is [Object[]]) {
-                                    $root.on = @( # on is already a list, so let's keep it that way.
-                                        foreach ($o in $root.on) {
-                                            if ($o -ne 'workflow_dispatch') { # anything that's not workflow_dispatch
-                                                $o # gets put back in order.
-                                            } else {
-                                                [Ordered]@{ # and workflow_dispatch becomes
-                                                    workflow_dispatch = $workflowDispatch
+                                if ($convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
+                                ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
+                                $root.on -eq 'workflow_dispatch')
+                                ) {
+
+                                    $ComparisonResult = $root.on -eq 'workflow_dispatch'
+                                    $workflowDispatch =
+                                        $workflowDispatch = [Ordered]@{ # Create an empty workflow_dispatch
+                                            inputs = [Ordered]@{} # for inputs.
+                                        }
+                                    # If the result of root.on -eq 'workflow_dispatch' is a string
+                                    if ($ComparisonResult -and $ComparisonResult -is [Object[]]) {
+                                        $root.on = @( # on is already a list, so let's keep it that way.
+                                            foreach ($o in $root.on) {
+                                                if ($o -ne 'workflow_dispatch') { # anything that's not workflow_dispatch
+                                                    $o # gets put back in order.
+                                                } else {
+                                                    [Ordered]@{ # and workflow_dispatch becomes
+                                                        workflow_dispatch = $workflowDispatch
+                                                    }
                                                 }
                                             }
-                                        }
-                                    )
-                                }
-                                elseif ($ComparisonResult -and # If root.on was 'workflow_dispatch'
-                                    $ComparisonResult -is [bool]) { # and the result was a bool.
-                                    $root.on = [Ordered]@{ # and workflow_dispatch becomes
-                                                    workflow_dispatch = $workflowDispatch
-                                                }
-                                }
-                                else { # Otherwise, we know that workflow_dispatch is already a dictionary
-                                    $workflowDispatch = $root.on.workflow_dispatch
-                                }
-
-
-
-                                if ($workflowDispatch) {
-                                    foreach ($convertedParam in $convertedBuildStep.parameters) {
-
-                                        foreach ($keyValue in $convertedParam.GetEnumerator()) {
-                                            $workflowDispatch.Inputs[$keyValue.Key] = $keyValue.Value
-                                        }
+                                        )
+                                    }
+                                    elseif ($ComparisonResult -and # If root.on was 'workflow_dispatch'
+                                        $ComparisonResult -is [bool]) { # and the result was a bool.
+                                        $root.on = [Ordered]@{ # and workflow_dispatch becomes
+                                                        workflow_dispatch = $workflowDispatch
+                                                    }
+                                    }
+                                    else { # Otherwise, we know that workflow_dispatch is already a dictionary
+                                        $workflowDispatch = $root.on.workflow_dispatch
                                     }
 
-                                    $convertedBuildStep.Remove('parameters')
+
+
+                                    if ($workflowDispatch) {
+                                        foreach ($convertedParam in $convertedBuildStep.parameters) {
+
+                                            foreach ($keyValue in $convertedParam.GetEnumerator()) {
+                                                $workflowDispatch.Inputs[$keyValue.Key] = $keyValue.Value
+                                            }
+                                        }
+                                    }
                                 }
+                                $convertedBuildStep.Remove('parameters')
                             }
                             $convertedBuildStep
                         } else {
