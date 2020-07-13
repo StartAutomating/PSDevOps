@@ -224,13 +224,13 @@
                     $stepParamName = if ($makeUnique) { $disambiguatedParameter } else {$ParameterName}
 
 
+                    # In Azure DevOps pipelines, we can pass parameters as a variable.
+                    # In GitHub Workflows, variables can come from secrets.
+                    $VariableName =
+                        & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
 
                     if ($BuildSystem -eq 'ado') {
-                        # In Azure DevOps pipelines, we can pass parameters as a variable.
-                        # In GitHub Workflows, variables can come from an event.
-                        $VariableName =
-                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
                         # In Azure DevOps pipelines, we can also get parameters from the environment.
                         $EnvVariableName =
@@ -318,6 +318,9 @@
                         $eventName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EventParameter
 
+                        if ($variableName) {
+                            $eventParameters[$stepParamName] = "`${{secrets.$stepParamName}}"
+                        }
                         if ($eventName) {
                             $eventParameters[$stepParamName] = "`${{github.events.inputs.$stepParamName}}"
 
