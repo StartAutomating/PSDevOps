@@ -22,12 +22,19 @@
     [OutputType('PSDevops.Pool')]
     param(
     # The Organization
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='distributedtask/pools',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='distributedtask/queues',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
 
-    # The project name or identifier.
+    # The Pool ID.  When this is provided, will return agents associated with a given pool ID.
+    [Parameter(Mandatory,ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
+    [string]
+    $PoolID,
+
+    # The project name or identifier.  When this is provided, will return queues associated with the project.
     [Parameter(Mandatory,ParameterSetName='distributedtask/queues',ValueFromPipelineByPropertyName)]
     [string]
     $Project,
@@ -48,42 +55,68 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
+        $q = [Collections.Queue]::new()
     }
 
     process {
-        $uri = # The URI is comprised of:
-            @(
-                "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
-                $Organization            # the Organization,
-                if ($Project) {$project} # the Project (if present),
-                '_apis'                  # the API Root ('_apis'),
-                (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
-                                         # and any parameterized URLs in this parameter set.
-            ) -as [string[]] -ne '' -join '/'
-
-        $uri += '?' # The URI has a query string containing:
-        $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and
-                -not $PSBoundParameters.ApiVersion) {
-                $ApiVersion = '2.0'
+        $in = $_
+        $ParameterSet = $psCmdlet.ParameterSetName
+        if ($ParameterSet -eq $MyInvocation.MyCommand.DefaultParameterSet) {
+            if ($in.BuildID) {
+                $ParameterSet = 'build/builds/{buildId}'
+                $buildID      = $psBoundParameters['BuildID'] = $in.BuildID
+            } elseif ($in.DefinitionID) {
+                $ParameterSet = 'build/definitions/{definitionId}'
+                $definitionID = $psBoundParameters['DefinitionID'] = $in.DefinitionID
             }
-            if ($ApiVersion) { # the api-version
-                "api-version=$apiVersion"
-            }
-        ) -join '&'
-
-        # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
-        $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
-        $typeNames = @(
-            "$organization.$typename"
-            if ($Project) { "$organization.$Project.$typename" }
-            "PSDevOps.$typename"
-        )
-
-        Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
-            Organization = $Organization
-            Project = $Project
-            Server = $Server
         }
+
+        $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
+    }
+    end {
+        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
+
+        while ($q.Count) {
+            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
+            if ($t -gt 1) {
+                $c++
+                Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
+            }
+            $uri = # The URI is comprised of:
+                @(
+                    "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
+                    $Organization            # the Organization,
+                    if ($Project) {$project} # the Project (if present),
+                    '_apis'                  # the API Root ('_apis'),
+                    (. $ReplaceRouteParameter $ParameterSet)
+                                             # and any parameterized URLs in this parameter set.
+                ) -as [string[]] -ne '' -join '/'
+
+            $uri += '?' # The URI has a query string containing:
+            $uri += @(
+                if ($Server -ne 'https://dev.azure.com/' -and
+                    -not $PSBoundParameters.ApiVersion) {
+                    $ApiVersion = '2.0'
+                }
+                if ($ApiVersion) { # the api-version
+                    "api-version=$apiVersion"
+                }
+            ) -join '&'
+
+            # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
+            $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
+            $typeNames = @(
+                "$organization.$typename"
+                if ($Project) { "$organization.$Project.$typename" }
+                "PSDevOps.$typename"
+            )
+
+            $additionalProperties = @{Organization=$Organization;Server=$Server}
+            if ($Project) { $additionalProperties['Project']= $Project }
+
+            Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
+        }
+
+        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $id -Completed
     }
 }
