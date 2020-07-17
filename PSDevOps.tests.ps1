@@ -360,13 +360,19 @@ describe 'Working with Work Items' {
         it 'Can get work proccesses' {
             Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty name |
-                    should be Basic
+                    should -Be Basic
         }
 
         it 'Can get area paths' {
             Get-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
-                should be '\PSDevOps\Area'
+                should -Be "\$testproject\Area"
+        }
+
+        it 'Can get iteration paths' {
+            Get-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Path |
+                should -Be '\PSDevOps\Iteration'
         }
     }
 
