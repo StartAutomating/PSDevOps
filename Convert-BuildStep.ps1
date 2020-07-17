@@ -399,6 +399,10 @@ $CollectParameters
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters
+                if (-not $out.variables) { $out.variables = @{} }
+                foreach ($dp in $definedParameters) {
+                    $out.variables[$dp.Name] = "`${{parameters.$($dp.Name)}}"
+                }
             }
             if ($UseSystemAccessToken) {
                 if (-not $out.env) { $out.env = @{}}
