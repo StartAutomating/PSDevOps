@@ -370,9 +370,9 @@ describe 'Working with Work Items' {
         }
 
         it 'Can get iteration paths' {
-            Get-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
+            Get-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
-                should -Be '\PSDevOps\Iteration'
+                should -Be "\$testProject\Iteration"
         }
     }
 
