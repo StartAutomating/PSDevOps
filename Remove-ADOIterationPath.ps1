@@ -13,6 +13,7 @@
         Get-ADOIterationPath
     #>
     [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
+    [OutputType([Nullable],[PSObject])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
