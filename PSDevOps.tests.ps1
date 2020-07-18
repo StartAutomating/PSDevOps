@@ -225,24 +225,19 @@ describe 'Builds' {
     }
 
     context 'Agent Pools' {
+        # These tests will return nothing when run with a SystemAccessToken, so we will only fail if they error
         it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
-            Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                Select-Object -First 1 -ExpandProperty Name |
-                should be default
+            Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
 
         it 'Can Get-ADOAgentPool for a given -Organization' {
-            Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
-                Select-Object -First 1 -ExpandProperty Name |
-                should be default
+            Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat -ErrorAction Stop
         }
     }
 
     context 'Service Endpoints:' {
         it 'Can Get-ADOServiceEndpoint' {
-            Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                Select-Object -First 1 -ExpandProperty Type |
-                Should be GitHub
+            Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
     }
 
