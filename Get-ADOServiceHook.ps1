@@ -124,7 +124,7 @@
                     '_apis'                  # the API Root ('_apis'),
                     (. $ReplaceRouteParameter $ParameterSet)
                                              # and any parameterized URLs in this parameter set.
-                ) -as [string[]] -join '/'
+                ) -join '/'
 
             $uri += '?' # The URI has a query string containing:
             $uri += @(
