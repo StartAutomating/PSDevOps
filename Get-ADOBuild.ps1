@@ -348,8 +348,8 @@
 
             if ($IncludeAllProperty -or $DefinitionID) {
                 if (-not $invokeParams.DecorateProperty) { $invokeParams.DecorateProperty = @{} }
-                $invokeParams.DecorateProperty.Repository = 
-                    "$Organization.$project.Repository", "$Organization.Repository", "PSDevOps.Repository" 
+                $invokeParams.DecorateProperty.Repository =
+                    "$Organization.$project.Repository", "$Organization.Repository", "PSDevOps.Repository"
             }
 
 

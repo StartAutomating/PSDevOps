@@ -243,13 +243,13 @@ describe 'Builds' {
 
     context 'Service Hooks' {
         it 'Can Get Publishers of Service Hooks' {
-            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher | 
-                Select-Object -First 1 -ExpandProperty ID | 
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
+                Select-Object -First 1 -ExpandProperty ID |
                 Should -be Audit
         }
         it 'Can Get Consumers of Service Hooks' {
-            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer | 
-                Select-Object -First 1 -ExpandProperty ID | 
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
+                Select-Object -First 1 -ExpandProperty ID |
                 Should -be appVeyor
         }
     }

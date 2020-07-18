@@ -59,18 +59,7 @@
     }
 
     process {
-        $in = $_
         $ParameterSet = $psCmdlet.ParameterSetName
-        if ($ParameterSet -eq $MyInvocation.MyCommand.DefaultParameterSet) {
-            if ($in.BuildID) {
-                $ParameterSet = 'build/builds/{buildId}'
-                $buildID      = $psBoundParameters['BuildID'] = $in.BuildID
-            } elseif ($in.DefinitionID) {
-                $ParameterSet = 'build/definitions/{definitionId}'
-                $definitionID = $psBoundParameters['DefinitionID'] = $in.DefinitionID
-            }
-        }
-
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
     end {

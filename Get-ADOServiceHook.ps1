@@ -4,7 +4,7 @@
     .Synopsis
         Gets Azure DevOps Service Hooks
     .Description
-        Gets Azure DevOps Service Hook Subscriptions, Consumers, and Publishers, 
+        Gets Azure DevOps Service Hook Subscriptions, Consumers, and Publishers,
 
         Queues associate a given project with a pool.
         Pools are shared by organization.
@@ -23,10 +23,10 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list?view=azure-devops-rest-5.1
     .Example
         # Gets the actions of all consumers
-        Get-ADOServiceHook -Organization MyOrganization -PersonalAccessToken $pat -Consumer | 
+        Get-ADOServiceHook -Organization MyOrganization -PersonalAccessToken $pat -Consumer |
             Get-ADOServiceHook -Action
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list%20consumer%20actions?view=azure-devops-rest-5.1   
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list%20consumer%20actions?view=azure-devops-rest-5.1
     .Example
         # Gets potential publishers
         Get-ADOServiceHook -Organization MyOrganization -PersonalAccessToken $pat -Publisher
@@ -48,7 +48,7 @@
     [string]
     $Organization,
 
-    # If set, will list consumers.  Consumers can receive events from a publisher. 
+    # If set, will list consumers.  Consumers can receive events from a publisher.
     [Parameter(Mandatory,ParameterSetName='hooks/consumers',ValueFromPipelineByPropertyName)]
     [Alias('Consumers')]
     [switch]
@@ -104,7 +104,6 @@
     }
 
     process {
-        $in = $_
         $ParameterSet = $psCmdlet.ParameterSetName
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
@@ -150,7 +149,7 @@
                 $invokeParams.DecorateProperty = @{Actions = "$Organization.Action", 'PSDevOps.Action'}
             }
             if ($Publisher) {
-                $invokeParams.DecorateProperty = @{SupportedEvents = "$Organization.EventType", 'PSDevOps.EventType'}  
+                $invokeParams.DecorateProperty = @{SupportedEvents = "$Organization.EventType", 'PSDevOps.EventType'}
             }
             if ($ConsumerID)  { $additionalProperties['ConsumerID']  = $ConsumerID  }
             if ($PublisherID) { $additionalProperties['PublisherID'] = $PublisherID }
