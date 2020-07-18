@@ -93,28 +93,40 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.Publisher</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.IterationPath</Name>
     <Members>
       <ScriptProperty>
         <Name>StartDate</Name>
         <GetScriptBlock>
-                    $this.Attributes.StartDate -as [DateTime]
-
+                    if ($this.Attributes.StartDate) {
+    ($this.Attributes.StartDate -as [DateTime]).ToUniversalTime()
+}
                 </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>EndDate</Name>
         <GetScriptBlock>
-                    $this.Attributes.FinishDate -as [DateTime]
-
+                    if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
 
                 </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>FinishDate</Name>
         <GetScriptBlock>
-                    $this.Attributes.FinishDate -as [DateTime]
-
+                    if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
 
                 </GetScriptBlock>
       </ScriptProperty>
@@ -125,6 +137,24 @@
     <Members>
       <AliasProperty>
         <Name>TeamID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Pool</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PoolID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Consumer</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ConsumerID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
