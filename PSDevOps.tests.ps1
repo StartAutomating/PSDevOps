@@ -224,27 +224,38 @@ describe 'Builds' {
         }
     }
 
-    if ($testPat -ne $env:SYSTEM_ACCESSTOKEN) {
-        context 'Agent Pools' {
-            it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
-                Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Name |
-                    should be default
-            }
-
-            it 'Can Get-ADOAgentPool for a given -Organization' {
-                Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Name |
-                    should be default
-            }
+    context 'Agent Pools' {
+        it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
+            Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                should be default
         }
 
-        context 'Service Endpoints:' {
-            it 'Can Get-ADOServiceEndpoint' {
-                Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Type |
-                    Should be GitHub
-            }
+        it 'Can Get-ADOAgentPool for a given -Organization' {
+            Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                should be default
+        }
+    }
+
+    context 'Service Endpoints:' {
+        it 'Can Get-ADOServiceEndpoint' {
+            Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Type |
+                Should be GitHub
+        }
+    }
+
+    context 'Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher | 
+                Select-Object -First 1 -ExpandProperty ID | 
+                Should -be Audit
+        }
+        it 'Can Get Consumers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer | 
+                Select-Object -First 1 -ExpandProperty ID | 
+                Should -be appVeyor
         }
     }
 
