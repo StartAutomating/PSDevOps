@@ -448,7 +448,8 @@ describe 'GitHub Worfklow tools' {
         }
 
         it 'Will call Write-GitHubError when provided an error' {
-            & { Write-Error "problem" } 2>&1 |
+            
+            & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
                 Write-GitHubOutput -Debug |
                 should -BeLike '*::problem'
         }
@@ -461,7 +462,7 @@ describe 'GitHub Worfklow tools' {
         it 'Will call Write-GitHubWarning when provided an error' {
             Write-Warning "problem" 3>&1 |
                 Write-GitHubOutput -Debug |
-                should -BeLike 'warning::*::problem'
+                should -BeLike '::warning*::problem'
         }
     }
 }
