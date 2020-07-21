@@ -13,6 +13,7 @@
     .Link
         Invoke-RestMethod
     #>
+    [OutputType([PSObject])]
     param(
     # The REST API Url
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -104,7 +105,13 @@ Specifies the method used for the web request. The acceptable values for this pa
 
     # If provided, will expand a given property returned from the REST api.
     [string]
-    $ExpandProperty
+    $ExpandProperty,
+
+    # If provided, will decorate the values within a property in the return object.
+    # This allows nested REST properties to work with the PowerShell Extended Type System.
+    [Collections.IDictionary]
+    [Alias('TypeNameOfProperty')]
+    $DecorateProperty
     )
 
     process {
@@ -115,6 +122,7 @@ Specifies the method used for the web request. The acceptable values for this pa
         $irmSplat.Remove('Property') # *-Property
         $irmSplat.Remove('RemoveProperty') # *-RemoveProperty
         $irmSplat.Remove('ExpandProperty') # *-ExpandProperty
+        $irmSplat.Remove('DecorateProperty')
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
                 $irmSplat.Headers.Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":$PersonalAccessToken")))"
@@ -140,49 +148,56 @@ Specifies the method used for the web request. The acceptable values for this pa
 
         # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
-        Invoke-RestMethod @irmSplat |
+        #@(try {
+            Invoke-RestMethod @irmSplat 2>&1 |
+        #} catch {
+            #$_
+        #}) |
             & { process {
+                $in = $_
 
                 # What it will not do is "unroll" them.
                 # A lot of things in the Azure DevOps REST apis come back as a count/value pair
-                if ($_ -eq 'null') {
+                if ($in -eq 'null') {
                     return
                 }
                 if ($ExpandProperty) {
-                    if ($_.$ExpandProperty) {
-                        $_.$ExpandProperty
+                    if ($in.$ExpandProperty) {
+                        $in.$ExpandProperty
                     }
-                } elseif ($_.Value -and $_.Count) {  # If that's what we're dealing with
-                    $_.Value # pass value down the pipe.
-                } elseif ($_ -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
-                    $_ # pass it down the pipe.
+                } elseif ($in.Value -and $in.Count) {  # If that's what we're dealing with
+                    $in.Value # pass value down the pipe.
+                } elseif ($in -notlike '*<html*') { # Otherise, As long as the value doesn't look like HTML,
+                    $in # pass it down the pipe.
                 } else { # If it happened to look like HTML, write an error
                     $PSCmdlet.WriteError(
                         [Management.Automation.ErrorRecord]::new(
                             [Exception]::new("Response was HTML, Request Failed."),
-                            "ResultWasHTML", "NotSpecified", $_))
-                    $psCmdlet.WriteVerbose("$_") # and write the full content to verbose.
+                            "ResultWasHTML", "NotSpecified", $in))
+                    $psCmdlet.WriteVerbose("$in") # and write the full content to verbose.
                     return
                 }
-            } } |
+            } } 2>&1 |
             & { process { # One more step of the pipeline will unroll each of the values.
+
                 if ($_ -is [string]) { return $_ }
                 if ($null -ne $_.Count -and $_.Count -eq 0) { return }
+                $in = $_
                 if ($PSTypeName -and # If we have a PSTypeName (to apply formatting)
-                    $_ -isnot [Management.Automation.ErrorRecord] # and it is not an error (which we do not want to format)
+                    $in -isnot [Management.Automation.ErrorRecord] # and it is not an error (which we do not want to format)
                 ) {
-                    $_.PSTypeNames.Clear() # then clear the existing typenames and decorate the object.
+                    $in.PSTypeNames.Clear() # then clear the existing typenames and decorate the object.
                     foreach ($t in $PSTypeName) {
-                        $_.PSTypeNames.add($T)
+                        $in.PSTypeNames.add($T)
                     }
                 }
 
                 if ($Property) {
                     foreach ($propKeyValue in $Property.GetEnumerator()) {
-                        if ($_.PSObject.Properties[$propKeyValue.Key]) {
-                            $_.PSObject.Properties.Remove($propKeyValue.Key)
+                        if ($in.PSObject.Properties[$propKeyValue.Key]) {
+                            $in.PSObject.Properties.Remove($propKeyValue.Key)
                         }
-                        $_.PSObject.Properties.Add($(
+                        $in.PSObject.Properties.Add($(
                         if ($propKeyValue.Value -as [ScriptBlock[]]) {
                             [PSScriptProperty]::new.Invoke(@($propKeyValue.Key) + $propKeyValue.Value)
                         } else {
@@ -192,10 +207,23 @@ Specifies the method used for the web request. The acceptable values for this pa
                 }
                 if ($RemoveProperty) {
                     foreach ($propToRemove in $RemoveProperty) {
-                        $_.PSObject.Properties.Remove($propToRemove)
+                        $in.PSObject.Properties.Remove($propToRemove)
                     }
                 }
-                return $_ # output the object and we're done.
+                if ($DecorateProperty) {
+                    foreach ($kv in $DecorateProperty.GetEnumerator()) {
+                        if ($in.$($kv.Key)) {
+                            foreach ($v in $in.$($kv.Key)) {
+                                if ($null -eq $v -or -not $v.pstypenames) { continue }
+                                $v.pstypenames.clear()
+                                foreach ($tn in $kv.Value) {
+                                    $v.pstypenames.add($tn)
+                                }
+                            }
+                        }
+                    }
+                }
+                return $in # output the object and we're done.
             } }
         #endregion Call Invoke-RestMethod
     }

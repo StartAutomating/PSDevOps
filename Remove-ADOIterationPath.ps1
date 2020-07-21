@@ -1,16 +1,16 @@
-﻿function Remove-ADOAreaPath
+﻿function Remove-ADOIterationPath
 {
     <#
     .Synopsis
-        Removes an Azure DevOps AreaPath.
+        Removes an Azure DevOps IterationPath.
     .Description
-        Removes an Azure DevOps AreaPath.  AreaPaths are used to logically group work items within a project.
+        Removes an Azure DevOps IterationPath.  IterationPaths are used to logically group work items within a project.
     .Example
-        Remove-ADOAreaPath -Organization MyOrg -Project MyProject -AreaPath MyAreaPath
+        Remove-ADOIterationPath -Organization MyOrg -Project MyProject -IterationPath MyIterationPath
     .Link
-        Add-ADOAreaPath
+        Add-ADOIterationPath
     .Link
-        Get-ADOAreaPath
+        Get-ADOIterationPath
     #>
     [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
     [OutputType([Nullable],[PSObject])]
@@ -26,11 +26,11 @@
     [string]
     $Project,
 
-    # The AreaPath
+    # The IterationPath
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Path')]
     [string]
-    $AreaPath,
+    $IterationPath,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -65,17 +65,17 @@
             }
             if ($t -gt 1) {
                 $c++
-                Write-Progress "Removing Area Paths" "$AreaPath " -PercentComplete ($c * 100 / $t) -Id $id
+                Write-Progress "Removing Iteration Paths" "$IterationPath " -PercentComplete ($c * 100 / $t) -Id $id
             }
 
-            if ($AreaPath -like "\$project\*") {
-                $AreaPath = @($AreaPath -split '\\', 4)[-1]
+            if ($IterationPath -like "\$project\*") {
+                $IterationPath = @($IterationPath -split '\\', 4)[-1]
             }
-            $areaPathUrl = "/{Organization}/{Project}/_apis/wit/classificationNodes/Areas/$AreaPath"
+            $IterationPathUrl = "/{Organization}/{Project}/_apis/wit/classificationNodes/Iterations/$IterationPath"
 
              $uri =
                 $Server.ToString().TrimEnd('/') +
-                (. $ReplaceRouteParameter $areaPathUrl) +
+                (. $ReplaceRouteParameter $IterationPathUrl) +
                 '?' + $(
                     if ($Server -ne 'https://dev.azure.com' -and -not $psBoundParameters['apiVersion']) {
                         $apiVersion = "2.0"
@@ -93,14 +93,14 @@
                 $invokeParams
                 continue
             }
-            if (-not $PSCmdlet.ShouldProcess("Remove AreaPath $AreaPath")) { continue }
-            $typeName = "$Organization.AreaPath", "$Organization.$project.AreaPath", "PSDevOps.AreaPath"
+            if (-not $PSCmdlet.ShouldProcess("Remove IterationPath $IterationPath")) { continue }
+            $typeName = "$Organization.IterationPath", "$Organization.$project.IterationPath", "PSDevOps.IterationPath"
 
             Invoke-ADORestAPI @invokeParams -PSTypeName $typeName
         }
 
         if ($t -gt 1) {
-            Write-Progress "Removing Area Paths" " " -Completed -Id $id
+            Write-Progress "Removing Iteration Paths" " " -Completed -Id $id
         }
     }
 }
