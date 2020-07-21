@@ -93,49 +93,107 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.IterationPath</Name>
-    <Members>
-      <ScriptProperty>
-        <Name>StartDate</Name>
-        <GetScriptBlock>
-                    $this.Attributes.StartDate -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>EndDate</Name>
-        <GetScriptBlock>
-                    $this.Attributes.FinishDate -as [DateTime]
-
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>FinishDate</Name>
-        <GetScriptBlock>
-                    $this.Attributes.FinishDate -as [DateTime]
-
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Team</Name>
-    <Members>
-      <AliasProperty>
-        <Name>TeamID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
     <Name>PSDevOps.Rule</Name>
     <Members>
       <AliasProperty>
         <Name>RuleID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Dashboard</Name>
+    <Members>
+      <AliasProperty>
+        <Name>DashboardID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.IterationPath</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>StartDate</Name>
+        <GetScriptBlock>
+                    if ($this.Attributes.StartDate) {
+    ($this.Attributes.StartDate -as [DateTime]).ToUniversalTime()
+}
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>EndDate</Name>
+        <GetScriptBlock>
+                    if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishDate</Name>
+        <GetScriptBlock>
+                    if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.State</Name>
+    <Members>
+      <AliasProperty>
+        <Name>StateID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Publisher</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Build</Name>
+    <Members>
+      <AliasProperty>
+        <Name>BuildID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>StartedAt</Name>
+        <GetScriptBlock>
+                    $this.StartTime -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ChangedAt</Name>
+        <GetScriptBlock>
+                    $this.LastChangedDate -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishedAt</Name>
+        <GetScriptBlock>
+                    $this.finishTime -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>QueuedAt</Name>
+        <GetScriptBlock>
+                    $this.queueTime -as [DateTime]
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -152,6 +210,19 @@
 
                 </GetScriptBlock>
       </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Widget</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>GetHTML</Name>
+        <Script>
+                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
+return Invoke-RestMethod $this.contentUri
+
+                </Script>
+      </ScriptMethod>
     </Members>
   </Type>
   <Type>
@@ -206,47 +277,32 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Build</Name>
+    <Name>PSDevOps.Consumer</Name>
     <Members>
       <AliasProperty>
-        <Name>BuildID</Name>
+        <Name>ConsumerID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-      <ScriptProperty>
-        <Name>StartedAt</Name>
-        <GetScriptBlock>
-                    $this.StartTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>ChangedAt</Name>
-        <GetScriptBlock>
-                    $this.LastChangedDate -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>FinishedAt</Name>
-        <GetScriptBlock>
-                    $this.finishTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>QueuedAt</Name>
-        <GetScriptBlock>
-                    $this.queueTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.State</Name>
+    <Name>PSDevOps.Pool</Name>
     <Members>
       <AliasProperty>
-        <Name>StateID</Name>
+        <Name>PoolID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Team</Name>
+    <Members>
+      <AliasProperty>
+        <Name>Team</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>TeamID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>

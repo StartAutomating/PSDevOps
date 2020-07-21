@@ -1,1 +1,4 @@
-﻿@{TeamID="ID"}
+﻿@{
+    TeamID="ID"
+    Team = 'Name'
+}

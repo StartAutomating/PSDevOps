@@ -1,0 +1,3 @@
+﻿@{
+    ConsumerID = 'ID'
+}
