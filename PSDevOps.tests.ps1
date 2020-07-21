@@ -224,27 +224,33 @@ describe 'Builds' {
         }
     }
 
-    if ($testPat -ne $env:SYSTEM_ACCESSTOKEN) {
-        context 'Agent Pools' {
-            it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
-                Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Name |
-                    should be default
-            }
-
-            it 'Can Get-ADOAgentPool for a given -Organization' {
-                Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Name |
-                    should be default
-            }
+    context 'Agent Pools' {
+        # These tests will return nothing when run with a SystemAccessToken, so we will only fail if they error
+        it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
+            Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
 
-        context 'Service Endpoints:' {
-            it 'Can Get-ADOServiceEndpoint' {
-                Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Select-Object -First 1 -ExpandProperty Type |
-                    Should be GitHub
-            }
+        it 'Can Get-ADOAgentPool for a given -Organization' {
+            Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat -ErrorAction Stop
+        }
+    }
+
+    context 'Service Endpoints:' {
+        it 'Can Get-ADOServiceEndpoint' {
+            Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
+        }
+    }
+
+    context 'Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be Audit
+        }
+        it 'Can Get Consumers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be appVeyor
         }
     }
 
@@ -360,13 +366,19 @@ describe 'Working with Work Items' {
         it 'Can get work proccesses' {
             Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty name |
-                    should be Basic
+                    should -Be Basic
         }
 
         it 'Can get area paths' {
             Get-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
-                should be '\PSDevOps\Area'
+                should -Be "\$testproject\Area"
+        }
+
+        it 'Can get iteration paths' {
+            Get-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Path |
+                should -Be "\$testProject\Iteration"
         }
     }
 
@@ -409,6 +421,7 @@ describe 'GitHub Worfklow tools' {
          }
     }
     context GitHubWorkflowOutput {
+
         it 'Can Write an GitHub Error' {
             Write-GitHubError -Message "error!" -Debug |
             should -Match '::error::error!'
@@ -427,6 +440,28 @@ describe 'GitHub Worfklow tools' {
         it 'Can Write an GitHub Warning with a SourcePath' {
             Write-GitHubWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
             should -Be '::warning file=file.cs,line=1::Warning!'
+        }
+
+        it 'Can Write GitHub output' {
+            Write-GitHubOutput -InputObject @{key='value'} -Debug |
+                Should -Be '::set-output name=key::value'
+        }
+
+        it 'Will call Write-GitHubError when provided an error' {
+            Write-Error "problem" 2>&1 |
+                Write-GitHubOutput |
+                should -BeLike '*::problem'
+        }
+
+        it 'Can Write GitHub output from the pipeline' {
+            1 | Write-GitHubOutput -Debug |
+                Should -Be '::set-output name=output::1'
+        }
+
+        it 'Will call Write-GitHubWarning when provided an error' {
+            Write-Error "problem" 2>&1 |
+                Write-GitHubOutput |
+                should -BeLike '*::problem'
         }
     }
 }
