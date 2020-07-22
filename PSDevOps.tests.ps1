@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -241,19 +241,6 @@ describe 'Builds' {
         }
     }
 
-    context 'Service Hooks' {
-        it 'Can Get Publishers of Service Hooks' {
-            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
-                Select-Object -First 1 -ExpandProperty ID |
-                Should -be Audit
-        }
-        it 'Can Get Consumers of Service Hooks' {
-            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
-                Select-Object -First 1 -ExpandProperty ID |
-                Should -be appVeyor
-        }
-    }
-
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat |
@@ -421,6 +408,7 @@ describe 'GitHub Worfklow tools' {
          }
     }
     context GitHubWorkflowOutput {
+
         it 'Can Write an GitHub Error' {
             Write-GitHubError -Message "error!" -Debug |
             should -Match '::error::error!'
@@ -439,6 +427,29 @@ describe 'GitHub Worfklow tools' {
         it 'Can Write an GitHub Warning with a SourcePath' {
             Write-GitHubWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
             should -Be '::warning file=file.cs,line=1::Warning!'
+        }
+
+        it 'Can Write GitHub output' {
+            Write-GitHubOutput -InputObject @{key='value'} -Debug |
+                Should -Be '::set-output name=key::value'
+        }
+
+        it 'Will call Write-GitHubError when provided an error' {
+            
+            & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
+                Write-GitHubOutput -Debug |
+                should -BeLike '*::problem'
+        }
+
+        it 'Can Write GitHub output from the pipeline' {
+            1 | Write-GitHubOutput -Debug |
+                Should -Be '::set-output name=output::1'
+        }
+
+        it 'Will call Write-GitHubWarning when provided an error' {
+            Write-Warning "problem" 3>&1 |
+                Write-GitHubOutput -Debug |
+                should -BeLike '::warning*::problem'
         }
     }
 }
