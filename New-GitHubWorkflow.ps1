@@ -35,9 +35,9 @@ function New-GitHubWorkflow {
         # The name of parameters that should be supplied from an event.
         # Wildcards accepted.
         [Parameter(ValueFromPipelineByPropertyName)]
-        [Alias('EventParameters')]
-        [string[]]
-        $EventParameter,
+        [Alias('InputParameters')]
+        [Collections.IDictionary]
+        $InputParameter,
 
         # The name of parameters that should be supplied from build variables.
         # Wildcards accepted.
