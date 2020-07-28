@@ -47,9 +47,9 @@
     # The name of parameters that should be supplied from event input.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('EventParameters')]
-    [string[]]
-    $EventParameter,
+    [Alias('InputParameters')]
+    [Collections.IDictionary]
+    $InputParameter,
 
     # The name of parameters that should be supplied from build variables.
     # Wildcards accepted.
@@ -316,13 +316,32 @@
                     if ($BuildSystem -eq 'GitHub') {
                         # In GitHub Workflows, variables can come from an event.
                         $eventName =
-                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $EventParameter
+                            & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $InputParameter.Keys
 
                         if ($variableName) {
                             $eventParameters[$stepParamName] = "`${{secrets.$stepParamName}}"
                         }
                         if ($eventName) {
-                            $eventParameters[$stepParamName] = "`${{github.events.inputs.$stepParamName}}"
+                            foreach ($evt in $eventName) {
+                                
+                                
+                                if ($evt -match '\.(?:\*)?$') {
+                                    $evt = ($evt -replace '\.(?:\*)?$') + '.' + $stepParamName
+                                }
+                                if ($evt -notlike '${{*' -and $evt -notlike '*.*') {
+                                    $evt = 'github.events.inputs' + '.' + $stepParamName
+                                } 
+                                if ($evt -notlike '${{*' -and $evt -notlike 'github.*') {
+                                    $evt = "github." + '.' + $stepParamName
+                                }
+                                if ($evt -like '${{*') {
+                                    $eventParameters[$stepParamName] = $evt
+                                }
+                                else {
+                                    $eventParameters[$stepParamName] = "`${{$evt}}"
+                                }
+
+                            }
 
                             # Event parameters might come from workflow_dispatch, so we have to prepare the parameter information.
 

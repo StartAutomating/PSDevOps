@@ -56,9 +56,9 @@
     # The name of parameters that should be supplied from webhook events.
     # Wildcards accepted.
     [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('EventParameters')]
-    [string[]]
-    $EventParameter,
+    [Alias('InputParameters')]
+    [Collections.IDictionary]
+    $InputParameter,
 
     # The name of parameters that should be supplied from the environment.
     # Wildcards accepted.

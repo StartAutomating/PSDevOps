@@ -76,6 +76,13 @@
             Write-GitHubWarning -Message $InputObject.Message
         }
         #endregion Output Warnings
+        #region Output Debug and Verbose
+        elseif ($InputObject -is [Management.Automation.VerboseRecord] -or 
+            $InputObject -is [Management.Automation.DebugRecord]) 
+        {
+            Write-GitHubDebug -Message $InputObject.Message
+        }
+        #endregion Output Debug and Verbose
         #region Enqueue Remaining Input
         else
         {
