@@ -419,21 +419,34 @@ describe 'GitHub Worfklow tools' {
             should -Be '::error file=file.cs,line=1::error!'
         }
 
-        it 'Can Write an GitHub Warning' {
+        it 'Can Write a GitHub Warning' {
             Write-GitHubWarning -Message "Warning!" -Debug |
             should -Match '::warning::Warning!'
         }
 
-        it 'Can Write an GitHub Warning with a SourcePath' {
+        it 'Can Write a Github Debug Message' {
+            Write-GitHubDebug -Message "Debug" -Debug |
+            should -Match '::debug::Debug'
+        }
+
+        it 'Can Write a GitHub Warning with a SourcePath' {
             Write-GitHubWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
             should -Be '::warning file=file.cs,line=1::Warning!'
         }
+
+        
 
         it 'Can Write GitHub output' {
             Write-GitHubOutput -InputObject @{key='value'} -Debug |
                 Should -Be '::set-output name=key::value'
         }
 
+        it 'Will call Write-GitHubDebug when provided a verbose or debug message' {
+            Write-Verbose "verbose" -Verbose *>&1 |
+                Write-GitHubOutput -Debug |
+                should -BeLike '::debug::verbose'
+        }
+        
         it 'Will call Write-GitHubError when provided an error' {
             
             & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
@@ -451,5 +464,7 @@ describe 'GitHub Worfklow tools' {
                 Write-GitHubOutput -Debug |
                 should -BeLike '::warning*::problem'
         }
+
+        
     }
 }
