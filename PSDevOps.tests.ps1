@@ -465,6 +465,11 @@ describe 'GitHub Worfklow tools' {
                 should -BeLike '::warning*::problem'
         }
 
+
+        it 'Can mask output' {
+            Hide-GitHubOutput -Message "secret" -Debug | 
+                should -Be "::add-mask::secret"
+        }
         
     }
 }
