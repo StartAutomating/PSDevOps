@@ -17,7 +17,7 @@ parameters:
     default: '.\'
   - name: Recurse
     type: boolean
-    default: 
+    default: false
   - name: PesterMaxVersion
     type: string
     default: '4.99.99'
