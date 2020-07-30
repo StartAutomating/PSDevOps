@@ -14,7 +14,7 @@ trigger:
 parameters: 
   - name: ModulePath
     type: string
-    default: '.\'
+    default: 
   - name: Recurse
     type: boolean
     default: false
@@ -45,6 +45,7 @@ stages:
               $Parameters = @{}
               $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
               $Parameters.Recurse = '${{coalesce(format('"{0}"',parameters.Recurse), '$null')}}'
+              $Parameters.Recurse = $parameters.Recurse -match 'true';
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -52,11 +53,12 @@ stages:
               }
               $Parameters | Out-Host
               & {param(
-                  [string]$ModulePath = '.\',
+                  [string]$ModulePath,
                   [switch]$Recurse
               )
               Import-Module PSScriptAnalyzer, PSDevOps
-              $invokeScriptAnalyzerSplat = @{Path=$InputPath}
+              if (-not $ModulePath) { $ModulePath = '.\'} 
+              $invokeScriptAnalyzerSplat = @{Path=$ModulePath}
               if ($ENV:PSScriptAnalyzer_Recurse -or $Recurse) {
                   $invokeScriptAnalyzerSplat.Recurse = $true
               }
