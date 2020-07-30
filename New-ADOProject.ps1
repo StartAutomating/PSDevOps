@@ -112,8 +112,15 @@
         } | ConvertTo-Json
 
 
+        $invokeParams.Method = 'POST'
+        $invokeParams.Body   = $body
+        $invokeParams.uri    = $uri
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccessToken')
+            return $invokeParams            
+        }
         if (-not $PSCmdlet.ShouldProcess("POST $uri $body")) { return }
-        Invoke-ADORestAPI @invokeParams -uri $uri -Method POST -Body $body -Property @{
+        Invoke-ADORestAPI @invokeParams -Property @{
             Organization =$Organization
             Server = $Server
         }
