@@ -14,6 +14,9 @@ trigger:
 parameters: 
   - name: ModulePath
     type: string
+    default: '.\'
+  - name: Recurse
+    type: boolean
     default: 
   - name: PesterMaxVersion
     type: string
