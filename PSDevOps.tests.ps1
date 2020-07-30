@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -169,10 +169,26 @@ describe 'Calling REST APIs' {
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
-}
 
-describe 'Builds' {
-    context 'Get-ADOBuild' {
+    context Projects {
+        it 'Can get projects' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps |
+                Select-Object -ExpandProperty Name |
+                    Should -Be PSDevOps
+        }
+        it 'Can create projects' {
+            $whatIfResult =
+                New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process b8a3a935-7e91-48b8-a94c-606d37c3e9f2 -WhatIf
+
+            $whatIfResult.body.name        |
+                Should -Be TestProject
+            $whatIfResult.body.description |
+                Should -Be TestProject
+        }
+
+    }
+
+    context 'Builds' {
         it 'Can get builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
             $mostRecentBuild.definition.name | should belike *PSDevOps*
@@ -256,10 +272,7 @@ describe 'Builds' {
         }
     }
 }
-
 describe 'Working with Work Items' {
-
-
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
         Select-Object -ExpandProperty 'System.WorkItemType' |
@@ -434,7 +447,7 @@ describe 'GitHub Worfklow tools' {
             should -Be '::warning file=file.cs,line=1::Warning!'
         }
 
-        
+
 
         it 'Can Write GitHub output' {
             Write-GitHubOutput -InputObject @{key='value'} -Debug |
@@ -446,9 +459,9 @@ describe 'GitHub Worfklow tools' {
                 Write-GitHubOutput -Debug |
                 should -BeLike '::debug::verbose'
         }
-        
+
         it 'Will call Write-GitHubError when provided an error' {
-            
+
             & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
                 Write-GitHubOutput -Debug |
                 should -BeLike '*::problem'
@@ -467,9 +480,9 @@ describe 'GitHub Worfklow tools' {
 
 
         it 'Can mask output' {
-            Hide-GitHubOutput -Message "secret" -Debug | 
+            Hide-GitHubOutput -Message "secret" -Debug |
                 should -Be "::add-mask::secret"
         }
-        
+
     }
 }
