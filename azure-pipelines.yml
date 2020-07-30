@@ -43,8 +43,12 @@ stages:
             displayName: InstallPSScriptAnalyzer
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
-              $Parameters.Recurse = '${{coalesce(format('"{0}"',parameters.Recurse), '$null')}}'
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.Recurse = @'
+              ${{parameters.Recurse}}
+              '@
               $Parameters.Recurse = $parameters.Recurse -match 'true';
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
@@ -90,7 +94,9 @@ stages:
             displayName: InstallScriptCop
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -107,7 +113,8 @@ stages:
               
               if ($ModulePath -like '*PSDevOps*') { 
                   Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
-              } 
+              }
+              "Importing from $ModulePath" | Out-Host 
               $importedModule =Import-Module $ModulePath -Force -PassThru 
               
               $importedModule | Out-Host
@@ -133,7 +140,9 @@ stages:
         steps: 
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -150,8 +159,12 @@ stages:
             displayName: InstallPester
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -217,7 +230,9 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -234,8 +249,12 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -298,7 +317,9 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
@@ -315,8 +336,12 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = '${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}}'
-              $Parameters.PesterMaxVersion = '${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}}'
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
