@@ -187,38 +187,38 @@ describe 'Calling REST APIs' {
         }
 
         it 'Can set project properties' {
-            Get-ADOProject -Org StartAutomating -Project PSDevOps | 
+            Get-ADOProject -Org StartAutomating -Project PSDevOps |
                 Set-ADOProject -WhatIf -Metadata @{Key='value'} |
                 ForEach-Object {
                     $in = $_
-                    $in.Body.Path | Should -Be /Key 
-                    $in.Body.Value | should -Be value 
-                } 
+                    $in.Body.Path | Should -Be /Key
+                    $in.Body.Value | should -Be value
+                }
         }
 
         it 'Can remove projects' {
-            $whatIf = Get-ADOProject -Organization StartAutomating -Project PSDevOps | 
+            $whatIf = Get-ADOProject -Organization StartAutomating -Project PSDevOps |
                 Remove-ADOProject -WhatIf
             $whatIf.Uri | Should -BeLike '*StartAutomating/_apis/projects/*'
-            $whatIf.Method | Should -Be DELETE 
+            $whatIf.Method | Should -Be DELETE
         }
     }
 
     context Teams {
         it 'Can get teams' {
-            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat | 
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Name |
                 should -Be 'PSDevOps Team'
         }
 
         it 'Can create teams' {
-            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf  
+            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
             $whatIf.body.name | Should -Be MyTeam
         }
 
         it 'Can remove teams' {
-            $whatIf = Remove-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID MyTeam -WhatIf  
-            $whatIf.url | Should -BeLike '*/MyTeam*'
+            $whatIf = Remove-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID MyTeam -WhatIf
+            $whatIf.uri    | Should -BeLike '*/MyTeam*'
             $whatIf.Method | Should -Be DELETE
         }
     }
