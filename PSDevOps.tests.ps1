@@ -204,6 +204,25 @@ describe 'Calling REST APIs' {
         }
     }
 
+    context Teams {
+        it 'Can get teams' {
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat | 
+                Select-Object -First 1 -ExpandProperty Name |
+                should -Be 'PSDevOps Team'
+        }
+
+        it 'Can create teams' {
+            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf  
+            $whatIf.body.name | Should -Be MyTeam
+        }
+
+        it 'Can remove teams' {
+            $whatIf = Remove-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID MyTeam -WhatIf  
+            $whatIf.url | Should -BeLike '*/MyTeam*'
+            $whatIf.Method | Should -Be DELETE
+        }
+    }
+
     context 'Builds' {
         it 'Can get builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
