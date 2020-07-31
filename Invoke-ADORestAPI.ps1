@@ -137,7 +137,7 @@ Specifies the method used for the web request. The acceptable values for this pa
             }
         }
         if ($Body -and $Body -isnot [string]) { # If a body was passed, and it wasn't a string
-            $irmSplat.Body = $Body | ConvertTo-Json -Depth 100 # make it JSON.
+            $irmSplat.Body = ConvertTo-Json -Depth 100 -InputObject $body # make it JSON.
         }
         if (-not $irmSplat.ContentType) { # If no content type was passed
             $irmSplat.ContentType = $ContentType # set it to the default.
