@@ -179,11 +179,11 @@ describe 'Calling REST APIs' {
         it 'Can create projects' {
             $whatIfResult =
                 New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process b8a3a935-7e91-48b8-a94c-606d37c3e9f2 -WhatIf
-
-            $whatIfResult.body.name        |
+            $bodyObject = $whatIfResult.body | ConvertFrom-Json
+            $bodyObject.name |
                 Should -Be TestProject
-            $whatIfResult.body.description |
-                Should -Be TestProject
+            $bodyObject.description |
+                Should -Be "A Test Project"
         }
 
     }
@@ -292,7 +292,7 @@ describe 'Working with Work Items' {
         return
     }
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
-        $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
+
 
         context WorkProcesses {
             it 'Can get work procceses related to a project' {
