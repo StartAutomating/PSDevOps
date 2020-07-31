@@ -191,7 +191,7 @@ describe 'Calling REST APIs' {
                 Set-ADOProject -WhatIf -Metadata @{Key='value'} |
                 ForEach-Object {
                     $in = $_
-                    $in.Body.Path | Should -Be Key 
+                    $in.Body.Path | Should -Be /Key 
                     $in.Body.Value | should -Be value 
                 } 
         }
