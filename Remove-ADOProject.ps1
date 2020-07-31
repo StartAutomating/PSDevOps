@@ -11,6 +11,7 @@
         Remove-ADOProject -Organization StartAutomating -Project TestProject1 -PersonalAccessToken $pat
     #>
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [OutputType([Nullable],[PSObject])]
     param(
     # The name or ID of the project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -66,7 +67,14 @@
             $uri += "api-version=$ApiVersion"
         }
 
+        $invokeParams.Uri = $uri
+        $invokeParams.Method = 'DELETE'
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccessToken')
+            return $invokeParams
+            
+        }
         if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return }
-        Invoke-ADORestAPI @invokeParams -uri $uri -Method DELETE
+        Invoke-ADORestAPI @invokeParams
     }
 }
