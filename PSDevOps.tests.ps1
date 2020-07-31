@@ -186,6 +186,15 @@ describe 'Calling REST APIs' {
                 Should -Be "A Test Project"
         }
 
+        it 'Can set project properties' {
+            Get-ADOProject -Org StartAutomating -Project PSDevOps | 
+                Set-ADOProject -WhatIf -Metadata @{Key='value'} |
+                ForEach-Object {
+                    $in = $_
+                    $in.Body.Path | Should -Be Key 
+                    $in.Body.Value | should -Be value 
+                } 
+        }
     }
 
     context 'Builds' {
