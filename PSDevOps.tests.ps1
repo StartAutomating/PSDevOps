@@ -306,6 +306,43 @@ describe 'Calling REST APIs' {
                 should -Be 'PSDevOps.Task'
         }
     }
+
+    context WorkProcesses {
+        it 'Can get work procceses related to a project' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Get-ADOWorkProcess |
+                    Select-Object -ExpandProperty Name |
+                        should -Be 'StartAutomating Basic'
+        }
+
+        it 'Can get work item types related to a process' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Get-ADOWorkProcess |
+                    Get-ADOWorkItemType |
+                        Select-Object -First 1 -ExpandProperty Name |
+                            should -Be issue
+        }
+
+        it 'Can create new work item types' {
+            $whatIfResult =
+                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Get-ADOWorkProcess |
+                        New-ADOWorkItemType -Icon icon_flame -Color 'ddee00' -WhatIf
+
+            $whatIfResult.body.icon |
+                should -Be icon_flame
+        }
+
+        it 'Can remove custom work item types' {
+            $whatIfResult =
+                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Get-ADOWorkProcess |
+                        Remove-ADOWorkItemType -WorkItemTypeName Issue -WhatIf
+
+            $whatIfResult.method | should -Be DELETE
+            $whatIfResult.uri | should -BeLike *.Issue*
+        }
+    }
 }
 describe 'Working with Work Items' {
     it 'Can get a work item' {
@@ -327,46 +364,6 @@ describe 'Working with Work Items' {
         return
     }
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
-
-
-        context WorkProcesses {
-            it 'Can get work procceses related to a project' {
-                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Get-ADOWorkProcess |
-                        Select-Object -ExpandProperty Name |
-                            should -Be 'StartAutomating Basic'
-            }
-
-            it 'Can get work item types related to a process' {
-                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Get-ADOWorkProcess |
-                        Get-ADOWorkItemType |
-                            Select-Object -First 1 -ExpandProperty Name |
-                                should -Be issue
-            }
-
-            it 'Can create new work item types' {
-                $whatIfResult =
-                    Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                        Get-ADOWorkProcess |
-                            New-ADOWorkItemType -Icon icon_flame -Color 'ddee00' -WhatIf
-
-                $whatIfResult.body.icon |
-                    should -Be icon_flame
-            }
-
-            it 'Can remove custom work item types' {
-                $whatIfResult =
-                    Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                        Get-ADOWorkProcess |
-                            Remove-ADOWorkItemType -WorkItemTypeName Issue -WhatIf
-
-                $whatIfResult.method | should -Be DELETE
-                $whatIfResult.uri | should -BeLike *.Issue*
-            }
-        }
-
-
         context 'Querying Work Items' {
 
             it 'Can query work items' {
