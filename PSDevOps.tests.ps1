@@ -195,6 +195,13 @@ describe 'Calling REST APIs' {
                     $in.Body.Value | should -Be value 
                 } 
         }
+
+        it 'Can remove projects' {
+            $whatIf = Get-ADOProject -Organization StartAutomating -Project PSDevOps | 
+                Remove-ADOProject -WhatIf
+            $whatIf.Uri | Should -BeLike '*StartAutomating/_apis/projects/*'
+            $whatIf.Method | Should -Be DELETE 
+        }
     }
 
     context 'Builds' {
