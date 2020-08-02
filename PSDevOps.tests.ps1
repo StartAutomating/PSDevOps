@@ -505,6 +505,14 @@ describe 'Working with Work Items' {
                 Should -BeLike */classificationNodes/Areas*
         }
 
+        it 'Can remove area paths' {
+            $whatIf =
+                Remove-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -AreaPath NewArea
+
+            $whatIf.Method  |Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/classificationNodes/Areas/NewArea*'
+        }
+
         it 'Can get iteration paths' {
             Get-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
@@ -521,6 +529,14 @@ describe 'Working with Work Items' {
                 Should -BeLike */classificationNodes/Iterations*
             ($whatIf.body.attributes.startDate -as [DateTime]).Date |
                 Should -Be ([DateTime]::Now).Date
+        }
+
+        it 'Can remove iteration paths' {
+            $whatIf =
+                Remove-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -IterationPath NewIteration
+
+            $whatIf.Method  |Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/classificationNodes/iterations/NewIteration*'
         }
     }
 
