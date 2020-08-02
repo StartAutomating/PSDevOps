@@ -294,7 +294,7 @@ describe 'Calling REST APIs' {
 
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
-            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat |
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -IncludeDisabled -InstallationIssue -IncludeError |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should be Microsoft
         }
@@ -304,6 +304,19 @@ describe 'Calling REST APIs' {
                 Select-Object -First 1 -ExpandProperty PSTypenames |
                 Select-Object -Last 1 |
                 should -Be 'PSDevOps.Task'
+        }
+    }
+
+    context 'Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be Audit
+        }
+        it 'Can Get Consumers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be appVeyor
         }
     }
 
