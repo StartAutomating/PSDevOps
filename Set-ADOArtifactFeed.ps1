@@ -202,7 +202,7 @@
             }
 
             if ($PublicUpstream) {
-                $UpstreamSource = @(
+                $UpstreamSource = $PSBoundParameters['UpstreamSource'] = @(
                     if ($PublicUpstream -contains 'NuGet') {
                         [PSCustomObject]@{
                             id= "$([guid]::NewGuid())"
