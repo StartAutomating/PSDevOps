@@ -72,7 +72,7 @@
         if ($WhatIfPreference) {
             $invokeParams.Remove('PersonalAccessToken')
             return $invokeParams
-            
+
         }
         if (-not $PSCmdlet.ShouldProcess("DELETE $uri")) { return }
         Invoke-ADORestAPI @invokeParams

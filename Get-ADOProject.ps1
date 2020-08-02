@@ -86,7 +86,7 @@
             Server = $Server
         }
         if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", 
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
             "PSDevOps.$typeName" -Property $additionalProperty
     }
 }
