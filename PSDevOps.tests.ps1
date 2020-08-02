@@ -538,6 +538,17 @@ describe 'Working with Work Items' {
             $whatIf.Method  |Should -Be DELETE
             $whatIf.Uri | Should -BeLike '*/classificationNodes/iterations/NewIteration*'
         }
+
+        it 'Can add fields and populate a list at the same time' {
+            $whatIfList, $whatIfField =
+                New-ADOField -Name Verb -ReferenceName Cmdlet.Verb -Description "The PowerShell Verb" -ValidValue (
+                    Get-Verb | Select-Object -ExpandProperty Verb | Sort-Object
+                ) -Organization MyOrganization -WhatIf
+            $whatIfList.Uri | Should -BeLike '*/lists*'
+            $whatIfList.Body.type | Should -Be String
+            $whatIfField.Uri | Should -BeLike '*/fields*'
+            $whatIfField.Body.referenceName| Should -Be 'Cmdlet.Verb'
+        }
     }
 
     if ($PersonalAccessToken) {
