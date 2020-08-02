@@ -15,6 +15,7 @@
         Remove-ADOAreaPath
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/_apis/wit/classificationnodes/Areas')]
+    [OutputType('PSDevOps.AreaPath')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
