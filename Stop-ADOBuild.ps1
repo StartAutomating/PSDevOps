@@ -16,6 +16,7 @@
         Stop-ADOBuild -Organization StartAutomating -Project PSDevOps -BuildID 180
     #>
     [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='build/builds/{buildId}')]
+    [OutputType('PSDevOps.Build',[Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

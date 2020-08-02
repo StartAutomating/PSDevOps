@@ -14,6 +14,7 @@
             Start-ADOBuild -WhatIf
     #>
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType('PSDevOps.Build',[Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
