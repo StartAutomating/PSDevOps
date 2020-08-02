@@ -5,8 +5,19 @@
         Set Azure DevOps Artifact Feed
     .Description
         Changes the settings, permissions, views, and retention policies of an Azure DevOps Artifact Feed.
+    .Link
+        Get-ADOArtifactFeed
+    .Link
+        New-ADOArtifactFeed
+    .Link
+        Remove-ADOArtifactFeed
+    .Example
+        Set-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -Description 'Project Builds' -WhatIf
+    .Example
+        Set-ADOArtifactFeed -RetentionPolicy -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -WhatIf -DaysToKeep 10
     #>
     [CmdletBinding(DefaultParameterSetName='packaging/Feeds/{FeedId}', SupportsShouldProcess=$true)]
+    [OutputType('PSDevOps.ArtifactFeed','PSDevOps.ArtfiactFeed.RetentionPolicy','PSDevOps.ArtfiactFeed.View')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
