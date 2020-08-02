@@ -307,7 +307,7 @@ describe 'Calling REST APIs' {
         }
     }
 
-    context Dashboards {z
+    context Dashboards {
         it 'Can get dashboards' {
             Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
                 Select-Object -First 1 -ExpandProperty Name |
@@ -358,7 +358,7 @@ describe 'Calling REST APIs' {
             $whatIf.Uri    | Should -BeLike */retentionpolic*
             $whatIf.Body.daysToKeepRecentlyDownloadedPackages |
                 Should -Be 10
-            $whatIf.Body.Count |
+            $whatIf.Body.countLimit |
                 Should -Be 1
         }
 
