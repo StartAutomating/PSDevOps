@@ -307,6 +307,30 @@ describe 'Calling REST APIs' {
         }
     }
 
+    context 'Artifact Feeds' {
+        it 'Can get artifact feeds' {
+            Get-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                Should -Be Builds
+        }
+
+        it 'Can create artifact feeds' {
+            $whatIf =
+                New-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -Name FeedTest -PublicUpstream Maven, NPM, NuGet, PyPi -Description "a test feed" -WhatIf -NoBadge
+            $whatIf.Uri | Should -BeLike '*/feeds*'
+            $whatIf.Body.badgesEnabled | Should -Be $false
+            $whatIf.Body.UpstreamSources.Count | Should -Be 4
+        }
+
+        it 'Can remove artifact feeds' {
+            $whatIf = Get-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Remove-ADOArtifactFeed -WhatIf
+
+            $whatIf.Method | Select-Object -Unique | Should -Be DELETE
+            $whatIf.Uri | Select-Object -Unique | Should -BeLike '*/feeds/*'
+        }
+    }
+
     context WorkProcesses {
         it 'Can get work procceses related to a project' {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
