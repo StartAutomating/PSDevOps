@@ -215,6 +215,10 @@
   <Type>
     <Name>PSDevOps.Widget</Name>
     <Members>
+      <AliasProperty>
+        <Name>WidgetID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
       <ScriptMethod>
         <Name>GetHTML</Name>
         <Script>
