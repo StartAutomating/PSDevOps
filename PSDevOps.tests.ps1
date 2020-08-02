@@ -382,7 +382,7 @@ describe 'Calling REST APIs' {
 
         it 'Can update artifact feeds' {
             $whatIf =
-                Set-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -Description 'Project Builds' -WhatIf
+                Set-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -Description 'Project Builds' -PublicUpstream Maven, NPM, NuGet, PyPi -WhatIf
             $whatIf.Method | Should -Be PATCH
             $whatIf.Uri    | Should -BeLike */*
             $whatIf.Body.Description | Should -Be 'Project Builds'
