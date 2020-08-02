@@ -77,6 +77,8 @@
             $getIterationPathParams.Remove('IterationPath')
             $getIterationPathParams.Remove('StartDate')
             $getIterationPathParams.Remove('EndDate')
+            $getIterationPathParams.Remove('WhatIf')
+            $getIterationPathParams.Remove('Confirm')
             foreach ($kv in $qi.GetEnumerator()) { # Repopulate the input parameters.
                 $ExecutionContext.SessionState.PSVariable.Set($kv.Key, $kv.Value)
             }
