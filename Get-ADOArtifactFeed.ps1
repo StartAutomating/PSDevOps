@@ -7,9 +7,14 @@
         Gets artifact feeds from Azure DevOps.  Artifact feeds can be used to publish packages.
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/get%20feeds?view=azure-devops-rest-5.1
+    .Example
+        Get-ADOArtifactFeed -Organization myOrganization -Project MyProject
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     [CmdletBinding(DefaultParameterSetName='packaging/Feeds/{FeedId}')]
+    [OutputType('PSDevOps.ArtfiactFeed',
+        'PSDevOps.ArtfiactFeed.View',
+        'PSDevOps.ArtfiactFeed.Change')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -95,6 +100,7 @@
     [switch]
     $IncludeDeleted,
 
+    # If set, will get changes in artifact feeds.
     [Alias('Changes')]
     [switch]
     $Change,
