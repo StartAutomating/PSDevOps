@@ -44,7 +44,7 @@
     $ApiVersion = "5.1")
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
-    
+
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
@@ -60,7 +60,7 @@
         $c, $t, $id  = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
             . $dq $q
-            
+
             $uri = # The URI is comprised of:
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -69,7 +69,8 @@
                     (. $ReplaceRouteParameter $psParameterSet)
                                              # and any parameterized URLs in this parameter set.
                 ) -as [string[]] -ne '' -join '/'
-
+            Write-Progress "Removing Teams" "$uri" -PercentComplete ($c * 100/ $t) -Id $id
+            $c++
             $uri += '?' # The URI has a query string containing:
             $uri += @(
                 if ($Server -ne 'https://dev.azure.com/' -and
@@ -81,7 +82,7 @@
                 }
             ) -join '&'
 
-            
+
             $invokeParams.Method = 'DELETE'
             $invokeParams.Uri  = $uri
             if ($WhatIfPreference) {
@@ -96,6 +97,8 @@
                 Server = $Server
             }
         }
+
+        Write-Progress "Removing Teams" " " -Completed -Id $id
     }
 }
 
