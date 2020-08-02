@@ -251,7 +251,7 @@ describe 'Calling REST APIs' {
     context 'Builds' {
         it 'Can get builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
-            $mostRecentBuild.definition.name | should belike *PSDevOps*
+            $mostRecentBuild.definition.name | should -BeLike *PSDevOps*
         }
         it 'Can get -Detail on a particular build' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
@@ -272,31 +272,38 @@ describe 'Calling REST APIs' {
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $latestBuild.Definition.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $latestBuild.Definition.ID
 
             $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
             $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
 
             $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
         }
 
         it 'Can stop a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $stopWhatIf = $latestBuild | Stop-ADOBuild -WhatIf
-            $stopWhatIf.Method | should be PATCH
-            $stopWhatIf.Body.Status | should be cancelling
+            $stopWhatIf.Method | should -Be PATCH
+            $stopWhatIf.Body.Status | should -Be cancelling
         }
 
         it 'Could remove a build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
-            $whatIf.Method | should be DELETE
-            $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+            $whatIf.Method | should -Be DELETE
+            $whatIf.Uri | should -BeLike "*$($latestBuild.BuildID)*"
+        }
+
+        it 'Could update a build' {
+            $whatIf = Update-ADOBuild -Organization MyOrg -Project MyProject -BuildID 1 -Build @{KeepForever=$true} -WhatIf
+            $whatIf.Uri | should -BeLike '*/builds/*'
+            $whatIf.Method | should -Be PATCH
+            $whatIf.Body.KeepForever | should -Be $true
         }
     }
 
