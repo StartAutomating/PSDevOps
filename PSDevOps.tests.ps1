@@ -407,10 +407,31 @@ describe 'Working with Work Items' {
                 should -Be "\$testproject\Area"
         }
 
+        it 'Can add area paths' {
+            $whatIf =
+                Add-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -AreaPath NewArea
+            $whatIf.body.name |
+                Should -Be NewArea
+            $whatIf.Uri |
+                Should -BeLike */classificationNodes/Areas*
+        }
+
         it 'Can get iteration paths' {
             Get-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
                 should -Be "\$testProject\Iteration"
+        }
+
+
+        it 'Can add iteration paths' {
+            $whatIf =
+                Add-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -IterationPath NewIteration -StartDate ([DateTime]::Now.Date) -EndDate ([DateTime]::Now.Date.AddDays(7))
+            $whatIf.body.name |
+                Should -Be NewIteration
+            $whatIf.Uri |
+                Should -BeLike */classificationNodes/Iterations*
+            ($whatIf.body.attributes.startDate -as [DateTime]).Date |
+                Should -Be ([DateTime]::Now).Date
         }
     }
 
