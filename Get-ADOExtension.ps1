@@ -76,6 +76,9 @@
             if ($IncludeError) {
                 "includeErrors=true"
             }
+            if ($AssetType) {
+                "assetTypes=$($AssetType -join ',')"
+            }
             if ($Server -ne 'https://extmgmt.dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
