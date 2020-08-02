@@ -334,6 +334,13 @@ describe 'Calling REST APIs' {
             $whatIf.Body.Name | Should -Be MyGitHubConnection
             $whatIf.Uri | Should -BeLike *serviceendpoint/endpoints*
         }
+
+        it 'Can remove service endpoints' {
+            $whatIf =
+                Remove-ADOServiceEndpoint -Organization MyOrg -Project MyProject -EndpointID MyGitHubConnection -WhatIf
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/serviceendpoint/endpoints/*'
+        }
     }
 
     context 'Extensions' {
