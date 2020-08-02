@@ -223,6 +223,31 @@ describe 'Calling REST APIs' {
         }
     }
 
+    context Repositories {
+        it 'Can get repositories' {
+            Get-ADORepository -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                    Should -Be PSDevOps
+        }
+        it 'Can create repositories' {
+            $whatIf =
+                New-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryName NewRepo -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method |
+                Should -Be POST
+            $whatIf.body.name |
+                Should -Be NewRepo
+            $whatIf.Uri |
+                Should -BeLike '*/git/repositories*'
+        }
+
+        it 'Can Remove Repositories' {
+            $whatIf =
+                Remove-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryID PSDevOps -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/git/repositories/*'
+        }
+    }
+
     context 'Builds' {
         it 'Can get builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
