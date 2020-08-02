@@ -44,7 +44,7 @@
     $ApiVersion = "5.1")
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
-    
+
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
@@ -60,7 +60,7 @@
         $c, $t, $id  = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
             . $dq $q
-            
+
             $uri = # The URI is comprised of:
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -70,6 +70,7 @@
                                              # and any parameterized URLs in this parameter set.
                 ) -as [string[]] -ne '' -join '/'
             Write-Progress "Creating Teams" "$uri" -PercentComplete ($c * 100/ $t) -Id $id
+            $c++
             $uri += '?' # The URI has a query string containing:
             $uri += @(
                 if ($Server -ne 'https://dev.azure.com/' -and
@@ -90,18 +91,20 @@
             $invokeParams.Method = 'POST'
             $invokeParams.Uri  = $uri
             $invokeParams.body = @{name=$Team}
+            $invokeParams.PSTypeNames = $typeNames
+            $invokeParams.Property = @{
+                Organization = $Organization
+                Project = $Project
+                Server = $Server
+            }
             if ($WhatIfPreference) {
                 $invokeParams.Remove('PersonalAccessToken')
                 $invokeParams
                 continue
             }
             if (! $PSCmdlet.ShouldProcess("Create $Organization\$Project\$team")) { continue }
-            Invoke-ADORestAPI @invokeParams -PSTypeName $typenames -Property @{
-                Organization = $Organization
-                Project = $Project
-                Server = $Server
-            }
+            Invoke-ADORestAPI @invokeParams
         }
-        Write-Progress "Creating Teams" " " -Completed -Id $id 
+        Write-Progress "Creating Teams" " " -Completed -Id $id
     }
 }
