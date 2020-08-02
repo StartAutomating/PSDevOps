@@ -325,14 +325,14 @@
                         }
                         if ($eventName) {
                             foreach ($evt in $eventName) {
-                                
-                                
+
+
                                 if ($evt -match '\.(?:\*)?$') {
                                     $evt = ($evt -replace '\.(?:\*)?$') + '.' + $stepParamName
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike '*.*') {
                                     $evt = 'github.events.inputs' + '.' + $stepParamName
-                                } 
+                                }
                                 if ($evt -notlike '${{*' -and $evt -notlike 'github.*') {
                                     $evt = "github." + '.' + $stepParamName
                                 }
@@ -403,7 +403,7 @@ $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
 `$Parameters | Out-Host
 $Name `@Parameters
-"@) 
+"@)
                 $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
