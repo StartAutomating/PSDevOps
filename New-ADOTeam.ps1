@@ -6,7 +6,7 @@
     .Description
         Gets teams from Azure DevOps or TFS
     .Example
-        Get-ADOTeam -Organization StartAutomating
+        New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyNewTeam -WhatIf
     .Link
         Get-ADOTeam
     .Link
@@ -69,7 +69,7 @@
                     (. $ReplaceRouteParameter $psParameterSet)
                                              # and any parameterized URLs in this parameter set.
                 ) -as [string[]] -ne '' -join '/'
-
+            Write-Progress "Creating Teams" "$uri" -PercentComplete ($c * 100/ $t) -Id $id
             $uri += '?' # The URI has a query string containing:
             $uri += @(
                 if ($Server -ne 'https://dev.azure.com/' -and
@@ -102,5 +102,6 @@
                 Server = $Server
             }
         }
+        Write-Progress "Creating Teams" " " -Completed -Id $id 
     }
 }
