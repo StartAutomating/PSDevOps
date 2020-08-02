@@ -364,6 +364,19 @@ describe 'Calling REST APIs' {
                 Select-Object -First 1 -ExpandProperty Name |
                 Should -Be Status
         }
+
+        it 'Can add dashboards' {
+            $whatIf =
+                New-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
+            $whatIf.Method | Should -Be POST
+            $whatIf.Body.name | Should -Be TestDashboard
+        }
+
+        it 'Can remove dashboards' {
+            $whatIf = Remove-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -WhatIf -DashboardID ([GUID]::NewGuid())
+            $whatIf.Uri | Should -BeLike '*/dashboard/dashboards*'
+            $whatIf.Method | Should -Be DELETE
+        }
     }
 
     context 'Service Hooks' {
