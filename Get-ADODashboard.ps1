@@ -73,10 +73,10 @@
 
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
-
+            
             $c++
             Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
-
+            
             $uri = # The URI is comprised of:
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -110,6 +110,9 @@
             $additionalProperties = @{Organization=$Organization;Project=$project;Server=$Server}
             if ($Team) {
                 $additionalProperties.Team=$team
+            }
+            if ($DashboardID) {
+                $additionalProperties.DashboardID = $DashboardID
             }
             if (-not $DashboardID) {
                 $invokeParams.ExpandProperty = 'DashboardEntries'
