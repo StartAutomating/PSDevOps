@@ -178,7 +178,7 @@ describe 'Calling REST APIs' {
         }
         it 'Can create projects' {
             $whatIfResult =
-                New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process b8a3a935-7e91-48b8-a94c-606d37c3e9f2 -WhatIf
+                New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process Agile -WhatIf -PersonalAccessToken $testPat
             $bodyObject = $whatIfResult.body | ConvertFrom-Json
             $bodyObject.name |
                 Should -Be TestProject
@@ -314,6 +314,18 @@ describe 'Calling REST APIs' {
     context 'Service Endpoints:' {
         it 'Can Get-ADOServiceEndpoint' {
             Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
+        }
+
+        it 'Can create service endpoints' {
+            $whatIf =
+                New-ADOServiceEndpoint -Organization MyOrg -Project MyProject -Name MyGitHubConnection -Url https://github.com -Type GitHub -Authorization @{
+                    scheme = 'PersonalAccessToken'
+                    parameters = @{
+                        accessToken = $MyGitHubPersonalAccessToken
+                    }
+                } -PersonalAccessToken $MyAzureDevOpsPersonalAccessToken -Data @{pipelinesSourceProvider='github'} -WhatIf
+            $whatIf.Body.Name | Should -Be MyGitHubConnection
+            $whatIf.Uri | Should -BeLike *serviceendpoint/endpoints*
         }
     }
 
