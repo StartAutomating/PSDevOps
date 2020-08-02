@@ -6,8 +6,14 @@
         Writes a progress record to the Azure DevOps pipeline.
     .Example
         Write-ADOProgress -Activity "Doing Stuff" -Status "And Things" -PercentComplete 50
+    .Link
+        Write-ADOError
+    .Link
+        Write-ADOWarning
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
+    [OutputType([string])]
     param(
     # This text describes the activity whose progress is being reported.
     [Parameter(Mandatory=$true, Position=0)]

@@ -17,7 +17,9 @@
     [CmdletBinding(DefaultParameterSetName='task.uploadfile')]
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
     param(
+    # The attachment path.
     [Parameter(Mandatory,ParameterSetName='task.uploadfile',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='task.addattachment',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='task.uploadsummary',ValueFromPipelineByPropertyName)]
@@ -80,7 +82,7 @@
             }) -join ';'
 
         $out = "##vso[$($pscmdlet.ParameterSetName)$(if ($properties) {" $properties"})]$rp"
-        if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
+        if ($env:AGENT_ID -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out
         } else {
             $out

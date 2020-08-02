@@ -19,6 +19,7 @@
     [CmdletBinding(PositionalBinding=$false)]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
+    [OutputType([string])]
     param(
     # A new build number (or identifier)
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -45,6 +46,7 @@
     )
 
     process {
+        #region Prepare Output
         $out = @(
             if ($BuildNumber) {
                 "##vso[build.updatebuildnumber]$BuildNumber"
@@ -64,6 +66,7 @@
                 "##vso[task.prependpath]$EnvironmentPath"
             }
         )
+        #endregion Prepare Output
 
         if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
             $out | Out-Host
