@@ -9,8 +9,11 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/update%20build?view=azure-devops-rest-5.1
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/update?view=azure-devops-rest-5.1
+    .Example
+        Update-ADOBuild -Organization MyOrg -Project MyProject -BuildID 1 -Build @{KeepForever=$true}
     #>
     [CmdletBinding(DefaultParameterSetName='build/builds/{buildId}',SupportsShouldProcess)]
+    [OutputType('PSDevOps.Build','PSDevOps.Build.Definition')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -95,6 +98,13 @@
         )
 
 
+        $additionalProperty = @{
+            Organization = $Organization
+            Project = $Project
+            Server = $Server
+        }
+
+        $invokeParams.Property = $additionalProperty
         if ($psCmdlet.ParameterSetName -eq 'build/builds/{buildId}') {
             $invokeParams.Method = 'PATCH'
             $invokeParams.Body = $Build
@@ -103,18 +113,13 @@
             $invokeParams.Body = $Definition
         }
 
-
         if ($WhatIfPreference) {
             $invokeParams.Remove('PersonalAccessToken')
             return $invokeParams
         }
 
         if ($PSCmdlet.ShouldProcess("$($invokeParams.Method) $($invokeParams.Uri)")) {
-            Invoke-ADORestAPI @invokeParams -Property @{
-                Organization = $Organization
-                Project = $Project
-                Server = $Server
-            }
+            Invoke-ADORestAPI @invokeParams
         }
     }
 }
