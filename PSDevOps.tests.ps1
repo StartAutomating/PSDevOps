@@ -307,7 +307,7 @@ describe 'Calling REST APIs' {
         }
     }
 
-    context Dashboards {
+    context Dashboards {z
         it 'Can get dashboards' {
             Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
                 Select-Object -First 1 -ExpandProperty Name |
@@ -341,6 +341,25 @@ describe 'Calling REST APIs' {
             $whatIf.Uri | Should -BeLike '*/feeds*'
             $whatIf.Body.badgesEnabled | Should -Be $false
             $whatIf.Body.UpstreamSources.Count | Should -Be 4
+        }
+
+        it 'Can update artifact feeds' {
+            $whatIf =
+                Set-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -Description 'Project Builds' -WhatIf
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri    | Should -BeLike */*
+            $whatIf.Body.Description | Should -Be 'Project Builds'
+        }
+
+        it 'Can set artifact feed retention policies' {
+            $whatIf =
+                Set-ADOArtifactFeed -RetentionPolicy -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -WhatIf -DaysToKeep 10 -CountLimit 1
+            $whatIf.Method | Should -Be PUT
+            $whatIf.Uri    | Should -BeLike */retentionpolic*
+            $whatIf.Body.daysToKeepRecentlyDownloadedPackages |
+                Should -Be 10
+            $whatIf.Body.Count |
+                Should -Be 1
         }
 
         it 'Can remove artifact feeds' {
