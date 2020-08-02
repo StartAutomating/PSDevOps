@@ -19,6 +19,7 @@ $importedModule |
     Tee-Object -Variable scriptCopIssues |
     Out-Host
 
+$scriptCopIssues = $scriptCopIssues | Sort-Object ItemWithProblem
 foreach ($issue in $scriptCopIssues) {
     Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
 }
