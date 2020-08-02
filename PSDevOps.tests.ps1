@@ -307,6 +307,14 @@ describe 'Calling REST APIs' {
         }
     }
 
+    context Dashboards {
+        it 'Can get dashboards' {
+            Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 -ExpandProperty Name |
+                Should -Be Status
+        }
+    }
+
     context 'Service Hooks' {
         it 'Can Get Publishers of Service Hooks' {
             Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |

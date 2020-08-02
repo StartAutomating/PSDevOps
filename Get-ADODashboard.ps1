@@ -6,7 +6,7 @@
     .Description
         Gets Azure DevOps Team Dashboards and Widgets within a dashboard.
     .Example
-        Get-ADOTeam -Organization MyOrganization -PersonalAccessToken $pat | 
+        Get-ADOTeam -Organization MyOrganization -PersonalAccessToken $pat |
             Get-ADODashboard
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/dashboard/dashboards/list
@@ -38,7 +38,7 @@
     [string]
     $DashboardID,
 
-    # If set, will widgets within a dashboard. 
+    # If set, will widgets within a dashboard.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [Alias('Widgets')]
@@ -81,8 +81,8 @@
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                     $Organization            # the Organization,
-                    $Project 
-                    if ($Team) { $team } 
+                    $Project
+                    if ($Team) { $team }
                     '_apis'                  # the API Root ('_apis'),
                     (. $ReplaceRouteParameter $ParameterSet)
                                              # and any parameterized URLs in this parameter set.
@@ -114,7 +114,7 @@
             if (-not $DashboardID) {
                 $invokeParams.ExpandProperty = 'DashboardEntries'
             }
-            
+
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }
 
