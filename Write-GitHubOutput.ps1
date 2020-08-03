@@ -27,7 +27,7 @@
     [PSObject]
     $InputObject,
 
-    # The Name of the Output.  By default, 'Output'.    
+    # The Name of the Output.  By default, 'Output'.
     [string]
     $Name = 'Output',
 
