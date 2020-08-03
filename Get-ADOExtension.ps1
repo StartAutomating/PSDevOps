@@ -3,7 +3,7 @@
     <#
     .Synopsis
         Gets Azure DevOps Extensions
-    .Descriptions
+    .Description
         Gets Extensions to Azure DevOps.
     .Example
         Get-ADOExtension -Organization StartAutomating
@@ -11,6 +11,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/list?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/extensionmanagement/installedextensions')]
+    [OutputType('PSDevOps.InstalledExtension')]
     param(
     # The organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -74,6 +75,9 @@
             }
             if ($IncludeError) {
                 "includeErrors=true"
+            }
+            if ($AssetType) {
+                "assetTypes=$($AssetType -join ',')"
             }
             if ($Server -ne 'https://extmgmt.dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {

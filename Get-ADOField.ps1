@@ -11,8 +11,11 @@
         Remove-ADOField
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
+    .Example
+        Get-ADOField -Organization StartAutomating -Project PSDevOps
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
+    [OutputType('PSDevOps.Field')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

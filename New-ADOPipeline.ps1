@@ -9,10 +9,15 @@
         New-ADOPipeline -Trigger SourceChanged -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery
     .Example
         New-ADOPipeline -Trigger SourceChanged -Stage PowerShellStaticAnalysis,TestPowerShellCrossPlatForm, UpdatePowerShellGallery -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'}}}
+    .Link
+        Convert-BuildStep
+    .Link
+        Import-BuildStep
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Does not change state")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for null (0 is ok)")]
+    [OutputType([string],[PSObject])]
     param(
     # The InputObject
     [Parameter(ValueFromPipeline)]
@@ -55,10 +60,15 @@
     # A collection of default parameters.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
-    $DefaultParameter = @{}
+    $DefaultParameter = @{},
+
+    # If set, will output the created objects instead of creating YAML.
+    [switch]
+    $PassThru
     )
 
     dynamicParam {
+        # Create dynamic parameters for every type we can build for ADO
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
         $ThingNames = $script:ComponentNames.'ADO'
         if ($ThingNames) {
@@ -82,6 +92,7 @@
     }
 
     process {
+        #region Map Parameters
         $myParams = [Ordered]@{} + $PSBoundParameters
         $stepsByType = [Ordered]@{}
         $ThingNames = $script:ComponentNames.'ADO'
@@ -102,7 +113,9 @@
                 }
             }
         }
+        #endregion Map Parameters
 
+        #region Expand Map
         $expandSplat = @{} + $PSBoundParameters
         foreach ($k in @($expandSplat.Keys)) {
             if (-not $expandBuildStepCmd.Parameters[$k]) {
@@ -114,8 +127,12 @@
         if ($yamlToBe.parameters) {
             $yamlToBe.parameters = @($yamlToBe.parameters)
         }
+        #endregion Expand Map
 
-
-        @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
+        if ($PassThru) {
+            $yamlToBe
+        } else {
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
+        }
     }
 }

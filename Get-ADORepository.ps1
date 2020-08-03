@@ -21,6 +21,10 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/source%20providers/list%20repositories?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories')]
+    [OutputType('PSDevOps.Repository',
+        'PSDevOps.Repository.SourceProvider',
+        'PSDevOps.Repository.File',
+        'PSDevOps.Repoistory.Recycled')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -92,7 +96,7 @@
     [Parameter(ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]
     [Alias('PathScope')]
     [string]
-    $scopePath,
+    $ScopePath,
 
     # The version string identifier (name of tag/branch, SHA1 of commit)
     [Parameter(ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]

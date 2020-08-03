@@ -81,10 +81,12 @@
             '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$'
 
 
-
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName", "PSDevOps.$typeName" -Property @{
+        $additionalProperty = @{
             Organization = $Organization
             Server = $Server
         }
+        if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
+        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
+            "PSDevOps.$typeName" -Property $additionalProperty
     }
 }

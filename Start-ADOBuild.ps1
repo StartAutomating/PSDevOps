@@ -5,9 +5,16 @@
         Starts an Azure DevOps Build
     .Description
         Starts a build in Azure DevOps, using an existing BuildID,
-
+    .Link
+        Get-ADOBuild
+    .Link
+        Stop-ADOBuild
+    .Example
+        Get-ADOBuild -Definition -Organization StartAutomating -Project PSDevOps |
+            Start-ADOBuild -WhatIf
     #>
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType('PSDevOps.Build',[Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

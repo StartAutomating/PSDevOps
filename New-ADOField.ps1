@@ -193,14 +193,28 @@
             if ($ApiVersion) {
                 $picklistCreateUri += "api-version=$ApiVersion"
             }
-
-            $createdPickList = Invoke-ADORestAPI @invokeParams -Uri $picklistCreateUri -Method POST -Body $pickListCreate
-            $postContent.picklistId = $createdPickList.id
-            $postContent.isPicklistSuggest = $AllowCustomValue -as [bool]
+            if ($WhatIfPreference) {
+                $whatIfOut = @{} + $invokeParams + @{
+                    Uri = $picklistCreateUri
+                    Method = 'POST'
+                    Body = $pickListCreate
+                }
+                $whatIfOut
+            } elseif ($PSCmdlet.ShouldProcess("Create Picklist with $ValidValue")) {
+                $createdPickList =
+                    Invoke-ADORestAPI @invokeParams -Uri $picklistCreateUri -Method POST -Body $pickListCreate
+                $postContent.picklistId = $createdPickList.id
+                $postContent.isPicklistSuggest = $AllowCustomValue -as [bool]
+            }
         }
         $invokeParams.Uri = $uri
-        $invokeParams.Body = ConvertTo-Json $postContent -Depth 100
+        $invokeParams.Body = $postContent
         $invokeParams.Method = 'POST'
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccesstoken')
+            $invokeParams
+            return
+        }
         if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
 
         Invoke-ADORestAPI @invokeParams -PSTypeName @(

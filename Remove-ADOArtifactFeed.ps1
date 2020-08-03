@@ -7,6 +7,9 @@
         Removes artifact feeds from Azure DevOps.  Artifact feeds are used to publish packages.
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/create%20feed?view=azure-devops-rest-5.1
+    .Example
+        Get-ADOArtifactFeed -Organization MyOrg -Project MyProject -FeedId MyFeed |
+            Remove-ADOArtifactFeed
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
         "PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls"
@@ -16,6 +19,7 @@
         ConfirmImpact='High',
         DefaultParameterSetName='packaging/feeds/{feedId}'
     )]
+    [OutputType([Nullable],[Collections.IDictionary])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -47,6 +51,7 @@
     [string]
     $ViewID,
 
+    # If set, will remove a view.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views/{viewId}')]
     [switch]
     $View,

@@ -189,9 +189,17 @@
                                 $convertedBuildStep.parameters) {
 
 
-                                if ($root.parameters -and $convertedBuildStep.parameters -is [Collections.IDictionary]) {
-                                    foreach ($keyValue in $convertedBuildStep.parameters.GetEnumerator()) {
-                                        $root.Parameters[$keyValue.Key] = $keyValue.Value
+                                if ($root.parameters) {
+                                    :nextKeyValue foreach ($keyValue in $convertedBuildStep.parameters) {
+                                        foreach ($item in $root.Parameters) {
+                                            if ($item.Name -eq $keyValue.Name) {
+                                                if ($item.default -ne $keyValue.default) {
+                                                    $item.default = ''
+                                                }
+                                                continue nextKeyValue
+                                            }
+                                        }
+                                        $root.Parameters += $keyValue
                                     }
                                 } else {
                                     $root.parameters = $convertedBuildStep.parameters

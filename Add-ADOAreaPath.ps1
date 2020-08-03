@@ -65,6 +65,8 @@
             $qi = $q.Dequeue() # Dequeue each item.
             $getAreaPathParams = @{} + $qi # Prepare input for Get-ADOAreaPath
             $getAreaPathParams.Remove('AreaPath')
+            $getAreaPathParams.Remove('WhatIf')
+            $getAreaPathParams.Remove('Confirm')
             foreach ($kv in $qi.GetEnumerator()) { # Repopulate the input parameters.
                 $ExecutionContext.SessionState.PSVariable.Set($kv.Key, $kv.Value)
             }

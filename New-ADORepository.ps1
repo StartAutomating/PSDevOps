@@ -5,6 +5,12 @@
         Creates repositories in Azure DevOps
     .Description
         Creates a new repository in Azure DevOps.
+    .Example
+        New-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryName NewRepo -WhatIf
+    .Link
+        Get-ADORepository
+    .Link
+        Remove-ADORepository
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories',SupportsShouldProcess)]
     [OutputType('PSDevOps.Repository', [Hashtable])]

@@ -5,6 +5,10 @@
         Removes an Azure DevOps Repository
     .Description
         Removes repositories from Azure DevOps.
+    .Link
+        Get-ADORepository
+    .Example
+        Remove-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryID PSDevOps -WhatIf
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories/{RepositoryId}',SupportsShouldProcess,ConfirmImpact='High')]
     [OutputType([Nullable],[Hashtable])]

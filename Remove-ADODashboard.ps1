@@ -1,18 +1,19 @@
-﻿function Get-ADODashboard
-{
+﻿function Remove-ADODashboard {
     <#
     .Synopsis
-        Gets Azure DevOps Dashboards
+        Removes Dashboards and Widgets
     .Description
-        Gets Azure DevOps Team Dashboards and Widgets within a dashboard.
+        Removes Dashboards from Azure DevOps, or Removes Widgets from a Dashboard in Azure Devops.
     .Example
-        Get-ADOTeam -Organization MyOrganization -PersonalAccessToken $pat |
-            Get-ADODashboard
+        Get-ADODashboard -Organization MyOrg -Project MyProject -Team MyTeam | Remove-ADODashboard
+    .Example
+        Get-ADODashboard -Organization MyOrg -Project MyProject -Team MyTeam -Widget | Remove-ADODashboard
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/dashboard/dashboards/list
+        Get-ADODashboard
     #>
-    [CmdletBinding(DefaultParameterSetName='dashboard/dashboards')]
-    [OutputType('PSDevOps.Dashboard','PSDevOps.Widget')]
+    [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
+    [OutputType([Nullable],[Hashtable])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired")]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -30,20 +31,19 @@
     [string]
     $Team,
 
-    # The DashboardID
+    # The DashboardID.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='dashboard/dashboards/{DashboardId}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
     [string]
     $DashboardID,
 
-    # If set, will widgets within a dashboard.
+    # The WidgetID.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
-    [Alias('Widgets')]
-    [switch]
-    $Widget,
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+    [string]
+    $WidgetID,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -55,7 +55,9 @@
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1-preview")
+    $ApiVersion = "5.1-preview"
+    )
+
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
     begin {
         #region Copy Invoke-ADORestAPI parameters
@@ -75,7 +77,7 @@
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
             $c++
-            Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
+            Write-Progress "Removing $(@($ParameterSet -split '/')[-1])" "$Organization $Project $Team" -Id $id -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -99,29 +101,25 @@
                 }
             ) -join '&'
 
-            # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
-            $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
-            $typeNames = @(
-                "$organization.$typename"
-                if ($Project) { "$organization.$Project.$typename" }
-                "PSDevOps.$typename"
-            )
-
-            $additionalProperties = @{Organization=$Organization;Project=$project;Server=$Server}
-            if ($Team) {
-                $additionalProperties.Team=$team
-            }
-            if ($DashboardID) {
-                $additionalProperties.DashboardID = $DashboardID
-            }
-            if (-not $DashboardID) {
-                $invokeParams.ExpandProperty = 'DashboardEntries'
+            $invokeParams.Uri = $uri
+            $invokeParams.Method  = 'DELETE'
+            if ($WidgetID) { # If we're passing a widget to delete, the API will return the dashboard.
+                $additionalProperty = @{Organization=$Organization;Project=$Project}
+                if ($Team) { $additionalProperty += @{Team=$team} }
+                $invokeParams.PSTypeName = "$Organization.Dashboard", "$Organization.$project.Dashboard", 'PSDevOps.Dashboard'
+                $invokeParams.Property = $additionalProperty
             }
 
-            Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
+            if ($WhatIfPreference) {
+                $invokeParams.Remove('PersonalAccessToken')
+                $invokeParams
+                continue
+            }
+            if (-not $psCmdlet.ShouldProcess("DELETE $($invokeParams.uri)")) {continue }
+            Invoke-ADORestAPI @invokeParams
         }
 
-        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $id -Completed
+        Write-Progress "Removing $(@($ParameterSet -split '/')[-1])" "$Organization $Project $Team" -Id $id -Completed
     }
 }
 

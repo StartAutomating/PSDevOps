@@ -298,18 +298,20 @@
                             }
 
                             if (-not $isMandatory) { # If the parameter was not mandatory
-                                $thisParameter.default = '' # default to blank
+                                $thisParameter.default = if ($paramType -eq [switch]) { $false} else {''} # default to blank
                                 if ($thisParameter.Contains('values')) { # if it had valid values
                                     $thisParameter.values = @('') + $thisParameter.values # default those values to blank.
                                 }
                             }
 
-                            if ($null -ne $defaultValue) { # If we have a default,
+                            if (-not [String]::IsNullOrEmpty($defaultValue)) { # If we have a default,
                                 $thisParameter.default = $defaultValue # set it on the object
                             }
 
                             $definedParameters += $thisParameter # keep track of which parameters we define
-                            "`$Parameters.$ParameterName = '`$($stepParamName)'" # and output the text to bind to this parameter.
+                            "`$Parameters.$ParameterName = @'
+`${{parameters.$stepParamName}}
+'@"                         # and output the text to bind to this parameter.
                         }
                     }
 
@@ -323,14 +325,14 @@
                         }
                         if ($eventName) {
                             foreach ($evt in $eventName) {
-                                
-                                
+
+
                                 if ($evt -match '\.(?:\*)?$') {
                                     $evt = ($evt -replace '\.(?:\*)?$') + '.' + $stepParamName
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike '*.*') {
                                     $evt = 'github.events.inputs' + '.' + $stepParamName
-                                } 
+                                }
                                 if ($evt -notlike '${{*' -and $evt -notlike 'github.*') {
                                     $evt = "github." + '.' + $stepParamName
                                 }
@@ -371,6 +373,9 @@
                         # it can be split by semicolons.
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
                     }
+                    if ([switch], [bool] -contains $paramType) {
+                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -match 'true';"
+                    }
                     # If the parameter type was a scriptblock
                     if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
                         "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
@@ -396,12 +401,14 @@ foreach ($k in @($parameters.Keys)) {
                 $sb = [ScriptBlock]::Create(@"
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
+`$Parameters | Out-Host
 $Name `@Parameters
 "@)
                 $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
+`$Parameters | Out-Host
 & {$ScriptBlock} `@Parameters
 "@)
                 $innerScript = $sb
@@ -418,10 +425,10 @@ $CollectParameters
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters
-                if (-not $out.variables) { $out.variables = @{} }
+                <#if (-not $out.variables) { $out.variables = @{} }
                 foreach ($dp in $definedParameters) {
                     $out.variables[$dp.Name] = "`${{parameters.$($dp.Name)}}"
-                }
+                }#>
             }
             if ($UseSystemAccessToken) {
                 if (-not $out.env) { $out.env = @{}}

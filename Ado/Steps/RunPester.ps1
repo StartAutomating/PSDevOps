@@ -26,21 +26,6 @@ $result =
 
 $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
 
-if ($psDevOpsImported) {
-    foreach ($pesterTestResult in $pesterResults.TestResult) {
-        if ($pesterTestResult.Result -eq 'Failed') {
-            $foundLineNumber = [Regex]::Match($pesterTestResult.StackTrace, ':\s{0,}(?<Line>\d+)\s{0,}\w{1,}\s{0,}(?<File>.+)$', 'Multiline')
-            $errSplat = @{
-                Message = $pesterTestResult.ErrorRecord.Exception.Message
-                Line = $foundLineNumber.Groups["Line"].Value
-                SourcePath = $foundLineNumber.Groups["File"].Value
-            }
-
-            Write-ADOError @errSplat
-        }    
-    }    
-} else {
-    if ($result.FailedCount -gt 0) {
-        throw "$($result.FailedCount) tests failed."
-    }
+if ($result.FailedCount -gt 0) {
+    throw "$($result.FailedCount) tests failed."
 }

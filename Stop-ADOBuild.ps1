@@ -5,6 +5,10 @@
         Stops an Azure DevOps Build
     .Description
         Cancels a running Azure DevOps Build.
+    .Link
+        Start-ADOBuild
+    .Link
+        Get-ADOBuild
     .Example
         Get-ADOBuild -Organization StartAutomating -Project PSDevOps -BuildResult None |
             Stop-ADOBuild
@@ -12,6 +16,7 @@
         Stop-ADOBuild -Organization StartAutomating -Project PSDevOps -BuildID 180
     #>
     [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='build/builds/{buildId}')]
+    [OutputType('PSDevOps.Build',[Hashtable])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

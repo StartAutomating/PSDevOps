@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -169,13 +169,89 @@ describe 'Calling REST APIs' {
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
-}
 
-describe 'Builds' {
-    context 'Get-ADOBuild' {
+    context Projects {
+        it 'Can get projects' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps |
+                Select-Object -ExpandProperty Name |
+                    Should -Be PSDevOps
+        }
+        it 'Can create projects' {
+            $whatIfResult =
+                New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process Agile -WhatIf -PersonalAccessToken $testPat
+            $bodyObject = $whatIfResult.body | ConvertFrom-Json
+            $bodyObject.name |
+                Should -Be TestProject
+            $bodyObject.description |
+                Should -Be "A Test Project"
+        }
+
+        it 'Can set project properties' {
+            Get-ADOProject -Org StartAutomating -Project PSDevOps |
+                Set-ADOProject -WhatIf -Metadata @{Key='value'} |
+                ForEach-Object {
+                    $in = $_
+                    $in.Body.Path | Should -Be /Key
+                    $in.Body.Value | should -Be value
+                }
+        }
+
+        it 'Can remove projects' {
+            $whatIf = Get-ADOProject -Organization StartAutomating -Project PSDevOps |
+                Remove-ADOProject -WhatIf
+            $whatIf.Uri | Should -BeLike '*StartAutomating/_apis/projects/*'
+            $whatIf.Method | Should -Be DELETE
+        }
+    }
+
+    context Teams {
+        it 'Can get teams' {
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                should -Be 'PSDevOps Team'
+        }
+
+        it 'Can create teams' {
+            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
+            $whatIf.body.name | Should -Be MyTeam
+        }
+
+        it 'Can remove teams' {
+            $whatIf = Remove-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID MyTeam -WhatIf
+            $whatIf.uri    | Should -BeLike '*/MyTeam*'
+            $whatIf.Method | Should -Be DELETE
+        }
+    }
+
+    context Repositories {
+        it 'Can get repositories' {
+            Get-ADORepository -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                    Should -Be PSDevOps
+        }
+        it 'Can create repositories' {
+            $whatIf =
+                New-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryName NewRepo -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method |
+                Should -Be POST
+            $whatIf.body.name |
+                Should -Be NewRepo
+            $whatIf.Uri |
+                Should -BeLike '*/git/repositories*'
+        }
+
+        it 'Can Remove Repositories' {
+            $whatIf =
+                Remove-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryID PSDevOps -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/git/repositories/*'
+        }
+    }
+
+    context 'Builds' {
         it 'Can get builds' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
-            $mostRecentBuild.definition.name | should belike *PSDevOps*
+            $mostRecentBuild.definition.name | should -BeLike *PSDevOps*
         }
         it 'Can get -Detail on a particular build' {
             $mostRecentBuild = Get-ADOBuild  -Organization StartAutomating -Project PSDevOps -First 1
@@ -196,31 +272,38 @@ describe 'Builds' {
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $latestBuild.Definition.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $latestBuild.Definition.ID
 
             $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
             $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
 
             $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name
-            $startWhatIf.Method | should be POST
-            $startWhatIf.Body.Definition.ID | should be $buildDefinitons.ID
+            $startWhatIf.Method | should -Be POST
+            $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
         }
 
         it 'Can stop a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $stopWhatIf = $latestBuild | Stop-ADOBuild -WhatIf
-            $stopWhatIf.Method | should be PATCH
-            $stopWhatIf.Body.Status | should be cancelling
+            $stopWhatIf.Method | should -Be PATCH
+            $stopWhatIf.Body.Status | should -Be cancelling
         }
 
         it 'Could remove a build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $whatIf = $latestBuild | Remove-ADOBuild -WhatIf
-            $whatIf.Method | should be DELETE
-            $whatIf.Uri | should belike "*$($latestBuild.BuildID)*"
+            $whatIf.Method | should -Be DELETE
+            $whatIf.Uri | should -BeLike "*$($latestBuild.BuildID)*"
+        }
+
+        it 'Could update a build' {
+            $whatIf = Update-ADOBuild -Organization MyOrg -Project MyProject -BuildID 1 -Build @{KeepForever=$true} -WhatIf
+            $whatIf.Uri | should -BeLike '*/builds/*'
+            $whatIf.Method | should -Be PATCH
+            $whatIf.Body.KeepForever | should -Be $true
         }
     }
 
@@ -239,11 +322,30 @@ describe 'Builds' {
         it 'Can Get-ADOServiceEndpoint' {
             Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
+
+        it 'Can create service endpoints' {
+            $whatIf =
+                New-ADOServiceEndpoint -Organization MyOrg -Project MyProject -Name MyGitHubConnection -Url https://github.com -Type GitHub -Authorization @{
+                    scheme = 'PersonalAccessToken'
+                    parameters = @{
+                        accessToken = $MyGitHubPersonalAccessToken
+                    }
+                } -PersonalAccessToken $MyAzureDevOpsPersonalAccessToken -Data @{pipelinesSourceProvider='github'} -WhatIf
+            $whatIf.Body.Name | Should -Be MyGitHubConnection
+            $whatIf.Uri | Should -BeLike *serviceendpoint/endpoints*
+        }
+
+        it 'Can remove service endpoints' {
+            $whatIf =
+                Remove-ADOServiceEndpoint -Organization MyOrg -Project MyProject -EndpointID MyGitHubConnection -WhatIf
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/serviceendpoint/endpoints/*'
+        }
     }
 
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
-            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat |
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -IncludeDisabled -InstallationIssue -IncludeError |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should be Microsoft
         }
@@ -255,11 +357,122 @@ describe 'Builds' {
                 should -Be 'PSDevOps.Task'
         }
     }
+
+    context Dashboards {
+        it 'Can get dashboards' {
+            Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 -ExpandProperty Name |
+                Should -Be Status
+        }
+
+        it 'Can add dashboards' {
+            $whatIf =
+                New-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
+            $whatIf.Method | Should -Be POST
+            $whatIf.Body.name | Should -Be TestDashboard
+        }
+
+        it 'Can remove dashboards' {
+            $whatIf = Remove-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -WhatIf -DashboardID ([GUID]::NewGuid())
+            $whatIf.Uri | Should -BeLike '*/dashboard/dashboards*'
+            $whatIf.Method | Should -Be DELETE
+        }
+    }
+
+    context 'Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be Audit
+        }
+        it 'Can Get Consumers of Service Hooks' {
+            Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
+                Select-Object -First 1 -ExpandProperty ID |
+                Should -be appVeyor
+        }
+    }
+
+    context 'Artifact Feeds' {
+        it 'Can get artifact feeds' {
+            Get-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Select-Object -First 1 -ExpandProperty Name |
+                Should -Be Builds
+        }
+
+        it 'Can create artifact feeds' {
+            $whatIf =
+                New-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -Name FeedTest -PublicUpstream Maven, NPM, NuGet, PyPi -Description "a test feed" -WhatIf -NoBadge
+            $whatIf.Uri | Should -BeLike '*/feeds*'
+            $whatIf.Body.badgesEnabled | Should -Be $false
+            $whatIf.Body.UpstreamSources.Count | Should -Be 4
+        }
+
+        it 'Can update artifact feeds' {
+            $whatIf =
+                Set-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -Description 'Project Builds' -PublicUpstream Maven, NPM, NuGet, PyPi -WhatIf
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri    | Should -BeLike */*
+            $whatIf.Body.Description | Should -Be 'Project Builds'
+        }
+
+        it 'Can set artifact feed retention policies' {
+            $whatIf =
+                Set-ADOArtifactFeed -RetentionPolicy -Organization StartAutomating -Project PSDevOps -FeedId 'Builds' -WhatIf -DaysToKeep 10 -CountLimit 1
+            $whatIf.Method | Should -Be PUT
+            $whatIf.Uri    | Should -BeLike */retentionpolic*
+            $whatIf.Body.daysToKeepRecentlyDownloadedPackages |
+                Should -Be 10
+            $whatIf.Body.countLimit |
+                Should -Be 1
+        }
+
+        it 'Can remove artifact feeds' {
+            $whatIf = Get-ADOArtifactFeed -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Remove-ADOArtifactFeed -WhatIf
+
+            $whatIf.Method | Select-Object -Unique | Should -Be DELETE
+            $whatIf.Uri | Select-Object -Unique | Should -BeLike '*/feeds/*'
+        }
+    }
+
+    context WorkProcesses {
+        it 'Can get work procceses related to a project' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Get-ADOWorkProcess |
+                    Select-Object -ExpandProperty Name |
+                        should -Be 'StartAutomating Basic'
+        }
+
+        it 'Can get work item types related to a process' {
+            Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                Get-ADOWorkProcess |
+                    Get-ADOWorkItemType |
+                        Select-Object -First 1 -ExpandProperty Name |
+                            should -Be issue
+        }
+
+        it 'Can create new work item types' {
+            $whatIfResult =
+                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Get-ADOWorkProcess |
+                        New-ADOWorkItemType -Icon icon_flame -Color 'ddee00' -WhatIf
+
+            $whatIfResult.body.icon |
+                should -Be icon_flame
+        }
+
+        it 'Can remove custom work item types' {
+            $whatIfResult =
+                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+                    Get-ADOWorkProcess |
+                        Remove-ADOWorkItemType -WorkItemTypeName Issue -WhatIf
+
+            $whatIfResult.method | should -Be DELETE
+            $whatIfResult.uri | should -BeLike *.Issue*
+        }
+    }
 }
-
 describe 'Working with Work Items' {
-
-
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
         Select-Object -ExpandProperty 'System.WorkItemType' |
@@ -279,46 +492,6 @@ describe 'Working with Work Items' {
         return
     }
     if ($PersonalAccessToken -or $env:SYSTEM_ACCESSTOKEN) {
-        $testPat = if ($PersonalAccessToken) { $PersonalAccessToken } else { $env:SYSTEM_ACCESSTOKEN }
-
-        context WorkProcesses {
-            it 'Can get work procceses related to a project' {
-                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Get-ADOWorkProcess |
-                        Select-Object -ExpandProperty Name |
-                            should -Be 'StartAutomating Basic'
-            }
-
-            it 'Can get work item types related to a process' {
-                Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                    Get-ADOWorkProcess |
-                        Get-ADOWorkItemType |
-                            Select-Object -First 1 -ExpandProperty Name |
-                                should -Be issue
-            }
-
-            it 'Can create new work item types' {
-                $whatIfResult =
-                    Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                        Get-ADOWorkProcess |
-                            New-ADOWorkItemType -Icon icon_flame -Color 'ddee00' -WhatIf
-
-                $whatIfResult.body.icon |
-                    should -Be icon_flame
-            }
-
-            it 'Can remove custom work item types' {
-                $whatIfResult =
-                    Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
-                        Get-ADOWorkProcess |
-                            Remove-ADOWorkItemType -WorkItemTypeName Issue -WhatIf
-
-                $whatIfResult.method | should -Be DELETE
-                $whatIfResult.uri | should -BeLike *.Issue*
-            }
-        }
-
-
         context 'Querying Work Items' {
 
             it 'Can query work items' {
@@ -362,10 +535,58 @@ describe 'Working with Work Items' {
                 should -Be "\$testproject\Area"
         }
 
+        it 'Can add area paths' {
+            $whatIf =
+                Add-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -AreaPath NewArea
+            $whatIf.body.name |
+                Should -Be NewArea
+            $whatIf.Uri |
+                Should -BeLike */classificationNodes/Areas*
+        }
+
+        it 'Can remove area paths' {
+            $whatIf =
+                Remove-ADOAreaPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -AreaPath NewArea
+
+            $whatIf.Method  |Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/classificationNodes/Areas/NewArea*'
+        }
+
         it 'Can get iteration paths' {
             Get-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Path |
                 should -Be "\$testProject\Iteration"
+        }
+
+
+        it 'Can add iteration paths' {
+            $whatIf =
+                Add-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -IterationPath NewIteration -StartDate ([DateTime]::Now.Date) -EndDate ([DateTime]::Now.Date.AddDays(7))
+            $whatIf.body.name |
+                Should -Be NewIteration
+            $whatIf.Uri |
+                Should -BeLike */classificationNodes/Iterations*
+            ($whatIf.body.attributes.startDate -as [DateTime]).Date |
+                Should -Be ([DateTime]::Now).Date
+        }
+
+        it 'Can remove iteration paths' {
+            $whatIf =
+                Remove-ADOIterationPath -Organization $TestOrg -Project $TestProject -PersonalAccessToken $testPat -WhatIf -IterationPath NewIteration
+
+            $whatIf.Method  |Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/classificationNodes/iterations/NewIteration*'
+        }
+
+        it 'Can add fields and populate a list at the same time' {
+            $whatIfList, $whatIfField =
+                New-ADOField -Name Verb -ReferenceName Cmdlet.Verb -Description "The PowerShell Verb" -ValidValue (
+                    Get-Verb | Select-Object -ExpandProperty Verb | Sort-Object
+                ) -Organization MyOrganization -WhatIf
+            $whatIfList.Uri | Should -BeLike '*/lists*'
+            $whatIfList.Body.type | Should -Be String
+            $whatIfField.Uri | Should -BeLike '*/fields*'
+            $whatIfField.Body.referenceName| Should -Be 'Cmdlet.Verb'
         }
     }
 
@@ -434,7 +655,7 @@ describe 'GitHub Worfklow tools' {
             should -Be '::warning file=file.cs,line=1::Warning!'
         }
 
-        
+
 
         it 'Can Write GitHub output' {
             Write-GitHubOutput -InputObject @{key='value'} -Debug |
@@ -446,9 +667,9 @@ describe 'GitHub Worfklow tools' {
                 Write-GitHubOutput -Debug |
                 should -BeLike '::debug::verbose'
         }
-        
+
         it 'Will call Write-GitHubError when provided an error' {
-            
+
             & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
                 Write-GitHubOutput -Debug |
                 should -BeLike '*::problem'
@@ -467,9 +688,9 @@ describe 'GitHub Worfklow tools' {
 
 
         it 'Can mask output' {
-            Hide-GitHubOutput -Message "secret" -Debug | 
+            Hide-GitHubOutput -Message "secret" -Debug |
                 should -Be "::add-mask::secret"
         }
-        
+
     }
 }

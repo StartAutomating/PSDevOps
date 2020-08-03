@@ -11,6 +11,7 @@
         New-ADOProject -Organization StartAutomating -Project Formulaic -PersonalAccessToken $pat
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
+    [OutputType('PSDevOps.Project')]
     param(
     # The name of the project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -112,10 +113,19 @@
         } | ConvertTo-Json
 
 
-        if (-not $PSCmdlet.ShouldProcess("POST $uri $body")) { return }
-        Invoke-ADORestAPI @invokeParams -uri $uri -Method POST -Body $body -Property @{
+        $invokeParams.Method   = 'POST'
+        $invokeParams.Body     = $body
+        $invokeParams.uri      = $uri
+        $invokeParams.Property = @{
             Organization =$Organization
             Server = $Server
         }
+        $invokeParams.PSTypeName = "$organization.Project", 'PSDevOps.Project'
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccessToken')
+            return $invokeParams
+        }
+        if (-not $PSCmdlet.ShouldProcess("POST $uri $body")) { return }
+        Invoke-ADORestAPI @invokeParams
     }
 }

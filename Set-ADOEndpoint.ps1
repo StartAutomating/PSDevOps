@@ -15,6 +15,8 @@
     [CmdletBinding(DefaultParameterSetName='Url')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
+    [OutputType([string])]
     param(
     # The identifier.
     [Parameter(Mandatory,ParameterSetName='Url',ValueFromPipelineByPropertyName)]
@@ -50,7 +52,7 @@
     )
 
     process {
-
+        #region Prepare Output
         if ($PSCmdlet.ParameterSetName -eq 'Url') {
             $out = "##vso[task.setendpoint id=$ID;field=url]$Url"
         }
@@ -63,6 +65,7 @@
         if ($PSCmdlet.ParameterSetName -eq 'DataParameter') {
             $out = "##vso[task.setendpoint id=$ID;field=dataParameter;key=$Name]$Value"
         }
+        #endregion Prepare Output
 
         if ($env:Agent_ID -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out

@@ -11,9 +11,12 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/create%20feed?view=azure-devops-rest-5.1
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/create%20feed%20view?view=azure-devops-rest-5.1#feedvisibility
+    .Example
+        New-ADOArtifactFeed -Organization MyOrg -Project MyProject -Name Builds -Description "Builds of MyProject"
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     [CmdletBinding(SupportsShouldProcess=$true, DefaultParameterSetName='packaging/feeds')]
+    [OutputType('PSDevOps.ArtifactFeed','PSDevOps.ArtifactFeed.View')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -73,6 +76,7 @@
     [switch]
     $IsReadOnly,
 
+    # The feed id.  This can be supplied to create a veiw for a particular feed.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views')]
     [Alias('FullyQualifiedID')]
@@ -95,6 +99,7 @@
     [switch]
     $View,
 
+    # The visibility of the view.  By default, the view will be visible to the entire organization.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/views')]
     [ValidateSet('Collection', 'Organization', 'Private')]
     [string]

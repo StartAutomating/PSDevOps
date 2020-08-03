@@ -1,6 +1,11 @@
-﻿Import-Module PSScriptAnalyzer, PSDevOps
-$invokeScriptAnalyzerSplat = @{Path='.\'}
-if ($ENV:PSScriptAnalyzer_Recurse) {
+﻿param(
+    [string]$ModulePath,
+    [switch]$Recurse
+)
+Import-Module PSScriptAnalyzer, PSDevOps
+if (-not $ModulePath) { $ModulePath = '.\'} 
+$invokeScriptAnalyzerSplat = @{Path=$ModulePath}
+if ($ENV:PSScriptAnalyzer_Recurse -or $Recurse) {
     $invokeScriptAnalyzerSplat.Recurse = $true
 }
 $result = Invoke-ScriptAnalyzer @invokeScriptAnalyzerSplat

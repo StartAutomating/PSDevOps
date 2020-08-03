@@ -15,6 +15,9 @@ parameters:
   - name: ModulePath
     type: string
     default: 
+  - name: Recurse
+    type: boolean
+    default: false
   - name: PesterMaxVersion
     type: string
     default: '4.99.99'
@@ -39,9 +42,28 @@ stages:
               Import-Module PSScriptAnalyzer -Force -PassThru
             displayName: InstallPSScriptAnalyzer
           - powershell: |
+              $Parameters = @{}
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.Recurse = @'
+              ${{parameters.Recurse}}
+              '@
+              $Parameters.Recurse = $parameters.Recurse -match 'true';
+              foreach ($k in @($parameters.Keys)) {
+                  if ([String]::IsNullOrEmpty($parameters[$k])) {
+                      $parameters.Remove($k)
+                  }
+              }
+              $Parameters | Out-Host
+              & {param(
+                  [string]$ModulePath,
+                  [switch]$Recurse
+              )
               Import-Module PSScriptAnalyzer, PSDevOps
-              $invokeScriptAnalyzerSplat = @{Path='.\'}
-              if ($ENV:PSScriptAnalyzer_Recurse) {
+              if (-not $ModulePath) { $ModulePath = '.\'} 
+              $invokeScriptAnalyzerSplat = @{Path=$ModulePath}
+              if ($ENV:PSScriptAnalyzer_Recurse -or $Recurse) {
                   $invokeScriptAnalyzerSplat.Recurse = $true
               }
               $result = Invoke-ScriptAnalyzer @invokeScriptAnalyzerSplat
@@ -53,7 +75,7 @@ stages:
                   elseif ($r.Severity -eq 'Error') {
                       Write-ADOError -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
                   }
-              }
+              }} @Parameters
             displayName: RunPSScriptAnalyzer
       - job: ScriptCop
         displayName: ScriptCop
@@ -72,12 +94,15 @@ stages:
             displayName: InstallScriptCop
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
+              $Parameters | Out-Host
               & {param([string]$ModulePath)
               Import-Module ScriptCop, PSDevOps -PassThru | Out-Host
               
@@ -88,7 +113,8 @@ stages:
               
               if ($ModulePath -like '*PSDevOps*') { 
                   Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
-              } 
+              }
+              "Importing from $ModulePath" | Out-Host 
               $importedModule =Import-Module $ModulePath -Force -PassThru 
               
               $importedModule | Out-Host
@@ -98,6 +124,7 @@ stages:
                   Tee-Object -Variable scriptCopIssues |
                   Out-Host
               
+              $scriptCopIssues = $scriptCopIssues | Sort-Object ItemWithProblem
               foreach ($issue in $scriptCopIssues) {
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
               }
@@ -114,12 +141,15 @@ stages:
         steps: 
           - powershell: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
+              $Parameters | Out-Host
               & {param(
               [string]
               $PesterMaxVersion = '4.99.99'
@@ -130,16 +160,29 @@ stages:
             displayName: InstallPester
           - powershell: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
-              & {param(
+              $Parameters | Out-Host
+              & {<#
+              .Synopsis
+                  Runs Pester
+              .Description
+                  Runs Pester tests after importing a PowerShell module
+              #>
+              param(
+              # The module path.  If not provided, will default to the second half of the repository ID.
               [string]
               $ModulePath,
+              # The Pester max version.  By default, this is pinned to 4.99.99.
               [string]
               $PesterMaxVersion = '4.99.99'
               )
@@ -157,23 +200,8 @@ stages:
               
               $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
               
-              if ($psDevOpsImported) {
-                  foreach ($pesterTestResult in $pesterResults.TestResult) {
-                      if ($pesterTestResult.Result -eq 'Failed') {
-                          $foundLineNumber = [Regex]::Match($pesterTestResult.StackTrace, ':\s{0,}(?<Line>\d+)\s{0,}\w{1,}\s{0,}(?<File>.+)$', 'Multiline')
-                          $errSplat = @{
-                              Message = $pesterTestResult.ErrorRecord.Exception.Message
-                              Line = $foundLineNumber.Groups["Line"].Value
-                              SourcePath = $foundLineNumber.Groups["File"].Value
-                          }
-              
-                          Write-ADOError @errSplat
-                      }    
-                  }    
-              } else {
-                  if ($result.FailedCount -gt 0) {
-                      throw "$($result.FailedCount) tests failed."
-                  }
+              if ($result.FailedCount -gt 0) {
+                  throw "$($result.FailedCount) tests failed."
               }} @Parameters
             displayName: RunPester
             env: 
@@ -203,12 +231,15 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
+              $Parameters | Out-Host
               & {param(
               [string]
               $PesterMaxVersion = '4.99.99'
@@ -219,16 +250,29 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
-              & {param(
+              $Parameters | Out-Host
+              & {<#
+              .Synopsis
+                  Runs Pester
+              .Description
+                  Runs Pester tests after importing a PowerShell module
+              #>
+              param(
+              # The module path.  If not provided, will default to the second half of the repository ID.
               [string]
               $ModulePath,
+              # The Pester max version.  By default, this is pinned to 4.99.99.
               [string]
               $PesterMaxVersion = '4.99.99'
               )
@@ -246,23 +290,8 @@ stages:
               
               $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
               
-              if ($psDevOpsImported) {
-                  foreach ($pesterTestResult in $pesterResults.TestResult) {
-                      if ($pesterTestResult.Result -eq 'Failed') {
-                          $foundLineNumber = [Regex]::Match($pesterTestResult.StackTrace, ':\s{0,}(?<Line>\d+)\s{0,}\w{1,}\s{0,}(?<File>.+)$', 'Multiline')
-                          $errSplat = @{
-                              Message = $pesterTestResult.ErrorRecord.Exception.Message
-                              Line = $foundLineNumber.Groups["Line"].Value
-                              SourcePath = $foundLineNumber.Groups["File"].Value
-                          }
-              
-                          Write-ADOError @errSplat
-                      }    
-                  }    
-              } else {
-                  if ($result.FailedCount -gt 0) {
-                      throw "$($result.FailedCount) tests failed."
-                  }
+              if ($result.FailedCount -gt 0) {
+                  throw "$($result.FailedCount) tests failed."
               }} @Parameters
             displayName: RunPester
             env: 
@@ -289,12 +318,15 @@ stages:
             displayName: Install PowerShell Core
           - pwsh: |
               $Parameters = @{}
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
+              $Parameters | Out-Host
               & {param(
               [string]
               $PesterMaxVersion = '4.99.99'
@@ -305,16 +337,29 @@ stages:
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
-              $Parameters.ModulePath = ${{coalesce(format('"{0}"',parameters.ModulePath), '$null')}};
-              $Parameters.PesterMaxVersion = ${{coalesce(format('"{0}"',parameters.PesterMaxVersion), '$null')}};
+              $Parameters.ModulePath = @'
+              ${{parameters.ModulePath}}
+              '@
+              $Parameters.PesterMaxVersion = @'
+              ${{parameters.PesterMaxVersion}}
+              '@
               foreach ($k in @($parameters.Keys)) {
                   if ([String]::IsNullOrEmpty($parameters[$k])) {
                       $parameters.Remove($k)
                   }
               }
-              & {param(
+              $Parameters | Out-Host
+              & {<#
+              .Synopsis
+                  Runs Pester
+              .Description
+                  Runs Pester tests after importing a PowerShell module
+              #>
+              param(
+              # The module path.  If not provided, will default to the second half of the repository ID.
               [string]
               $ModulePath,
+              # The Pester max version.  By default, this is pinned to 4.99.99.
               [string]
               $PesterMaxVersion = '4.99.99'
               )
@@ -332,23 +377,8 @@ stages:
               
               $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
               
-              if ($psDevOpsImported) {
-                  foreach ($pesterTestResult in $pesterResults.TestResult) {
-                      if ($pesterTestResult.Result -eq 'Failed') {
-                          $foundLineNumber = [Regex]::Match($pesterTestResult.StackTrace, ':\s{0,}(?<Line>\d+)\s{0,}\w{1,}\s{0,}(?<File>.+)$', 'Multiline')
-                          $errSplat = @{
-                              Message = $pesterTestResult.ErrorRecord.Exception.Message
-                              Line = $foundLineNumber.Groups["Line"].Value
-                              SourcePath = $foundLineNumber.Groups["File"].Value
-                          }
-              
-                          Write-ADOError @errSplat
-                      }    
-                  }    
-              } else {
-                  if ($result.FailedCount -gt 0) {
-                      throw "$($result.FailedCount) tests failed."
-                  }
+              if ($result.FailedCount -gt 0) {
+                  throw "$($result.FailedCount) tests failed."
               }} @Parameters
             displayName: RunPester
             env: 
