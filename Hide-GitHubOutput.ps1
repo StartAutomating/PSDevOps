@@ -2,7 +2,7 @@
 {
     <#
     .Synopsis
-        Masks output 
+        Masks output
     .Description
         Prevents a message from being printed in a GitHub Workflow log.
     .Example
@@ -32,6 +32,6 @@
         } else {
             $out
         }
-        #endregion Write or output the GitHub add-mask command.    
+        #endregion Write or output the GitHub add-mask command.
     }
 }
