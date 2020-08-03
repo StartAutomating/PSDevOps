@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4'
+    ModuleVersion = '0.4.1'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,21 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.1
+---
+* More GitHub Functionality:
+** Write-GitHubDebug
+** Write-GitHubOutput
+** Hide-GitHubOutput
+** New-GitHubWorkflow allows for more complex event mapping.
+* Azure DevOps Pipeline Changes
+** Convert-BuildStep once again converts using ${{parameters}} syntax
+* New/Improved Azure DevOps Cmdlets
+** Get/New/Remove-ADODashboard
+** Get-ADOAgentPool now supports -PoolID
+** Set-ADOProject
+** Repositories returned from a build definition are now decorated as PSDevOps.Repository
+* Improved testing and static analysis compliance
 0.4
 ---
 * Overhaul of GitHub Workflow functionality.
