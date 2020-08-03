@@ -4,8 +4,8 @@
     .Synopsis
         Writes GitHub Output
     .Description
-        Writes formal Output to a GitHub step.  
-        
+        Writes formal Output to a GitHub step.
+
         This output can be referenced in subsequent steps.
     .Example
         Write-GitHubOutput @{
@@ -16,6 +16,11 @@
     .Link
         Write-GitHubError
     #>
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
+        Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "",
+        Justification="Directly outputs in certain scenarios")]
     param(
     # The InputObject.  Values will be converted to a JSON array.
     [Parameter(Mandatory,ValueFromPipeline)]
@@ -23,7 +28,6 @@
     $InputObject,
 
     # The Name of the Output.  By default, 'Output'.
-    [Parameter()]
     [string]
     $Name = 'Output',
 
@@ -37,8 +41,8 @@
     }
     process {
         #region Output Dictionaries
-        if ($InputObject -is [Collections.IDictionary]) {                
-            $gitOut = 
+        if ($InputObject -is [Collections.IDictionary]) {
+            $gitOut =
                 foreach ($kv in $InputObject.GetEnumerator()) {
                     "::set-output name=$($kv.Key)::$($kv.Value)"
                 }
@@ -60,25 +64,25 @@
             if ($stackTraceLine) {
                 $stackTraceLineParts = @($stackTraceLine -split ':')
                 $gitHubErrorParams.Line = $stackTraceLineParts[-1] -replace 'line' -replace '\s'
-                
+
                 $file = $stackTraceLineParts[0..($stackTraceLineParts.Count - 2)] -join ':'
                 if ($file -notlike '*<*>*') {
                     $gitHubErrorParams.File = $file
-                } 
+                }
 
             }
-            Write-GitHubError @gitHubErrorParams            
+            Write-GitHubError @gitHubErrorParams
         }
         #endregion Output Errors
         #region Output Warnings
-        elseif ($InputObject -is [Management.Automation.WarningRecord]) 
+        elseif ($InputObject -is [Management.Automation.WarningRecord])
         {
             Write-GitHubWarning -Message $InputObject.Message
         }
         #endregion Output Warnings
         #region Output Debug and Verbose
-        elseif ($InputObject -is [Management.Automation.VerboseRecord] -or 
-            $InputObject -is [Management.Automation.DebugRecord]) 
+        elseif ($InputObject -is [Management.Automation.VerboseRecord] -or
+            $InputObject -is [Management.Automation.DebugRecord])
         {
             Write-GitHubDebug -Message $InputObject.Message
         }
@@ -92,7 +96,7 @@
     }
 
     end {
-        $gitOut = 
+        $gitOut =
             if ($inQ.Count) {
                 "::set-output name=$name::$($inQ.ToArray() | ConvertTo-Json -Compress -Depth $depth)"
                 $inQ.Clear()
