@@ -350,6 +350,20 @@ describe 'Calling REST APIs' {
                 should be Microsoft
         }
 
+        it 'Can Install-ADOExtension' {
+            $whatIf =
+                Install-ADOExtension -Organization StartAutomating -PublisherName YodLabs -ExtensionName yodlabs-githubstats -WhatIf
+            $whatIf.Method | Should -Be POST
+            $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
+        }
+
+        it 'Can Uninstall-ADOExtension' {
+            $whatIf =
+                Uninstall-ADOExtension -Organization StartAutomating -PublisherName YodLabs -ExtensionName yodlabs-githubstats -WhatIf
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
+        }
+
         it 'Get Get-ADOTask' {
             Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty PSTypenames |
