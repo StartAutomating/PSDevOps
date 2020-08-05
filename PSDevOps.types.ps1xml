@@ -227,6 +227,20 @@ return Invoke-RestMethod $this.contentUri
 
                 </Script>
       </ScriptMethod>
+      <ScriptProperty>
+        <Name>PublisherName</Name>
+        <GetScriptBlock>
+                    @($this.contributionId -split '\.')[0]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ExtensionName</Name>
+        <GetScriptBlock>
+                    @($this.contributionId -split '\.')[1]
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
