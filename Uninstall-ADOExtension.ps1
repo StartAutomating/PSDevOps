@@ -3,7 +3,7 @@
     .Synopsis
         Uninstalls Azure DevOps Extensions
     .Description
-        Uninstalls Azure DevOps Extensions from an organization.    
+        Uninstalls Azure DevOps Extensions from an organization.
     .Example
         Uninstall-ADOExtension -PublisherName YodLabs -ExtensionName yodlabs-githubstats -Organization MyOrg
     .Link
@@ -31,7 +31,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
     $ExtensionName,
-    
+
     # An optional reason the extension is being removed.
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
