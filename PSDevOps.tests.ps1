@@ -391,6 +391,18 @@ describe 'Calling REST APIs' {
             $whatIf.Uri | Should -BeLike '*/dashboard/dashboards*'
             $whatIf.Method | Should -Be DELETE
         }
+
+        it 'Can update dashboards' {
+            $whatIf = Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Get-ADODashboard -Widget |
+                Select-Object -First 1 |
+                Update-ADODashboard -Setting @{
+                    Owner = 'StartAutomating'
+                    Project = 'PSDevOps'
+                } -WhatIf
+            $whatIf.Method | Should -Be PUT
+            $whatIf.Body.settings | Should -BeLike '*isValid*:*true*'
+        }
     }
 
     context 'Service Hooks' {
