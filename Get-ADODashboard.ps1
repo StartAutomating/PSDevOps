@@ -35,6 +35,8 @@
         ParameterSetName='dashboard/dashboards/{DashboardId}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetID}')]
     [string]
     $DashboardID,
 
@@ -44,6 +46,12 @@
     [Alias('Widgets')]
     [switch]
     $Widget,
+
+    # The WidgetID.  If provided, will get details about a given Azure DevOps Widget.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetID}')]
+    [string]
+    $WidgetID,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
