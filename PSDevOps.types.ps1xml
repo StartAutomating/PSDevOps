@@ -228,16 +228,16 @@ return Invoke-RestMethod $this.contentUri
                 </Script>
       </ScriptMethod>
       <ScriptProperty>
-        <Name>PublisherName</Name>
+        <Name>ExtensionID</Name>
         <GetScriptBlock>
-                    @($this.contributionId -split '\.')[0]
+                    @($this.contributionId -split '\.')[1]
 
                 </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
-        <Name>ExtensionName</Name>
+        <Name>PublisherID</Name>
         <GetScriptBlock>
-                    @($this.contributionId -split '\.')[1]
+                    @($this.contributionId -split '\.')[0]
 
                 </GetScriptBlock>
       </ScriptProperty>
