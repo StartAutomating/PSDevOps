@@ -5,14 +5,14 @@
     .Description
         Installs Azure DevOps Extensions from the Marketplace
     .Example
-        Install-ADOExtension -PublisherName YodLabs -ExtensionName yodlabs-githubstats -Organization MyOrg
+        Install-ADOExtension -PublisherID YodLabs -ExtensionID yodlabs-githubstats -Organization MyOrg
     .Link
         Get-ADOExtension
     .Link
         Uninstall-ADOExtension
     #>
     [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High',
-        DefaultParameterSetName='_apis/extensionmanagement/installedextensionsbyname/{publisherName}/{extensionName}/{version}')]
+        DefaultParameterSetName='_apis/extensionmanagement/installedextensionsbyname/{publisherID}/{extensionID}/{version}')]
     [OutputType('PSDevOps.Extension')]
     param(
     # The Organization.
@@ -22,15 +22,14 @@
     $Organization,
 
     # The Publisher of an Extension.
-    [Parameter(Mandatory,
-        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
-    $PublisherName,
+    $PublisherID,
 
     # The name of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
-    $ExtensionName,
+    $ExtensionID,
 
     # The version of the extension.
     [Parameter(ValueFromPipelineByPropertyName)]

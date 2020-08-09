@@ -5,14 +5,14 @@
     .Description
         Uninstalls Azure DevOps Extensions from an organization.
     .Example
-        Uninstall-ADOExtension -PublisherName YodLabs -ExtensionName yodlabs-githubstats -Organization MyOrg
+        Uninstall-ADOExtension -PublisherID YodLabs -ExtensionID yodlabs-githubstats -Organization MyOrg
     .Link
         Get-ADOExtension
     .Link
         Install-ADOExtension
     #>
     [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High',
-        DefaultParameterSetName='_apis/extensionmanagement/installedextensionsbyname/{publisherName}/{extensionName}/{version}')]
+        DefaultParameterSetName='_apis/extensionmanagement/installedextensionsbyname/{publisherId}/{extensionId}/{version}')]
     [OutputType('PSDevOps.Extension')]
     param(
     # The Organization.
@@ -22,15 +22,14 @@
     $Organization,
 
     # The Publisher of an Extension.
-    [Parameter(Mandatory,
-        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
-    $PublisherName,
+    $PublisherID,
 
     # The name of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
-    $ExtensionName,
+    $ExtensionID,
 
     # An optional reason the extension is being removed.
     [Parameter(ValueFromPipelineByPropertyName)]
