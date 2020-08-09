@@ -36,7 +36,7 @@
     [string]
     $PublisherNameMatch,
 
-    # The Publisher of the Extension.    
+    # The Publisher of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [string]
@@ -127,7 +127,7 @@
             "$organization.$typename"
             "PSDevOps.$typename"
         )
-        
+
         Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
             Organization = $Organization
             Server = $Server
@@ -150,7 +150,7 @@
                     $out.ExtensionName -notmatch $ExtensionNameMatch -and
                     $out.ExtensionID -notmatch $ExtensionNameMatch
                 )) { return }
-                
+
                 if ($Contribution) {
                     $out.Contributions |
                         & { process {
