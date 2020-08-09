@@ -9,6 +9,8 @@
         Get-ADOExtension -Organization StartAutomating
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/list?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/get?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/extensionmanagement/installedextensions')]
     [OutputType('PSDevOps.InstalledExtension')]
@@ -17,6 +19,18 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
     $Organization,
+
+    # The Publisher of the Extension.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [string]
+    $PublisherID,
+
+    # The Extension Identifier.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [string]
+    $ExtensionID,
 
     # A list of asset types
     [Alias('AssetTypes')]
@@ -37,6 +51,11 @@
     [Alias('IncludeErrors')]
     [switch]
     $IncludeError,
+
+    # If set, will expand contributions.
+    [Alias('Contributions')]
+    [switch]
+    $Contribution,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -96,6 +115,30 @@
         Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
             Organization = $Organization
             Server = $Server
-        }
+        } -DecorateProperty @{'Contributions'="$Organization.Extension.Contribution", 'PSDevOps.ExtensionContribution'}|
+            & { process {
+                $out = $_
+                if ($Contribution) {
+                    $out.Contributions |
+                        & { process {
+                            $contrib = $_
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('Organization', $Organization), $true)
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('Server', $Server), $true)
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('PublisherName', $out.PublisherName), $true)
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('PublisherID', $out.PublisherID), $true)
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('ExtensionName', $out.ExtensionName), $true)
+                            $contrib.psobject.Members.Add(
+                                [PSNoteProperty]::new('ExtensionID', $out.ExtensionID), $true)
+                            $contrib
+                        } }
+                } else {
+                    $out
+                }
+            } }
     }
 }
