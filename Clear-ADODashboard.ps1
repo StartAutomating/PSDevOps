@@ -79,8 +79,8 @@
                     $whatIfConfirm.Remove($k)
                 }
             }
-            $DequedInput.Remove('WhatIf')
-            $DequedInput.Remove('Confirm')
+            $null = $DequedInput.Remove('WhatIf')
+            $null = $DequedInput.Remove('Confirm')
 
 
             $c++
