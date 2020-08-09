@@ -131,7 +131,7 @@
         Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
             Organization = $Organization
             Server = $Server
-        } -DecorateProperty @{'Contributions'="$Organization.Extension.Contribution", 'PSDevOps.ExtensionContribution'}|
+        } -DecorateProperty @{'Contributions'="$Organization.ExtensionContribution", 'PSDevOps.ExtensionContribution'}|
             & { process {
                 $out = $_
                 if ($PublisherNameLike -and (
