@@ -14,7 +14,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess,
         DefaultParameterSetName='/{organization}/_apis/extensionmanagement/installedextensions')]
-    [OutputType('PSDevOps.Extension')]
+    [OutputType('PSDevOps.InstalledExtension')]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -78,7 +78,7 @@
                     "api-version=$apiVersion"
                 }
             ) -join '&'
-            $invokeParams.PSTypeName = "$Organization.Extension", 'PSDevOps.Extension'
+            $invokeParams.PSTypeName = "$Organization.InstalledExtension", 'PSDevOps.InstalledExtension'
             $invokeParams.Method = 'PATCH'
             $invokeParams.body = @{
                 publisherId = $theExt.publisherId
