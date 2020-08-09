@@ -14,9 +14,10 @@
     .Link
         Remove-ADODashboard
     #>
-    [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High',DefaultParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
+    [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
     [OutputType('PSDevOps.Dashboard','PSDevOps.Widget')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess", "", Justification="Handled by underlying commands")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired")]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
