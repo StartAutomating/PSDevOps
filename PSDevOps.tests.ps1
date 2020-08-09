@@ -398,6 +398,27 @@ describe 'Calling REST APIs' {
             $whatIf.Method | Should -Be DELETE
         }
 
+        it 'Can clear dashboards' {
+            $whatIf = @(Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 |
+                Clear-ADODashboard -WhatIf)
+            $whatIf |
+                ForEach-Object {
+                    $_.Uri | Should -BeLike '*/dashboards/*/widgets/*'
+                    $_.Method | Should -Be DELETE
+                }
+        }
+
+        it 'Can clear widgets settings within dashboards' {
+            $whatIf = @(Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 |
+                Get-ADODashboard -Widget |
+                Select-Object -First 1 |
+                Clear-ADODashboard -WhatIf)
+            $whatIf.Method | Should -Be PUT
+            $whatIf.body.settings | Should -Be 'null'
+        }
+
         it 'Can update dashboards' {
             $whatIf = Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
                 Get-ADODashboard -Widget |
