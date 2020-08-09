@@ -356,19 +356,43 @@ describe 'Calling REST APIs' {
                 Should -Be ms.vss-dashboards-web.widget
         }
 
+        it 'Can Get-ADOExtension with filters' {
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |
+                Select-Object -First 1 -ExpandProperty PublisherName |
+                Should -Be Microsoft
+        }
+
         it 'Can Install-ADOExtension' {
             $whatIf =
-                Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf
+                Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be POST
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
         it 'Can Uninstall-ADOExtension' {
             $whatIf =
-                Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf
+                Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be DELETE
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
+
+        it 'Can Enable-ADOExtension' {
+            $whatIf =
+                Enable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri | Should -BeLike '*/extensionmanagement/installedextensions*'
+            $whatIf.body.installState.flags | Should -Be none
+        }
+
+        it 'Can Disable-ADOExtension' {
+            $whatIf =
+                Disable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri | Should -BeLike '*/extensionmanagement/installedextensions*'
+            $whatIf.body.installState.flags | Should -Be disabled
+        }
+
+
 
         it 'Get Get-ADOTask' {
             Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
