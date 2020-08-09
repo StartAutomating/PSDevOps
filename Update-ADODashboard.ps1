@@ -205,15 +205,18 @@
                     $body.size = $widgetState.size
                 }
 
-                if ($Setting) {
+                if ($Setting -or $dequedInput.ContainsKey('Setting')) {
                     $body.settings =
-                        if ($Setting -notmatch '^\s{0,}[\[\{]') {
+                        if ($setting -and $Setting -notmatch '^\s{0,}[\[\{]') {
                             if ($null -eq $Setting.isValid) {
                                 $Setting | Add-Member NoteProperty IsValid $true
                             }
+
                             $Setting | ConvertTo-Json -Depth 100
-                        } else {
+                        } elseif ($Setting) {
                             $Setting
+                        } else {
+                            'null'
                         }
                 }
 
