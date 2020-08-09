@@ -345,21 +345,27 @@ describe 'Calling REST APIs' {
 
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
-            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -IncludeDisabled -InstallationIssue -IncludeError |
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherID ms -ExtensionID feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should be Microsoft
         }
 
+        it 'Can Get-ADOExtension -Contribution' {
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -AssetType ms-vss-dashboards-web-widget -Contribution |
+                Select-Object -First 1 -ExpandProperty Type |
+                Should -Be ms.vss-dashboards-web.widget
+        }
+
         it 'Can Install-ADOExtension' {
             $whatIf =
-                Install-ADOExtension -Organization StartAutomating -PublisherName YodLabs -ExtensionName yodlabs-githubstats -WhatIf
+                Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf
             $whatIf.Method | Should -Be POST
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
         it 'Can Uninstall-ADOExtension' {
             $whatIf =
-                Uninstall-ADOExtension -Organization StartAutomating -PublisherName YodLabs -ExtensionName yodlabs-githubstats -WhatIf
+                Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf
             $whatIf.Method | Should -Be DELETE
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
