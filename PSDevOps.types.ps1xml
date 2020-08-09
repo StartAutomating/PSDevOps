@@ -213,37 +213,6 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Widget</Name>
-    <Members>
-      <AliasProperty>
-        <Name>WidgetID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptMethod>
-        <Name>GetHTML</Name>
-        <Script>
-                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
-return Invoke-RestMethod $this.contentUri
-
-                </Script>
-      </ScriptMethod>
-      <ScriptProperty>
-        <Name>ExtensionID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[1]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>PublisherID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[0]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
     <Name>PSDevOps.WorkItem</Name>
     <Members>
       <AliasProperty>
@@ -289,6 +258,60 @@ return Invoke-RestMethod $this.contentUri
         <Name>CreatedDate</Name>
         <GetScriptBlock>
                     [DateTime]$this.'System.CreatedDate'
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ExtensionContribution</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ContributionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Description</Name>
+        <GetScriptBlock>
+                    $this.properties.description
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Name</Name>
+        <GetScriptBlock>
+                    $this.properties.name
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Widget</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WidgetID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>GetHTML</Name>
+        <Script>
+                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
+return Invoke-RestMethod $this.contentUri
+
+                </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ExtensionID</Name>
+        <GetScriptBlock>
+                    @($this.contributionId -split '\.')[1]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>PublisherID</Name>
+        <GetScriptBlock>
+                    @($this.contributionId -split '\.')[0]
 
                 </GetScriptBlock>
       </ScriptProperty>
