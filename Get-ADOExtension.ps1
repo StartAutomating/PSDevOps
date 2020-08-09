@@ -20,7 +20,23 @@
     [string]
     $Organization,
 
-    # The Publisher of the Extension.
+    # A wildcard of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [string]
+    $ExtensionNameLike,
+
+    # A regular expression of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [string]
+    $ExtensionNameMatch,
+
+    # A wildcard of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [string]
+    $PublisherNameLike,
+
+    # A regular expression of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [string]
+    $PublisherNameMatch,
+
+    # The Publisher of the Extension.    
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [string]
@@ -111,13 +127,30 @@
             "$organization.$typename"
             "PSDevOps.$typename"
         )
-
+        
         Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
             Organization = $Organization
             Server = $Server
         } -DecorateProperty @{'Contributions'="$Organization.Extension.Contribution", 'PSDevOps.ExtensionContribution'}|
             & { process {
                 $out = $_
+                if ($PublisherNameLike -and (
+                    $out.PublisherName -notlike $PublisherNameLike -and
+                    $out.PublisherID -notlike $PublisherNameLike
+                )) { return }
+                if ($PublisherNameMatch -and (
+                    $out.PublisherName -notmatch $PublisherNameMatch -and
+                    $out.PublisherID -notmatch $PublisherNameMatch
+                )) { return }
+                if ($ExtensionNameLike -and (
+                    $out.ExtensionName -notlike $ExtensionNameLike -and
+                    $out.ExtensionID -notlike $ExtensionNameLike
+                )) { return }
+                if ($ExtensionNameMatch -and (
+                    $out.ExtensionName -notmatch $ExtensionNameMatch -and
+                    $out.ExtensionID -notmatch $ExtensionNameMatch
+                )) { return }
+                
                 if ($Contribution) {
                     $out.Contributions |
                         & { process {
