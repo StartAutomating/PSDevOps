@@ -108,7 +108,7 @@
             ) -join '&'
 
             # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
-            $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
+            $typename = @($parameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') # We just need to drop the 's'
             $typeNames = @(
                 "$organization.$typename"
                 if ($Project) { "$organization.$Project.$typename" }
