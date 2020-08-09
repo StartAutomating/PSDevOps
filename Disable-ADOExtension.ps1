@@ -53,7 +53,7 @@
         $q = [Collections.Queue]::new()
     }
 
-    process {        
+    process {
         $q.Enqueue($PSBoundParameters)
     }
 
@@ -65,7 +65,7 @@
             $theExt = Get-ADOExtension @dequedInput
             if (-not $theExt) { continue }
             $invokeParams.Uri = @(
-                    "$server".TrimEnd('/')   # the Server (minus any trailing slashes),                    
+                    "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                     (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
                                              # and any parameterized URLs in this parameter set.
             ) -join '/'
@@ -79,7 +79,7 @@
                 }
             ) -join '&'
             $invokeParams.PSTypeName = "$Organization.Extension", 'PSDevOps.Extension'
-            $invokeParams.Method = 'PATCH'            
+            $invokeParams.Method = 'PATCH'
             $invokeParams.body = @{
                 publisherId = $theExt.publisherId
                 extensionId = $theExt.extensionId
@@ -91,7 +91,7 @@
                 $invokeParams.Remove('PersonalAccessToken')
                 $invokeParams
                 continue
-            }            
+            }
             if (-not $PsCmdlet.ShouldProcess("Disable $PublisherID $ExtensionID")) { continue }
             Invoke-ADORestAPI @invokeParams
         }
