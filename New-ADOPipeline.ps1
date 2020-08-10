@@ -64,13 +64,22 @@
 
     # If set, will output the created objects instead of creating YAML.
     [switch]
-    $PassThru
+    $PassThru,
+
+    # If set, will run scripts using PowerShell core, even if on Windows.
+    [switch]
+    $PowerShellCore,
+
+    # If set will run script using WindowsPowerShell if available.
+    [switch]
+    $WindowsPowerShell
     )
 
     dynamicParam {
+        $myNoun = ($MyInvocation.MyCommand.Noun)
         # Create dynamic parameters for every type we can build for ADO
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
-        $ThingNames = $script:ComponentNames.'ADO'
+        $ThingNames = $script:ComponentNames.$myNoun
         if ($ThingNames) {
             foreach ($kv in $ThingNames.GetEnumerator()) {
                 $k = $kv.Key.Substring(0,1).ToUpper() + $kv.Key.Substring(1)
@@ -82,11 +91,13 @@
 
     begin {
         $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
+        $adoOptions = @{}
 
         $expandADOBuildStep = @{
-            BuildSystem = 'ADO'
+            BuildSystem = $myNoun
             SingleItemName = 'Trigger','Pool'
             PluralItemName = 'Steps', 'Stages','Jobs','Pipelines','Repositories', 'Schedules'
+            BuildOption = $adoOptions
         }
 
     }
@@ -95,7 +106,7 @@
         #region Map Parameters
         $myParams = [Ordered]@{} + $PSBoundParameters
         $stepsByType = [Ordered]@{}
-        $ThingNames = $script:ComponentNames.'ADO'
+        $ThingNames = $script:ComponentNames.$myNoun
         foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
@@ -105,12 +116,13 @@
                         $stepsByType[$key] = $InputObject.$key
                     }
                 }
-
                 elseif ($InputObject) {
                     foreach ($property in $InputObject.psobject.properties) {
                         $stepsByType[$property.name] = $InputObject.$key
                     }
                 }
+            } else {
+                $adoOptions[$kv.Key] = $kv.Value
             }
         }
         #endregion Map Parameters
