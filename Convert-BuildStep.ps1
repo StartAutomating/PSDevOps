@@ -167,7 +167,7 @@
         $definedParameters = @()
         $eventParameters   = @{}
         if ($sbParams) { # If it had parameters,
-            $function:_TempFunction = $ScriptBlock # create a temporary function
+            $executionContext.SessionState.PSVariable.set('function:_TempFunction', $ScriptBlock) # create a temporary function
             $tempCmd =
                 $ExecutionContext.SessionState.InvokeCommand.GetCommand("_TempFunction",'Function')
             $tempCmdMd = [Management.Automation.CommandMetadata]$tempCmd # and get it's command metadata
