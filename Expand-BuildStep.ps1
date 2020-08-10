@@ -85,7 +85,7 @@
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
     $DefaultParameter = @{},
-    
+
     # Options for the build system.  The can contain any additional parameters passed to the build system.
     [PSObject]
     $BuildOption
