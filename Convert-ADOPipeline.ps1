@@ -16,6 +16,7 @@
     #>
     [OutputType([string],[PSObject])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "", Justification="Functionality is Desired")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusedVariable", "", Justification="Functionality is Desired")]
     param(
     # A list of build steps.
     # This will be automatically populated when piping in a TFS Build definition.
