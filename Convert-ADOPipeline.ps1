@@ -5,6 +5,14 @@
         Converts builds to Azure DevOps Pipelines
     .Description
         Converts builds TFS or "Classic" builds to Azure DevOps YAML Pipelines.
+    .Link
+        New-ADOPipeline
+    .Link
+        Get-ADOTask
+    .Example
+        $taskList = (Get-ADOTask -Server $tfsRootUrl -Org $projectCollectionName)
+        Get-ADOBuild -Definition -Server $tfsRootUrl -Org $projectCollection |
+            Convert-ADOPipeline -TaskList $taskList
     #>
     [OutputType([string],[PSObject])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "", Justification="Functionality is Desired")]
@@ -57,6 +65,7 @@
     }
 
     process {
+        #region Enqueue Input
         $in = $_
 
         if (-not $BuildStep.Task) {
@@ -66,6 +75,7 @@
         $q.Enqueue(
             @{psParameterSet= $PSCmdlet.ParameterSetName;InputObject= $in} + $PSBoundParameters
         )
+        #endregion Enqueue Input
     }
 
     end {
@@ -78,10 +88,8 @@
                 $ExecutionContext.SessionState.PSVariable.Set($kv.Key, $kv.Value)
             }
 
-            if ($t -gt 1) {
-                $C++
-                Write-Progress "Converting Builds" "[$c of $t]" -PercentComplete ($c * 100 / $t) -Id $id
-            }
+            $C++
+            Write-Progress "Converting Builds" "[$c of $t]" -PercentComplete ($c * 100 / $t) -Id $id
 
             $buildSteps =
                 @(foreach ($bs in $BuildStep) {
@@ -151,5 +159,8 @@
                 $newPipeline
             }
         }
+
+        $C++
+        Write-Progress "Converting Builds" "[$c of $t]" -Completed -Id $id
     }
 }
