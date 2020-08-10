@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.1'
+    ModuleVersion = '0.4.2'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,19 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.2
+---
+* Build Step Improvements:
+** New-ADOPipeline now has -PowerShellCore and -WindowsPowerShell
+** Import-BuildStep now has parameter sets
+** New-ADOPipeline/New-GitHubWorkflow now refer to a metadata collection based off of their noun.
+** BuildStep directories can be aliased:
+*** ADOPipeline directories can be: ADOPipeline, ADO, AzDo, and AzureDevOps.
+*** GitHubWorkflow directories can be: GitHubWorkflow, GitHubWorkflows, and GitHub.
+* New Dashboard Commands: Clear/Update-ADODashboard
+* New Extension Commands: Enable/Disbale-ADOExtension
+* Improved formatting/types for Extensions.
+* Breaking change: Install/Uninstall-ADOExtension now accept -PublisherID and -ExtensionID, not -PublisherName and -ExtensionName.
 0.4.1
 ---
 * More GitHub Functionality:
