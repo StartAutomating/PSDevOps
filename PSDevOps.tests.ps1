@@ -345,10 +345,54 @@ describe 'Calling REST APIs' {
 
     context 'Extensions' {
         it 'Can Get-ADOExtension' {
-            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -IncludeDisabled -InstallationIssue -IncludeError |
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherID ms -ExtensionID feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should be Microsoft
         }
+
+        it 'Can Get-ADOExtension -Contribution' {
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -AssetType ms-vss-dashboards-web-widget -Contribution |
+                Select-Object -First 1 -ExpandProperty Type |
+                Should -Be ms.vss-dashboards-web.widget
+        }
+
+        it 'Can Get-ADOExtension with filters' {
+            Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |
+                Select-Object -First 1 -ExpandProperty PublisherName |
+                Should -Be Microsoft
+        }
+
+        it 'Can Install-ADOExtension' {
+            $whatIf =
+                Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be POST
+            $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
+        }
+
+        it 'Can Uninstall-ADOExtension' {
+            $whatIf =
+                Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be DELETE
+            $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
+        }
+
+        it 'Can Enable-ADOExtension' {
+            $whatIf =
+                Enable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri | Should -BeLike '*/extensionmanagement/installedextensions*'
+            $whatIf.body.installState.flags | Should -Be none
+        }
+
+        it 'Can Disable-ADOExtension' {
+            $whatIf =
+                Disable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri | Should -BeLike '*/extensionmanagement/installedextensions*'
+            $whatIf.body.installState.flags | Should -Be disabled
+        }
+
+
 
         it 'Get Get-ADOTask' {
             Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
@@ -376,6 +420,39 @@ describe 'Calling REST APIs' {
             $whatIf = Remove-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -WhatIf -DashboardID ([GUID]::NewGuid())
             $whatIf.Uri | Should -BeLike '*/dashboard/dashboards*'
             $whatIf.Method | Should -Be DELETE
+        }
+
+        it 'Can clear dashboards' {
+            $whatIf = @(Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 |
+                Clear-ADODashboard -WhatIf)
+            $whatIf |
+                ForEach-Object {
+                    $_.Uri | Should -BeLike '*/dashboards/*/widgets/*'
+                    $_.Method | Should -Be DELETE
+                }
+        }
+
+        it 'Can clear widgets settings within dashboards' {
+            $whatIf = @(Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Select-Object -First 1 |
+                Get-ADODashboard -Widget |
+                Select-Object -First 1 |
+                Clear-ADODashboard -WhatIf)
+            $whatIf.Method | Should -Be PUT
+            $whatIf.body.settings | Should -Be 'null'
+        }
+
+        it 'Can update dashboards' {
+            $whatIf = Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
+                Get-ADODashboard -Widget |
+                Select-Object -First 1 |
+                Update-ADODashboard -Setting @{
+                    Owner = 'StartAutomating'
+                    Project = 'PSDevOps'
+                } -WhatIf
+            $whatIf.Method | Should -Be PUT
+            $whatIf.Body.settings | Should -BeLike '*isValid*:*true*'
         }
     }
 

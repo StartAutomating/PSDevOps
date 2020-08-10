@@ -1,0 +1,1 @@
+﻿$this.properties.name
