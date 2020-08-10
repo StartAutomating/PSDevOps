@@ -43,8 +43,8 @@
     [string[]]$DictionaryItemName,
 
     # The build system, either ADO or GitHub.
-    [ValidateSet('ADO', 'GitHub')]
-    [string]$BuildSystem = 'ADO',
+    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
+    [string]$BuildSystem = 'ADOPipeline',
 
     # The name of parameters that should be supplied from build variables.
     # Wildcards accepted.
@@ -84,7 +84,11 @@
     # A collection of default parameters.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
-    $DefaultParameter = @{}
+    $DefaultParameter = @{},
+    
+    # Options for the build system.  The can contain any additional parameters passed to the build system.
+    [PSObject]
+    $BuildOption
     )
 
     begin {
@@ -184,7 +188,7 @@
                             }
 
                         if ($convertedBuildStep) {
-                            if ($BuildSystem -eq 'ADO' -and
+                            if ($BuildSystem -eq 'ADOPipeline' -and
                                 $Root -and
                                 $convertedBuildStep.parameters) {
 
@@ -207,7 +211,7 @@
 
                                 $convertedBuildStep.Remove('parameters')
                             }
-                            if ($BuildSystem -eq 'GitHub' -and $Root -and # If the BuildSystem was GitHub
+                            if ($BuildSystem -eq 'GitHubWorkflow' -and $Root -and # If the BuildSystem was GitHub
                                 $convertedBuildStep.parameters) {
 
                                 if ($convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
