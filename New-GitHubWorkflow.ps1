@@ -68,8 +68,8 @@ function New-GitHubWorkflow {
 
     dynamicParam {
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
-
-        $ThingNames = $script:ComponentNames.'GitHub'
+        $mynoun = $MyInvocation.MyCommand.Noun
+        $ThingNames = $script:ComponentNames.$mynoun
         if ($ThingNames) {
             foreach ($kv in $ThingNames.GetEnumerator()) {
                 $k = $kv.Key.Substring(0,1).ToUpper() + $kv.Key.Substring(1)
@@ -82,11 +82,12 @@ function New-GitHubWorkflow {
 
     begin {
         $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')
-
+        $workflowOptions = @{}
         $expandGitHubBuildStep = @{
-            BuildSystem = 'GitHub'
+            BuildSystem = $mynoun
             SingleItemName = 'On','Name'
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
+            BuildOption = $workflowOptions
         }
     }
 
@@ -97,10 +98,12 @@ function New-GitHubWorkflow {
         $stepsByType = [Ordered]@{}
         if ($Name) {$stepsByType['Name'] = $name }
         #region Map Dynamic Input
-        $ThingNames = $script:ComponentNames.'GitHub'
+        $ThingNames = $script:ComponentNames.$mynoun
         foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
+            } elseif ($kv.Key -ne 'InputObject') {
+                $workflowOptions[$kv.Key] = $kv.Value
             }
         }
 

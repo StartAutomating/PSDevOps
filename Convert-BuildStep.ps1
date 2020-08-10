@@ -85,9 +85,13 @@
     $DefaultParameter = @{},
 
     # The build system.  Currently supported options, ADO and GitHub.  Defaulting to ADO.
-    [ValidateSet('ADO', 'GitHub')]
+    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
     [string]
-    $BuildSystem = 'ado'
+    $BuildSystem = 'ADOPipeline',
+
+    # Options for the build system.  The can contain any additional parameters passed to the build system.
+    [PSObject]
+    $BuildOption
     )
 
     begin {
@@ -117,12 +121,12 @@
             elseif ($Extension -eq '.sh') # The other extension we know how to deal with is .sh
             {
                 $shellScript = Get-Content -LiteralPath $path -Raw
-                if ($BuildSystem -eq 'ADO') { # If the buildsystem is Azure DevOps
+                if ($BuildSystem -eq 'ADOPipeline') { # If the buildsystem is Azure DevOps
                     [Ordered]@{
                         bash= $shellScript
                         displayName=$Name
                     } # echo out a bash: step.
-                } elseif ($BuildSystem -eq 'GitHub') {
+                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
                     [Ordered]@{
                         name=$Name
                         run=$shellScript
@@ -133,7 +137,7 @@
             }
             elseif ($Extension -eq '.py') {
                 $pythonScript = Get-Content -LiteralPath $path -Raw
-                if ($BuildSystem -eq 'ADO') {
+                if ($BuildSystem -eq 'ADOPipeline') {
                     [Ordered]@{
                         task = 'PythonScript@0'
                         inputs = [Ordered]@{
@@ -142,7 +146,7 @@
                         }
                     }
                 }
-                elseif ($BuildSystem -eq 'GitHub') {
+                elseif ($BuildSystem -eq 'GitHubWorkflow') {
                     [Ordered]@{
                         name = $Name
                         run = $pythonScript
@@ -163,7 +167,7 @@
         $definedParameters = @()
         $eventParameters   = @{}
         if ($sbParams) { # If it had parameters,
-            $function:_TempFunction = $ScriptBlock # create a temporary function
+            $executionContext.SessionState.PSVariable.set('function:_TempFunction', $ScriptBlock) # create a temporary function
             $tempCmd =
                 $ExecutionContext.SessionState.InvokeCommand.GetCommand("_TempFunction",'Function')
             $tempCmdMd = [Management.Automation.CommandMetadata]$tempCmd # and get it's command metadata
@@ -230,7 +234,7 @@
                         & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $VariableParameter
 
 
-                    if ($BuildSystem -eq 'ado') {
+                    if ($BuildSystem -eq 'ADOPipeline') {
 
                         # In Azure DevOps pipelines, we can also get parameters from the environment.
                         $EnvVariableName =
@@ -315,7 +319,7 @@
                         }
                     }
 
-                    if ($BuildSystem -eq 'GitHub') {
+                    if ($BuildSystem -eq 'GitHubWorkflow') {
                         # In GitHub Workflows, variables can come from an event.
                         $eventName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $InputParameter.Keys
@@ -416,8 +420,12 @@ $CollectParameters
             Remove-Item -Force function:_TempFunction
         }
         $out = [Ordered]@{}
-        if ($BuildSystem -eq 'ADO') {
-            if ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*') {
+        if ($BuildSystem -eq 'ADOPipeline') {
+            if (
+                ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*' -and
+                    (-not $BuildSystemOption.WindowsPowerShell)
+                ) -or $BuildOption.PowerShellCore
+            ) {
                 $out.pwsh = "$innerScript" -replace '`\$\{','${'
             } else {
                 $out.powershell = "$innerScript" -replace '`\$\{','${'
@@ -425,16 +433,12 @@ $CollectParameters
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters
-                <#if (-not $out.variables) { $out.variables = @{} }
-                foreach ($dp in $definedParameters) {
-                    $out.variables[$dp.Name] = "`${{parameters.$($dp.Name)}}"
-                }#>
             }
-            if ($UseSystemAccessToken) {
+            if ($BuildOption.UseSystemAccessToken) {
                 if (-not $out.env) { $out.env = @{}}
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
-        } elseif ($BuildSystem -eq 'GitHub') {
+        } elseif ($BuildSystem -eq 'GitHubWorkflow') {
             $out.name = $Name
             $out.run = "$innerScript" -replace '`\$\{','${'
             $out.shell = 'pwsh'
