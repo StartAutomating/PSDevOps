@@ -18,8 +18,8 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/queues/get%20agent%20queues?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='distributedtask/pools')]
     [OutputType('PSDevops.Pool')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
     # The Organization
     [Parameter(Mandatory,ParameterSetName='distributedtask/pools',ValueFromPipelineByPropertyName)]
@@ -33,6 +33,29 @@
     [Parameter(Mandatory,ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
     [string]
     $PoolID,
+
+    # If provided, will return agents of a given name.
+    [Parameter(ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
+    [string]
+    $AgentName,
+
+    # If set, will return the capabilities of each returned agent.
+    [Parameter(ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
+    [Alias('Capability','Capabilities','Environment')]
+    [switch]
+    $IncludeCapability,
+
+    # If set, will return the last completed request of each returned agent.
+    [Parameter(ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
+    [Alias('IncludeLastCompleted','LastCompleted', 'Completed')]
+    [switch]
+    $IncludeLastCompletedRequest,
+
+    # If set, will return the requests queued for an agent.
+    [Parameter(ParameterSetName='distributedtask/pools/{PoolId}/agents',ValueFromPipelineByPropertyName)]
+    [Alias('IncludeAssigned', 'IncludeQueue','Queued')]
+    [switch]
+    $IncludeAssignedRequest,
 
     # The project name or identifier.  When this is provided, will return queues associated with the project.
     [Parameter(Mandatory,ParameterSetName='distributedtask/queues',ValueFromPipelineByPropertyName)]
@@ -83,6 +106,10 @@
 
             $uri += '?' # The URI has a query string containing:
             $uri += @(
+                if ($IncludeCapability) { "includeCapabilities=true" }
+                if ($IncludeLastCompletedRequest) { "includeLastCompletedRequest=true" }
+                if ($IncludeAssignedRequest) { "includeAssignedRequest=true" }
+                if ($AgentName) { "agentName=$AgentName"}
                 if ($Server -ne 'https://dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
@@ -90,6 +117,7 @@
                 if ($ApiVersion) { # the api-version
                     "api-version=$apiVersion"
                 }
+
             ) -join '&'
 
             # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
