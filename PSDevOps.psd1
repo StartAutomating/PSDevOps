@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.2'
+    ModuleVersion = '0.4.3'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,16 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.3
+---
+*Renaming commands:
+** New-ADODashboard -> Add-ADODashboard
+** New-ADOTeam -> Add-ADOTeam
+* Add-ADOTeam can now add members to a team
+* Get-ADOTeam can now get an -Identity
+* New Command: Get-ADOUser
+* Get-ADOAgentPool:  Fixed pipelining bug, added -AgentName/-IncludeCapability/-IncludeLastCompletedRequest/-IncludeAssignedRequest.
+* Set-ADOProject:  Can now -EnableFeature and -DisableFeature
 0.4.2
 ---
 * Build Step Improvements:
