@@ -1,4 +1,4 @@
-﻿function New-ADOTeam
+﻿function Add-ADOTeam
 {
     <#
     .Synopsis
@@ -6,7 +6,7 @@
     .Description
         Gets teams from Azure DevOps or TFS
     .Example
-        New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyNewTeam -WhatIf
+        Add-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyNewTeam -WhatIf
     .Link
         Get-ADOTeam
     .Link
@@ -21,15 +21,20 @@
     [string]
     $Organization,
 
-    # The project name or identifier
+    # The project name or identifier.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [string]
     $Project,
 
-    # The Team Name
+    # The Team Name.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [string]
     $Team,
+
+    # The Team Description.
+    [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [string]
+    $Description,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -91,7 +96,8 @@
             $invokeParams.Method = 'POST'
             $invokeParams.Uri  = $uri
             $invokeParams.body = @{name=$Team}
-            $invokeParams.PSTypeNames = $typeNames
+            if ($Description) { $invokeParams.body.description = $Description } 
+            $invokeParams.PSTypeName = $typeNames
             $invokeParams.Property = @{
                 Organization = $Organization
                 Project = $Project
