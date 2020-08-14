@@ -1,15 +1,15 @@
-﻿function New-ADODashboard {
+﻿function Add-ADODashboard {
     <#
     .Synopsis
         Creates Dashboards and Widgets
     .Description
         Creates Dashboards from Azure DevOps, or Creates Widgets in a Dashboard in Azure Devops.
     .Example
-        New-ADODashboard -Organization MyOrg -Project MyProject -Team MyTeam -Name MyDashboard
+        Add-ADODashboard -Organization MyOrg -Project MyProject -Team MyTeam -Name MyDashboard
     .Example
         Get-ADODashboard -Organization MyOrg -Project MyProject -Team MyTeam |
             Select-Object -First 1 |
-            New-ADODashboard -Name BuildHistory -ContributionID ms.vss-dashboards-web.Microsoft.VisualStudioOnline.Dashboards.BuildHistogramWidget -ColumnSpan 2
+            Add-ADODashboard -Name BuildHistory -ContributionID ms.vss-dashboards-web.Microsoft.VisualStudioOnline.Dashboards.BuildHistogramWidget -ColumnSpan 2
     .Link
         Get-ADODashboard
     #>
