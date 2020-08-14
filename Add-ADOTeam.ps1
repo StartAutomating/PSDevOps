@@ -96,7 +96,7 @@
             $invokeParams.Method = 'POST'
             $invokeParams.Uri  = $uri
             $invokeParams.body = @{name=$Team}
-            if ($Description) { $invokeParams.body.description = $Description } 
+            if ($Description) { $invokeParams.body.description = $Description }
             $invokeParams.PSTypeName = $typeNames
             $invokeParams.Property = @{
                 Organization = $Organization
