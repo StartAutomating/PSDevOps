@@ -93,11 +93,29 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.User</Name>
+    <Members>
+      <AliasProperty>
+        <Name>UserDescriptor</Name>
+        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.Rule</Name>
     <Members>
       <AliasProperty>
         <Name>RuleID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.TeamDescriptor</Name>
+    <Members>
+      <AliasProperty>
+        <Name>TeamDescriptor</Name>
+        <ReferencedMemberName>Value</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>

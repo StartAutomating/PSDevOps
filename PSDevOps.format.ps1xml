@@ -503,6 +503,36 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
+      <Name>PSDevOps.TeamDescriptor</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.TeamDescriptor</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>Organization</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Team</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>TeamDescriptor</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.WorkItem</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.WorkItem</TypeName>
