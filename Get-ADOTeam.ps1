@@ -21,7 +21,9 @@
 
     # The project name or identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $Project,
 
@@ -33,7 +35,9 @@
     $Mine,
 
     # The Team Identifier
+    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $TeamID,
 
@@ -43,11 +47,27 @@
     [switch]
     $Member,
 
+    # If set, will return the team identity.
+    [Parameter(Mandatory,ParameterSetName='graph/descriptors/{teamId}')]
+    [switch]
+    $Identity,
+
+    # If set, will list the security groups.
+    [Parameter(Mandatory,ParameterSetName='graph/groups')]
+    [switch]
+    $SecurityGroup,
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
     [uri]
-    $Server = "https://dev.azure.com/"
+    $Server = "https://dev.azure.com/",
+
+    # The api version.  By default, 5.1.
+    # If targeting TFS, this will need to change to match your server version.
+    # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
+    [string]
+    $ApiVersion = "5.1"
     )
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -65,6 +85,18 @@
             $psParameterSet = 'projects/{Project}/teams'
             $project = $psBoundParameters['Project']  = $in.Project
         }
+        if ($in.TeamID -and $psParameterSet -notlike '*TeamID*') {
+            $psParameterSet = 'projects/{Project}/teams/{teamId}'
+            $TeamID = $psBoundParameters['TeamID']  = $in.TeamID
+        }
+
+        if ($Identity) {
+            $psParameterSet = $($MyInvocation.MyCommand.Parameters['Identity'].Attributes.ParameterSetName)
+        }
+
+        if ($psParameterSet -like 'graph*') {
+            $server = 'https://vssps.dev.azure.com/'
+        }
 
         $uri = # The URI is comprised of:
             @(
@@ -77,7 +109,7 @@
 
         $uri += '?' # The URI has a query string containing:
         $uri += @(
-            if ($Server -ne 'https://dev.azure.com/' -and
+            if ($Server -notlike 'https://*.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
@@ -90,18 +122,32 @@
         ) -join '&'
 
         # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
-        $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
+        $typename = @($psParameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
 
         $typeNames = @(
             "$organization.$typename"
             if ($Project) { "$organization.$Project.$typename" }
             "PSDevOps.$typename"
         )
-
-        Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property @{
-            Organization = $Organization
-            Project = $Project
-            Server = $Server
+        $invokeParams.Uri = $uri
+        $invokeParams.PSTypeName = $typeNames
+        $invokeParams.Property = @{Organization=$Organization;Server=$Server}
+        if ($Project) { $invokeParams.Property.Project = $Project }
+        if ($Identity) {
+            $null = $invokeParams.Property.Remove('Server')
+            $invokeParams.Property.TeamID = $TeamID
+            $invokeParams.PSTypeName = @(
+                "$Organization.containerDescriptor"
+                "$Organization.descriptor"
+                if ($Project) {
+                    "$Organization.$Project.containerDescriptor"
+                    "$Organization.$Project.descriptor"
+                }
+                'PSDevOps.containerDescriptor'
+                'PSDevOps.descriptor'
+            )
         }
+
+        Invoke-ADORestAPI @invokeParams
     }
 }
