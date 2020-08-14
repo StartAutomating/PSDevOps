@@ -63,11 +63,11 @@
     [uri]
     $Server = "https://dev.azure.com/",
 
-    # The api version.  By default, 5.1.
+    # The api version.  By default, 5.1-preview.
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1"
+    $ApiVersion = "5.1-preview"
     )
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -87,7 +87,9 @@
         }
         if ($in.TeamID -and $psParameterSet -notlike '*TeamID*') {
             $psParameterSet = 'projects/{Project}/teams/{teamId}'
-            $TeamID = $psBoundParameters['TeamID']  = $in.TeamID
+        }
+        if ($in.TeamID -and -not $TeamID) {
+            $TeamID = $in.TeamID
         }
 
         if ($Identity) {
@@ -135,15 +137,20 @@
         if ($Project) { $invokeParams.Property.Project = $Project }
         if ($Identity) {
             $null = $invokeParams.Property.Remove('Server')
+            $invokeParams.Property.Team =
+                if ($name) { $name }
+                elseif ($in.Name)
+                { $in.name }
+
             $invokeParams.Property.TeamID = $TeamID
             $invokeParams.PSTypeName = @(
-                "$Organization.containerDescriptor"
+                "$Organization.TeamDescriptor"
                 "$Organization.descriptor"
                 if ($Project) {
-                    "$Organization.$Project.containerDescriptor"
+                    "$Organization.$Project.TeamDescriptor"
                     "$Organization.$Project.descriptor"
                 }
-                'PSDevOps.containerDescriptor'
+                'PSDevOps.TeamDescriptor'
                 'PSDevOps.descriptor'
             )
         }

@@ -1,0 +1,3 @@
+﻿@{
+    TeamDescriptor="Value"
+}

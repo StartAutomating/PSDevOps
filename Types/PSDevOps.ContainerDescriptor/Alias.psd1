@@ -1,3 +1,0 @@
-﻿@{
-    ContainerDescriptor="Value"
-}
