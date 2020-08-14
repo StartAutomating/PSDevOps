@@ -37,13 +37,13 @@
     [string]
     $Description,
 
-    # The Security Descriptor of the User. 
+    # The Security Descriptor of the User.
     [Parameter(Mandatory,ParameterSetName='graph/memberships/{UserDescriptor}/{TeamDescriptor}')]
     [Alias('SubjectDescriptor')]
     [string]
     $UserDescriptor,
 
-    # The Security Descriptor of the Team. 
+    # The Security Descriptor of the Team.
     [Parameter(Mandatory,ParameterSetName='graph/memberships/{UserDescriptor}/{TeamDescriptor}')]
     [Alias('ContainerDescriptor', 'GroupDescriptor')]
     [string]
@@ -79,7 +79,7 @@
         while ($q.Count) {
             . $dq $q
 
-            $invokeParams.Method = 
+            $invokeParams.Method =
                 if ($psParameterSet -like 'graph*') {
                     $Server = 'https://vssps.dev.azure.com/'
                     'PUT'
@@ -113,19 +113,19 @@
             $typename = @($psParameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
             $typeNames = @(
                 "$organization.$typename"
-                if ($project) { "$organization.$Project.$typename" } 
+                if ($project) { "$organization.$Project.$typename" }
                 "PSDevOps.$typename"
             )
-                                
+
             $invokeParams.Uri  = $uri
-            
+
             $invokeParams.PSTypeName = $typeNames
             $invokeParams.Property = @{
                 Organization = $Organization
                 Server = $Server
             }
             if ($Project) { $invokeParams.Property.Project = $Project }
-            
+
             if ($WhatIfPreference) {
                 $invokeParams.Remove('PersonalAccessToken')
                 $invokeParams
