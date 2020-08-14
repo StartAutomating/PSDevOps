@@ -206,7 +206,7 @@ describe 'Calling REST APIs' {
 
     context Teams {
         it 'Can get teams' {
-            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Name |
                 should -Be 'PSDevOps Team'
         }
