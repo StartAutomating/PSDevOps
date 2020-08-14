@@ -50,43 +50,43 @@
 
     # The DashboardID. This dashboard will contain the new widgets.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [string]
     $DashboardID,
 
     # The ContributionID.  This describes the exact extension contribution the widget will use.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [string]
     $ContributionID,
 
     # The row of the widget.
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [int]
     $Row,
 
     # The column of the widget.
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [int]
     $Column,
 
     # The number of rows the widget should occupy.
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [int]
     $RowSpan = 1,
 
     # The number of columns the widget should occupy.
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [int]
     $ColumnSpan = 1,
 
     # The widget settings.  Settings are specific to each widget.
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets/{WidgetId}')]
+        ParameterSetName='dashboard/dashboards/{DashboardId}/widgets')]
     [Alias('Settings')]
     [PSObject]
     $Setting,
