@@ -212,7 +212,7 @@ describe 'Calling REST APIs' {
         }
 
         it 'Can create teams' {
-            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
+            $whatIf = Add-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
             $whatIf.body.name | Should -Be MyTeam
         }
 
@@ -411,7 +411,7 @@ describe 'Calling REST APIs' {
 
         it 'Can add dashboards' {
             $whatIf =
-                New-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
+                Add-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
             $whatIf.Method | Should -Be POST
             $whatIf.Body.name | Should -Be TestDashboard
         }
