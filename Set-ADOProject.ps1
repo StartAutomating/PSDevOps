@@ -15,6 +15,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([Nullable],[PSObject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -24,9 +25,19 @@
 
     # The project identifier.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/properties',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/avatar',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/FeatureManagement/FeatureStates/host/project/{ProjectID}/{FeatureId}',ValueFromPipelineByPropertyName)]
     [string]
     $ProjectID,
+
+    # The ID of a feature to enable.
+    [Parameter(ParameterSetName='/{Organization}/_apis/FeatureManagement/FeatureStates/host/project/{ProjectID}/{FeatureId}',ValueFromPipelineByPropertyName)]
+    [string]
+    $EnableFeature,
+
+    # The ID of afeature to disable.
+    [Parameter(ParameterSetName='/{Organization}/_apis/FeatureManagement/FeatureStates/host/project/{ProjectID}/{FeatureId}',ValueFromPipelineByPropertyName)]
+    [string]
+    $DisableFeature,
 
     # A dictionary of project metadata.
     [Parameter(ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/properties',ValueFromPipelineByPropertyName)]
@@ -86,6 +97,23 @@
                     })
                     $invokeParams.Method = 'PATCH'
                     $invokeParams.ContentType = 'application/json-patch+json'
+                }
+                elseif ($group.Name -like '*FeatureStates*') {
+                     if ($group.Group.EnableFeature -and $group.Group.disableFeature) {
+                        Write-Error "Cannot enable and disable features in the same call."
+                        return
+                     }
+                     $state = 0
+                     $featureId =
+                         if ($group.Group.EnableFeature) {
+                            $state = 1
+                            $group.Group.EnableFeature
+                         }
+                         elseif ($group.Group.DisableFeature) {
+                            $group.Group.DisableFeature
+                         }
+                    $invokeParams.Method = 'PATCH'
+                    $body = @{featureId=$featureId;scope=@{settingScope='project';userScoped=$false};state=$state}
                 }
 
                 if ($body) {

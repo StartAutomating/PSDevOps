@@ -1,16 +1,18 @@
-﻿function Get-ADOTeam
+﻿function Get-ADOUser
 {
     <#
     .Synopsis
-        Gets Azure DevOps Teams
+        Gets Azure DevOps Users
     .Description
-        Gets teams from Azure DevOps or TFS
+        Gets users from Azure DevOps.
     .Link
-        Get-ADOProject
+        Get-ADOTeam
     .Example
-        Get-ADOTeam -Organization StartAutomating
+        Get-ADOUser -Organization StartAutomating
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/users/list?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='teams')]
+    [CmdletBinding(DefaultParameterSetName='graph/users')]
     [OutputType('PSDevOps.Team','PSDevOps.TeamMember')]
     param(
     # The Organization.
@@ -19,43 +21,16 @@
     [string]
     $Organization,
 
-    # The project name or identifier
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
+    # The project name or identifier.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $Project,
 
-    # If set, will return teams in which the current user is a member.
-    [Parameter(ParameterSetName='teams',ValueFromPipelineByPropertyName)]
-    [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
-    [Alias('My')]
-    [switch]
-    $Mine,
-
     # The Team Identifier
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
-    [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $TeamID,
-
-    # If set, will return members of a team.
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members')]
-    [Alias('Members','Membership')]
-    [switch]
-    $Member,
-
-    # If set, will return the team identity.
-    [Parameter(Mandatory,ParameterSetName='graph/descriptors/{teamId}')]
-    [switch]
-    $Identity,
-
-    # If set, will list the security groups.
-    [Parameter(Mandatory,ParameterSetName='graph/groups')]
-    [switch]
-    $SecurityGroup,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -80,21 +55,6 @@
 
     process {
         $psParameterSet = $psCmdlet.ParameterSetName
-        $in = $_
-        if ($in.Project -and $psParameterSet -notlike '*Project*') {
-            $psParameterSet = 'projects/{Project}/teams'
-            $project = $psBoundParameters['Project']  = $in.Project
-        }
-        if ($in.TeamID -and $psParameterSet -notlike '*TeamID*') {
-            $psParameterSet = 'projects/{Project}/teams/{teamId}'
-        }
-        if ($in.TeamID -and -not $TeamID) {
-            $TeamID = $in.TeamID
-        }
-
-        if ($Identity) {
-            $psParameterSet = $($MyInvocation.MyCommand.Parameters['Identity'].Attributes.ParameterSetName)
-        }
 
         if ($psParameterSet -like 'graph*') {
             $server = 'https://vssps.dev.azure.com/'
@@ -115,9 +75,6 @@
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
-            if ($Mine) {
-                '$mine=true'
-            }
             if ($ApiVersion) { # the api-version
                 "api-version=$apiVersion"
             }
@@ -135,26 +92,10 @@
         $invokeParams.PSTypeName = $typeNames
         $invokeParams.Property = @{Organization=$Organization;Server=$Server}
         if ($Project) { $invokeParams.Property.Project = $Project }
-        if ($Identity) {
-            $null = $invokeParams.Property.Remove('Server')
-            $invokeParams.Property.Team =
-                if ($name) { $name }
-                elseif ($in.Name)
-                { $in.name }
+        if ($TeamID) { $invokeParams.Property.TeamID = $TeamID}
 
-            $invokeParams.Property.TeamID = $TeamID
-            $invokeParams.PSTypeName = @(
-                "$Organization.TeamDescriptor"
-                "$Organization.descriptor"
-                if ($Project) {
-                    "$Organization.$Project.TeamDescriptor"
-                    "$Organization.$Project.descriptor"
-                }
-                'PSDevOps.TeamDescriptor'
-                'PSDevOps.descriptor'
-            )
-        }
 
         Invoke-ADORestAPI @invokeParams
     }
 }
+

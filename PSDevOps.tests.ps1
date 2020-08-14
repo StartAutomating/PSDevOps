@@ -206,13 +206,13 @@ describe 'Calling REST APIs' {
 
     context Teams {
         it 'Can get teams' {
-            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Name |
                 should -Be 'PSDevOps Team'
         }
 
         it 'Can create teams' {
-            $whatIf = New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
+            $whatIf = Add-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyTeam -WhatIf
             $whatIf.body.name | Should -Be MyTeam
         }
 
@@ -411,7 +411,7 @@ describe 'Calling REST APIs' {
 
         it 'Can add dashboards' {
             $whatIf =
-                New-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
+                Add-ADODashboard -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -Name TestDashboard -Description "A Test Dashboard" -WhatIf
             $whatIf.Method | Should -Be POST
             $whatIf.Body.name | Should -Be TestDashboard
         }

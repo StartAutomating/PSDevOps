@@ -1,4 +1,4 @@
-﻿function New-ADOTeam
+﻿function Add-ADOTeam
 {
     <#
     .Synopsis
@@ -6,7 +6,7 @@
     .Description
         Gets teams from Azure DevOps or TFS
     .Example
-        New-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyNewTeam -WhatIf
+        Add-ADOTeam -Organization StartAutomating -Project PSDevOps -Team MyNewTeam -WhatIf
     .Link
         Get-ADOTeam
     .Link
@@ -14,22 +14,40 @@
     #>
     [OutputType('PSDevOps.Team')]
     [CmdletBinding(SupportsShouldProcess)]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
     # The Organization.
-    [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
 
-    # The project name or identifier
+    # The project name or identifier.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [string]
     $Project,
 
-    # The Team Name
+    # The Team Name.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [string]
     $Team,
+
+    # The Team Description.
+    [Parameter(ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
+    [string]
+    $Description,
+
+    # The Security Descriptor of the User.
+    [Parameter(Mandatory,ParameterSetName='graph/memberships/{UserDescriptor}/{TeamDescriptor}')]
+    [Alias('SubjectDescriptor')]
+    [string]
+    $UserDescriptor,
+
+    # The Security Descriptor of the Team.
+    [Parameter(Mandatory,ParameterSetName='graph/memberships/{UserDescriptor}/{TeamDescriptor}')]
+    [Alias('ContainerDescriptor', 'GroupDescriptor')]
+    [string]
+    $TeamDescriptor,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -41,7 +59,7 @@
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1")
+    $ApiVersion = "5.1-preview.1")
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
 
@@ -61,6 +79,16 @@
         while ($q.Count) {
             . $dq $q
 
+            $invokeParams.Method =
+                if ($psParameterSet -like 'graph*') {
+                    $Server = 'https://vssps.dev.azure.com/'
+                    'PUT'
+                } else {
+                    'POST'
+                    $invokeParams.body = @{name=$Team}
+                    if ($Description) { $invokeParams.body.description = $Description }
+                }
+
             $uri = # The URI is comprised of:
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -73,7 +101,7 @@
             $c++
             $uri += '?' # The URI has a query string containing:
             $uri += @(
-                if ($Server -ne 'https://dev.azure.com/' -and
+                if ($Server -notlike 'https://*.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
                 }
@@ -82,21 +110,22 @@
                 }
             ) -join '&'
 
-            $typename = @($psParameterSet -split '/')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
+            $typename = @($psParameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
             $typeNames = @(
                 "$organization.$typename"
-                "$organization.$Project.$typename"
+                if ($project) { "$organization.$Project.$typename" }
                 "PSDevOps.$typename"
             )
-            $invokeParams.Method = 'POST'
+
             $invokeParams.Uri  = $uri
-            $invokeParams.body = @{name=$Team}
-            $invokeParams.PSTypeNames = $typeNames
+
+            $invokeParams.PSTypeName = $typeNames
             $invokeParams.Property = @{
                 Organization = $Organization
-                Project = $Project
                 Server = $Server
             }
+            if ($Project) { $invokeParams.Property.Project = $Project }
+
             if ($WhatIfPreference) {
                 $invokeParams.Remove('PersonalAccessToken')
                 $invokeParams
