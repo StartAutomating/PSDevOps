@@ -100,7 +100,7 @@
         $uri =
             "$(@(
                 "$server".TrimEnd('/')  # * The Server
-                . $ReplaceRouteParameter $psPrameterSet #* and the replaced route parameters.
+                . $ReplaceRouteParameter $psParameterSet #* and the replaced route parameters.
             )  -join '')?$( # Followed by a query string, containing
             @(
                 if ($Server -ne 'https://dev.azure.com' -and
