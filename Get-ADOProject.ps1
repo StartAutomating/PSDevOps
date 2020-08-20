@@ -19,7 +19,16 @@
     [OutputType('PSDevOps.Project','PSDevOps.Property')]
     param(
     # The project name.
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{Project}',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/projects/{Project}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{Project}/_apis/work/processconfiguration')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{Project}/_apis/work/plans')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}/deliverytimeframe')]
     [string]
     $Project,
 
@@ -34,6 +43,26 @@
     [Alias('Property','Properties')]
     [switch]
     $Metadata,
+
+    # If set, will return the process configuration of a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/processconfiguration')]
+    [switch]
+    $ProcessConfiguration,
+
+    # If set, will return the plans related to a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/plans')]
+    [switch]
+    $Plan,
+
+    # If set, will a specific project plan.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}')]
+    [string]
+    $PlanID,
+
+    # If set, will return the project delivery timeline associated with a given planID.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}/deliverytimeline')]
+    [string]
+    $DeliveryTimeline,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -77,7 +106,7 @@
             ) -join '&'
             )"
 
-        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1] -replace
+        $typeName = @($psCmdlet.ParameterSetName -split '/' -notlike '{*}')[-1] -replace
             '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$'
 
 
