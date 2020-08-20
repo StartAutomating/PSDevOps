@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.3'
+    ModuleVersion = '0.4.4'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,13 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.4
+---
+* Get-ADOTask:  Adding -YAMLSchema.
+* Get-ADOTeam:  Adding -Setting/-FieldValue/-Iteration/-Board.
+* Get-ADOAreaPath/ADOIterationPath:  Making parameter names match cmdlet.  Honoring -AreaPath/-IterationPath.
+* Get-ADOProject:  Adding -ProcessConfiguration, -Plan, -PlanID, and -DeliveryTimeline.
+* New Command:  Set-ADOTeam
 0.4.3
 ---
 *Renaming commands:
