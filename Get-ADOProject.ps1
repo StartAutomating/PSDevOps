@@ -56,6 +56,7 @@
 
     # If set, will a specific project plan.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}')]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/work/plans/{PlanID}/deliverytimeline')]
     [string]
     $PlanID,
 
