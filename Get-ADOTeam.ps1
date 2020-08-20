@@ -23,6 +23,13 @@
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/teamfieldvalues',
+        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/iterations',
+        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/boards',
+        ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $Project,
@@ -37,6 +44,13 @@
     # The Team Identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/teamfieldvalues',
+        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/iterations',
+        ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/boards',
+        ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $TeamID,
@@ -51,6 +65,30 @@
     [Parameter(Mandatory,ParameterSetName='graph/descriptors/{teamId}')]
     [switch]
     $Identity,
+
+    # If set, will return the team settings.
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings')]
+    [Alias('Settings')]
+    [switch]
+    $Setting,
+
+    # If set, will return the team field values.
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/teamfieldvalues')]
+    [Alias('FieldValues')]
+    [switch]
+    $FieldValue,
+
+    # If set, will return iterations for the team.
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/iterations')]
+    [Alias('Iterations')]
+    [switch]
+    $Iteration,
+
+    # If set, will list team workboards.
+    [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/boards')]
+    [Alias('Boards')]
+    [switch]
+    $Board,
 
     # If set, will list the security groups.
     [Parameter(Mandatory,ParameterSetName='graph/groups')]
@@ -104,7 +142,9 @@
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 $Organization            # the Organization,
-                '_apis'                  # the API Root ('_apis'),
+                if ($psParameterSet.IndexOf('_apis', [Stringcomparison]::OrdinalIgnoreCase) -eq -1) {
+                    '_apis'                  # the API Root ('_apis'),
+                }
                 (. $ReplaceRouteParameter $psParameterSet)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
