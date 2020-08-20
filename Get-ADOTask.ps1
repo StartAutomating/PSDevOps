@@ -7,6 +7,8 @@
         Gets Tasks and Task Groups from Azure DevOps
     .Example
         Get-ADOTask -Organization StartAutomating
+    .Example
+        Get-ADOTask -Organization StartAutomating -YAMLSchema
     .Link
         Convert-ADOPipeline
     #>
@@ -28,9 +30,16 @@
     # If set, will get task groups related to a project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{Project}/_apis/distributedTask/taskGroups/')]
-    [Alias('TaskGroups')]
+    [Alias('TaskGroups','TG')]
     [switch]
     $TaskGroup,
+
+    # If set, will get the schema for YAML tasks within an organization.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/distributedTask/yamlSchema')]
+    [Alias('Schema', 'YS')]
+    [switch]
+    $YAMLSchema,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).

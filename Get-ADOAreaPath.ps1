@@ -85,6 +85,9 @@
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) # and any parameterized URLs in this parameter set.
+                if ($AreaPath) {
+                    $AreaPath
+                }
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:

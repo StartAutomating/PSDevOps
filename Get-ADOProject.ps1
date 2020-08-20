@@ -19,13 +19,22 @@
     [OutputType('PSDevOps.Project','PSDevOps.Property')]
     param(
     # The project name.
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{Project}',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/_apis/projects/{Project}')]
     [string]
     $Project,
 
     # The project identifier.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{ProjectID}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/properties',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/processconfiguration')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeframe')]
     [string]
     $ProjectID,
 
@@ -34,6 +43,27 @@
     [Alias('Property','Properties')]
     [switch]
     $Metadata,
+
+    # If set, will return the process configuration of a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/processconfiguration')]
+    [switch]
+    $ProcessConfiguration,
+
+    # If set, will return the plans related to a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans')]
+    [switch]
+    $Plan,
+
+    # If set, will a specific project plan.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeline')]
+    [string]
+    $PlanID,
+
+    # If set, will return the project delivery timeline associated with a given planID.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeline')]
+    [string]
+    $DeliveryTimeline,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -61,10 +91,16 @@
         #endregion Copy Invoke-ADORestAPI parameters
     }
     process {
+        $in = $_
+        $psParameterSet = $psCmdlet.ParameterSetName
+        if ($in.ProjectID -and $psParameterSet -notlike '*{ProjectId}*') {
+            $ProjectID = $psBoundParameters['ProjectID'] = $in.ProjectID
+            $psParameterSet = '/{Organization}/_apis/projects/{ProjectID}'
+        }
         $uri =
             "$(@(
                 "$server".TrimEnd('/')  # * The Server
-                . $ReplaceRouteParameter $psCmdlet.ParameterSetName #* and the replaced route parameters.
+                . $ReplaceRouteParameter $psParameterSet #* and the replaced route parameters.
             )  -join '')?$( # Followed by a query string, containing
             @(
                 if ($Server -ne 'https://dev.azure.com' -and
@@ -77,7 +113,7 @@
             ) -join '&'
             )"
 
-        $typeName = @($psCmdlet.ParameterSetName -split '/')[-1] -replace
+        $typeName = @($psCmdlet.ParameterSetName -split '/' -notlike '{*}')[-1] -replace
             '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$'
 
 
