@@ -89,7 +89,7 @@
                 $group = $_
                 if ($group.Name -like '*/teamsettings:*') {
                     $settings = @{}
-                    foreach ($g in $group.Group) {                        
+                    foreach ($g in $group.Group) {
                         if ($BugBehavior) {
                             $settings.bugsBehavior = $BugBehavior
                         }
