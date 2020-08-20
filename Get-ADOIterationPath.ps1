@@ -27,10 +27,10 @@
     [string]
     $Project,
 
-    # The AreaPath
+    # The IterationPath
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
-    $AreaPath,
+    $IterationPath,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -83,6 +83,9 @@
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) # and any parameterized URLs in this parameter set.
+                if ($IterationPath) {
+                    $IterationPath
+                }
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
