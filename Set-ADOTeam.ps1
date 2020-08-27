@@ -12,12 +12,14 @@
             Set-ADOTeam -Setting @{
                 Custom = 'Value'
             }
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/work/teamsettings/update?view=azure-devops-rest-6.0
     #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([Nullable],[PSObject])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
-    # The Organization
+    # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
