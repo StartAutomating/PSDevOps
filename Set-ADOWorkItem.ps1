@@ -15,7 +15,7 @@
     .Link
         Invoke-ADORestAPI
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/get%20work%20item?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/update
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
@@ -51,6 +51,24 @@
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $ParentID,
+
+    # If set, will not validate rules.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('BypassRules','NoRules','NoRule')]
+    [switch]
+    $BypassRule,
+
+    # If set, will only validate rules, but will not update the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('ValidateRules','ValidateRule','CheckRule','CheckRules')]
+    [switch]
+    $ValidateOnly,
+
+    # If set, will only validate rules, but will not update the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('SuppressNotifications','SkipNotification','SkipNotifications','NoNotify')]
+    [switch]
+    $SupressNotification,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -152,9 +170,12 @@
             $uri = $uriBase, "_apis/wit/workitems", "${ID}?" -join '/'
 
             $uri +=
-                if ($ApiVersion) {
-                    "api-version=$ApiVersion"
-                }
+                @(
+                if ($ApiVersion) { "api-version=$ApiVersion" }
+                if ($BypassRule) { 'bypassRules=true' }
+                if ($SupressNotification) { 'supressNotifications=true'}
+                if ($ValidateOnly) { 'validateOnly=true'}
+                ) -join '&'
 
 
             if ($InputObject -is [Collections.IDictionary]) {
@@ -200,6 +221,10 @@
             $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
             $invokeParams.Method = 'PATCH'
             $invokeParams.ContentType = 'application/json-patch+json'
+            if ($WhatIfPreference) {
+                $invokeParams.Remove('PersonalAccessToken')
+                return $invokeParams
+            }
             if (-not $PSCmdlet.ShouldProcess("Patch $uri with $($invokeParams.body)")) { return }
             $restResponse =  Invoke-ADORestAPI @invokeParams
             if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
@@ -212,9 +237,10 @@
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
-            $uri += if ($ApiVersion) {
-                "api-version=$ApiVersion"
-            }
+            $uri +=
+                @(if ($ApiVersion) {
+                    "api-version=$ApiVersion"
+                }) -join '&'
 
             $invokeParams.Method = "POST"
             $invokeParams.Body = ConvertTo-Json @{query=$Query}

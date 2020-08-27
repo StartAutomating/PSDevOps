@@ -40,6 +40,23 @@
     [string]
     $Project,
 
+    # If set, will not validate rules.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('BypassRules','NoRules','NoRule')]
+    [switch]
+    $BypassRule,
+
+    # If set, will only validate rules, but will not update the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('ValidateRules','ValidateRule','CheckRule','CheckRules')]
+    [switch]
+    $ValidateOnly,
+
+    # If set, will only validate rules, but will not update the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('SuppressNotifications','SkipNotification','SkipNotifications','NoNotify')]
+    [switch]
+    $SupressNotification,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -141,9 +158,12 @@
             $ApiVersion = '2.0'
         }
         $uri +=
-            if ($ApiVersion) {
-                "api-version=$ApiVersion"
-            }
+            @(
+            if ($ApiVersion) {"api-version=$ApiVersion" }
+            if ($BypassRule) { 'bypassRules=true' }
+            if ($SupressNotification) { 'supressNotifications=true'}
+            if ($ValidateOnly) { 'validateOnly=true'}
+            ) -join '&'
 
 
 
@@ -173,6 +193,10 @@
         $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
         $invokeParams.Method = 'POST'
         $invokeParams.ContentType = 'application/json-patch+json'
+        if ($WhatIfPreference) {
+            $invokeParams.Remove('PersonalAccessToken')
+            return $invokeParams
+        }
         if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
         $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
 
