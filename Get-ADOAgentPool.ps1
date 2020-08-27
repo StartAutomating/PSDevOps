@@ -130,6 +130,7 @@
 
             $additionalProperties = @{Organization=$Organization;Server=$Server}
             if ($Project) { $additionalProperties['Project']= $Project }
+            if ($PoolID)  { $additionalProperties['PoolID'] = $PoolID } 
 
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }
