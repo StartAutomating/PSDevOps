@@ -316,6 +316,18 @@ describe 'Calling REST APIs' {
         it 'Can Get-ADOAgentPool for a given -Organization' {
             Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat -ErrorAction Stop
         }
+
+        it 'Can Remove-ADOAgentPool' {
+            $whatIf = Remove-ADOAgentPool -Organization StartAutomating -PoolID 1 -WhatIf
+            $whatIf.Method | Should -be DELETE
+            $whatIf.Uri    | Should -BeLike '*pools/1*'
+        }
+
+        it 'Can Remove-ADOAgentPool -AgentID' {
+            $whatIf = Remove-ADOAgentPool -Organization StartAutomating -PoolID 1 -AgentID 1 -WhatIf
+            $whatIf.Method | Should -be DELETE
+            $whatIf.Uri    | Should -BeLike '*agents/1*'
+        }
     }
 
     context 'Service Endpoints:' {
