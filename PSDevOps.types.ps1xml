@@ -295,26 +295,12 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.ExtensionContribution</Name>
+    <Name>PSDevOps.Agent</Name>
     <Members>
       <AliasProperty>
-        <Name>ContributionID</Name>
+        <Name>AgentID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-      <ScriptProperty>
-        <Name>Description</Name>
-        <GetScriptBlock>
-                    $this.properties.description
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>Name</Name>
-        <GetScriptBlock>
-                    $this.properties.name
-
-                </GetScriptBlock>
-      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -355,6 +341,29 @@ return Invoke-RestMethod $this.contentUri
         <Name>ConsumerID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ExtensionContribution</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ContributionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Description</Name>
+        <GetScriptBlock>
+                    $this.properties.description
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Name</Name>
+        <GetScriptBlock>
+                    $this.properties.name
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
