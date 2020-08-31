@@ -21,11 +21,22 @@
     [string]
     $Organization,
 
+    # If set, will get details about a particular user storage key
+    [Parameter(Mandatory,ParameterSetName='graph/descriptors/{StorageKey}',ValueFromPipelineByPropertyName)]
+    [string]
+    $StorageKey,
+
+    # If set, will get details about a particular member URL.
+    [Parameter(Mandatory,ParameterSetName='user/{MemberUrl}',ValueFromPipelineByPropertyName)]
+    [string]
+    $MemberURL,
+
     # The project name or identifier.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
     [Parameter(ParameterSetName='graph/descriptors/{teamId}')]
     [string]
     $Project,
+
 
     # The Team Identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
@@ -60,6 +71,8 @@
             $server = 'https://vssps.dev.azure.com/'
         }
 
+
+
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -80,6 +93,10 @@
             }
         ) -join '&'
 
+        if ($MemberURL) {
+            $uri = $MemberURL
+        }
+
         # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
         $typename = @($psParameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') -replace 'Member', 'TeamMember' # We just need to drop the 's'
 
@@ -88,6 +105,8 @@
             if ($Project) { "$organization.$Project.$typename" }
             "PSDevOps.$typename"
         )
+
+
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
         $invokeParams.Property = @{Organization=$Organization;Server=$Server}
