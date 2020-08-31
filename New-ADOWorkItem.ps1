@@ -6,12 +6,13 @@
     .Description
         Creates new work items in Azure DevOps or Team Foundation Server.
     .Example
-        @{ 'Verb' ='Get' ;'Noun' = 'ADOWorkItem' } |
-            Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 4
+        @{ Title='New Work Item'; Description='A Description of the New Work Item' } |
+            New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Type Issue
     .Link
         Invoke-ADORestAPI
     #>
     [CmdletBinding(DefaultParameterSetName='ByID',SupportsShouldProcess=$true)]
+    [OutputType('PSDevOps.WorkItem')]
     param(
     # The InputObject
     [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
