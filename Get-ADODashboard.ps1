@@ -77,13 +77,13 @@
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
     end {
-        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
+        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
 
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
             $c++
-            Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $id -PercentComplete ($c * 100/$t)
+            Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $progId -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -125,11 +125,10 @@
             if (-not $DashboardID) {
                 $invokeParams.ExpandProperty = 'DashboardEntries'
             }
-
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }
 
-        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $id -Completed
+        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $progId -Completed
     }
 }
 
