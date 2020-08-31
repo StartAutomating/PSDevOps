@@ -57,9 +57,16 @@
 
     # If set, will return members of a team.
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members')]
+    [Parameter(Mandatory,ParameterSetName='graph/Memberships/{SecurityDescriptor}')]
     [Alias('Members','Membership')]
     [switch]
     $Member,
+
+    # The Security Descriptor.
+    [Parameter(Mandatory,ParameterSetName='graph/Memberships/{SecurityDescriptor}',ValueFromPipelineByPropertyName)]
+    [Alias('SD','UserDescriptor','TeamDescriptor', 'SubjectDescriptor')]
+    [string]
+    $SecurityDescriptor,
 
     # If set, will return the team identity.
     [Parameter(Mandatory,ParameterSetName='graph/descriptors/{teamId}')]
@@ -129,6 +136,19 @@
         if ($in.TeamID -and -not $TeamID) {
             $TeamID = $in.TeamID
         }
+        if ($in -and $psParameterSet -eq 'teams' -and -not $SecurityDescriptor) {
+            $lookingForSD = @('SecurityDescriptor') +
+                $MyInvocation.MyCommand.Parameters['SecurityDescriptor'].Aliases
+            foreach ($look in $lookingForSD) {
+                if ($in.$look) {
+                    $SecurityDescriptor = $in.$look
+                    $psParameterSet = $MyInvocation.MyCommand.Parameters['SecurityDescriptor'].Attributes |
+                        Where-Object {$_.ParameterSetName } |
+                        Select-Object -ExpandProperty ParameterSetName -First 1
+                    break
+                }
+            }
+        }
 
         if ($Identity) {
             $psParameterSet = $($MyInvocation.MyCommand.Parameters['Identity'].Attributes.ParameterSetName)
@@ -155,11 +175,19 @@
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
-            if ($Mine) {
-                '$mine=true'
-            }
+
             if ($ApiVersion) { # the api-version
                 "api-version=$apiVersion"
+            }
+            if ($psParameterSet -like '*memberships*') {
+                if ($Member) {
+                    "direction=Down"
+                } else {
+                    "direction=Up"
+                }
+            }
+            if ($Mine) {
+                '$mine=true'
             }
         ) -join '&'
 
@@ -177,12 +205,13 @@
         if ($Project) { $invokeParams.Property.Project = $Project }
         if ($Identity) {
             $null = $invokeParams.Property.Remove('Server')
-            $invokeParams.Property.Team =
+            $null = $invokeParams.Property.Remove('Project')
+            $invokeParams.Property.TeamName =
                 if ($name) { $name }
                 elseif ($in.Name)
                 { $in.name }
 
-            $invokeParams.Property.TeamID = $TeamID
+            #$invokeParams.Property.TeamID = $TeamID
             $invokeParams.PSTypeName = @(
                 "$Organization.TeamDescriptor"
                 "$Organization.descriptor"
