@@ -522,7 +522,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
             <Wrap />
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>Team</PropertyName>
+                <PropertyName>TeamName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>TeamDescriptor</PropertyName>
