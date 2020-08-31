@@ -209,7 +209,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                     }
                     $reHead
                 } else {
-                    $null
+                    @{}
                 }
 
             $streamIn = [IO.StreamReader]::new($rs)
@@ -308,7 +308,7 @@ Specifies the method used for the web request. The acceptable values for this pa
             } }
         #endregion Call Invoke-RestMethod
 
-        if ($responseHeaders.'X-MS-ContinuationToken') {
+        if ($responseHeaders['X-MS-ContinuationToken']) {
             $ContinuationToken = $PSBoundParameters['ContinuationToken'] = $responseHeaders.'X-MS-ContinuationToken'
             Invoke-ADORestAPI @PSBoundParameters
         }
