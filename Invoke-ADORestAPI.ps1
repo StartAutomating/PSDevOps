@@ -192,10 +192,12 @@ Specifies the method used for the web request. The acceptable values for this pa
                         $strResponse = $streamIn.ReadToEnd()
                         $streamIn.Close()
                         $streamIn.Dispose()
-                        Write-Error $strResponse
+                        $errorRecord = [Management.Automation.ErrorRecord]::new($ex.Exception.InnerException, $ex.Exception.HResult, 'NotSpecified', $webRequest)
+                        $PSCmdlet.WriteError($errorRecord)
                         return
                     } else {
-                        $ex | Write-Error
+                        $errorRecord = [Management.Automation.ErrorRecord]::new($ex.Exception, $ex.Exception.HResult, 'NotSpecified', $webRequest)
+                        $PSCmdlet.WriteError($errorRecord)
                         return
                     }
                 }
@@ -307,7 +309,7 @@ Specifies the method used for the web request. The acceptable values for this pa
         #endregion Call Invoke-RestMethod
 
         # If we have a continuation token
-        if ($responseHeaders['X-MS-ContinuationToken'] -and $Uri -notmatch '\$(top|first)=') {
+        if ($responseHeaders -and $responseHeaders['X-MS-ContinuationToken'] -and $Uri -notmatch '\$(top|first)=') {
             if ($Uri.Query -notmatch '\$(top|first)=') { # and the uri is not have top or first parameter
                 $apiOutput # output
 
