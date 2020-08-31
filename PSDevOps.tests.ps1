@@ -159,7 +159,7 @@ describe 'Creating Pipelines' {
             '=','Import-Module','$(PSDevOpsPath)',
             'Get-ADOWorkProcess','@Parameters'
 
-        $createdPipeline | should belike "*$($keyParts -join '*')*"
+        $createdPipeline | should -BeLike "*$($keyParts -join '*')*"
     }
 }
 
@@ -260,14 +260,14 @@ describe 'Calling REST APIs' {
         }
         it 'Can get build definitions' {
             $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
-            $buildDefinitions.Count | should be 1
-            $buildDefinitions[0].Name  |should belike *PSDevOps*
+            $buildDefinitions.Count | should -BeGreaterThan 1
+            $buildDefinitions[0].Name  |should -beLike *PSDevOps*
         }
         it 'Can get build -DefinitionYAML, given a build definition' {
             $buildDefinitionYaml = $(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition |
                 Select-Object -First 1 |
                 Get-ADOBuild -DefinitionYAML -PersonalAccessToken $testPat)
-            $buildDefinitionYaml | should belike *pester*
+            $buildDefinitionYaml | should -beLike *pester*
         }
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
