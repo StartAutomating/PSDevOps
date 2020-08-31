@@ -15,6 +15,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/delete?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='ByID', SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [OutputType([Nullable],[Collections.IDictionary])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

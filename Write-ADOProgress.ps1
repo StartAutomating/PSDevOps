@@ -13,6 +13,7 @@
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForPipelineParameter", "", Justification="Proxying Write-Progress")]
     [OutputType([string])]
     param(
     # This text describes the activity whose progress is being reported.
@@ -76,6 +77,7 @@
             $isFirst = $true
         }
 
+        #region Prepare Progress Message
         $properties = @(
             "id=$($script:ADOProgressIds[$ID])"
             if ($ParentId) {
@@ -116,7 +118,7 @@
         ) -join ' '
 
         $out = "##vso[task.logdetail $($properties -join ';')]$msg"
-
+        #endregion Prepare Progress Message
         if ($env:Agent_ID -and $DebugPreference -eq 'continue') {
             Write-Host $out
         } else {
