@@ -269,6 +269,17 @@ describe 'Calling REST APIs' {
                 Get-ADOBuild -DefinitionYAML -PersonalAccessToken $testPat)
             $buildDefinitionYaml | should -beLike *pester*
         }
+
+        it 'Can create a build' {
+            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
+            $bd = $buildDefinitions[0]  | Get-ADOBuild
+            $whatIf = New-ADOBuild -Name 'PSDevOps3' -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $myPat -WhatIf -Repository $bd.repository -YAMLFileName azure-pipelines.yml -Variable @{MyVariable=1} -Secret @{MySecret='IsSafe'}
+            $whatIf.Method | Should -Be POST
+            $whatIf.Body.Process.type | Should -be 2
+            $whatIf.Body.Process.yamlFileName | Should -be 'azure-pipelines.yml'
+            $whatIf.Body.queue.name | Should -Be 'default'
+            $whatIf.Body.path | Should -Be '\'
+        }
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
