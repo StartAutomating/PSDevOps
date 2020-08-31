@@ -12,6 +12,10 @@
         Set-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.State] = 'To Do' and [System.AssignedTo] = @Me" -InputObject @{
             State = 'Doing'
         }
+    .Example
+        Set-ADOWorkItem -Organization TestOrg -Project Test -ID 123 -InputObject @{
+            Version = 'Updating Custom Version Field Despite Being Read Only'
+        } -PersonalAccessToken $myPat -BypassRule
     .Link
         Invoke-ADORestAPI
     .Link
