@@ -155,7 +155,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                 $uri = "${uri}?ContinuationToken=$ContinuationToken"
             } else {
                 $uri = "${uri}&continuationToken=$ContinuationToken"
-            }    
+            }
         }
 
         $webRequest =  [Net.WebRequest]::Create($uri)
@@ -182,26 +182,26 @@ Specifies the method used for the web request. The acceptable values for this pa
         }
 
         $response = . {
-            $webResponse = 
+            $webResponse =
                 try {
                     $WebRequest.GetResponse()
                 } catch {
                     $ex = $_
-                    if ($ex.Exception.InnerException.Response) {                            
+                    if ($ex.Exception.InnerException.Response) {
                         $streamIn = [IO.StreamReader]::new($ex.Exception.InnerException.Response.GetResponseStream())
-                        $strResponse = $streamIn.ReadToEnd()                            
+                        $strResponse = $streamIn.ReadToEnd()
                         $streamIn.Close()
                         $streamIn.Dispose()
-                        Write-Error $strResponse 
+                        Write-Error $strResponse
                         return
                     } else {
                         $ex | Write-Error
                         return
-                    }                        
+                    }
                 }
             $rs = $webresponse.GetResponseStream()
             $responseHeaders = $webresponse.Headers
-            $responseHeaders = 
+            $responseHeaders =
                 if ($responseHeaders -and $responseHeaders.GetEnumerator()) {
                     $reHead = @{}
                     foreach ($r in $responseHeaders.GetEnumerator()) {
@@ -223,17 +223,15 @@ Specifies the method used for the web request. The acceptable values for this pa
             } else {
                 $strResponse
             }
-             
+
             $streamIn.Close()
         } 2>&1
         $null = $null
         # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
-        #@(try {
-            $response|
-        #} catch {
-            #$_
-        #}) |
+
+        $apiOutput =
+            $response |
             & { process {
                 $in = $_
 
@@ -308,9 +306,21 @@ Specifies the method used for the web request. The acceptable values for this pa
             } }
         #endregion Call Invoke-RestMethod
 
-        if ($responseHeaders['X-MS-ContinuationToken']) {
-            $ContinuationToken = $PSBoundParameters['ContinuationToken'] = $responseHeaders.'X-MS-ContinuationToken'
-            Invoke-ADORestAPI @PSBoundParameters
+        # If we have a continuation token
+        if ($responseHeaders['X-MS-ContinuationToken'] -and $Uri -notmatch '\$(top|first)=') {
+            if ($Uri.Query -notmatch '\$(top|first)=') { # and the uri is not have top or first parameter
+                $apiOutput # output
+
+                # Then recursively call yourself with the ContinuationToken
+                $ContinuationToken = $PSBoundParameters['ContinuationToken'] = $responseHeaders.'X-MS-ContinuationToken'
+                Invoke-ADORestAPI @PSBoundParameters
+            } else {
+                # Otherwise, output, but add on the ContinuationToken as a property.
+                $apiOutput |
+                    Add-Member NoteProperty ContinuationToken $responseHeaders.'X-MS-ContinuationToken' -Force -PassThru
+            }
+        } else { # If we didn't have a continuation token, just output
+            $apiOutput
         }
     }
 }
