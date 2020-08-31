@@ -15,6 +15,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType('PSDevOps.Build',[Hashtable])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired")]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

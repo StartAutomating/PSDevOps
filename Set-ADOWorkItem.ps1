@@ -20,6 +20,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='ByID',SupportsShouldProcess=$true)]
+    [OutputType('PSDevOps.WorkItem')]
     param(
     # The InputObject
     [Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
