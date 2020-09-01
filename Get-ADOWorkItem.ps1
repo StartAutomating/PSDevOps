@@ -18,6 +18,7 @@
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/{Project}/_apis/wit/workitems/{id}')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
+    [OutputType('PSDevOps.WorkItem')]
     param(
     # The Work Item Title
     [Parameter(ValueFromPipelineByPropertyName)]

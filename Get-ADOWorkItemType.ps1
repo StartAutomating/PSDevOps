@@ -20,6 +20,7 @@
         'PSDevOps.Rule',
         'PSDevOps.Behavior',
         'PSDevOps.Layout')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired")]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

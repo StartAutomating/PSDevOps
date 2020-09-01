@@ -73,6 +73,7 @@
             $rp = $Path
         }
 
+        #region Prepare the Attachment
         $properties = # Collect the optional properties
             @(foreach ($kv in $PSBoundParameters.GetEnumerator()) {
                 if ($kv.Key -eq 'Path') { continue } # (anything parameter but Path
@@ -80,7 +81,7 @@
                 if (-not $cmdMd.Parameters.ContainsKey($kv.Key)) { continue }
                 "$($kv.Key.ToLower())=$($kv.Value)"
             }) -join ';'
-
+        #endregion Prepare the Attachment
         $out = "##vso[$($pscmdlet.ParameterSetName)$(if ($properties) {" $properties"})]$rp"
         if ($env:AGENT_ID -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out
