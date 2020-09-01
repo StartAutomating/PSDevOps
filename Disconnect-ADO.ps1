@@ -36,7 +36,8 @@
                 }
             }
             #endregion Clear PSDefaultParameterValues
-            $Script:CachedPersonalAccessToken = '' # Clear the cached access token.
+            $Script:CachedPersonalAccessToken = '' # Clear the cached access token
+            $script:ADOConnectionInfo         = $null    # and the connection info.
         }
     }
 }
