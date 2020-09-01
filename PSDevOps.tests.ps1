@@ -170,6 +170,22 @@ describe 'Calling REST APIs' {
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
 
+    it 'Can Connect to Azure DevOps (Connect-ADO)' {
+        $connection = Connect-ADO -Organization StartAutomating -PersonalAccessToken $testPat
+        $connection.Organization | Should -Be StartAutomating
+    }
+
+    it 'Can Disconnect from AzureDevops (Disconnect-ADO)' {
+        Disconnect-ADO -Confirm:$false
+        Disconnect-ADO -WhatIf | Should -Be $null
+    }
+
+    it 'Can Import a proxy module (Import-ADOProxy)' {
+        $saProxy = Import-ADOProxy -Force -Organization StartAutomating -PassThru -Prefix SA
+        $saProxy.Name | should -Be SA
+        Get-Command -Name Get-SABuild | Select-Object -ExpandProperty Name | should -be Get-SABuild
+    }
+
     context Projects {
         it 'Can get projects' {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps |
@@ -710,16 +726,6 @@ describe 'Working with Work Items' {
 
     }
 }
-
-describe 'Import-ADOProxy' {
-    it 'Should Import a proxy module' {
-        $saProxy = Import-ADOProxy -Force -Organization StartAutomating -PassThru -Prefix SA
-        $saProxy.Name | should -Be SA
-        Get-Command -Name Get-SABuild | Select-Object -ExpandProperty Name | should -be Get-SABuild
-    }
-}
-
-
 
 describe 'GitHub Worfklow tools' {
     context New-GitHubWorkflow {
