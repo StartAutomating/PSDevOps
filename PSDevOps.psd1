@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.4'
+    ModuleVersion = '0.4.5'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,20 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.5
+---
+* New Commands:
+** Connect/Disconnect-ADO:  Caching connection info and saving default parameters!
+** New-ADOBuild          :  Create build definitions!
+** Remove-ADOAgentPool   :  Cleaning up pools, queues, and agents.
+* Core Improvements
+** Invoke-ADORestApi
+*** Now supports -ContinuationToken (and auto-continues unless passed a $first or $top query parameter)
+*** Caches access tokens.
+*** BREAKING: Invoke-ADORestApi No longer has -Proxy* parameters.
+* Updated Commands:
+** Get-ADOUser/Get-ADOTeam : Additional Graph scenarios added.
+** New/Set-ADOWorkItem     : Added -BypassRule, -ValidateOnly, -SkipNotification
 0.4.4
 ---
 * Get-ADOTask:  Adding -YAMLSchema.
