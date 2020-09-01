@@ -14,9 +14,11 @@
     .Example
         Get-ADOAgentPool -Organization MyOrganization -PersonalAccessToken $pat
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/pools/get%20agent%20pools?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/pools/get%20agent%20pools
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/queues/get%20agent%20queues?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/queues/get%20agent%20queues
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/distributedtask/agents/list
     #>
     [OutputType('PSDevops.Pool')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
@@ -130,6 +132,7 @@
 
             $additionalProperties = @{Organization=$Organization;Server=$Server}
             if ($Project) { $additionalProperties['Project']= $Project }
+            if ($PoolID)  { $additionalProperties['PoolID'] = $PoolID }
 
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }

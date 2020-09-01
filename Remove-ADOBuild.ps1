@@ -17,6 +17,7 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/delete?view=azure-devops-rest-5.1
     #>
     [CmdletBinding(DefaultParameterSetName='build/builds/{buildId}',SupportsShouldProcess,ConfirmImpact='High')]
+    [OutputType([Nullable],[Collections.IDictionary])]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

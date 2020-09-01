@@ -13,7 +13,12 @@
         Import-ADOProxy -Organization StartAutomating -Prefix SA
     .Example
         Import-ADOProxy -Organization StartAutomating -Project PSDevOps -IncludeCommand *Build* -Prefix SADO
+    .Link
+        Connect-ADO
+    .Link
+        Disconnect-ADO
     #>
+    [OutputType([Nullable],[Management.Automation.PSModuleInfo])]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -80,7 +85,7 @@
         } elseif ($alreadyLoaded -and $force) {
             $alreadyLoaded | Remove-Module
         }
-
+        #region Filter Commands
         $filteredCommands =
             @(:nextCommand foreach ($cmd in $myModuleCommands) {
                 if ($cmd.Noun -eq $MyInvocation.MyCommand.Noun) { continue }
@@ -96,14 +101,14 @@
                 }
                 $cmd
             })
+        #endregion Filter Commands
 
         $override = @{Organization=$Organization}
         if ($Project) { $override += @{Project=$Project} }
         if ($Server)  { $override += @{Server =$Server } }
-
         $overrideJson = $(ConvertTo-Json $override -Depth 100)
 
-
+        #region Generate Proxy Commands
         $proxyCommands =
             @(foreach ($cmd in $filteredCommands) {
                 $cmdMd = [Management.Automation.CommandMetaData]$cmd
@@ -139,8 +144,11 @@ dynamicParam {
                     '}'
                 ) -join [Environment]::NewLine
             })
+        #region Generate Proxy Commands
 
+        #region Create and import module
         New-Module -Name $Prefix -ScriptBlock ([ScriptBlock]::Create($proxyCommands -join [Environment]::NewLine)) |
             Import-Module -Global -PassThru:$passThru
+        #endregion Create and import module
     }
 }

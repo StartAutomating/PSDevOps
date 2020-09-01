@@ -18,6 +18,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
+    [OutputType([Nullable],[Collections.IDictionary])]
     param(
     # The name or reference name of the field
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

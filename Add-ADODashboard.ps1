@@ -177,7 +177,12 @@
                 }
 
                 if ($Setting) {
-                    $body.settings = $Setting
+                    $body.settings =
+                        if ($Setting -isnot [string]) {
+                            $Setting | ConvertTo-Json -Depth 100
+                        } else {
+                            $Setting
+                        }
                 }
 
                 $invokeParams.PSTypeName = "$Organization.Widget", "$Organization.$project.Widget", 'PSDevOps.Widget'

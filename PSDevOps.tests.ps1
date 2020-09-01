@@ -159,7 +159,7 @@ describe 'Creating Pipelines' {
             '=','Import-Module','$(PSDevOpsPath)',
             'Get-ADOWorkProcess','@Parameters'
 
-        $createdPipeline | should belike "*$($keyParts -join '*')*"
+        $createdPipeline | should -BeLike "*$($keyParts -join '*')*"
     }
 }
 
@@ -168,6 +168,22 @@ describe 'Calling REST APIs' {
         $org = 'StartAutomating'
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
+    }
+
+    it 'Can Connect to Azure DevOps (Connect-ADO)' {
+        $connection = Connect-ADO -Organization StartAutomating -PersonalAccessToken $testPat
+        $connection.Organization | Should -Be StartAutomating
+    }
+
+    it 'Can Disconnect from AzureDevops (Disconnect-ADO)' {
+        Disconnect-ADO -Confirm:$false
+        Disconnect-ADO -WhatIf | Should -Be $null
+    }
+
+    it 'Can Import a proxy module (Import-ADOProxy)' {
+        $saProxy = Import-ADOProxy -Force -Organization StartAutomating -PassThru -Prefix SA
+        $saProxy.Name | should -Be SA
+        Get-Command -Name Get-SABuild | Select-Object -ExpandProperty Name | should -be Get-SABuild
     }
 
     context Projects {
@@ -206,7 +222,7 @@ describe 'Calling REST APIs' {
 
     context Teams {
         it 'Can get teams' {
-            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -Team 'PSDevOps Team' -PersonalAccessToken $testPat |
+            Get-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID 'PSDevOps Team' -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty Name |
                 should -Be 'PSDevOps Team'
         }
@@ -260,14 +276,25 @@ describe 'Calling REST APIs' {
         }
         it 'Can get build definitions' {
             $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
-            $buildDefinitions.Count | should be 1
-            $buildDefinitions[0].Name  |should belike *PSDevOps*
+            $buildDefinitions.Count | should -BeGreaterThan 1
+            $buildDefinitions[0].Name  |should -beLike *PSDevOps*
         }
         it 'Can get build -DefinitionYAML, given a build definition' {
             $buildDefinitionYaml = $(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition |
                 Select-Object -First 1 |
                 Get-ADOBuild -DefinitionYAML -PersonalAccessToken $testPat)
-            $buildDefinitionYaml | should belike *pester*
+            $buildDefinitionYaml | should -beLike *pester*
+        }
+
+        it 'Can create a build' {
+            $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
+            $bd = $buildDefinitions[0]  | Get-ADOBuild
+            $whatIf = New-ADOBuild -Name 'PSDevOps3' -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $myPat -WhatIf -Repository $bd.repository -YAMLFileName azure-pipelines.yml -Variable @{MyVariable=1} -Secret @{MySecret='IsSafe'}
+            $whatIf.Method | Should -Be POST
+            $whatIf.Body.Process.type | Should -be 2
+            $whatIf.Body.Process.yamlFileName | Should -be 'azure-pipelines.yml'
+            $whatIf.Body.queue.name | Should -Be 'default'
+            $whatIf.Body.path | Should -Be '\'
         }
         it 'Can Start a Build' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
@@ -315,6 +342,18 @@ describe 'Calling REST APIs' {
 
         it 'Can Get-ADOAgentPool for a given -Organization' {
             Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat -ErrorAction Stop
+        }
+
+        it 'Can Remove-ADOAgentPool' {
+            $whatIf = Remove-ADOAgentPool -Organization StartAutomating -PoolID 1 -WhatIf
+            $whatIf.Method | Should -be DELETE
+            $whatIf.Uri    | Should -BeLike '*pools/1*'
+        }
+
+        it 'Can Remove-ADOAgentPool -AgentID' {
+            $whatIf = Remove-ADOAgentPool -Organization StartAutomating -PoolID 1 -AgentID 1 -WhatIf
+            $whatIf.Method | Should -be DELETE
+            $whatIf.Uri    | Should -BeLike '*agents/1*'
         }
     }
 
@@ -687,16 +726,6 @@ describe 'Working with Work Items' {
 
     }
 }
-
-describe 'Import-ADOProxy' {
-    it 'Should Import a proxy module' {
-        $saProxy = Import-ADOProxy -Force -Organization StartAutomating -PassThru -Prefix SA
-        $saProxy.Name | should -Be SA
-        Get-Command -Name Get-SABuild | Select-Object -ExpandProperty Name | should -be Get-SABuild
-    }
-}
-
-
 
 describe 'GitHub Worfklow tools' {
     context New-GitHubWorkflow {
