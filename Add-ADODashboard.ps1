@@ -123,7 +123,7 @@
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
             $c++
-            Write-Progress "Removing $(@($ParameterSet -split '/')[-1])" "$Organization $Project $Team" -Id $id -PercentComplete ($c * 100/$t)
+            Write-Progress "Adding $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$Organization $Project $Team" -Id $id -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -198,7 +198,7 @@
             Invoke-ADORestAPI @invokeParams
         }
 
-        Write-Progress "Removing $(@($ParameterSet -split '/')[-1])" "$Organization $Project $Team" -Id $id -Completed
+        Write-Progress "Adding $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$Organization $Project $Team" -Id $id -Completed
     }
 }
 
