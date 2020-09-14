@@ -35,6 +35,10 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeframe')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/types')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/configurations')]
     [string]
     $ProjectID,
 
@@ -48,6 +52,17 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/processconfiguration')]
     [switch]
     $ProcessConfiguration,
+
+    # If set, will return the policy configuration of a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/configurations')]
+    [switch]
+    $PolicyConfiguration,
+
+    # If set, will return the policy types available in a given project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/types')]
+    [Alias('PolicyTypes')]
+    [switch]
+    $PolicyType,
 
     # If set, will return the plans related to a project.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans')]
@@ -114,7 +129,8 @@
             )"
 
         $typeName = @($psCmdlet.ParameterSetName -split '/' -notlike '{*}')[-1] -replace
-            '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$'
+            '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
+            'type', 'PolicyType' -replace 'configuration', 'PolicyConfiguration'
 
 
         $additionalProperty = @{
