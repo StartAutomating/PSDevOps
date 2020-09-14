@@ -40,6 +40,7 @@
     # The Repository ID
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
     [string]
     $RepositoryID,
 
@@ -127,6 +128,35 @@
     [switch]
     $Download,
 
+    # If set, will list pull requests related to a git repository.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Alias('PR')]
+    [switch]
+    $PullRequest,
+
+    # Filters pull requests, returning requests created by the -CreatorIdentity.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Alias('CreatorID')]
+    [string]
+    $CreatorIdentity,
+
+    # Filters pull requests where the -ReviewerIdentity is a reviewer.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Alias('ReviewerID')]
+    [string]
+    $ReviewerIdentity,
+
+    # Filters pull requests where the source branch is the -SourceReference.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Alias('SourceRef','SourceRefName')]
+    [string]
+    $SourceReference,
+
+    # Filters pull requests where the target branch is the -TargetReference.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Alias('TargetRef','TargetRefName')]
+    [string]
+    $TargetReference,
 
     # If set, will include the parent repository
     [Parameter(ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
@@ -230,6 +260,20 @@
                         "versionDescriptor.type=$VersionType"
                     }
                 }
+                elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
+                    if ($SourceReference) {
+                        "searchCriteria.sourceRefName=$SourceReference"
+                    }
+                    if ($TargetReference) {
+                        "searchCriteria.targetRefName=$TargetReference"
+                    }
+                    if ($CreatorIdentity) {
+                        "searchCriteria.creatorId=$CreatorIdentity"
+                    }
+                    if ($ReviewerIdentity) {
+                        "searchCriteria.reviewerID=$ReviewerIdentity"
+                    }
+                }
 
                 if ($path) {
                     "path=$path"
@@ -266,6 +310,9 @@
                 }
                 elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
                     ".File"
+                }
+                elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/pullrequests') {
+                    ".PullRequest"
                 }
                 else {
                     ''
