@@ -170,6 +170,8 @@ Specifies the method used for the web request. The acceptable values for this pa
             $requestStream = $webRequest.GetRequestStream()
             $requestStream.Write($bytes, 0, $bytes.Length)
             $requestStream.Close()
+        } else {
+            $webRequest.contentLength = 0
         }
 
         $response = . {
