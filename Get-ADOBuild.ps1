@@ -213,6 +213,11 @@
     [string]
     $BuildResult,
 
+    # Will only return build definitions with the specified name.
+    [Parameter(ParameterSetName='build/definitions')]
+    [string]
+    $DefinitionName,
+
     # If provided, will only return build definitions that have been built after this date.
     [Parameter(ParameterSetName='build/definitions')]
     [DateTime]
@@ -310,19 +315,11 @@
                     if ($NotBuiltSince) {
                         "notBuiltAfter=$($NotBuiltSince.ToLocalTime().ToString('o'))"
                     }
-                    if ($IncludeAllProperty) {
-                        "includeAllProperties=true"
-                    }
-                    if ($IncludeLatestBuild) {
-                        "includeLatestBuilds=true"
-                    }
-                    if ($tag) {
-                        "tagFilters=$($tag -join ',')"
-                    }
-
-                    if ($BuildResult) {
-                        "resultFilter=$buildResult"
-                    }
+                    if ($DefinitionName) { "definitionName=$definitionName" }
+                    if ($IncludeAllProperty) { "includeAllProperties=true" }
+                    if ($IncludeLatestBuild) { "includeLatestBuilds=true"  }
+                    if ($tag) { "tagFilters=$($tag -join ',')" }
+                    if ($BuildResult) { "resultFilter=$buildResult" }
                     if ($Server -ne 'https://dev.azure.com/' -and
                         -not $PSBoundParameters.ApiVersion) {
                         $ApiVersion = '2.0'
