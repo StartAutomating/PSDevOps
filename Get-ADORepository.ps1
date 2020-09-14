@@ -129,7 +129,7 @@
     $Download,
 
     # If set, will list pull requests related to a git repository.
-    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
     [Alias('PR')]
     [switch]
     $PullRequest,
