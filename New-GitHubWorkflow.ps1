@@ -63,7 +63,15 @@ function New-GitHubWorkflow {
         # A collection of default parameters.
         [Parameter(ValueFromPipelineByPropertyName)]
         [Collections.IDictionary]
-        $DefaultParameter = @{}
+        $DefaultParameter = @{},
+
+        # If set, will output the created objects instead of creating YAML.
+        [switch]
+        $PassThru,
+
+        # A list of build scripts.  Each build script will run as a step in the same job.
+        [string[]]
+        $BuildScript
     )
 
     dynamicParam {
@@ -89,6 +97,7 @@ function New-GitHubWorkflow {
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
             BuildOption = $workflowOptions
         }
+        $DoNotExpandParameters = 'InputObject', 'BuildScript'
     }
 
     process {
@@ -102,7 +111,7 @@ function New-GitHubWorkflow {
         foreach ($kv in $myParams.GetEnumerator()) {
             if ($ThingNames[$kv.Key]) {
                 $stepsByType[$kv.Key] = $kv.Value
-            } elseif ($kv.Key -ne 'InputObject') {
+            } elseif ($DoNotExpandParameters -notcontains $kv.Key) {
                 $workflowOptions[$kv.Key] = $kv.Value
             }
         }
@@ -118,6 +127,7 @@ function New-GitHubWorkflow {
                 $stepsByType[$property.name] = $InputObject.$key
             }
         }
+
         #endregion Map Dynamic Input
 
         #region Expand Input
@@ -129,6 +139,19 @@ function New-GitHubWorkflow {
         }
         #endregion Expand Input
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep
+
+        if ($BuildScript) {
+            if (-not $yamlToBe.jobs) {
+                $yamlToBe.jobs = [Ordered]@{}
+            }
+            $yamlToBe.jobs.Build = [Ordered]@{
+                steps = @(
+                    Get-Item $BuildScript -ErrorAction SilentlyContinue |
+                        Convert-BuildStep -BuildSystem GitHubWorkflow
+                )
+            }
+        }
+
         if ($Environment) {
             if (-not $yamlToBe.env) {
                 $yamlToBe.env = [Ordered]@{}
@@ -138,6 +161,10 @@ function New-GitHubWorkflow {
             }
         }
 
-        @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
+        if ($PassThru) {
+            $yamlToBe
+        } else {
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
+        }
     }
 }

@@ -112,6 +112,10 @@
                             }
                         }
 
+                        if (-not $newTask.inputs.count) {
+                            $newTask.Remove('inputs')
+                        }
+
                         if (-not $WhereFore.Count) {
                             $newTask
                         } else {

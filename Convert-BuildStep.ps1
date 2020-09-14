@@ -440,7 +440,6 @@ $CollectParameters
             }
         } elseif ($BuildSystem -eq 'GitHubWorkflow') {
             $out.name = $Name
-            $out.run = "$innerScript" -replace '`\$\{','${'
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
                 if (-not $out.env) { $out.env = @{}}
@@ -451,6 +450,7 @@ $CollectParameters
             if ($definedParameters) {
                 $out.parameters = $definedParameters
             }
+            $out.run = "$innerScript" -replace '`\$\{','${'
         }
         $out
     }
