@@ -133,7 +133,7 @@
         #endregion Map Parameters
 
         if ($BuildScript) {
-            $stepsByType['steps'] = 
+            $stepsByType['steps'] =
                 @(
                     Get-Item $BuildScript -ErrorAction SilentlyContinue |
                         Convert-BuildStep -BuildSystem ADOPipeline
