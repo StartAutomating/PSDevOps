@@ -62,6 +62,11 @@
     [Collections.IDictionary]
     $DefaultParameter = @{},
 
+
+    # A list of build scripts.  Each build script will run as a step in the same job.
+    [string[]]
+    $BuildScript,
+
     # If set, will output the created objects instead of creating YAML.
     [switch]
     $PassThru,
@@ -126,6 +131,14 @@
             }
         }
         #endregion Map Parameters
+
+        if ($BuildScript) {
+            $stepsByType['steps'] = 
+                @(
+                    Get-Item $BuildScript -ErrorAction SilentlyContinue |
+                        Convert-BuildStep -BuildSystem ADOPipeline
+                )
+        }
 
         #region Expand Map
         $expandSplat = @{} + $PSBoundParameters
