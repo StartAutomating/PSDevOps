@@ -61,10 +61,22 @@
         $toCache = [Ordered]@{} + $PSBoundParameters
         $toCache.Remove('PersonalAccessToken')
         #region Set PSDefaultParameterValues
+
         foreach ($cmd in $myModuleCommands) {
-            if ($cmd.Name -notlike '*-ADO*') { continue }
+            if ($cmd.Name -notlike '*-ADO*') { continue } # If its not an Azure DevOps command, skip it.
+            # Walk over each parameter we're caching.
             foreach ($kv in $toCache.GetEnumerator()) {
-                $global:PSDefaultParameterValues["${cmd}:$($kv.Key)"] = $kv.Value
+                $paramExists = $cmd.Parameters.($kv.Key) # Check to see if the parameter exists
+                if (-not $paramExists) { # if it didn't, check the aliases.
+                    foreach ($v in $cmd.Parameters.Values) {
+                        if ($v.Aliases -contains $kv.Key) {
+                            $paramExists = $cmd.Parameters.($v.Name)
+                        }
+                    }
+                }
+                if ($paramExists) { # If the parameter existed, set $global:PSDefaultParameterValues
+                    $global:PSDefaultParameterValues["${cmd}:$($kv.Key)"] = $kv.Value
+                }
             }
         }
         #endregion Set PSDefaultParameterValues
@@ -72,10 +84,14 @@
         #region Cache PersonalAccessToken
         if ($PersonalAccessToken) {
             $Script:CachedPersonalAccessToken = $PersonalAccessToken
-            $getProjects = Get-ADOProject @PSBoundParameters
-            if (-not $getProjects) {
+            $getProjects = @(Get-ADOProject @PSBoundParameters)
+            $getMyTeams  = @(Get-ADOTeam @PSBoundParameters -Mine)
+            if (-not ($getMyTeams -or $getProjects)) {
                 Disconnect-ADO
+                return
             }
+
+
         }
         #endregion Cache PersonalAccessToken
 
@@ -87,5 +103,39 @@
         $output.pstypenames.add('PSDevOps.Connection')
         $output
         #endregion Cache and Output Connection
+
+        $registerArgumentCompleter =
+                $ExecutionContext.SessionState.InvokeCommand.GetCommand('Register-ArgumentCompleter','Cmdlet')
+
+        if ($registerArgumentCompleter) {
+            $unique = @{
+                Project   = $getMyTeams | Select-Object -ExpandProperty ProjectName -Unique
+                Team      = $getMyTeams | Select-Object -ExpandProperty Team        -Unique
+                TeamID    = $getMyTeams | Select-Object -ExpandProperty TeamID      -Unique
+                ProjectID = $getMyTeams | Select-Object -ExpandProperty ProjectID   -Unique
+            }
+
+            $uniqueCompleter = @{}
+            foreach ($u in $unique.GetEnumerator()) {
+                $uniqueCompleter[$u.Key] = [ScriptBlock]::Create("'$($u.Value -join "','")'")
+            }
+
+            $uniqueCommands = @{}
+            foreach ($u in $unique.GetEnumerator()) {
+                $uniqueCommands[$u.Key] = @()
+            }
+
+            foreach ($cmd in $myModuleCommands) {
+                if ($cmd.Name -notlike '*-ADO*') { continue }
+                foreach ($u in $unique.Keys) {
+                    if (-not $cmd.Parameters.($u)) { continue }
+                    $uniqueCommands[$u]+=$cmd.Name
+                }
+            }
+
+            foreach ($u in $uniqueCommands.Keys) {
+                & $registerArgumentCompleter -CommandName $uniqueCommands[$u] -ParameterName $u -ScriptBlock $uniqueCompleter[$u]
+            }
+        }
     }
 }
