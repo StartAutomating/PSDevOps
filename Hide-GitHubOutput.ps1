@@ -19,6 +19,7 @@
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "",
         Justification="Directly outputs in certain scenarios")]
     param(
+    # The message to hide.  Any time this string would appear in logs, it will be replaced by asteriks.
     [Parameter(Mandatory,Position=0,ValueFromPipelineByPropertyName)]
     [string]
     $Message
