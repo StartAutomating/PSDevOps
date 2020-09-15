@@ -125,6 +125,7 @@
                         "'$v'"
                     }
                 }) | Sort-Object
+                if (-not $quotedValues) { continue }
                 $uniqueCompleter[$u.Key] = [ScriptBlock]::Create(
                     'param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)' +
                     "$($quotedValues -join ",") | Where-Object { `$_ -like `"`$wordToComplete*`"}"
@@ -145,6 +146,7 @@
             }
 
             foreach ($u in $uniqueCommands.Keys) {
+                if (-not $uniqueCompleter[$u]) { continue }
                 & $registerArgumentCompleter -CommandName $uniqueCommands[$u] -ParameterName $u -ScriptBlock $uniqueCompleter[$u]
             }
         }
