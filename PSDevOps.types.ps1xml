@@ -385,6 +385,20 @@ return Invoke-RestMethod $this.contentUri
         <Name>PoolID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <ScriptProperty>
+        <Name>DateCreated</Name>
+        <GetScriptBlock>
+                    [DateTime]$this.createdOn
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                    $this.owner.displayName
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
