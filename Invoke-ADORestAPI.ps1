@@ -165,14 +165,18 @@ Specifies the method used for the web request. The acceptable values for this pa
         }
 
         if ($irmSplat.Body) {
+
             $bytes = [Text.Encoding]::UTF8.GetBytes($irmSplat.Body)
             $webRequest.contentLength = $bytes.Length
             $requestStream = $webRequest.GetRequestStream()
             $requestStream.Write($bytes, 0, $bytes.Length)
             $requestStream.Close()
+        } else {
+            $webRequest.contentLength = 0
         }
 
         $response = . {
+
             $webResponse =
                 try {
                     $WebRequest.GetResponse()
@@ -205,7 +209,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                     @{}
                 }
 
-            $streamIn = [IO.StreamReader]::new($rs)
+            $streamIn = [IO.StreamReader]::new($rs, $webResponse.Contentencoding)
             $strResponse = $streamIn.ReadToEnd()
             if ($webResponse.ContentType -like '*json*') {
                 try {
@@ -218,6 +222,7 @@ Specifies the method used for the web request. The acceptable values for this pa
             }
 
             $streamIn.Close()
+
         } 2>&1
         $null = $null
         # We call Invoke-RestMethod with the parameters we've passed in.
