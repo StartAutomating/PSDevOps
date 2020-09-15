@@ -117,7 +117,15 @@
 
             $uniqueCompleter = @{}
             foreach ($u in $unique.GetEnumerator()) {
-                $uniqueCompleter[$u.Key] = [ScriptBlock]::Create("'$($u.Value -join "','")'")
+                $quotedValues = @(foreach ($v in $u.Value) {
+                    if ($v.Contains(' ')) {
+                        "'''$v'''"
+                    }
+                    else {
+                        "'$v'"
+                    }
+                }) | Sort-Object
+                $uniqueCompleter[$u.Key] = [ScriptBlock]::Create("$($quotedValues -join ",")")
             }
 
             $uniqueCommands = @{}
