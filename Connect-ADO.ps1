@@ -125,7 +125,10 @@
                         "'$v'"
                     }
                 }) | Sort-Object
-                $uniqueCompleter[$u.Key] = [ScriptBlock]::Create("$($quotedValues -join ",")")
+                $uniqueCompleter[$u.Key] = [ScriptBlock]::Create(
+                    'param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)' +
+                    "$($quotedValues -join ",") | Where-Object { `$_ -like `"`$wordToComplete*`"}"
+                )
             }
 
             $uniqueCommands = @{}
