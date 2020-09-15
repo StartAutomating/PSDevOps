@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.5'
+    ModuleVersion = '0.4.6'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,17 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.6
+---
+* New-ADOPipeline/New-GitHubWorkflow:  Adding -BuildScript
+* Connect-ADO:  Auto-detecting connected user's teams and adding tab completion for -Project/-ProjectID/-Team/-TeamID
+* Convert-BuildStep: Re-ordering YAML for GitHub Workflows (putting .runs last)
+* Convert-ADOPipeline:  Not returning .inputs when there are no .inputs
+* Get-ADOProject:  Adding -PolicyType and -PolicyConfiguration
+* Get-ADORepository:  Adding -PullRequest, -SourceReference, -TargetReference, -ReviewerIdentity, -CreatorIdentity.
+* Get-ADOBuild:  Adding -DefinitionName
+* Invoke-ADORestAPI:  Passing content length of 0 when body is empty.
+* Updating README
 0.4.5
 ---
 * New Commands:
