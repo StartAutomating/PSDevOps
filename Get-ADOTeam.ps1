@@ -225,5 +225,6 @@
         }
 
         Invoke-ADORestAPI @invokeParams
+        $teamId = $project = '' # Clear values that might not pipe correctly in subsequent runs.
     }
 }
