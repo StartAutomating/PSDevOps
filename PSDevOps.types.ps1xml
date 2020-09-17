@@ -414,4 +414,13 @@ return Invoke-RestMethod $this.contentUri
       </AliasProperty>
     </Members>
   </Type>
+  <Type>
+    <Name>PSDevOps.Wiki</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WikiID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
 </Types>
