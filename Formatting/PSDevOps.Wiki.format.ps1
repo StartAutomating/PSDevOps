@@ -1,0 +1,1 @@
+﻿Write-FormatView -TypeName PSDevOps.Wiki -Property Project, Name, WikiID, Type, MappedPath -Wrap 
