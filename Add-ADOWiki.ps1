@@ -3,7 +3,7 @@
     .Synopsis
         Creates Azure DevOps Wikis
     .Description
-        Creates Azure DevOps Wikis
+        Creates Wikis in Azure DevOps.
     .Example
         Add-ADOWiki -Organization MyOrg -Project MyProject -Name MyWiki
     .Example
