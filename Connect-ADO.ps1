@@ -115,12 +115,12 @@
                 Project   = @(
                     $getMyTeams | Select-Object -ExpandProperty ProjectName
                     $getProjects | Select-Object -ExpandProperty Name
-                ) | 
+                ) |
                     Select-Object -Unique
                 Team      = $getMyTeams | Select-Object -ExpandProperty Team        -Unique
                 TeamID    = $getMyTeams | Select-Object -ExpandProperty TeamID      -Unique
-                ProjectID = 
-                    $getProjects + $getMyTeams | 
+                ProjectID =
+                    $getProjects + $getMyTeams |
                         Select-Object -ExpandProperty ProjectID -Unique
             }
 
