@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.6'
+    ModuleVersion = '0.4.7'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,14 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.7
+----
+* New Commands:
+** Add/Get/Remove-ADOWiki
+** Get-ADOPermission
+* Bugfixes:
+** Honoring Get-ADOBuild -DefinitionName
+* Disconnect-ADO is now run prior at the start of Connect-ADO, and on module unload.
 0.4.6
 ---
 * New-ADOPipeline/New-GitHubWorkflow:  Adding -BuildScript
