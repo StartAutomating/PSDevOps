@@ -315,7 +315,7 @@
                     if ($NotBuiltSince) {
                         "notBuiltAfter=$($NotBuiltSince.ToLocalTime().ToString('o'))"
                     }
-                    if ($DefinitionName) { "definitionName=$definitionName" }
+                    if ($DefinitionName) { "name=$definitionName" }
                     if ($IncludeAllProperty) { "includeAllProperties=true" }
                     if ($IncludeLatestBuild) { "includeLatestBuilds=true"  }
                     if ($tag) { "tagFilters=$($tag -join ',')" }

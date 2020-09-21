@@ -5,8 +5,6 @@
         Gets projects from Azure DevOps.
     .Description
         Gets projects from Azure DevOps or TFS.
-    .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-5.1
     .Example
         Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat
     .Example
@@ -14,6 +12,10 @@
     .Example
         Get-ADOProject -Organization StartAutomating -Project PSDevOps |
             Get-ADOProject -Metadata
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/wiki/wikis/list
     #>
     [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/projects')]
     [OutputType('PSDevOps.Project','PSDevOps.Property')]
@@ -39,6 +41,8 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/types')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/configurations')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
     [string]
     $ProjectID,
 
@@ -79,6 +83,11 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeline')]
     [string]
     $DeliveryTimeline,
+
+    # If set, will return any wikis associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
+    [switch]
+    $Wiki,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]

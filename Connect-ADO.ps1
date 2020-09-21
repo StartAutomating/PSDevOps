@@ -57,6 +57,9 @@
             Write-Error "PSDefaultParameterValues not found"
             return
         }
+        else {
+            Disconnect-ADO
+        }
 
         $toCache = [Ordered]@{} + $PSBoundParameters
         $toCache.Remove('PersonalAccessToken')
@@ -109,10 +112,16 @@
 
         if ($registerArgumentCompleter) {
             $unique = @{
-                Project   = $getMyTeams | Select-Object -ExpandProperty ProjectName -Unique
+                Project   = @(
+                    $getMyTeams | Select-Object -ExpandProperty ProjectName
+                    $getProjects | Select-Object -ExpandProperty Name
+                ) |
+                    Select-Object -Unique
                 Team      = $getMyTeams | Select-Object -ExpandProperty Team        -Unique
                 TeamID    = $getMyTeams | Select-Object -ExpandProperty TeamID      -Unique
-                ProjectID = $getMyTeams | Select-Object -ExpandProperty ProjectID   -Unique
+                ProjectID =
+                    $getProjects + $getMyTeams |
+                        Select-Object -ExpandProperty ProjectID -Unique
             }
 
             $uniqueCompleter = @{}
