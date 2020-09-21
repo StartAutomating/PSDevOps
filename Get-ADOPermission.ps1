@@ -8,11 +8,13 @@
     .Example
         Get-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
     .Link
-
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20lists/query
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query
     #>
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
+    [OutputType('PSDevOps.SecurityNamespace', 'PSDevOps.AccessControlList')]
     param(
     # The Organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
