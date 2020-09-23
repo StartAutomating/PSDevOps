@@ -69,14 +69,23 @@ describe 'Making Azure DevOps Output Look Nicer' {
             should -BeLike '*warning*problem'
     }
 
-    it 'Can set an Azure DevOps variable' {
-        Set-ADOVariable -Name MyVar -Value MyValue -Debug |
+    it 'Can write an Azure DevOps variable' {
+        Write-ADOVariable -Name MyVar -Value MyValue -Debug |
         should -Match '\#\#vso\[task\.setvariable variable=MyVar\]MyValue'
     }
-    it 'Can set an Azure DevOps variable that -IsSecret' {
-        Set-ADOVariable -Name MySecret -Value IsSafe -IsSecret -Debug |
+    it 'Can write an Azure DevOps variable that -IsSecret' {
+        Write-ADOVariable -Name MySecret -Value IsSafe -IsSecret -Debug |
         should -Match '\#\#vso\[task\.setvariable variable=MySecret;issecret=true\]IsSafe'
     }
+    it 'Can write an Azure DevOps variable that -IsReadOnly' {
+        Write-ADOVariable -Name MyReadOnly -Value Const -isreadOnly -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=MyReadOnly;isreadonly=true\]Const'
+    }
+    it 'Can write an Azure DevOps variable that -IsOutput' {
+        Write-ADOVariable -Name out -Value output -IsOutput -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=out;isoutput=true\]output'
+    }
+
 
     it 'Can Write progress to the timeline' {
         $id = [Random]::new().Next()
