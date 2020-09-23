@@ -40,6 +40,35 @@ describe 'Making Azure DevOps Output Look Nicer' {
             should -Be '##[debug]debug!'
     }
 
+    it 'Can Write ADO output' {
+        Write-ADOOutput -InputObject @{key='value'} -Debug |
+            Should -Be '##vso[task.setvariable variable=key;isOutput=true]value'
+    }
+
+    it 'Will call Write-ADODebug when provided a verbose or debug message' {
+        Write-Verbose "verbose" -Verbose *>&1 |
+            Write-ADOOutput -Debug |
+            should -Be '##[debug]verbose'
+    }
+
+    it 'Will call Write-ADOError when provided an error' {
+
+        & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
+            Write-ADOOutput -Debug |
+            should -BeLike '*problem'
+    }
+
+    it 'Can Write ADO output from the pipeline' {
+        1 | Write-ADOOutput -Debug |
+            Should -Be '##[vso task.setvariable variable=output;isoutput=true]1'
+    }
+
+    it 'Will call Write-ADOWarning when provided an error' {
+        Write-Warning "problem" 3>&1 |
+            Write-ADOOutput -Debug |
+            should -BeLike '*warning*problem'
+    }
+
     it 'Can set an Azure DevOps variable' {
         Set-ADOVariable -Name MyVar -Value MyValue -Debug |
         should -Match '\#\#vso\[task\.setvariable variable=MyVar\]MyValue'
