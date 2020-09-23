@@ -60,7 +60,7 @@ describe 'Making Azure DevOps Output Look Nicer' {
 
     it 'Can Write ADO output from the pipeline' {
         1 | Write-ADOOutput -Debug |
-            Should -Be '##[vso task.setvariable variable=output;isoutput=true]1'
+            Should -Be '##vso[task.setvariable variable=output;isoutput=true]1'
     }
 
     it 'Will call Write-ADOWarning when provided an error' {
