@@ -1,14 +1,14 @@
-﻿function Trace-GitHubOutput
+﻿function Trace-GitHubCommand
 {
     <#
     .Synopsis
         Traces information into GitHub Workflow Output
     .Description
-        Traces information about a command or invocation into the output of a GitHub workflow.
+        Traces information about a command as a debug message in a GitHub workflow.
     .Example
-        Trace-GitHubOutput -Command Get-Process -Parameter @{id=$pid}
+        Trace-GitHubCommand -Command Get-Process -Parameter @{id=$pid}
     .Example
-        $myInvocation | Trace-GitHubOutput
+        $myInvocation | Trace-GitHubCommand
     .Link
         Write-GitHubDebug
     #>
