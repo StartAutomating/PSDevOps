@@ -87,7 +87,7 @@ describe 'Making Azure DevOps Output Look Nicer' {
     }
 
     it 'Can Trace Commands to Azure DevOps Output' {
-        Trace-ADOOutput -Command Get-Process -Parameter @{id=1} -Debug |
+        Trace-ADOCommand -Command Get-Process -Parameter @{id=1} -Debug |
             Should -Be '##[command]Get-Process -id 1'
     }
 
@@ -840,7 +840,7 @@ describe 'GitHub Worfklow tools' {
         }
 
         it 'Can Trace Commands to GitHub Output' {
-            Trace-GitHubOutput -Command Get-Process -Parameter @{id=1} -Debug |
+            Trace-GitHubCommand -Command Get-Process -Parameter @{id=1} -Debug |
                 Should -Be '::debug::Get-Process -id 1'
         }
 
