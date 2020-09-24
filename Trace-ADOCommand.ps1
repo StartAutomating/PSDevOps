@@ -1,16 +1,16 @@
-﻿function Trace-ADOOutput
+﻿function Trace-ADOCommand
 {
     <#
     .Synopsis
-        Traces information into Azure DevOps Output
+        Traces information about commands run in Azure DevOps
     .Description
-        Traces information about a command into the output of Azure DevOps.
+        Traces information a command line into the output of Azure DevOps.
     .Example
-        Trace-ADOOutput -Command Get-Process -Parameter @{id=$pid}
+        Trace-ADOCommand -Command Get-Process -Parameter @{id=$pid}
     .Example
-        $myInvocation | Trace-ADOOutput
+        $myInvocation | Trace-ADOCommand
     .Link
-        Write-ADOOutput
+        Write-ADOCommand
     .Link
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
