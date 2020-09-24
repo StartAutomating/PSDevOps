@@ -86,6 +86,10 @@ describe 'Making Azure DevOps Output Look Nicer' {
         should -Match '\#\#vso\[task\.setvariable variable=out;isoutput=true\]output'
     }
 
+    it 'Can Trace Commands to Azure DevOps Output' {
+        Trace-ADOOutput -Command Get-Process -Parameter @{id=1} -Debug |
+            Should -Be '##[command]Get-Process -id 1'
+    }
 
     it 'Can Write progress to the timeline' {
         $id = [Random]::new().Next()
@@ -833,6 +837,11 @@ describe 'GitHub Worfklow tools' {
             Write-Warning "problem" 3>&1 |
                 Write-GitHubOutput -Debug |
                 should -BeLike '::warning*::problem'
+        }
+
+        it 'Can Trace Commands to GitHub Output' {
+            Trace-GitHubOutput -Command Get-Process -Parameter @{id=1} -Debug |
+                Should -Be '::debug::Get-Process -id 1'
         }
 
 
