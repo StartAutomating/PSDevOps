@@ -11,7 +11,6 @@
         https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Confirmation would be impossible within host")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
     [OutputType([string])]
     param(
