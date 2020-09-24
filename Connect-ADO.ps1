@@ -58,7 +58,7 @@
             return
         }
         else {
-            Disconnect-ADO
+            Disconnect-ADO -Confirm:$false
         }
 
         $toCache = [Ordered]@{} + $PSBoundParameters
