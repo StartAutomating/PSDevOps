@@ -421,9 +421,20 @@ $CollectParameters
         }
         $out = [Ordered]@{}
         if ($BuildSystem -eq 'ADOPipeline') {
+            if ($DebugPreference -ne 'silentlycontinue') {
+                $innerScript = @"
+try {
+    $innerScript
+} catch {
+    `$err = `$_;
+    `"##[error]`$(`$_ | Out-String)`";
+    `$_| Write-Error
+}
+"@
+            }
             if (
                 ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*' -and
-                    (-not $BuildSystemOption.WindowsPowerShell)
+                    (-not $BuildOption.WindowsPowerShell)
                 ) -or $BuildOption.PowerShellCore
             ) {
                 $out.pwsh = "$innerScript" -replace '`\$\{','${'
@@ -439,6 +450,17 @@ $CollectParameters
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
         } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+            if ($DebugPreference -ne 'silentlycontinue') {
+                $innerScript = @"
+try {
+    $innerScript
+} catch {
+    `$err = `$_;
+    `"::error::`$(`$_ | Out-String)`";
+    `$_| Write-Error
+}
+"@
+            }
             $out.name = $Name
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
