@@ -8,9 +8,6 @@ $myRoot = $myFile | Split-Path
 
 
 $formatting = @(
-    Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -Wrap
-    Write-FormatView -TypeName PSDevOps.WorkProcess -Property Name, IsEnabled, IsDefault, Description -Wrap
-
     Import-FormatView -FilePath (Join-Path $myRoot Formatting)
 )
 
