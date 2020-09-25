@@ -19,7 +19,8 @@
         'PSDevOps.State',
         'PSDevOps.Rule',
         'PSDevOps.Behavior',
-        'PSDevOps.Layout')]
+        'PSDevOps.Layout',
+        'PSDevOps.ProcessField')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired")]
     param(
     # The Organization.
@@ -40,6 +41,8 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/rules')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/fields')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypesbehaviors/{ReferenceName}/behaviors')]
     [Alias('TypeID')]
     [string]
@@ -54,6 +57,8 @@
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/states')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/rules')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/fields')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypesbehaviors/{ReferenceName}/behaviors')]
     [string]
@@ -74,25 +79,32 @@
 
 
     # If set, will get the states associated with a given work item type.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+    [Parameter(Mandatory,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/states')]
     [Alias('States')]
     [switch]
     $State,
 
     # If set, will get the rules associated with a given work item type.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+    [Parameter(Mandatory,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/rules')]
     [Alias('Rules')]
     [switch]
     $Rule,
 
     # If set, will get the behaviors associated with a given work item type.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+    [Parameter(Mandatory,
         ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypesbehaviors/{ReferenceName}/behaviors')]
     [Alias('Behaviors')]
     [switch]
     $Behavior,
+
+    # If set,  will get the fields associated with a given work item type.
+    [Parameter(Mandatory,
+        ParameterSetName='/{organization}/_apis/work/processes/{processId}/workitemtypes/{ReferenceName}/fields')]
+    [Alias('Fields')]
+    [switch]
+    $Field,
 
     # The name of the project.  If provided, will get work item type information related to the project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
@@ -154,6 +166,10 @@
                 $ApiVersion = '2.0'
             }
 
+            if ($Field) {
+                $ApiVersion = '6.0-preview.2'
+            }
+
             $uri +=
                 @(
                     if ($ApiVersion) {
@@ -161,7 +177,9 @@
                     }
                 ) -join '&'
 
-            $typeName = @($psParameterSet -split '/')[-1].ToString().TrimEnd('s')
+            $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1].ToString().TrimEnd('s') -replace
+                'Field','WorkProcess.Field'
+
             $typeNames = @(
                 "$Organization.$typename"
                 if ($Project) { "$Organization.$Project.$typeName" }
@@ -170,7 +188,7 @@
 
             if ($t -gt 1) {
                 $c++
-                Write-Progress "Getting $(@($psParameterSet -split '/')[-1])" "[$c / $t]" -PercentComplete ($c*  100 /$t) -Id $progId
+                Write-Progress "Getting $typeName" "[$c / $t] $uri" -PercentComplete ($c*  100 /$t) -Id $progId
             }
 
             $AddProperty = @{Organization=$Organization}
