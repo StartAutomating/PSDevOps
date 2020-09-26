@@ -399,20 +399,30 @@ foreach ($k in @($parameters.Keys)) {
             )
             $collectParameters =
                     $collectParameters -join [Environment]::NewLine -replace '\$\{','`${'
+            $logParameters =
+                @(
+                if ($BuildSystem -eq 'ADOPipeline') {
+                    'Write-Host "##[command]'
+                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                    'Write-Host "::debug::'
+                }
+                if ($name) { $name} 
+                '$(@(foreach ($p in $Parameters.GetEnumerator()) {''-'' + $p.Key + '' '' + $p.Value}) -join '' '')"'
+                ) -join ' '
             #endregion Accumulate Parameter Script
             if ($Name -and $Module) { # if the command we're converting came from a module
                 $modulePathVariable = "${Module}Path"
                 $sb = [ScriptBlock]::Create(@"
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
-`$Parameters | Out-Host
+$logParameters
 $Name `@Parameters
 "@)
                 $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
-`$Parameters | Out-Host
+$logParameters
 & {$ScriptBlock} `@Parameters
 "@)
                 $innerScript = $sb
