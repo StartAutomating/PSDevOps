@@ -175,6 +175,8 @@ Specifies the method used for the web request. The acceptable values for this pa
             $webRequest.contentLength = 0
         }
 
+        Write-Verbose "$Method $Uri [$($webRequest.ContentLength) bytes]"
+
         $response = . {
 
             $webResponse =
