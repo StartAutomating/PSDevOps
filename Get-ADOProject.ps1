@@ -47,6 +47,10 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/test/runs')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/plans')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
     [string]
     $ProjectID,
 
@@ -105,6 +109,18 @@
     [switch]
     $Wiki,
 
+    # If set, will return releases associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
+    [Alias('Releases')]
+    [switch]
+    $Release,
+
+    # If set, will return pending approvals associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
+    [Alias('PendingApprovals')]
+    [switch]
+    $PendingApproval,
+
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
@@ -146,13 +162,17 @@
         while ($q.Count) {
             . $dq $q
             
+            if (($Release -or $PendingApproval) -and ($Server -eq 'https://dev.azure.com')) {
+                $Server = "https://vsrm.dev.azure.com"
+            }
+
             $uri =
                 "$(@(
                     "$server".TrimEnd('/')  # * The Server
                     . $ReplaceRouteParameter $psParameterSet #* and the replaced route parameters.
                 )  -join '')?$( # Followed by a query string, containing
                 @(
-                    if ($Server -ne 'https://dev.azure.com' -and
+                    if ($Server -notlike 'https://*dev.azure.com/' -and
                             -not $psBoundParameters['apiVersion']) {
                         $apiVersion = '2.0'
                     }
