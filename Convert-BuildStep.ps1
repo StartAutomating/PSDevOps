@@ -399,20 +399,30 @@ foreach ($k in @($parameters.Keys)) {
             )
             $collectParameters =
                     $collectParameters -join [Environment]::NewLine -replace '\$\{','`${'
+            $logParameters =
+                @(
+                if ($BuildSystem -eq 'ADOPipeline') {
+                    'Write-Host "##[command]'
+                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                    'Write-Host "::debug::'
+                }
+                if ($name) { $name} 
+                '$(@(foreach ($p in $Parameters.GetEnumerator()) {''-'' + $p.Key + '' '' + $p.Value}) -join '' '')"'
+                ) -join ' '
             #endregion Accumulate Parameter Script
             if ($Name -and $Module) { # if the command we're converting came from a module
                 $modulePathVariable = "${Module}Path"
                 $sb = [ScriptBlock]::Create(@"
 $collectParameters
 Import-Module `$($modulePathVariable) -Force -PassThru
-`$Parameters | Out-Host
+$logParameters
 $Name `@Parameters
 "@)
                 $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters
-`$Parameters | Out-Host
+$logParameters
 & {$ScriptBlock} `@Parameters
 "@)
                 $innerScript = $sb
@@ -421,9 +431,20 @@ $CollectParameters
         }
         $out = [Ordered]@{}
         if ($BuildSystem -eq 'ADOPipeline') {
+            if ($DebugPreference -ne 'silentlycontinue') {
+                $innerScript = @"
+try {
+    $innerScript
+} catch {
+    `$err = `$_;
+    `"##[error]`$(`$_ | Out-String)`";
+    `$_| Write-Error
+}
+"@
+            }
             if (
                 ($outObject.pool -and $outObject.pool.vmimage -notlike '*win*' -and
-                    (-not $BuildSystemOption.WindowsPowerShell)
+                    (-not $BuildOption.WindowsPowerShell)
                 ) -or $BuildOption.PowerShellCore
             ) {
                 $out.pwsh = "$innerScript" -replace '`\$\{','${'
@@ -439,6 +460,17 @@ $CollectParameters
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
         } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+            if ($DebugPreference -ne 'silentlycontinue') {
+                $innerScript = @"
+try {
+    $innerScript
+} catch {
+    `$err = `$_;
+    `"::error::`$(`$_ | Out-String)`";
+    `$_| Write-Error
+}
+"@
+            }
             $out.name = $Name
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {

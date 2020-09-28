@@ -17,31 +17,78 @@ if (-not $testPat) { throw "Must have a PersonalAccessToken to test" }
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
-        should match '\#\#vso\[task\.logissue type=error\]error!'
+        should -Match '\#\#vso\[task\.logissue type=error\]error!'
     }
 
     it 'Can Write an Azure DevOps Error with a SourcePath' {
         Write-ADOError -Message 'error!' -SourcePath file.cs -LineNumber 1 -Debug |
-        should be '##vso[task.logissue type=error;sourcepath=file.cs;linenumber=1]error!'
+        should -Be '##vso[task.logissue type=error;sourcepath=file.cs;linenumber=1]error!'
     }
 
-    it 'Can Write an Azure DevOps Warning' {
+    it 'Can Write an Azure DevOps Warning Message' {
         Write-ADOWarning -Message "warning!" -Debug |
-        should match '\#\#vso\[task\.logissue type=warning\]warning!'
+        should -Match '\#\#vso\[task\.logissue type=warning\]warning!'
     }
 
     it 'Can Write an Azure DevOps Warning with a SourcePath' {
         Write-ADOWarning -Message 'warning!' -SourcePath file.cs -LineNumber 1 -Debug |
-        should be '##vso[task.logissue type=warning;sourcepath=file.cs;linenumber=1]warning!'
+        should -Be '##vso[task.logissue type=warning;sourcepath=file.cs;linenumber=1]warning!'
     }
 
-    it 'Can set an Azure DevOps variable' {
-        Set-ADOVariable -Name MyVar -Value MyValue -Debug |
-        should match '\#\#vso\[task\.setvariable variable=MyVar\]MyValue'
+    it 'Can Write an Azure DevOps Debug Message' {
+        Write-ADODebug -Message 'debug!' -Debug |
+            should -Be '##[debug]debug!'
     }
-    it 'Can set an Azure DevOps variable that -IsSecret' {
-        Set-ADOVariable -Name MySecret -Value IsSafe -IsSecret -Debug |
-        should match '\#\#vso\[task\.setvariable variable=MySecret;issecret=true\]IsSafe'
+
+    it 'Can Write ADO output' {
+        Write-ADOOutput -InputObject @{key='value'} -Debug |
+            Should -Be '##vso[task.setvariable variable=key;isOutput=true]value'
+    }
+
+    it 'Will call Write-ADODebug when provided a verbose or debug message' {
+        Write-Verbose "verbose" -Verbose *>&1 |
+            Write-ADOOutput -Debug |
+            should -Be '##[debug]verbose'
+    }
+
+    it 'Will call Write-ADOError when provided an error' {
+
+        & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
+            Write-ADOOutput -Debug |
+            should -BeLike '*problem'
+    }
+
+    it 'Can Write ADO output from the pipeline' {
+        1 | Write-ADOOutput -Debug |
+            Should -Be '##vso[task.setvariable variable=output;isoutput=true]1'
+    }
+
+    it 'Will call Write-ADOWarning when provided an error' {
+        Write-Warning "problem" 3>&1 |
+            Write-ADOOutput -Debug |
+            should -BeLike '*warning*problem'
+    }
+
+    it 'Can write an Azure DevOps variable' {
+        Write-ADOVariable -Name MyVar -Value MyValue -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=MyVar\]MyValue'
+    }
+    it 'Can write an Azure DevOps variable that -IsSecret' {
+        Write-ADOVariable -Name MySecret -Value IsSafe -IsSecret -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=MySecret;issecret=true\]IsSafe'
+    }
+    it 'Can write an Azure DevOps variable that -IsReadOnly' {
+        Write-ADOVariable -Name MyReadOnly -Value Const -isreadOnly -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=MyReadOnly;isreadonly=true\]Const'
+    }
+    it 'Can write an Azure DevOps variable that -IsOutput' {
+        Write-ADOVariable -Name out -Value output -IsOutput -Debug |
+        should -Match '\#\#vso\[task\.setvariable variable=out;isoutput=true\]output'
+    }
+
+    it 'Can Trace Commands to Azure DevOps Output' {
+        Trace-ADOCommand -Command Get-Process -Parameter @{id=1} -Debug |
+            Should -Be '##[command]Get-Process -id 1'
     }
 
     it 'Can Write progress to the timeline' {
@@ -49,20 +96,20 @@ describe 'Making Azure DevOps Output Look Nicer' {
         $nestedId = [Random]::new().Next()
         $p = 10
         Write-ADOProgress -Id $id -Activity 'Doing Stuff' -Status 'And Things' -PercentComplete $p -Debug |
-        should belike '##vso?task.logdetail*'
+        should -BeLike '##vso?task.logdetail*'
         $p += 10
 
         Write-ADOProgress -Id $nestedId -ParentId $id -Activity 'Nested Stuff' -Status 'And Things' -PercentComplete $p -Debug |
-        should belike '##vso?task.logdetail*parentid*'
+        should -BeLike '##vso?task.logdetail*parentid*'
 
         Write-ADOProgress -Id $id -Activity 'Doing Stuff' -Status 'Done' -Completed -Debug |
-        should belike '##vso?task.logdetail*completed*'
+        should -BeLike '##vso?task.logdetail*completed*'
 
         Write-ADOProgress -Activity 'Doing Stuff' -Status 'And Things' -SecondsRemaining 10 -Debug |
-        should belike '*(10s*'
+        should -BeLike '*(10s*'
 
         Write-ADOProgress -Activity 'Doing Stuff' -Status 'And Things' -Id ([Random]::new().Next()) -CurrentOperation 'Working on a Thing' -Debug |
-        should belike '*(Working on a Thing)*'
+        should -BeLike '*(Working on a Thing)*'
     }
 }
 
@@ -70,27 +117,27 @@ describe 'Making Attachments Easier' {
     it 'Can add a summary file' {
 
         Add-ADOAttachment -Path blah.md -IsSummary -Debug |
-        should be '##vso[task.uploadsummary]blah.md'
+        should -Be '##vso[task.uploadsummary]blah.md'
     }
 
     it 'Can attach an artifact' {
         Add-ADOAttachment -Path artifact.zip -ContainerFolder artifacts -ArtifactName myArtifact -Debug |
-        should be "##vso[artifact.upload containerfolder=artifacts;artifactname=myArtifact]artifact.zip"
+        should -Be "##vso[artifact.upload containerfolder=artifacts;artifactname=myArtifact]artifact.zip"
 
     }
 
     it 'Can attach any old file' {
         Add-ADOAttachment -Path myUpload.zip -Debug |
-        should be '##vso[task.uploadfile]myUpload.zip'
+        should -Be '##vso[task.uploadfile]myUpload.zip'
     }
 
     it 'Can attach a log file' {
         Add-ADOAttachment -Path myLog.txt -IsLog -Debug |
-        should be '##vso[task.uploadlog]myLog.txt'
+        should -Be '##vso[task.uploadlog]myLog.txt'
     }
 
     it 'Will error when the file does not exist' {
-        { Add-ADOAttachment -Path NothingThere.zip } | should throw
+        { Add-ADOAttachment -Path NothingThere.zip } | should -Throw
     }
 }
 
@@ -98,52 +145,52 @@ describe 'Enabling Endpoints' {
     it 'Can add an endpoint' {
 
         Set-ADOEndpoint -ID 000-0000-0000 -Key AccessToken -AccessToken testValue -Debug |
-        should be '##vso[task.setendpoint id=000-0000-0000;field=authParameter;key=AccessToken]testValue'
+        should -Be '##vso[task.setendpoint id=000-0000-0000;field=authParameter;key=AccessToken]testValue'
         Set-ADOEndpoint -ID 000-0000-0000 -Key userVariable -Value testValue -Debug |
-        should be '##vso[task.setendpoint id=000-0000-0000;field=dataParameter;key=userVariable]testValue'
+        should -Be '##vso[task.setendpoint id=000-0000-0000;field=dataParameter;key=userVariable]testValue'
         Set-ADOEndpoint -ID 000-0000-0000 -Url 'https://example.com/service' -Debug |
-        should be '##vso[task.setendpoint id=000-0000-0000;field=url]https://example.com/service'
+        should -Be '##vso[task.setendpoint id=000-0000-0000;field=url]https://example.com/service'
 
     }
 
     it 'Will assume a -Name of AccessToken' {
         Set-ADOEndpoint -ID 000-0000-0000 -AccessToken testValue -Debug |
-        should be '##vso[task.setendpoint id=000-0000-0000;field=authParameter;key=AccessToken]testValue'
+        should -Be '##vso[task.setendpoint id=000-0000-0000;field=authParameter;key=AccessToken]testValue'
     }
 }
 
 describe 'Build metadata' {
     it 'Can set a build tag' {
-        Set-ADOBuild -Tag MyTag -Debug | should be '##vso[build.addbuildtag]MyTag'
+        Set-ADOBuild -Tag MyTag -Debug | should -Be '##vso[build.addbuildtag]MyTag'
     }
 
     it 'Can change the system path within a build' {
-        Set-ADOBuild -EnvironmentPath MyPath -Debug | should be '##vso[task.prependpath]MyPath'
+        Set-ADOBuild -EnvironmentPath MyPath -Debug | should -Be '##vso[task.prependpath]MyPath'
     }
 
     it 'Can set the build number' {
-        Set-ADOBuild -BuildNumber 42 -Debug | should be '##vso[build.updatebuildnumber]42'
+        Set-ADOBuild -BuildNumber 42 -Debug | should -Be '##vso[build.updatebuildnumber]42'
     }
 
     it 'Can change the release name' {
-        Set-ADOBuild -ReleaseName myRelease -Debug | should be '##vso[build.updatereleasename]myRelease'
+        Set-ADOBuild -ReleaseName myRelease -Debug | should -Be '##vso[build.updatereleasename]myRelease'
     }
 }
 
 describe 'Creating Pipelines' {
     it 'Can make a new pipeline out of existing parts' {
-        New-ADOPipeline -Trigger SourceChanged | should belike '*trigger:*paths:*exclude:*.md*.txt*'
+        New-ADOPipeline -Trigger SourceChanged | should -BeLike '*trigger:*paths:*exclude:*.md*.txt*'
     }
     it 'Can have nested definitions' {
         $adoDef = New-ADOPipeline -Stage TestPowerShellCrossPlatform, UpdatePowerShellGallery -Trigger SourceChanged
-        $adoDef | should belike '*Install PowerShell Core*'
-        $adoDef | should belike '*pwsh*'
-        $adoDef | should belike '*trigger:*paths:*exclude:*.md*.txt*'
+        $adoDef | should -BeLike '*Install PowerShell Core*'
+        $adoDef | should -BeLike '*pwsh*'
+        $adoDef | should -BeLike '*trigger:*paths:*exclude:*.md*.txt*'
     }
 
     it 'Can create a pipeline with a trigger and a single step' {
         New-ADOPipeline -Trigger SourceChanged -Step InstallPester |
-            should belike '*trigger:*steps:*-*powershell:*'
+            should -BeLike '*trigger:*steps:*-*powershell:*'
     }
 
     it "Can import any module's commands and the contents of an ADO folder into build steps" {
@@ -386,7 +433,7 @@ describe 'Calling REST APIs' {
         it 'Can Get-ADOExtension' {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherID ms -ExtensionID feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
-                should be Microsoft
+                should -Be Microsoft
         }
 
         it 'Can Get-ADOExtension -Contribution' {
@@ -592,7 +639,7 @@ describe 'Working with Work Items' {
     it 'Can get a work item' {
         Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 1 -Field System.WorkItemType |
         Select-Object -ExpandProperty 'System.WorkItemType' |
-        should be Epic
+        should -Be Epic
     }
 
     it 'Can get work item types' {
@@ -612,17 +659,17 @@ describe 'Working with Work Items' {
 
             it 'Can query work items' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems' -PersonalAccessToken $testPat -NoDetail
-                $queryResults[0].id | should be 1
+                $queryResults[0].id | should -be 1
             }
 
             it 'Can will get work item detail by default' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat
-                $queryResults[0].'System.WorkItemType' | should be Epic
+                $queryResults[0].'System.WorkItemType' | should -be Epic
             }
 
             it 'Will not use workitemsbatch when using an old version of the REST api' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
-                $queryResults[0].'System.WorkItemType' | should be Epic
+                $queryResults[0].'System.WorkItemType' | should -be Epic
             }
         }
 
@@ -631,11 +678,11 @@ describe 'Working with Work Items' {
         it 'Can create, update, and remove a work item' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
             $wi = New-ADOWorkItem -InputObject @{Title = 'Test-WorkItem' } -Type Issue -ParentID 1 @splat
-            $wi.'System.Title' | should be 'Test-WorkItem'
+            $wi.'System.Title' | should -be 'Test-WorkItem'
             $wi2 = Set-ADOWorkItem -InputObject @{Description = 'Testing Creating Work Items' } -ID $wi.ID @splat
-            $wi2.'System.Description' | should be 'Testing Creating Work Items'
+            $wi2.'System.Description' | should -be 'Testing Creating Work Items'
             $wi2 = Set-ADOWorkItem -InputObject @{Description = 'Updating via Query' } -Query "select [System.ID] from WorkItems Where [System.ID] = $($wi2.ID)" @splat
-            $wi2.'System.Description' | should be 'Updating Via query'
+            $wi2.'System.Description' | should -be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
 
@@ -731,7 +778,7 @@ describe 'GitHub Worfklow tools' {
     context New-GitHubWorkflow {
          it 'should create yaml' {
              $actual = New-GitHubWorkflow -Job TestPowerShellOnLinux
-             $actual.Trim() | should belike "*run:*shell:?pwsh*"
+             $actual.Trim() | should -belike "*run:*shell:?pwsh*"
          }
     }
     context GitHubWorkflowOutput {
@@ -790,6 +837,11 @@ describe 'GitHub Worfklow tools' {
             Write-Warning "problem" 3>&1 |
                 Write-GitHubOutput -Debug |
                 should -BeLike '::warning*::problem'
+        }
+
+        it 'Can Trace Commands to GitHub Output' {
+            Trace-GitHubCommand -Command Get-Process -Parameter @{id=1} -Debug |
+                Should -Be '::debug::Get-Process -id 1'
         }
 
 
