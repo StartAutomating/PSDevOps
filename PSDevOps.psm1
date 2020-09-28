@@ -46,5 +46,5 @@ $extensionModules |
 #endregion Import Components
 
 $myInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
-    Disconnect-ADO
+    Disconnect-ADO -Confirm:$false
 }

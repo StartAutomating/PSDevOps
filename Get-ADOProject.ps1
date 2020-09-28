@@ -43,6 +43,14 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/policy/configurations')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/test/runs')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/plans')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
     [string]
     $ProjectID,
 
@@ -73,6 +81,18 @@
     [switch]
     $Plan,
 
+    # If set, will return the test runs associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/test/runs')]
+    [Alias('TestRuns')]
+    [switch]
+    $TestRun,
+
+    # If set, will return the test plans associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/plans')]
+    [Alias('TestPlans')]
+    [switch]
+    $TestPlan,
+
     # If set, will a specific project plan.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeline')]
@@ -88,6 +108,18 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
     [switch]
     $Wiki,
+
+    # If set, will return releases associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
+    [Alias('Releases')]
+    [switch]
+    $Release,
+
+    # If set, will return pending approvals associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
+    [Alias('PendingApprovals')]
+    [switch]
+    $PendingApproval,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -113,6 +145,8 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
+
+        $q = [Collections.Queue]::new()
     }
     process {
         $in = $_
@@ -121,33 +155,53 @@
             $ProjectID = $psBoundParameters['ProjectID'] = $in.ProjectID
             $psParameterSet = '/{Organization}/_apis/projects/{ProjectID}'
         }
-        $uri =
-            "$(@(
-                "$server".TrimEnd('/')  # * The Server
-                . $ReplaceRouteParameter $psParameterSet #* and the replaced route parameters.
-            )  -join '')?$( # Followed by a query string, containing
-            @(
-                if ($Server -ne 'https://dev.azure.com' -and
-                        -not $psBoundParameters['apiVersion']) {
-                    $apiVersion = '2.0'
-                }
-                if ($ApiVersion) { # an api-version (if one exists)
-                    "api-version=$ApiVersion"
-                }
-            ) -join '&'
-            )"
+        $q.Enqueue(@{PSParameterSet=$psParameterSet} + $PSBoundParameters)
+    }
+    end {
+        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        while ($q.Count) {
+            . $dq $q
+            
+            if (($Release -or $PendingApproval) -and ($Server -eq 'https://dev.azure.com')) {
+                $Server = "https://vsrm.dev.azure.com"
+            }
 
-        $typeName = @($psCmdlet.ParameterSetName -split '/' -notlike '{*}')[-1] -replace
-            '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
-            'type', 'PolicyType' -replace 'configuration', 'PolicyConfiguration'
+            $uri =
+                "$(@(
+                    "$server".TrimEnd('/')  # * The Server
+                    . $ReplaceRouteParameter $psParameterSet #* and the replaced route parameters.
+                )  -join '')?$( # Followed by a query string, containing
+                @(
+                    if ($Server -notlike 'https://*dev.azure.com/' -and
+                            -not $psBoundParameters['apiVersion']) {
+                        $apiVersion = '2.0'
+                    }
+                    if ($ApiVersion) { # an api-version (if one exists)
+                        "api-version=$ApiVersion"
+                    }
+                ) -join '&'
+                )"
+            $c++ 
+            Write-Progress "Getting" " [$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
+
+            $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
+                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
+                'type', 'PolicyType' -replace 'configuration', 'PolicyConfiguration' -replace 'Run', 'TestRun'
+
+            if ($typeName -eq 'plan' -and $psParameterSet -like '*testplan*') {
+                $typeName = 'TestPlan'
+            }
 
 
-        $additionalProperty = @{
-            Organization = $Organization
-            Server = $Server
+            $additionalProperty = @{
+                Organization = $Organization
+                Server = $Server
+            }
+            if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
+            Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
+                "PSDevOps.$typeName" -Property $additionalProperty
         }
-        if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
-        Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
-            "PSDevOps.$typeName" -Property $additionalProperty
+
+        Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
     }
 }
