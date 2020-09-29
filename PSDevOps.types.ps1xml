@@ -93,11 +93,11 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.User</Name>
+    <Name>PSDevOps.TestRun</Name>
     <Members>
       <AliasProperty>
-        <Name>UserDescriptor</Name>
-        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+        <Name>TestRunID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -124,11 +124,11 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.TeamDescriptor</Name>
+    <Name>PSDevOps.State</Name>
     <Members>
       <AliasProperty>
-        <Name>TeamDescriptor</Name>
-        <ReferencedMemberName>Value</ReferencedMemberName>
+        <Name>StateID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -173,10 +173,19 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.State</Name>
+    <Name>PSDevOps.Publisher</Name>
     <Members>
       <AliasProperty>
-        <Name>StateID</Name>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Wiki</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WikiID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
@@ -194,11 +203,11 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Publisher</Name>
+    <Name>PSDevOps.User</Name>
     <Members>
       <AliasProperty>
-        <Name>PublisherID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
+        <Name>UserDescriptor</Name>
+        <ReferencedMemberName>Descriptor</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -307,15 +316,6 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Agent</Name>
-    <Members>
-      <AliasProperty>
-        <Name>AgentID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
     <Name>PSDevOps.Widget</Name>
     <Members>
       <AliasProperty>
@@ -344,6 +344,24 @@ return Invoke-RestMethod $this.contentUri
 
                 </GetScriptBlock>
       </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Agent</Name>
+    <Members>
+      <AliasProperty>
+        <Name>AgentID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Picklist</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
   <Type>
@@ -402,6 +420,15 @@ return Invoke-RestMethod $this.contentUri
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.Picklist.Detail</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.Team</Name>
     <Members>
       <AliasProperty>
@@ -415,11 +442,11 @@ return Invoke-RestMethod $this.contentUri
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Wiki</Name>
+    <Name>PSDevOps.TeamDescriptor</Name>
     <Members>
       <AliasProperty>
-        <Name>WikiID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
+        <Name>TeamDescriptor</Name>
+        <ReferencedMemberName>Value</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>

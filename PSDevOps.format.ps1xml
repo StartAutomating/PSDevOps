@@ -3,75 +3,6 @@
 <Configuration>
   <ViewDefinitions>
     <View>
-      <Name>PSDevOps.Field</Name>
-      <ViewSelectedBy>
-        <TypeName>PSDevOps.Field</TypeName>
-      </ViewSelectedBy>
-      <TableControl>
-        <TableHeaders>
-          <TableColumnHeader>
-          </TableColumnHeader>
-          <TableColumnHeader>
-          </TableColumnHeader>
-          <TableColumnHeader>
-          </TableColumnHeader>
-        </TableHeaders>
-        <TableRowEntries>
-          <TableRowEntry>
-            <Wrap />
-            <TableColumnItems>
-              <TableColumnItem>
-                <PropertyName>Name</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>ReferenceName</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Description</PropertyName>
-              </TableColumnItem>
-            </TableColumnItems>
-          </TableRowEntry>
-        </TableRowEntries>
-      </TableControl>
-    </View>
-    <View>
-      <Name>PSDevOps.WorkProcess</Name>
-      <ViewSelectedBy>
-        <TypeName>PSDevOps.WorkProcess</TypeName>
-      </ViewSelectedBy>
-      <TableControl>
-        <TableHeaders>
-          <TableColumnHeader>
-          </TableColumnHeader>
-          <TableColumnHeader>
-          </TableColumnHeader>
-          <TableColumnHeader>
-          </TableColumnHeader>
-          <TableColumnHeader>
-          </TableColumnHeader>
-        </TableHeaders>
-        <TableRowEntries>
-          <TableRowEntry>
-            <Wrap />
-            <TableColumnItems>
-              <TableColumnItem>
-                <PropertyName>Name</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>IsEnabled</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>IsDefault</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Description</PropertyName>
-              </TableColumnItem>
-            </TableColumnItems>
-          </TableRowEntry>
-        </TableRowEntries>
-      </TableControl>
-    </View>
-    <View>
       <Name>PSDevOps.AreaPath</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.AreaPath</TypeName>
@@ -363,6 +294,38 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </CustomControl>
     </View>
     <View>
+      <Name>PSDevOps.Field</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Field</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ReferenceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.InstalledExtension</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.InstalledExtension</TypeName>
@@ -435,6 +398,112 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>EndDate</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.Picklist</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Picklist</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsSuggested</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PicklistID</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.Picklist.Detail</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Picklist.Detail</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Items</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PicklistID</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsSuggested</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock> $_.Items -join [Environment]::NewLine </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>ID</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.Picklist</TypeName>
+        <TypeName>PSDevOps.Picklist.Detail</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PicklistID</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -671,6 +740,166 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
+      <Name>PSDevOps.TestRun</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.TestRun</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IsAutomated</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>TotalTests</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PassedTests</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <!-- {ConditionalColor:"
+    if ($_.PassedTests -lt $_.TotalTests) {
+        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
+            &apos;Red&apos;
+        } else {
+            &apos;Yellow&apos;
+        }
+    } else {
+        &apos;Green&apos;
+    }
+"}-->
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$moduleName = 'PSDevOps'
+do {
+    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+    if (-not $lm) { continue } 
+    if ($lm.FormatPartsLoaded) { break }
+    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+            $ParentNode = $partNodeName.Node.ParentNode
+            "$($ParentNode.Name)={
+$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+        }
+    }) -join [Environment]::NewLine
+    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+        Import-Module -Global
+    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    
+    if (-not $lm.OnRemove) {
+        $lm.OnRemove = $onRemove
+    } else {
+        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+    }
+    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+
+} while ($false)
+
+
+                $__ = $_
+                $ci = . {
+    if ($_.PassedTests -lt $_.TotalTests) {
+        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
+            'Red'
+        } else {
+            'Yellow'
+        }
+    } else {
+        'Green'
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'Name'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $__ = $_
+                $ci = . {
+    if ($_.PassedTests -lt $_.TotalTests) {
+        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
+            'Red'
+        } else {
+            'Yellow'
+        }
+    } else {
+        'Green'
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'IsAutomated'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $__ = $_
+                $ci = . {
+    if ($_.PassedTests -lt $_.TotalTests) {
+        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
+            'Red'
+        } else {
+            'Yellow'
+        }
+    } else {
+        'Green'
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'TotalTests'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $__ = $_
+                $ci = . {
+    if ($_.PassedTests -lt $_.TotalTests) {
+        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
+            'Red'
+        } else {
+            'Yellow'
+        }
+    } else {
+        'Green'
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'PassedTests'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.Wiki</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.Wiki</TypeName>
@@ -897,6 +1126,115 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkProcess.Field</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkProcess.Field</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Required</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Customization</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.WorkProcess</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkProcess</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsEnabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsDefault</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>Picklist</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.WorkProcess</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsPicklist</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PicklistID</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
