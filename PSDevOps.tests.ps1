@@ -751,6 +751,31 @@ describe 'Working with Work Items' {
             $whatIfField.Uri | Should -BeLike '*/fields*'
             $whatIfField.Body.referenceName| Should -Be 'Cmdlet.Verb'
         }
+
+        context Picklists {
+            it 'Can get picklists, including -Orphan picklists' {
+                $orphanedPicklists = Get-ADOPicklist -Organization $TestOrg -Orphan -PersonalAccessToken $testPat
+                $orphanedPicklists | ForEach-Object {
+                    $_.picklistid | Should -Not -Be $null
+                }
+            }
+            it 'Can add a new picklist' {
+                $whatIf = Add-ADOPicklist -Organization $TestOrg -PicklistName MyTShirtSize -WhatIf -Item S, M, L
+                $whatIf.body.name | Should -Be MyTShirtSize
+                $s, $m, $l = $whatIf.Body.items
+                $s | Should -Be 'S'
+                $m | Should -Be 'M'
+                $L | Should -Be 'L'
+            }
+            it 'Can remove a picklist' {
+                $whatIf = Remove-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) -WhatIf
+                $whatIf.Method | Should -Be DELETE
+                $whatIf.Uri    | Should -BeLike '*_apis/work/processes/lists/*'
+            }
+            it 'Can update a picklist' {
+                $whatIf = Update-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) 
+            }
+        }
     }
 
     if ($PersonalAccessToken) {
