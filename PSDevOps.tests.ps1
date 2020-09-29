@@ -756,7 +756,7 @@ describe 'Working with Work Items' {
             it 'Can get picklists, including -Orphan picklists' {
                 $orphanedPicklists = Get-ADOPicklist -Organization $TestOrg -Orphan -PersonalAccessToken $testPat
                 $orphanedPicklists | ForEach-Object {
-                    $_.picklistid | Should -Not -Be $null
+                    $_.id | Should -Not -Be $null
                 }
             }
             it 'Can add a new picklist' {
@@ -773,7 +773,11 @@ describe 'Working with Work Items' {
                 $whatIf.Uri    | Should -BeLike '*_apis/work/processes/lists/*'
             }
             it 'Can update a picklist' {
-                $whatIf = Update-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) 
+                $whatIf = Update-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) -WhatIf -IsSuggested -Item a 
+                $whatIf.Method | Should -Be PUT
+                $whatIf.Uri    | Should -BeLike '*_apis/work/processes/lists/*'
+                $whatIf.Body.isSuggested | Should -Be $true
+                $whatIf.Body.items | Select-Object -First 1 | Should -Be a
             }
         }
     }
