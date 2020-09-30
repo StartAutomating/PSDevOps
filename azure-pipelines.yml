@@ -60,8 +60,10 @@ stages:
               }
               $result = @(Invoke-ScriptAnalyzer @invokeScriptAnalyzerSplat)
               $violatedRules = $result | Select-Object -ExpandProperty RuleName
-              Write-ADOVariable -Name PSScriptAnalyzerIssueCount -Value $result.Length -IsOutput
-              Write-ADOVariable -Name PSScriptAnalyzerRulesViolated -Value ($violatedRules -join ',') -IsOutput
+              if ((Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
+                  Write-ADOVariable -Name PSScriptAnalyzerIssueCount -Value $result.Length -IsOutput
+                  Write-ADOVariable -Name PSScriptAnalyzerRulesViolated -Value ($violatedRules -join ',') -IsOutput
+              }
               foreach ($r in $result) {
                   if ('information', 'warning' -contains $r.Severity) {
                       Write-ADOWarning -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
@@ -127,7 +129,10 @@ stages:
                   Out-Host
               
               $scriptCopIssues = @($scriptCopIssues | Sort-Object ItemWithProblem)
-              Write-ADOVariable -Name ScriptCopIssueCount -Value $scriptCopIssues.Length -IsOutput
+              if ((Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
+                  Write-ADOVariable -Name ScriptCopIssueCount -Value $scriptCopIssues.Length -IsOutput
+              }
+              
               foreach ($issue in $scriptCopIssues) {
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
               
@@ -212,7 +217,7 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
               
-              if ($psDevOpsImported) {
+              if ($psDevOpsImported -and (Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
                   Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
                   Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
                   Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
@@ -311,7 +316,7 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
               
-              if ($psDevOpsImported) {
+              if ($psDevOpsImported -and (Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
                   Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
                   Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
                   Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
@@ -407,7 +412,7 @@ stages:
                   throw "$($result.FailedCount) tests failed."
               }
               
-              if ($psDevOpsImported) {
+              if ($psDevOpsImported -and (Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
                   Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
                   Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
                   Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
