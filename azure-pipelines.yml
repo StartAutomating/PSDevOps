@@ -119,7 +119,7 @@ stages:
               "Importing from $ModulePath" | Out-Host 
               $importedModule =Import-Module $ModulePath -Force -PassThru 
               
-              $importedModule | Out-String | Write-ADODebug -Message { $_ }
+              $importedModule | Out-Host
               
               Trace-ADOOutput -Command 'Test-Command' -Parameter @{Module=$importedModule}
               
