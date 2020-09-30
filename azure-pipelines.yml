@@ -120,7 +120,7 @@ stages:
               
               $importedModule | Out-Host
               
-              Trace-ADOOutput -Command 'Test-Command' -Parameter @{Module=$importedModule}
+              Trace-ADOCommand -Command 'Test-Command' -Parameter @{Module=$importedModule}
               
               $importedModule | 
                   Test-Command |
