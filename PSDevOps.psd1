@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.7'
+    ModuleVersion = '0.4.8'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,17 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.8
+---
+* Improved Tracing
+** New Commands: Write-ADOOutput, Trace-ADOCommand/GitHubCommand
+** Renaming Command / Adding Parameters:  Set-ADOVariable -> Write-ADOVariable.  Added -IsOutput & -IsReadOnly.
+** Adding Trace-GitHubCommand/ADOCommand
+** Improved logging of parameters in Convert-BuildStep
+* New Functionality in Azure DevOps:
+** Get-ADOProject now has -TestRun, -TestPlan, -Release, and -PendingApproval (and better progress bars)
+** Get-ADOWorkItemType now has -Field
+** Commands for Picklists:  Add/Get/Remove/Update-ADOPicklist 
 0.4.7
 ----
 * New Commands:
