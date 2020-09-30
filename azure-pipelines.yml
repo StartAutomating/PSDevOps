@@ -105,7 +105,7 @@ stages:
               }
               Write-Host "##[command] RunScriptCop $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
               & {param([string]$ModulePath)
-              Import-Module ScriptCop, PSDevOps -PassThru | Out-String | Write-ADODebug -Message { $_ } 
+              Import-Module ScriptCop, PSDevOps -PassThru | Out-host
               
               if (-not $ModulePath) {
                   $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
@@ -116,7 +116,7 @@ stages:
                   Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
               }
               "Importing from $ModulePath" | Out-Host 
-              $importedModule =Import-Module $ModulePath -Force -PassThru 
+              $importedModule =Import-Module $ModulePath -Force -PassThru
               
               $importedModule | Out-Host
               
@@ -128,9 +128,7 @@ stages:
                   Out-Host
               
               $scriptCopIssues = @($scriptCopIssues | Sort-Object ItemWithProblem)
-              if ((Get-Command Write-ADOVariable -ErrorAction SilentlyContinue)) {
-                  Write-ADOVariable -Name ScriptCopIssueCount -Value $scriptCopIssues.Length -IsOutput
-              }
+              Write-ADOVariable -Name ScriptCopIssueCount -Value $scriptCopIssues.Length -IsOutput
               
               foreach ($issue in $scriptCopIssues) {
                   Write-ADOWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
