@@ -14,6 +14,13 @@ $testPat =
 
 if (-not $testPat) { throw "Must have a PersonalAccessToken to test" }
 
+describe 'A bad test' {
+    it 'Will throw' {
+        throw 'An Exception'
+    }
+}
+
+
 describe 'Making Azure DevOps Output Look Nicer' {
     it 'Can Write an Azure DevOps Error' {
         Write-ADOError -Message "error!" -Debug |
