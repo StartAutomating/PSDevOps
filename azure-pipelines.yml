@@ -460,7 +460,6 @@ stages:
               reportDirectory: $(System.DefaultWorkingDirectory)
             condition: always()
         continueOnError: true
-    condition: succeeded()
   - stage: UpdatePowerShellGallery
     displayName: Update
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
