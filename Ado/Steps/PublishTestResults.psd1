@@ -5,4 +5,5 @@
         testResultsFiles= '**/*.TestResults.xml'
         mergeTestResults= $true
     }
+    condition = 'always()'
 }
