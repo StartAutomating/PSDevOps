@@ -24,15 +24,11 @@ stages:
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
             displayName: InstallPSDevOps
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSScriptAnalyzer -Force -PassThru
             displayName: InstallPSScriptAnalyzer
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
               $Parameters.ModulePath = @'
@@ -72,8 +68,6 @@ stages:
                   }
               }} @Parameters
             displayName: RunPSScriptAnalyzer
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
       - job: ScriptCop
         displayName: ScriptCop
         pool: 
@@ -84,15 +78,11 @@ stages:
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
             displayName: InstallPSDevOps
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name ScriptCop -Repository PSGallery -Force -Scope CurrentUser
               Import-Module ScriptCop -Force -PassThru
             displayName: InstallScriptCop
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
               $Parameters.ModulePath = @'
@@ -136,8 +126,6 @@ stages:
               }
               } @Parameters
             displayName: RunScriptCop
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - stage: TestPowerShellCrossPlatform
     displayName: Test
@@ -166,8 +154,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - powershell: |
               $Parameters = @{}
               $Parameters.ModulePath = @'
@@ -205,18 +191,17 @@ stages:
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion | Out-Host
               Import-Module $ModulePath -Force -PassThru | Out-Host
               
-              $ErrorActionPreference = 'continue'
+              $Global:ErrorActionPreference = 'continue'
+              $Global:ProgressPreference    = 'silentlycontinue'
+              
               $result = 
                   Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
                       -CodeCoverage "$(Build.SourcesDirectory)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
               
-              $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
-              
-              if ($psDevOpsImported) {
-                  Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
-                  Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
-                  Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
-              }
+              "##vso[task.setvariable variable=FailedCount;isoutput=true]$($result.FailedCount)",
+              "##vso[task.setvariable variable=PassedCount;isoutput=true]$($result.PassedCount)",
+              "##vso[task.setvariable variable=TotalCount;isoutput=true]$($result.TotalCount)" |
+                  Out-Host
               
               if ($result.FailedCount -gt 0) {
                   foreach ($r in $result.TestResult) {
@@ -229,8 +214,6 @@ stages:
               
               } @Parameters
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -243,7 +226,6 @@ stages:
               summaryFileLocation: '**/*.Coverage.xml'
               reportDirectory: $(System.DefaultWorkingDirectory)
             condition: always()
-        continueOnError: true
       - job: Linux
         displayName: Linux
         pool: 
@@ -276,8 +258,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
               $Parameters.ModulePath = @'
@@ -315,18 +295,17 @@ stages:
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion | Out-Host
               Import-Module $ModulePath -Force -PassThru | Out-Host
               
-              $ErrorActionPreference = 'continue'
+              $Global:ErrorActionPreference = 'continue'
+              $Global:ProgressPreference    = 'silentlycontinue'
+              
               $result = 
                   Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
                       -CodeCoverage "$(Build.SourcesDirectory)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
               
-              $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
-              
-              if ($psDevOpsImported) {
-                  Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
-                  Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
-                  Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
-              }
+              "##vso[task.setvariable variable=FailedCount;isoutput=true]$($result.FailedCount)",
+              "##vso[task.setvariable variable=PassedCount;isoutput=true]$($result.PassedCount)",
+              "##vso[task.setvariable variable=TotalCount;isoutput=true]$($result.TotalCount)" |
+                  Out-Host
               
               if ($result.FailedCount -gt 0) {
                   foreach ($r in $result.TestResult) {
@@ -339,8 +318,6 @@ stages:
               
               } @Parameters
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -382,8 +359,6 @@ stages:
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
             displayName: InstallPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - pwsh: |
               $Parameters = @{}
               $Parameters.ModulePath = @'
@@ -421,18 +396,17 @@ stages:
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion | Out-Host
               Import-Module $ModulePath -Force -PassThru | Out-Host
               
-              $ErrorActionPreference = 'continue'
+              $Global:ErrorActionPreference = 'continue'
+              $Global:ProgressPreference    = 'silentlycontinue'
+              
               $result = 
                   Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
                       -CodeCoverage "$(Build.SourcesDirectory)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
               
-              $psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
-              
-              if ($psDevOpsImported) {
-                  Write-ADOVariable -Name FailedCount -Value $result.FailedCount -IsOutput
-                  Write-ADOVariable -Name PassedCount -Value $result.PassedCount -IsOutput
-                  Write-ADOVariable -Name TestCount -Value $result.TotalCount -IsOutput
-              }
+              "##vso[task.setvariable variable=FailedCount;isoutput=true]$($result.FailedCount)",
+              "##vso[task.setvariable variable=PassedCount;isoutput=true]$($result.PassedCount)",
+              "##vso[task.setvariable variable=TotalCount;isoutput=true]$($result.TotalCount)" |
+                  Out-Host
               
               if ($result.FailedCount -gt 0) {
                   foreach ($r in $result.TestResult) {
@@ -445,8 +419,6 @@ stages:
               
               } @Parameters
             displayName: RunPester
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -459,7 +431,9 @@ stages:
               summaryFileLocation: '**/*.Coverage.xml'
               reportDirectory: $(System.DefaultWorkingDirectory)
             condition: always()
-        continueOnError: true
+
+    env: 
+      SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
   - stage: UpdatePowerShellGallery
     displayName: Update
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -500,7 +474,5 @@ stages:
                   }
               }
             displayName: PublishPowerShellGallery
-            env: 
-              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 
