@@ -11,7 +11,6 @@ $testPat =
     if ($PersonalAccessToken) { $PersonalAccessToken }
     else { $env:SYSTEM_ACCESSTOKEN }
 
-
 if (-not $testPat) { throw "Must have a PersonalAccessToken to test" }
 
 describe 'Making Azure DevOps Output Look Nicer' {
@@ -773,7 +772,7 @@ describe 'Working with Work Items' {
                 $whatIf.Uri    | Should -BeLike '*_apis/work/processes/lists/*'
             }
             it 'Can update a picklist' {
-                $whatIf = Update-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) -WhatIf -IsSuggested -Item a 
+                $whatIf = Update-ADOPicklist -Organization $TestOrg -PicklistID ([guid]::NewGuid()) -WhatIf -IsSuggested -Item a
                 $whatIf.Method | Should -Be PUT
                 $whatIf.Uri    | Should -BeLike '*_apis/work/processes/lists/*'
                 $whatIf.Body.isSuggested | Should -Be $true

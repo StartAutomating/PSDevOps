@@ -406,7 +406,7 @@ foreach ($k in @($parameters.Keys)) {
                 } elseif ($BuildSystem -eq 'GitHubWorkflow') {
                     'Write-Host "::debug::'
                 }
-                if ($name) { $name} 
+                if ($name) { $name}
                 '$(@(foreach ($p in $Parameters.GetEnumerator()) {''-'' + $p.Key + '' '' + $p.Value}) -join '' '')"'
                 ) -join ' '
             #endregion Accumulate Parameter Script
@@ -451,6 +451,7 @@ try {
             } else {
                 $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
+            $out.name = $Name
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters

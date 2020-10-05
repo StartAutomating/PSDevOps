@@ -5,4 +5,5 @@
         summaryFileLocation = '**/*.Coverage.xml'
         reportDirectory     = '$(System.DefaultWorkingDirectory)'
     }
+    condition = 'always()'
 }
