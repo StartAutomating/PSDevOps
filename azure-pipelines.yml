@@ -23,11 +23,13 @@ stages:
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
+            name: InstallPSDevOps
             displayName: InstallPSDevOps
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSScriptAnalyzer -Force -PassThru
+            name: InstallPSScriptAnalyzer
             displayName: InstallPSScriptAnalyzer
           - powershell: |
               $Parameters = @{}
@@ -67,6 +69,7 @@ stages:
                       Write-ADOError -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
                   }
               }} @Parameters
+            name: RunPSScriptAnalyzer
             displayName: RunPSScriptAnalyzer
       - job: ScriptCop
         displayName: ScriptCop
@@ -77,11 +80,13 @@ stages:
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
               Import-Module PSDevOps -Force -PassThru
+            name: InstallPSDevOps
             displayName: InstallPSDevOps
           - powershell: |
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name ScriptCop -Repository PSGallery -Force -Scope CurrentUser
               Import-Module ScriptCop -Force -PassThru
+            name: InstallScriptCop
             displayName: InstallScriptCop
           - powershell: |
               $Parameters = @{}
@@ -125,6 +130,7 @@ stages:
               
               }
               } @Parameters
+            name: RunScriptCop
             displayName: RunScriptCop
 
   - stage: TestPowerShellCrossPlatform
@@ -153,6 +159,7 @@ stages:
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
+            name: InstallPester
             displayName: InstallPester
           - powershell: |
               $Parameters = @{}
@@ -213,6 +220,7 @@ stages:
               }
               
               } @Parameters
+            name: RunPester
             displayName: RunPester
             env: 
               SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
@@ -259,6 +267,7 @@ stages:
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
+            name: InstallPester
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
@@ -319,6 +328,7 @@ stages:
               }
               
               } @Parameters
+            name: RunPester
             displayName: RunPester
             env: 
               SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
@@ -362,6 +372,7 @@ stages:
               [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
               Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
               Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
+            name: InstallPester
             displayName: InstallPester
           - pwsh: |
               $Parameters = @{}
@@ -422,6 +433,7 @@ stages:
               }
               
               } @Parameters
+            name: RunPester
             displayName: RunPester
             env: 
               SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
@@ -477,6 +489,7 @@ stages:
                       exit 1
                   }
               }
+            name: PublishPowerShellGallery
             displayName: PublishPowerShellGallery
 
 
