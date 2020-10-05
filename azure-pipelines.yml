@@ -214,6 +214,8 @@ stages:
               
               } @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -318,6 +320,8 @@ stages:
               
               } @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -419,6 +423,8 @@ stages:
               
               } @Parameters
             displayName: RunPester
+            env: 
+              SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
           - task: PublishTestResults@2
             inputs: 
               testResultsFormat: NUnit
@@ -432,8 +438,6 @@ stages:
               reportDirectory: $(System.DefaultWorkingDirectory)
             condition: always()
 
-    env: 
-      SYSTEM_ACCESSTOKEN: $(SYSTEM.ACCESSTOKEN)
   - stage: UpdatePowerShellGallery
     displayName: Update
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
