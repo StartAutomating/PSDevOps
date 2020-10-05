@@ -20,12 +20,25 @@ if (-not $ModulePath) {
 }
 Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion | Out-Host
 Import-Module $ModulePath -Force -PassThru | Out-Host
+
+$Global:ErrorActionPreference = 'continue'
+$Global:ProgressPreference    = 'silentlycontinue'
+
 $result = 
     Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
         -CodeCoverage "$(Build.SourcesDirectory)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
 
-$psDevOpsImported = Import-Module PSDevOps -Force -PassThru -ErrorAction SilentlyContinue
+"##vso[task.setvariable variable=FailedCount;isoutput=true]$($result.FailedCount)",
+"##vso[task.setvariable variable=PassedCount;isoutput=true]$($result.PassedCount)",
+"##vso[task.setvariable variable=TotalCount;isoutput=true]$($result.TotalCount)" |
+    Out-Host
 
 if ($result.FailedCount -gt 0) {
+    foreach ($r in $result.TestResult) {
+        if (-not $r.Passed) {
+            "##[error]$($r.describe, $r.context, $r.name -join ' ') $($r.FailureMessage)"
+        }
+    }
     throw "$($result.FailedCount) tests failed."
 }
+
