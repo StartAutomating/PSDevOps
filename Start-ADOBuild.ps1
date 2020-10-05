@@ -12,6 +12,8 @@
     .Example
         Get-ADOBuild -Definition -Organization StartAutomating -Project PSDevOps |
             Start-ADOBuild -WhatIf
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/queues
     #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType('PSDevOps.Build',[Hashtable])]
@@ -65,7 +67,7 @@
     # The build parameters
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('Parameters')]
-    [string]
+    [PSObject]
     $Parameter)
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -125,7 +127,22 @@
             $invokeParams.Body.SourceVersion = $SourceVersion
         }
 
+        if ($DebugPreference -ne 'silentlycontinue') {
+            if (-not $Parameter) {
+                $Parameter = @{'System.DebugContext'=$true}
+            }
+            elseif ($Parameter -is [Collections.IDictionary]) {
+                $Parameter['System.DebugContext'] = $true
+            }
+            else {
+                $Parameter | Add-Member NoteProperty System.DebugContext $true -Force
+            }
+        }
+
         if ($Parameter) {
+            if ($Parameter -isnot [string]) {
+                $Parameter = $Parameter | ConvertTo-Json -Depth 100
+            }
             $invokeParams.Body.Parameters = $Parameter
         }
 
