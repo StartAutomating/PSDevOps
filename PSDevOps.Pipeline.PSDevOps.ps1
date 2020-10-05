@@ -1,5 +1,5 @@
 ﻿New-ADOPipeline -Stage PowerShellStaticAnalysis, TestPowerShellCrossPlatform, UpdatePowerShellGallery -Option @{
-    'TestPowerShellCrossPlatform'=@{
+    'RunPester'=@{
         env=@{
             'SYSTEM_ACCESSTOKEN'='$(SYSTEM.ACCESSTOKEN)'
         }
