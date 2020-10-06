@@ -32,7 +32,7 @@
     # If set, will make the items in the picklist "suggested", and allow user input.
     [switch]
     $IsSuggested,
-    
+
     # A list of items.  By default, these are the initial contents of the picklist.
     # If a PicklistID is provided, or -PicklistName already exists, will add these items to the picklist.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -73,7 +73,7 @@
     }
     end {
         $c, $t, $id = 0, $q.Count, [Random]::new().Next()
-        
+
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
@@ -101,14 +101,14 @@
                 }
             ) -join '&'
 
-            $invokeParams.Uri = $uri                        
+            $invokeParams.Uri = $uri
             $invokeParams.Property = @{Organization=$Organization;Server=$Server}
             $invokeParams.PSTypeName = "$Organization.Picklist.Detail", 'PSDevOps.Picklist.Detail'
 
-            
+
             $body = @{items=@($Item)}
             $invokeParams.Method  = 'PUT'
-            
+
             if ($PSBoundParameters.ContainsKey('IsSuggested')) {
                 $body.isSuggested = $IsSuggested -as [bool]
             }
