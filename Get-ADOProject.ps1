@@ -161,7 +161,7 @@
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
             . $dq $q
-            
+
             if (($Release -or $PendingApproval) -and ($Server -eq 'https://dev.azure.com')) {
                 $Server = "https://vsrm.dev.azure.com"
             }
@@ -181,7 +181,7 @@
                     }
                 ) -join '&'
                 )"
-            $c++ 
+            $c++
             Write-Progress "Getting" " [$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace

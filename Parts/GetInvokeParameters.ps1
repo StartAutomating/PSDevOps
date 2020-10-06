@@ -7,9 +7,9 @@
 param(
 # A collection of parameters.  Parameters not used in Invoke-ADORestAPI will be removed
 [Parameter(ValueFromPipeline,Position=0,Mandatory,ParameterSetName='GetParameterValues')]
-[Alias('Parameters')]
+[Alias('InvokeParameters')]
 [Collections.IDictionary]
-$Parameter,
+$InvokeParameter,
 
 [Parameter(Mandatory,ParameterSetName='GetDynamicParameters')]
 [Alias('DynamicParameters')]
@@ -50,7 +50,7 @@ process {
         return $script:InvokeADORestAPIParams
     }
     if ($PSCmdlet.ParameterSetName -eq 'GetParameterValues') {
-        $invokeParams = [Ordered]@{} + $Parameter # Then we copy our parameters
+        $invokeParams = [Ordered]@{} + $InvokeParameter # Then we copy our parameters
         foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
             # If a parameter isn't found in Invoke-ADORestAPI
             if (-not ${script:Invoke-RestApi}.Parameters.ContainsKey($k)) {
@@ -72,5 +72,5 @@ process {
 
         return $invokeParams
     }
-    
+
 }

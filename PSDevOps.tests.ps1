@@ -347,15 +347,17 @@ describe 'Calling REST APIs' {
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
             $startWhatIf.Method | should -Be POST
             $startWhatIf.Body.Definition.ID | should -Be $latestBuild.Definition.ID
+            $startWhatIf.Body.Parameters | Should -Be $null
 
             $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
             $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
             $startWhatIf.Method | should -Be POST
             $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
 
-            $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name
+            $startWhatIf = Start-ADOBuild -Organization StartAutomating -Project PSDevOps -WhatIf -DefinitionName $buildDefinitons.Name -Debug
             $startWhatIf.Method | should -Be POST
             $startWhatIf.Body.Definition.ID | should -Be $buildDefinitons.ID
+            $startWhatIf.Body.Parameters | Should -BeLike '*System.DebugContext*'
         }
 
         it 'Can stop a Build' {

@@ -18,7 +18,7 @@
     .Link
         Remove-ADORepository
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/source%20providers/list%20repositories?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/build/source%20providers/list%20repositories
     #>
     [CmdletBinding(DefaultParameterSetName='git/repositories')]
     [OutputType('PSDevOps.Repository',
@@ -169,6 +169,24 @@
     [switch]
     $Recycled,
 
+    # If set, will include hidden repositories.
+    [Parameter(ParameterSetName='git/repositories')]
+    [Alias('IncludeHiddenRepository','IncludeHiddenRepositories')]
+    [switch]
+    $IncludeHidden,
+
+    # If set, will include all related links to a repository.
+    [Parameter(ParameterSetName='git/repositories')]
+    [Alias('IncludeLinks')]
+    [switch]
+    $IncludeLink,
+
+    # If set, will return all GitHub remote URLs associated with a repository.
+    [Parameter(ParameterSetName='git/repositories')]
+    [Alias('IncludeRemoteURLs')]
+    [switch]
+    $IncludeRemoteUrl,
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -230,6 +248,8 @@
                     "commitOrBranch=$CommitOrBranch"
                 }
 
+
+
                 if ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
                     if ($IncludeMetadata) {
                         "includeContentMetadata=true"
@@ -274,7 +294,11 @@
                         "searchCriteria.reviewerID=$ReviewerIdentity"
                     }
                 }
-
+                elseif ($psParameterSet -eq 'git/repositories') {
+                    if ($IncludeHidden) { "includeHidden=true" }
+                    if ($IncludeLink) { "includeLinks=true"}
+                    if ($IncludeRemoteUrl) { "includeAllUrls=true"}
+                }
                 if ($path) {
                     "path=$path"
                 }
@@ -315,7 +339,7 @@
                     ".PullRequest"
                 }
                 else {
-                    ''
+                    'git/repositories'
                 }
 
             # Invoke the ADO Rest API.

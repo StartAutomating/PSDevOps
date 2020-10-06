@@ -34,7 +34,7 @@
     # If set, will make the items in the picklist "suggested", and allow user input.
     [switch]
     $IsSuggested,
-    
+
     # A list of items.  By default, these are the initial contents of the picklist.
     # If a PicklistID is provided, or -PicklistName already exists, will add these items to the picklist.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -76,15 +76,15 @@
     end {
         $c, $t, $id = 0, $q.Count, [Random]::new().Next()
         $getPicklists = Get-ADOPicklist -Organization $Organization @invokeParams
-        
+
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
 
-            $picklistExists = $getPicklists | 
-                Where-Object { $_.name -eq $PicklistName } | 
+            $picklistExists = $getPicklists |
+                Where-Object { $_.name -eq $PicklistName } |
                 Select-Object -First 1
-            
+
             if ($picklistExists) {
                 $PicklistID   = $picklistExists.ID
                 $parameterSet = 'work/processes/lists/{PicklistId}'
@@ -114,11 +114,11 @@
                 }
             ) -join '&'
 
-            $invokeParams.Uri = $uri                        
+            $invokeParams.Uri = $uri
             $invokeParams.Property = @{Organization=$Organization;Server=$Server}
             $invokeParams.PSTypeName = "$Organization.Picklist.Detail", 'PSDevOps.Picklist.Detail'
 
-            if ($picklistExists) { # If the picklist exists, we're adding an item to an existing picklist.                
+            if ($picklistExists) { # If the picklist exists, we're adding an item to an existing picklist.
                 $body = @{items=@($picklistExists.items + $Item  | Select-Object -Unique)}
                 $invokeParams.Method  = 'PUT'
             } else {

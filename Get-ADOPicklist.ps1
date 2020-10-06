@@ -5,7 +5,7 @@
         Gets picklists from Azure DevOps.
     .Description
         Gets picklists from Azure DevOps.
-        
+
         Picklists are lists of values that can be associated with a field, for example, a list of T-shirt sizes.
     .Example
         Get-ADOPicklist -Organization StartAutomating -PersonalAccessToken $pat
@@ -69,9 +69,9 @@
             $allUsedPicklists = Get-ADOField @invokeParams -Organization $Organization |
                 Where-Object { $_.IsPicklist } |
                 Select-Object -ExpandProperty PicklistID
-            $allPicklists  | 
+            $allPicklists  |
                 Where-Object PicklistID -NotIn $allUsedPicklists
-            return 
+            return
         }
 
         $in = $_
@@ -82,7 +82,7 @@
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
         while ($q.Count) {
             . $dq $q
-            
+
             $uri =
                 "$(@(
 
@@ -101,9 +101,9 @@
                     }
                 ) -join '&'
                 )"
-            $c++ 
+            $c++
             Write-Progress "Getting" "[$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
-            
+
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
                 's$', '' -replace 'list', 'Picklist'

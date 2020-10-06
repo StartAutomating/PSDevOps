@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.8'
+    ModuleVersion = '0.4.9'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,18 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.4.9
+---
+* New Command: Wait-ADOBuild
+* Start-ADOBuild
+** Supports -Debug (to start a build with extra tracing)
+** Allows parameters as PSObject
+* Get-ADORepository:  Added -IncludeHidden, -IncludeRemoteURL, -IncludeLink
+* Improvements to Pipelines and Workflows:
+** Pester, PSScriptAnalyzer, and ScriptCop now produce output variables
+** PSDevOps now includes a file to generate it's own build
+** PublishTest/CodeCoverage Results steps will always() run
+** Convert-BuildStep will add a .Name to each script step.
 0.4.8
 ---
 * Improved Tracing
@@ -19,7 +31,7 @@
 * New Functionality in Azure DevOps:
 ** Get-ADOProject now has -TestRun, -TestPlan, -Release, and -PendingApproval (and better progress bars)
 ** Get-ADOWorkItemType now has -Field
-** Commands for Picklists:  Add/Get/Remove/Update-ADOPicklist 
+** Commands for Picklists:  Add/Get/Remove/Update-ADOPicklist
 0.4.7
 ----
 * New Commands:
