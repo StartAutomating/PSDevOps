@@ -189,8 +189,11 @@ Specifies the method used for the web request. The acceptable values for this pa
                         $strResponse = $streamIn.ReadToEnd()
                         $streamIn.Close()
                         $streamIn.Dispose()
-                        $errorRecord = [Management.Automation.ErrorRecord]::new($ex.Exception.InnerException, $ex.Exception.HResult, 'NotSpecified', $webRequest)
-                        $PSCmdlet.WriteError($errorRecord)
+                        $PSCmdlet.WriteError(
+                            [Management.Automation.ErrorRecord]::new(
+                                [Exception]::new($strResponse, $ex.Exception.InnerException
+                            ), $ex.Exception.HResult, 'NotSpecified', $webRequest)
+                        )
                         return
                     } else {
                         $errorRecord = [Management.Automation.ErrorRecord]::new($ex.Exception, $ex.Exception.HResult, 'NotSpecified', $webRequest)
