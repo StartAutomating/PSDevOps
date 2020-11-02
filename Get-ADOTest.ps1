@@ -77,7 +77,7 @@
     [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/testplan/configurations')]
     [Alias('TestConfigurations')]
     [switch]
-    $TestConfigurations,
+    $TestConfiguration,
 
     # If set, will list test suites related to a plan.
     [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}/suites')]
