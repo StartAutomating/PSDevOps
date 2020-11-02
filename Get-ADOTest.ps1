@@ -24,10 +24,6 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Project}/_apis/test/runs/{TestRunID}/results')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Project}/_apis/testplan/plans')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Project}/_apis/testplan/variables')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}/suites')]
@@ -68,13 +64,13 @@
     $TestPlanID,
 
     # If set, will return the test variables associated with a project.
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/testplan/variables')]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/variables')]
     [Alias('TestVariables')]
     [switch]
     $TestVariable,
 
     # If set, will return the test variables associated with a project.
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/testplan/configurations')]
+    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/configurations')]
     [Alias('TestConfigurations')]
     [switch]
     $TestConfiguration,
@@ -177,6 +173,7 @@
 
             $additionalProperty = @{
                 Organization = $Organization
+                Project = $Project
                 Server = $Server
             }
             if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
