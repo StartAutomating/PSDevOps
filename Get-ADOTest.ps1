@@ -57,7 +57,7 @@
 
     # If set, will return the test plans associated with a project.
     [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/plans')]
-    [Alias('TestRuns')]
+    [Alias('TestPlans')]
     [switch]
     $TestPlan,
 
