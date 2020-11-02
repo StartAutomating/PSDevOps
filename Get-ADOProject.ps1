@@ -51,6 +51,10 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/variables')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/configurations')]
     [string]
     $ProjectID,
 
@@ -92,6 +96,18 @@
     [Alias('TestPlans')]
     [switch]
     $TestPlan,
+
+    # If set, will return the test variables associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/variables')]
+    [Alias('TestVariables')]
+    [switch]
+    $TestVariable,
+
+    # If set, will return the test variables associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/configurations')]
+    [Alias('TestConfigurations')]
+    [switch]
+    $TestConfiguration,
 
     # If set, will a specific project plan.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
@@ -190,6 +206,10 @@
 
             if ($typeName -eq 'plan' -and $psParameterSet -like '*testplan*') {
                 $typeName = 'TestPlan'
+            }
+
+            if ($typeName -eq 'PolicyConfiguration' -and $psParameterSet -like '*test*') {
+                $typeName = 'TestConfiguration'
             }
 
 
