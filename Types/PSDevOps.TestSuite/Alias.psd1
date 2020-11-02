@@ -1,0 +1,3 @@
+﻿@{
+    TestSuiteID = 'ID'
+}

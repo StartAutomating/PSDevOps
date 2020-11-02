@@ -1,0 +1,3 @@
+﻿@{
+    TestResultID = 'ID'
+}

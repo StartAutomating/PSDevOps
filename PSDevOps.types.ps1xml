@@ -93,6 +93,44 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.Picklist.Detail</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Team</Name>
+    <Members>
+      <AliasProperty>
+        <Name>Team</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>TeamID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Behavior</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>BehaviorID</Name>
+        <GetScriptBlock>
+                    if ($this.behavior.id) {
+    $this.behavior.id
+} elseif ($this.url) {
+    ([uri]$this.url).Segments[-1].TrimStart('/')
+}
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.User</Name>
     <Members>
       <AliasProperty>
@@ -102,19 +140,46 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.TestRun</Name>
+    <Name>PSDevOps.Agent</Name>
     <Members>
       <AliasProperty>
-        <Name>TestRunID</Name>
+        <Name>AgentID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Rule</Name>
+    <Name>PSDevOps.TestPlan</Name>
     <Members>
       <AliasProperty>
-        <Name>RuleID</Name>
+        <Name>TestPlanID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Dashboard</Name>
+    <Members>
+      <AliasProperty>
+        <Name>DashboardID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Field</Name>
+    <Members>
+      <AliasProperty>
+        <Name>FieldName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Wiki</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WikiID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
@@ -129,16 +194,12 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Build.Timeline</Name>
+    <Name>PSDevOps.TestRun</Name>
     <Members>
-      <ScriptProperty>
-        <Name>Agent</Name>
-        <GetScriptBlock>
-                    $this.Records | 
-    Select-Object -ExpandProperty WorkerName -Unique
-
-                </GetScriptBlock>
-      </ScriptProperty>
+      <AliasProperty>
+        <Name>TestRunID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
   <Type>
@@ -151,11 +212,11 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Dashboard</Name>
+    <Name>PSDevOps.TeamDescriptor</Name>
     <Members>
       <AliasProperty>
-        <Name>DashboardID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
+        <Name>TeamDescriptor</Name>
+        <ReferencedMemberName>Value</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -191,46 +252,97 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Publisher</Name>
+    <Name>PSDevOps.Widget</Name>
     <Members>
       <AliasProperty>
-        <Name>PublisherID</Name>
+        <Name>WidgetID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Wiki</Name>
-    <Members>
-      <AliasProperty>
-        <Name>WikiID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.TeamMembership</Name>
-    <Members>
+      <ScriptMethod>
+        <Name>GetHTML</Name>
+        <Script>
+                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
+return Invoke-RestMethod $this.contentUri
+
+                </Script>
+      </ScriptMethod>
       <ScriptProperty>
-        <Name>MemberUrl</Name>
+        <Name>ExtensionID</Name>
         <GetScriptBlock>
-                    $this._links.member.href -as [uri]
+                    @($this.contributionId -split '\.')[1]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>PublisherID</Name>
+        <GetScriptBlock>
+                    @($this.contributionId -split '\.')[0]
 
                 </GetScriptBlock>
       </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Team</Name>
+    <Name>PSDevOps.TestResult</Name>
     <Members>
       <AliasProperty>
-        <Name>Team</Name>
-        <ReferencedMemberName>Name</ReferencedMemberName>
-      </AliasProperty>
-      <AliasProperty>
-        <Name>TeamID</Name>
+        <Name>TestResultID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Build.Timeline</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Agent</Name>
+        <GetScriptBlock>
+                    $this.Records | 
+    Select-Object -ExpandProperty WorkerName -Unique
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Rule</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RuleID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Consumer</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ConsumerID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ExtensionContribution</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ContributionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Description</Name>
+        <GetScriptBlock>
+                    $this.properties.description
+
+                </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Name</Name>
+        <GetScriptBlock>
+                    $this.properties.name
+
+                </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -271,19 +383,65 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Behavior</Name>
+    <Name>PSDevOps.TestSuite</Name>
     <Members>
+      <AliasProperty>
+        <Name>TestSuiteID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Pool</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PoolID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
       <ScriptProperty>
-        <Name>BehaviorID</Name>
+        <Name>DateCreated</Name>
         <GetScriptBlock>
-                    if ($this.behavior.id) {
-    $this.behavior.id
-} elseif ($this.url) {
-    ([uri]$this.url).Segments[-1].TrimStart('/')
-}
+                    [DateTime]$this.createdOn
 
                 </GetScriptBlock>
       </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                    $this.owner.displayName
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Publisher</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.TeamMembership</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>MemberUrl</Name>
+        <GetScriptBlock>
+                    $this._links.member.href -as [uri]
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Picklist</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
   <Type>
@@ -335,137 +493,6 @@
 
                 </GetScriptBlock>
       </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Widget</Name>
-    <Members>
-      <AliasProperty>
-        <Name>WidgetID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptMethod>
-        <Name>GetHTML</Name>
-        <Script>
-                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
-return Invoke-RestMethod $this.contentUri
-
-                </Script>
-      </ScriptMethod>
-      <ScriptProperty>
-        <Name>ExtensionID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[1]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>PublisherID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[0]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Agent</Name>
-    <Members>
-      <AliasProperty>
-        <Name>AgentID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Picklist</Name>
-    <Members>
-      <AliasProperty>
-        <Name>PicklistID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Consumer</Name>
-    <Members>
-      <AliasProperty>
-        <Name>ConsumerID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.ExtensionContribution</Name>
-    <Members>
-      <AliasProperty>
-        <Name>ContributionID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptProperty>
-        <Name>Description</Name>
-        <GetScriptBlock>
-                    $this.properties.description
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>Name</Name>
-        <GetScriptBlock>
-                    $this.properties.name
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Pool</Name>
-    <Members>
-      <AliasProperty>
-        <Name>PoolID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptProperty>
-        <Name>DateCreated</Name>
-        <GetScriptBlock>
-                    [DateTime]$this.createdOn
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>OwnerName</Name>
-        <GetScriptBlock>
-                    $this.owner.displayName
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Picklist.Detail</Name>
-    <Members>
-      <AliasProperty>
-        <Name>PicklistID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Field</Name>
-    <Members>
-      <AliasProperty>
-        <Name>FieldName</Name>
-        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.TeamDescriptor</Name>
-    <Members>
-      <AliasProperty>
-        <Name>TeamDescriptor</Name>
-        <ReferencedMemberName>Value</ReferencedMemberName>
-      </AliasProperty>
     </Members>
   </Type>
 </Types>
