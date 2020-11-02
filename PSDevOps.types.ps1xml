@@ -93,6 +93,15 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.User</Name>
+    <Members>
+      <AliasProperty>
+        <Name>UserDescriptor</Name>
+        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.TestRun</Name>
     <Members>
       <AliasProperty>
@@ -107,6 +116,15 @@
       <AliasProperty>
         <Name>RuleID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.WorkItemType</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WorkItemTypeName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -203,11 +221,15 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.User</Name>
+    <Name>PSDevOps.Team</Name>
     <Members>
       <AliasProperty>
-        <Name>UserDescriptor</Name>
-        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+        <Name>Team</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>TeamID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -429,15 +451,11 @@ return Invoke-RestMethod $this.contentUri
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Team</Name>
+    <Name>PSDevOps.Field</Name>
     <Members>
       <AliasProperty>
-        <Name>Team</Name>
-        <ReferencedMemberName>Name</ReferencedMemberName>
-      </AliasProperty>
-      <AliasProperty>
-        <Name>TeamID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
+        <Name>FieldName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
