@@ -11,7 +11,6 @@
     .Link
         Get-ADOProject
     #>
-    [CmdletBinding(DefaultParameterSetName='/{Project}/_apis/test/runs')]
     [OutputType('PSDevOps.Project','PSDevOps.Property')]
     param(
     # The project identifier.
@@ -40,14 +39,14 @@
     $Project,    
 
     # If set, will return the test runs associated with a project.
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/runs')]
+    [Parameter(ParameterSetName='/{Project}/_apis/test/runs')]
     [Alias('TestRuns')]
     [switch]
     $TestRun,
 
     # If set, will return results related to a specific test run.
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/runs/{TestRunID}')]
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/runs/{TestRunID}/attachments')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Project}/_apis/test/runs/{TestRunID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Project}/_apis/test/runs/{TestRunID}/attachments')]
     [string]
     $TestRunID,
 
@@ -58,8 +57,8 @@
     $TestPlan,
 
     # If set, will return results related to a specific test plan.
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}')]
-    [Parameter(Mandatory,ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}/suites')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{Project}/_apis/test/plans/{TestPlanID}/suites')]
     [string]
     $TestPlanID,
 
