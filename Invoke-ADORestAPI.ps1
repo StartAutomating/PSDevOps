@@ -100,7 +100,12 @@ Specifies the method used for the web request. The acceptable values for this pa
     # This allows nested REST properties to work with the PowerShell Extended Type System.
     [Collections.IDictionary]
     [Alias('TypeNameOfProperty')]
-    $DecorateProperty
+    $DecorateProperty,
+
+    # If set, will run as a background job.  
+    # This parameter will be ignored if the caller is piping the results of Invoke-ADORestAPI.
+    [switch]
+    $AsJob
     )
 
     process {
@@ -116,8 +121,23 @@ Specifies the method used for the web request. The acceptable values for this pa
             -not $Credential -and
             -not $UseDefaultCredentials -and
             $script:CachedPersonalAccessToken) {
-            $PersonalAccessToken = $script:CachedPersonalAccessToken
+            $psBoundParameters["PersonalAccessToken"] = $PersonalAccessToken = $script:CachedPersonalAccessToken
         }
+        if ($AsJob -and $MyInvocation.PipelinePosition -eq $MyInvocation.PipelineLength) {
+            $paramCopy = @{} + $PSBoundParameters
+            $paramCopy.Remove('AsJob')
+            $jobDefinition = [ScriptBlock]::Create(@'
+param([Hashtable]$parameter)
+'@ + @"
+function $($MyInvocation.MyCommand.Name) {
+    $($MyInvocation.MyCommand.Definition)
+}
+$($MyInvocation.MyCommand.Name) @parameter
+"@)
+            Start-Job -ScriptBlock $jobDefinition -ArgumentList $paramCopy
+            return
+        }
+
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
                 $irmSplat.Headers.Authorization = "Basic $([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":$PersonalAccessToken")))"
@@ -173,6 +193,18 @@ Specifies the method used for the web request. The acceptable values for this pa
             $requestStream.Close()
         } else {
             $webRequest.contentLength = 0
+        }
+
+        if ($Property -and $Property.Count) {
+            $psProperties = @(
+                foreach ($propKeyValue in $Property.GetEnumerator()) {
+                    if ($propKeyValue.Value -as [ScriptBlock[]]) {
+                        [PSScriptProperty]::new.Invoke(@($propKeyValue.Key) + $propKeyValue.Value)
+                    } else {
+                        [PSNoteProperty]::new($propKeyValue.Key, $propKeyValue.Value)
+                    }
+                }
+            )
         }
 
         Write-Verbose "$Method $Uri [$($webRequest.ContentLength) bytes]"
@@ -274,17 +306,9 @@ Specifies the method used for the web request. The acceptable values for this pa
                     }
                 }
 
-                if ($Property) {
-                    foreach ($propKeyValue in $Property.GetEnumerator()) {
-                        if ($in.PSObject.Properties[$propKeyValue.Key]) {
-                            $in.PSObject.Properties.Remove($propKeyValue.Key)
-                        }
-                        $in.PSObject.Properties.Add($(
-                        if ($propKeyValue.Value -as [ScriptBlock[]]) {
-                            [PSScriptProperty]::new.Invoke(@($propKeyValue.Key) + $propKeyValue.Value)
-                        } else {
-                            [PSNoteProperty]::new($propKeyValue.Key, $propKeyValue.Value)
-                        }))
+                if ($Property -and $Property.Count) {                    
+                    foreach ($prop in $psProperties) {                        
+                        $in.PSObject.Members.Add($prop, $true)
                     }
                 }
                 if ($RemoveProperty) {
