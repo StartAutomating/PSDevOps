@@ -1,0 +1,4 @@
+﻿@{
+    EndpointID = 'ID'
+    EndpointType = 'Type'
+}
