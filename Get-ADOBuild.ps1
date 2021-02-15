@@ -352,17 +352,20 @@
 
             if ($Detail)
             {
-                $null = $PSBoundParameters.Remove('Detail')
+                
+                $null = $DequedInput.Remove('Detail')
+                $null = $DequedInput.Remove('ParameterSet')
+                $null = $DequedInput.Remove('AsJob')
                 Invoke-ADORestAPI @invokeParams -Property @{
                     Organization = $Organization
                     Project = $Project
                     Server = $Server
                 } |
-                    Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @PSBoundParameters -ChangeSet) -Force -PassThru |
-                    Add-Member NoteProperty Timeline -Value (Get-ADOBuild @PSBoundParameters -Timeline) -Force -PassThru |
-                    Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @PSBoundParameters -Artifact) -Force -PassThru |
-                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @PSBoundParameters -Log) -Force -PassThru |
-                    Add-Member NoteProperty CodeCoverage -Value (Get-ADOBuild @PSBoundParameters -CodeCoverage) -Force -PassThru
+                    Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @DequedInput -ChangeSet) -Force -PassThru |
+                    Add-Member NoteProperty Timeline -Value (Get-ADOBuild @DequedInput -Timeline) -Force -PassThru |
+                    Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @DequedInput -Artifact) -Force -PassThru |
+                    Add-Member NoteProperty Logs -Value (Get-ADOBuild @DequedInput -Log) -Force -PassThru |
+                    Add-Member NoteProperty CodeCoverage -Value (Get-ADOBuild @DequedInput -CodeCoverage) -Force -PassThru
             }
             elseif ($DefinitionYAML)
             {
