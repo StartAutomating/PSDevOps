@@ -46,6 +46,19 @@
     [string[]]
     $Descriptor,
 
+    # If set and this is a hierarchical namespace, return child ACLs of the specified token.
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [switch]
+    $Recurse,
+
+    # If set, populate the extended information properties for the access control entries in the returned lists.
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [switch]
+    $IncludeExtendedInfo,
+
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
