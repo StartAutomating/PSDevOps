@@ -2,11 +2,20 @@
 <!-- Generated with EZOut 1.8.3.1: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
-    <Name>PSDevOps.ArtifactFeed.View</Name>
+    <Name>PSDevOps.Agent</Name>
     <Members>
       <AliasProperty>
-        <Name>ViewID</Name>
-        <ReferencedMemberName>id</ReferencedMemberName>
+        <Name>AgentID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Agent</Name>
+    <Members>
+      <AliasProperty>
+        <Name>AgentID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -20,6 +29,139 @@
     </Members>
   </Type>
   <Type>
+    <Name>Deserialized.PSDevOps.ArtifactFeed</Name>
+    <Members>
+      <AliasProperty>
+        <Name>FeedID</Name>
+        <ReferencedMemberName>fullyQualifiedId</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ArtifactFeed.View</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ViewID</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.ArtifactFeed.View</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ViewID</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Behavior</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>BehaviorID</Name>
+        <GetScriptBlock>
+                        if ($this.behavior.id) {
+    $this.behavior.id
+} elseif ($this.url) {
+    ([uri]$this.url).Segments[-1].TrimStart('/')
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Behavior</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>BehaviorID</Name>
+        <GetScriptBlock>
+                        if ($this.behavior.id) {
+    $this.behavior.id
+} elseif ($this.url) {
+    ([uri]$this.url).Segments[-1].TrimStart('/')
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Build</Name>
+    <Members>
+      <AliasProperty>
+        <Name>BuildID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>ChangedAt</Name>
+        <GetScriptBlock>
+                        $this.LastChangedDate -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishedAt</Name>
+        <GetScriptBlock>
+                        $this.finishTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>QueuedAt</Name>
+        <GetScriptBlock>
+                        $this.queueTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>StartedAt</Name>
+        <GetScriptBlock>
+                        $this.StartTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Build</Name>
+    <Members>
+      <AliasProperty>
+        <Name>BuildID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>ChangedAt</Name>
+        <GetScriptBlock>
+                        $this.LastChangedDate -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishedAt</Name>
+        <GetScriptBlock>
+                        $this.finishTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>QueuedAt</Name>
+        <GetScriptBlock>
+                        $this.queueTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>StartedAt</Name>
+        <GetScriptBlock>
+                        $this.StartTime -as [DateTime]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>
@@ -29,34 +171,282 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Repository</Name>
+    <Name>Deserialized.PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>
-        <Name>RepositoryID</Name>
+        <Name>DefinitionID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.ServiceEndpoint</Name>
+    <Name>PSDevOps.Build.Timeline</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Agent</Name>
+        <GetScriptBlock>
+                        $this.Records | 
+    Select-Object -ExpandProperty WorkerName -Unique
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Build.Timeline</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Agent</Name>
+        <GetScriptBlock>
+                        $this.Records | 
+    Select-Object -ExpandProperty WorkerName -Unique
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Consumer</Name>
     <Members>
       <AliasProperty>
-        <Name>EndpointID</Name>
+        <Name>ConsumerID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <AliasProperty>
-        <Name>EndpointType</Name>
-        <ReferencedMemberName>Type</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Repository.SourceProvider</Name>
+    <Name>Deserialized.PSDevOps.Consumer</Name>
     <Members>
       <AliasProperty>
-        <Name>ProviderName</Name>
-        <ReferencedMemberName>Name</ReferencedMemberName>
+        <Name>ConsumerID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Dashboard</Name>
+    <Members>
+      <AliasProperty>
+        <Name>DashboardID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Dashboard</Name>
+    <Members>
+      <AliasProperty>
+        <Name>DashboardID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ExtensionContribution</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ContributionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Description</Name>
+        <GetScriptBlock>
+                        $this.properties.description
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Name</Name>
+        <GetScriptBlock>
+                        $this.properties.name
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.ExtensionContribution</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ContributionID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Description</Name>
+        <GetScriptBlock>
+                        $this.properties.description
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Name</Name>
+        <GetScriptBlock>
+                        $this.properties.name
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Field</Name>
+    <Members>
+      <AliasProperty>
+        <Name>FieldName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Field</Name>
+    <Members>
+      <AliasProperty>
+        <Name>FieldName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.IterationPath</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>EndDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>StartDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.StartDate) {
+    ($this.Attributes.StartDate -as [DateTime]).ToUniversalTime()
+}
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.IterationPath</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>EndDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>FinishDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.FinishDate) {
+    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>StartDate</Name>
+        <GetScriptBlock>
+                        if ($this.Attributes.StartDate) {
+    ($this.Attributes.StartDate -as [DateTime]).ToUniversalTime()
+}
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Picklist</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Picklist</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Picklist.Detail</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Picklist.Detail</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PicklistID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Pool</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PoolID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>DateCreated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.createdOn
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                        $this.owner.displayName
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Pool</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PoolID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>DateCreated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.createdOn
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                        $this.owner.displayName
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -77,26 +467,168 @@
         </Members>
       </MemberSet>
       <AliasProperty>
-        <Name>ProjectID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <AliasProperty>
         <Name>Project</Name>
         <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ProjectID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
       <ScriptProperty>
         <Name>LastUpdated</Name>
         <GetScriptBlock>
-                    [DateTime]$this.LastUpdateTime
-                </GetScriptBlock>
+                        [DateTime]$this.LastUpdateTime
+
+                    </GetScriptBlock>
       </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Picklist.Detail</Name>
+    <Name>Deserialized.PSDevOps.Project</Name>
+    <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Organization</Name>
+              <Name>Project</Name>
+              <Name>LastUpdateTime</Name>
+              <Name>Description</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
+      <AliasProperty>
+        <Name>Project</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ProjectID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.LastUpdateTime
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Publisher</Name>
     <Members>
       <AliasProperty>
-        <Name>PicklistID</Name>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Publisher</Name>
+    <Members>
+      <AliasProperty>
+        <Name>PublisherID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Repository</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RepositoryID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Repository</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RepositoryID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Repository.SourceProvider</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ProviderName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Repository.SourceProvider</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ProviderName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Rule</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RuleID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Rule</Name>
+    <Members>
+      <AliasProperty>
+        <Name>RuleID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ServiceEndpoint</Name>
+    <Members>
+      <AliasProperty>
+        <Name>EndpointID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>EndpointType</Name>
+        <ReferencedMemberName>Type</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.ServiceEndpoint</Name>
+    <Members>
+      <AliasProperty>
+        <Name>EndpointID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>EndpointType</Name>
+        <ReferencedMemberName>Type</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.State</Name>
+    <Members>
+      <AliasProperty>
+        <Name>StateID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.State</Name>
+    <Members>
+      <AliasProperty>
+        <Name>StateID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
@@ -115,98 +647,14 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Behavior</Name>
-    <Members>
-      <ScriptProperty>
-        <Name>BehaviorID</Name>
-        <GetScriptBlock>
-                    if ($this.behavior.id) {
-    $this.behavior.id
-} elseif ($this.url) {
-    ([uri]$this.url).Segments[-1].TrimStart('/')
-}
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.User</Name>
+    <Name>Deserialized.PSDevOps.Team</Name>
     <Members>
       <AliasProperty>
-        <Name>UserDescriptor</Name>
-        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+        <Name>Team</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
       </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Agent</Name>
-    <Members>
       <AliasProperty>
-        <Name>AgentID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.TestPlan</Name>
-    <Members>
-      <AliasProperty>
-        <Name>TestPlanID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Dashboard</Name>
-    <Members>
-      <AliasProperty>
-        <Name>DashboardID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Field</Name>
-    <Members>
-      <AliasProperty>
-        <Name>FieldName</Name>
-        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Wiki</Name>
-    <Members>
-      <AliasProperty>
-        <Name>WikiID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.WorkItemType</Name>
-    <Members>
-      <AliasProperty>
-        <Name>WorkItemTypeName</Name>
-        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.TestRun</Name>
-    <Members>
-      <AliasProperty>
-        <Name>TestRunID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.State</Name>
-    <Members>
-      <AliasProperty>
-        <Name>StateID</Name>
+        <Name>TeamID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
@@ -221,65 +669,54 @@
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.IterationPath</Name>
+    <Name>Deserialized.PSDevOps.TeamDescriptor</Name>
+    <Members>
+      <AliasProperty>
+        <Name>TeamDescriptor</Name>
+        <ReferencedMemberName>Value</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.TeamMembership</Name>
     <Members>
       <ScriptProperty>
-        <Name>StartDate</Name>
+        <Name>MemberUrl</Name>
         <GetScriptBlock>
-                    if ($this.Attributes.StartDate) {
-    ($this.Attributes.StartDate -as [DateTime]).ToUniversalTime()
-}
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>EndDate</Name>
-        <GetScriptBlock>
-                    if ($this.Attributes.FinishDate) {
-    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
-}
+                        $this._links.member.href -as [uri]
 
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>FinishDate</Name>
-        <GetScriptBlock>
-                    if ($this.Attributes.FinishDate) {
-    ($this.Attributes.FinishDate -as [DateTime]).ToUniversalTime()
-}
-
-                </GetScriptBlock>
+                    </GetScriptBlock>
       </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Widget</Name>
+    <Name>Deserialized.PSDevOps.TeamMembership</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>MemberUrl</Name>
+        <GetScriptBlock>
+                        $this._links.member.href -as [uri]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.TestPlan</Name>
     <Members>
       <AliasProperty>
-        <Name>WidgetID</Name>
+        <Name>TestPlanID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-      <ScriptMethod>
-        <Name>GetHTML</Name>
-        <Script>
-                    if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
-return Invoke-RestMethod $this.contentUri
-
-                </Script>
-      </ScriptMethod>
-      <ScriptProperty>
-        <Name>ExtensionID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[1]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>PublisherID</Name>
-        <GetScriptBlock>
-                    @($this.contributionId -split '\.')[0]
-
-                </GetScriptBlock>
-      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.TestPlan</Name>
+    <Members>
+      <AliasProperty>
+        <Name>TestPlanID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
   <Type>
@@ -292,94 +729,30 @@ return Invoke-RestMethod $this.contentUri
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Build.Timeline</Name>
-    <Members>
-      <ScriptProperty>
-        <Name>Agent</Name>
-        <GetScriptBlock>
-                    $this.Records | 
-    Select-Object -ExpandProperty WorkerName -Unique
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Rule</Name>
+    <Name>Deserialized.PSDevOps.TestResult</Name>
     <Members>
       <AliasProperty>
-        <Name>RuleID</Name>
+        <Name>TestResultID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Consumer</Name>
+    <Name>PSDevOps.TestRun</Name>
     <Members>
       <AliasProperty>
-        <Name>ConsumerID</Name>
+        <Name>TestRunID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.ExtensionContribution</Name>
+    <Name>Deserialized.PSDevOps.TestRun</Name>
     <Members>
       <AliasProperty>
-        <Name>ContributionID</Name>
+        <Name>TestRunID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-      <ScriptProperty>
-        <Name>Description</Name>
-        <GetScriptBlock>
-                    $this.properties.description
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>Name</Name>
-        <GetScriptBlock>
-                    $this.properties.name
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Build</Name>
-    <Members>
-      <AliasProperty>
-        <Name>BuildID</Name>
-        <ReferencedMemberName>ID</ReferencedMemberName>
-      </AliasProperty>
-      <ScriptProperty>
-        <Name>StartedAt</Name>
-        <GetScriptBlock>
-                    $this.StartTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>ChangedAt</Name>
-        <GetScriptBlock>
-                    $this.LastChangedDate -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>FinishedAt</Name>
-        <GetScriptBlock>
-                    $this.finishTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>QueuedAt</Name>
-        <GetScriptBlock>
-                    $this.queueTime -as [DateTime]
-
-                </GetScriptBlock>
-      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -392,54 +765,108 @@ return Invoke-RestMethod $this.contentUri
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Pool</Name>
+    <Name>Deserialized.PSDevOps.TestSuite</Name>
     <Members>
       <AliasProperty>
-        <Name>PoolID</Name>
+        <Name>TestSuiteID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
-      <ScriptProperty>
-        <Name>DateCreated</Name>
-        <GetScriptBlock>
-                    [DateTime]$this.createdOn
-
-                </GetScriptBlock>
-      </ScriptProperty>
-      <ScriptProperty>
-        <Name>OwnerName</Name>
-        <GetScriptBlock>
-                    $this.owner.displayName
-
-                </GetScriptBlock>
-      </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.Publisher</Name>
+    <Name>PSDevOps.User</Name>
     <Members>
       <AliasProperty>
+        <Name>UserDescriptor</Name>
+        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.User</Name>
+    <Members>
+      <AliasProperty>
+        <Name>UserDescriptor</Name>
+        <ReferencedMemberName>Descriptor</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Widget</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WidgetID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>GetHTML</Name>
+        <Script>
+                        if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
+return Invoke-RestMethod $this.contentUri
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ExtensionID</Name>
+        <GetScriptBlock>
+                        @($this.contributionId -split '\.')[1]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
         <Name>PublisherID</Name>
+        <GetScriptBlock>
+                        @($this.contributionId -split '\.')[0]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Widget</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WidgetID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>GetHTML</Name>
+        <Script>
+                        if (-not $this.contentUri) { throw '$this.ContentUri is empty' }
+return Invoke-RestMethod $this.contentUri
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ExtensionID</Name>
+        <GetScriptBlock>
+                        @($this.contributionId -split '\.')[1]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>PublisherID</Name>
+        <GetScriptBlock>
+                        @($this.contributionId -split '\.')[0]
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.Wiki</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WikiID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
   <Type>
-    <Name>PSDevOps.TeamMembership</Name>
-    <Members>
-      <ScriptProperty>
-        <Name>MemberUrl</Name>
-        <GetScriptBlock>
-                    $this._links.member.href -as [uri]
-
-                </GetScriptBlock>
-      </ScriptProperty>
-    </Members>
-  </Type>
-  <Type>
-    <Name>PSDevOps.Picklist</Name>
+    <Name>Deserialized.PSDevOps.Wiki</Name>
     <Members>
       <AliasProperty>
-        <Name>PicklistID</Name>
+        <Name>WikiID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
     </Members>
@@ -448,25 +875,25 @@ return Invoke-RestMethod $this.contentUri
     <Name>PSDevOps.WorkItem</Name>
     <Members>
       <AliasProperty>
-        <Name>Title</Name>
-        <ReferencedMemberName>System.Title</ReferencedMemberName>
-      </AliasProperty>
-      <AliasProperty>
         <Name>AssignedTo</Name>
         <ReferencedMemberName>System.AssignedTo</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ID</Name>
+        <ReferencedMemberName>System.ID</ReferencedMemberName>
       </AliasProperty>
       <AliasProperty>
         <Name>LastUpdated</Name>
         <ReferencedMemberName>ChangedDate</ReferencedMemberName>
       </AliasProperty>
       <AliasProperty>
-        <Name>ID</Name>
-        <ReferencedMemberName>System.ID</ReferencedMemberName>
+        <Name>Title</Name>
+        <ReferencedMemberName>System.Title</ReferencedMemberName>
       </AliasProperty>
       <ScriptMethod>
         <Name>HTMLToText</Name>
         <Script>
-                    param([string]$html)
+                        param([string]$html)
     $html -replace
     '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
     '&lt;/div&gt;', [Environment]::NewLine -replace
@@ -477,22 +904,91 @@ return Invoke-RestMethod $this.contentUri
     '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
 
 
-                </Script>
+                    </Script>
       </ScriptMethod>
       <ScriptProperty>
         <Name>ChangedDate</Name>
         <GetScriptBlock>
-                    [DateTime]$this.'System.ChangedDate'
+                        [DateTime]$this.'System.ChangedDate'
 
-                </GetScriptBlock>
+                    </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>CreatedDate</Name>
         <GetScriptBlock>
-                    [DateTime]$this.'System.CreatedDate'
+                        [DateTime]$this.'System.CreatedDate'
 
-                </GetScriptBlock>
+                    </GetScriptBlock>
       </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.WorkItem</Name>
+    <Members>
+      <AliasProperty>
+        <Name>AssignedTo</Name>
+        <ReferencedMemberName>System.AssignedTo</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ID</Name>
+        <ReferencedMemberName>System.ID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>LastUpdated</Name>
+        <ReferencedMemberName>ChangedDate</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>Title</Name>
+        <ReferencedMemberName>System.Title</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptMethod>
+        <Name>HTMLToText</Name>
+        <Script>
+                        param([string]$html)
+    $html -replace
+    '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
+    '&lt;/div&gt;', [Environment]::NewLine -replace
+    '&lt;li&gt;',"* " -replace
+    '&lt;/li&gt;', [Environment]::NewLine -replace
+    '\&lt;[^\&gt;]+\&gt;', '' -replace
+    '&amp;quot;', '"' -replace 
+    '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ChangedDate</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.'System.ChangedDate'
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>CreatedDate</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.'System.CreatedDate'
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.WorkItemType</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WorkItemTypeName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.WorkItemType</Name>
+    <Members>
+      <AliasProperty>
+        <Name>WorkItemTypeName</Name>
+        <ReferencedMemberName>ReferenceName</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
 </Types>
