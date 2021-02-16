@@ -75,6 +75,7 @@
                 Write-Progress "Adding Area Paths" "$AreaPath " -PercentComplete ($c * 100 / $t) -Id $id
             }
             $areaPathParts= @($areaPath -split '\\')
+            $getAreaPathParams.Depth = $areaPathParts.Length + 2
             if (-not $allAreaPaths["$Organization/$Project"]) { # Cache ADO Area Paths
                 $allAreaPaths["$Organization/$Project"] = @(Get-ADOAreaPath @getAreaPathParams)
             }
