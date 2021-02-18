@@ -254,7 +254,8 @@ See the <refspec>... section above for details.
         }
 
         if ($PSCmdlet.ShouldProcess("git push $exeArgs")) {
-            @(git push @exeArgs 2>&1) -as [string[]]
+            @(git push @exeArgs 2>&1 | 
+                & { process { "$_" } } )
         }
     }
 }
