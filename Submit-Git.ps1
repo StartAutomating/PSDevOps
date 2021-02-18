@@ -9,8 +9,15 @@
         Submit-Git -Message "Commit Messages Should Be Helpful"
 
     #>
-    [CmdletBinding(PositionalBinding=$false,SupportsShouldProcess)]
+    [CmdletBinding(PositionalBinding=$false,SupportsShouldProcess)]    
     param(
+    # Use the given <msg> as the commit message.
+    # The -m option is mutually exclusive with -c, -C, and -F
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('--message','M')]
+    [string[]]
+    $Message,
+
     # Tell the command to automatically stage files that have been modified and deleted, 
     # but new files you have not told Git about are not affected.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -126,12 +133,6 @@
     [string]
     $Date,
 
-    # Use the given <msg> as the commit message.
-    # The -m option is mutually exclusive with -c, -C, and -F
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('--message','M')]
-    [string[]]
-    $Message,
 
     # When editing the commit message, start the editor with the contents in the given file.
     # The commit.template configuration variable is often used 
@@ -344,6 +345,7 @@
 
     begin {
         $myCommandMetadata = [Management.Automation.CommandMetaData]$MyInvocation.MyCommand
+        
     }
     process {
         $exeArgs = 
@@ -354,7 +356,7 @@
         if ($WhatIfPreference) { return $exeArgs }
 
         if ($PSCmdlet.ShouldProcess("git commit $exeArgs")) {
-            git commit @exeArgs 2>&1
+            @(git commit @exeArgs 2>&1) -join [Environment]::NewLine
         }
     }
 
