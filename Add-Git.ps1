@@ -5,9 +5,17 @@
         PowerShell wrapper around git add
     .Description
         Adds changes to a git changelist
+    .Example
+        Add-Git AddGit.ps1
     #>
     [CmdletBinding(PositionalBinding=$false,SupportsShouldProcess=$true)]
     param(
+    # The path to add to git.
+    [Parameter(ValueFromPipelineByPropertyName,ValueFromRemainingArguments)]
+    [Alias('Fullname')]
+    [string[]]
+    $Path,
+
     <#
     Don't actually add the file(s), just show if they exist and/or will
     be ignored.
@@ -102,40 +110,26 @@
     #>[Parameter(ValueFromPipelineByPropertyName)]
     [Alias('--renormalize')]
     [switch]
-    $Renormalize,
-    [Parameter(ValueFromPipelineByPropertyName,ValueFromRemainingArguments)]
-    [string[]]
-    $Pathspec
+    $Renormalize    
     )
 
     begin {
         $myCommandMetadata = [Management.Automation.CommandMetaData]$MyInvocation.MyCommand
     }
     process {
-        $exeArgs = @()
-        $exeArgs +=
-            foreach ($kv in $PSBoundParameters.GetEnumerator()) {
-                $paramMetadata = $myCommandMetadata.Parameters[$kv.Key]
-                if (-not $paramMetadata) { continue }
-                if ($paramMetadata.Aliases[0] -match '[-/]') {
-                    if ($paramMetadata.Aliases[0] -match '\=$') {
-                        $paramMetadata.Aliases[0] + '=' + "$($kv.Value)"
-                    } else {
-                        $paramMetadata.Aliases[0]
-                        if ($paramMetadata.ParameterType -ne [switch]) {
-                            "$($kv.Value)"
-                        }
-                    }
-
-                }
-                elseif (-not ($paramMetadata.Aliases -match '^\!')) {
-                    foreach ($v in $kv.Value) { "$v" }
-                }
-            }
+        if ($psBoundParameters.Path) {
+            $psBoundParameters.Path = $psBoundParameters.Path -replace '\\', '/' -replace '^\./'
+        }
+        $exeArgs = @(& $getExeArguments $myCommandMetadata $PSBoundParameters @(
+            if ($VerbosePreference -eq 'continue') { '--verbose' } 
+        ))
+        
         if ($WhatIfPreference) {
             return $exeArgs
         }
-        git add @exeArgs 2>&1
+        if ($PSCmdlet.ShouldProcess("git add $exeArgs")) {
+            git add @exeArgs 2>&1
+        }
     }
 }
 

@@ -346,31 +346,12 @@
         $myCommandMetadata = [Management.Automation.CommandMetaData]$MyInvocation.MyCommand
     }
     process {
-        $exeArgs = @(
-            if ($VerbosePreference -eq 'continue') { '--verbose' } 
-        )
-        $exeArgs +=
-            foreach ($kv in $PSBoundParameters.GetEnumerator()) {
-                $paramMetadata = $myCommandMetadata.Parameters[$kv.Key]
-                if (-not $paramMetadata) { continue }
-                if ($paramMetadata.Aliases[0] -match '[-/]') {
-                    if ($paramMetadata.Aliases[0] -match '\=$') {
-                        $paramMetadata.Aliases[0] + '=' + "$($kv.Value)"
-                    } else {
-                        $paramMetadata.Aliases[0]
-                        if ($paramMetadata.ParameterType -ne [switch]) {
-                            "$($kv.Value)"
-                        }
-                    }
-
-                }
-                elseif (-not ($paramMetadata.Aliases -match '^\!')) {
-                    foreach ($v in $kv.Value) { "$v" }
-                }
-            }
-        if ($WhatIfPreference) {
-            return $exeArgs
-        }
+        $exeArgs = 
+            @(& $getExeArguments $myCommandMetadata $PSBoundParameters @(
+                if ($VerbosePreference -eq 'continue') { '--verbose' } 
+            ))
+       
+        if ($WhatIfPreference) { return $exeArgs }
 
         if ($PSCmdlet.ShouldProcess("git commit $exeArgs")) {
             git commit @exeArgs 2>&1

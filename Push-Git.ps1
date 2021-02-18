@@ -12,8 +12,55 @@
     .Link
         Submit-Git
     #>
-    [CmdletBinding(PositionalBinding=$false)]
+    [CmdletBinding(PositionalBinding=$false,SupportsShouldProcess)]
     param(
+    # The <repository> argument.
+    [Parameter(Position=0,ValueFromPipelineByPropertyName)]
+    [Alias('<repository>','Repo')]
+    [string]
+    $Repository,
+
+    <#
+
+Specify what destination ref to update with what source object. 
+The format of a <refspec> parameter is an optional plus +, 
+followed by the source object <src>, followed by a colon :, 
+followed by the destination ref <dst>.
+
+The <src> is often the name of the branch you would want to push, 
+but it can be any arbitrary "SHA-1 expression", 
+such as master~4 or HEAD (see gitrevisions(7)).
+
+The <dst> tells which ref on the remote side is updated with this push. 
+Arbitrary expressions cannot be used here, an actual ref must be named. 
+If git push [<repository>] without any <refspec> argument is set to update 
+some ref at the destination with <src> with remote.<repository>.push configuration variable,
+ :<dst> part can be omitted—​such a push will update a ref that <src> normally updates without any <refspec> 
+on the command line. 
+Otherwise, missing :<dst> means to update the same ref as the <src>.
+
+The object referenced by <src> is used to update the <dst> reference on the remote side.
+By default this is only allowed if <dst> is not a tag (annotated or lightweight), 
+and then only if it can fast-forward <dst>.
+
+By having the optional leading +, you can tell Git to update the <dst> ref even 
+if it is not allowed by default (e.g., it is not a fast-forward.) 
+This does not attempt to merge <src> into <dst>.
+
+tag <tag> means the same as refs/tags/<tag>:refs/tags/<tag>.
+
+Pushing an empty <src> allows you to delete the <dst> ref from the remote repository.
+
+The special refspec : (or +: to allow non-fast-forward updates) directs Git to push "matching" branches: 
+for every branch that exists on the local side, 
+the remote side is updated if a branch of the same name already exists on the remote side.
+    #>
+    [Parameter(Position=1,ValueFromPipelineByPropertyName,ValueFromRemainingArguments)]
+    [Alias('<RefSpec>','RefSpec')]
+    [string[]]
+    $ReferenceSpec,
+    
+    
     # Push all branches (i.e. refs under refs/heads/); cannot be used with other <refspec>.    
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('--all')]        
@@ -61,6 +108,8 @@
     # Produce machine-readable output. 
     # The output status line for each ref will be tab-separated and sent to stdout instead of stderr. 
     # The full symbolic names of the refs will be given.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('--porcelain')]
     [switch]
     $Porcelain,
 
@@ -126,13 +175,6 @@ the values of configuration variable push.pushOption are used instead.
     [string]
     $ReceivePack,
 
-    # The <repository> argument.
-    [Parameter(Position=0,ValueFromPipelineByPropertyName)]
-    [Alias('--repo=','Repo')]
-    [switch]
-    $Repository,
-
-
     <#
 Usually, the command refuses to update a remote ref that is not an ancestor of the local ref used to overwrite it.
 Also, when --force-with-lease option is used, the command refuses to update a remote ref 
@@ -153,7 +195,6 @@ See the <refspec>... section above for details.
     [Alias('--force')]
     [switch]
     $Force,
-
 
     # For every branch that is up to date or successfully pushed, 
     # add upstream (tracking) reference, used by argument-less git-pull(1) and other commands.
@@ -196,77 +237,17 @@ See the <refspec>... section above for details.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('--noverify')]
     [switch]
-    $NoVerify,
-
-    <#
-
-Specify what destination ref to update with what source object. 
-The format of a <refspec> parameter is an optional plus +, 
-followed by the source object <src>, followed by a colon :, 
-followed by the destination ref <dst>.
-
-The <src> is often the name of the branch you would want to push, 
-but it can be any arbitrary "SHA-1 expression", 
-such as master~4 or HEAD (see gitrevisions(7)).
-
-The <dst> tells which ref on the remote side is updated with this push. 
-Arbitrary expressions cannot be used here, an actual ref must be named. 
-If git push [<repository>] without any <refspec> argument is set to update 
-some ref at the destination with <src> with remote.<repository>.push configuration variable,
- :<dst> part can be omitted—​such a push will update a ref that <src> normally updates without any <refspec> 
-on the command line. 
-Otherwise, missing :<dst> means to update the same ref as the <src>.
-
-The object referenced by <src> is used to update the <dst> reference on the remote side.
-By default this is only allowed if <dst> is not a tag (annotated or lightweight), 
-and then only if it can fast-forward <dst>.
-
-By having the optional leading +, you can tell Git to update the <dst> ref even 
-if it is not allowed by default (e.g., it is not a fast-forward.) 
-This does not attempt to merge <src> into <dst>.
-
-tag <tag> means the same as refs/tags/<tag>:refs/tags/<tag>.
-
-Pushing an empty <src> allows you to delete the <dst> ref from the remote repository.
-
-The special refspec : (or +: to allow non-fast-forward updates) directs Git to push "matching" branches: 
-for every branch that exists on the local side, 
-the remote side is updated if a branch of the same name already exists on the remote side.
-    #>
-    [Parameter(Position=1,ValueFromPipelineByPropertyName,ValueFromRemainingArguments)]
-    [Alias('RefSpec')]
-    [string[]]
-    $ReferenceSpec
+    $NoVerify
     )
     begin {
         $myCommandMetadata = [Management.Automation.CommandMetaData]$MyInvocation.MyCommand
     }
     process {
         #region Prepare git arguments
-        $exeArgs = @(
+        $exeArgs = $exeArgs = & $getExeArguments $myCommandMetadata $PSBoundParameters @(
             if ($VerbosePreference -eq 'continue') { '--verbose' } 
         )
-        $exeArgs +=
-            foreach ($kv in $PSBoundParameters.GetEnumerator()) {
-                $paramMetadata = $myCommandMetadata.Parameters[$kv.Key]
-                if (-not $paramMetadata) { continue } 
-                if ($paramMetadata.Aliases[0] -match '[-/]') {
-                    if ($paramMetadata.Aliases[0] -match '\=$') {
-                        $paramMetadata.Aliases[0] + '=' + "$($kv.Value)"
-                    } else {
-                        $paramMetadata.Aliases[0]
-                        if ($paramMetadata.ParameterType -ne [switch]) {
-                            "$($kv.Value)"
-                        }
-                    }
-                        
-                }
-                elseif (-not ($paramMetadata.Aliases -match '^\!')) {
-                    foreach ($v in $kv.Value) { "$v" }
-                }
-            }
         #endregion Prepare git arguments
-
 
         if ($WhatIfPreference) {
             return $exeArgs
