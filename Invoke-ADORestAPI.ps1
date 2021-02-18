@@ -333,6 +333,14 @@ $($MyInvocation.MyCommand.Name) @parameter
             } }
         #endregion Call Invoke-RestMethod
 
+        if ($Method -ne 'GET') { # If the method was not 'Get'
+            # raise an event (in case other subsystems wished to log or track them)
+            $null = New-Event -SourceIdentifier "InvokeADORestApi.$Method.$uri" -MessageData $(
+                $null = $PSBoundParameters.Remove('PersonalAccessToken')
+                [Ordered]@{Output=$apiOutput} + $PSBoundParameters
+            )
+        }
+
         # If we have a continuation token
         if ($responseHeaders -and $responseHeaders['X-MS-ContinuationToken'] -and $Uri -notmatch '\$(top|first)=') {
             if ($Uri.Query -notmatch '\$(top|first)=') { # and the uri is not have top or first parameter
