@@ -13,6 +13,7 @@
         Submit-Git
     #>
     [CmdletBinding(PositionalBinding=$false,SupportsShouldProcess)]
+    [OutputType([string])]
     param(
     # The <repository> argument.
     [Parameter(Position=0,ValueFromPipelineByPropertyName)]
@@ -249,9 +250,7 @@ See the <refspec>... section above for details.
         )
         #endregion Prepare git arguments
 
-        if ($WhatIfPreference) {
-            return $exeArgs
-        }
+        if ($WhatIfPreference) { return $exeArgs }
 
         if ($PSCmdlet.ShouldProcess("git push $exeArgs")) {
             @(git push @exeArgs 2>&1 | 
