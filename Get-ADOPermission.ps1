@@ -2,9 +2,9 @@
 {
     <#
     .Synopsis
-        Gets Azure DevOps Wikis
+        Gets Azure DevOps Permissions
     .Description
-        Gets Azure DevOps Wikis related to a project.
+        Gets Azure DevOps security permissions.
     .Example
         Get-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
     .Link
