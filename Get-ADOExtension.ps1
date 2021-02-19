@@ -39,36 +39,72 @@
     # The Publisher of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+    )]
     [string]
     $PublisherID,
 
     # The Extension Identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+    )]
     [string]
     $ExtensionID,
 
+    # The data collection
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+    )]
+    [Alias('TableName','Table_Name', 'DocumentCollection')]
+    [string]
+    $DataCollection,
+
+    # The data identifier
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [Alias('RowKey','DocumentID')]
+    [string]
+    $DataID,
+
+    # The data scope.  
+    # Can either be Project or User/Me.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [Alias('RowKey','DocumentID')]
+    [string]
+    $Scope,
+
     # A list of asset types
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Alias('AssetTypes')]
     [string[]]
     $AssetType,
 
     # If set, will include disabled extensions
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Alias('Disabled')]
     [switch]
     $IncludeDisabled,
 
     # If set, will include extension installation issues
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Alias('IncludeInstallationIssue','IncludeInstallationIssues')]
     [switch]
     $InstallationIssue,
 
     # If set, will include errors
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Alias('IncludeErrors')]
     [switch]
     $IncludeError,
 
     # If set, will expand contributions.
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Alias('Contributions')]
     [switch]
     $Contribution,
@@ -101,6 +137,9 @@
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
+        if ($psCmdlet.ParameterSetName -like '*/Data/*') {
+            $Server = "https://$organization.extmgmt.dev.azure.com/"
+        }
         $uri += @(
             if ($IncludeDisabled) {
                 "includeDisabledExtensions=true"
@@ -122,6 +161,13 @@
                 "api-version=$apiVersion"
             }
         ) -join '&'
+
+        if ($PSCmdlet.ParameterSetName -like '*/Data/*') {
+            Invoke-ADORestAPI -Uri $uri @invokeParams
+            return
+        }
+
+
         $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
         $typeNames = @(
             "$organization.$typename"
