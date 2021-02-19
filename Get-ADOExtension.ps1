@@ -21,18 +21,26 @@
     $Organization,
 
     # A wildcard of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameLike,
 
     # A regular expression of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameMatch,
 
     # A wildcard of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameLike,
 
     # A regular expression of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameMatch,
 
@@ -80,30 +88,35 @@
 
     # A list of asset types
     [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [Alias('AssetTypes')]
     [string[]]
     $AssetType,
 
     # If set, will include disabled extensions
     [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [Alias('Disabled')]
     [switch]
     $IncludeDisabled,
 
     # If set, will include extension installation issues
     [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeInstallationIssue','IncludeInstallationIssues')]
     [switch]
     $InstallationIssue,
 
     # If set, will include errors
     [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeErrors')]
     [switch]
     $IncludeError,
 
     # If set, will expand contributions.
     [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
     [Alias('Contributions')]
     [switch]
     $Contribution,
