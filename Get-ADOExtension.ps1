@@ -75,7 +75,6 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataID}'
     )]
-    [Alias('RowKey','DocumentID')]
     [string]
     $Scope,
 
