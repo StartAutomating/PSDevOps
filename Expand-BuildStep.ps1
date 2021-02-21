@@ -214,9 +214,12 @@
                             if ($BuildSystem -eq 'GitHubWorkflow' -and $Root -and # If the BuildSystem was GitHub
                                 $convertedBuildStep.parameters) {
 
-                                if ($convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
-                                ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
-                                $root.on -eq 'workflow_dispatch')
+                                if (
+                                    $convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
+                                    ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
+                                    $root.on -eq 'workflow_dispatch' -or
+                                    ($root.name -and $root.description)
+                                )
                                 ) {
 
                                     $ComparisonResult = $root.on -eq 'workflow_dispatch'
@@ -244,7 +247,11 @@
                                                         workflow_dispatch = $workflowDispatch
                                                     }
                                     }
-                                    else { # Otherwise, we know that workflow_dispatch is already a dictionary
+                                    elseif ($root.Description) {
+                                        if (-not $root.inputs) { $root.inputs = [Ordered]@{} }
+                                        $workflowDispatch = $root
+                                    } else {
+                                        # Otherwise, we know that workflow_dispatch is already a dictionary
                                         $workflowDispatch = $root.on.workflow_dispatch
                                     }
 
