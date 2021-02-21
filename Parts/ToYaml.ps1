@@ -51,9 +51,9 @@ process {
             ($GrandParent -isnot [Collections.IList] -or $n -gt 1)) {
             [Environment]::NewLine + (" " * $Indent)
         }
-        if ($object.Key) {
+        if ($object.Key -and $Object.Key -is [string]) {
             $Object.Key +": "
-        } else {
+        } elseif ($object.Name -and $object.Name -is [string]) {
             $Object.Name +": "
         }
     }
