@@ -169,8 +169,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                 $uri = "${uri}&continuationToken=$ContinuationToken"
             }
         }
-        if ($WhatIfPreference) {
-            
+        if ($PSBoundParameters.ContainsKey('WhatIf')) {            
             return $irmSplat
         }
         if (! $PSCmdlet.ShouldProcess("$Method $uri")) { return }
