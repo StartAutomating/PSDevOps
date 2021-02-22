@@ -14,6 +14,7 @@
         Invoke-RestMethod
     #>
     [OutputType([PSObject])]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
     # The REST API Url
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -168,7 +169,11 @@ $($MyInvocation.MyCommand.Name) @parameter
                 $uri = "${uri}&continuationToken=$ContinuationToken"
             }
         }
-
+        if ($WhatIfPreference) {
+            
+            return $irmSplat
+        }
+        if (! $PSCmdlet.ShouldProcess("$Method $uri")) { return }
         $webRequest =  [Net.WebRequest]::Create($uri)
         $webRequest.Method = $Method
         $webRequest.contentType = $ContentType
