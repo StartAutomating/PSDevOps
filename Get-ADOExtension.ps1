@@ -12,7 +12,7 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/get?view=azure-devops-rest-5.1
     #>
-    [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/extensionmanagement/installedextensions')]
+    [CmdletBinding(DefaultParameterSetName='_apis/extensionmanagement/installedextensions')]
     [OutputType('PSDevOps.InstalledExtension')]
     param(
     # The organization.
@@ -21,50 +21,50 @@
     $Organization,
 
     # A wildcard of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameLike,
 
     # A regular expression of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameMatch,
 
     # A wildcard of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameLike,
 
     # A regular expression of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameMatch,
 
     # The Publisher of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+        ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [string]
     $PublisherID,
 
     # The Extension Identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+        ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [string]
     $ExtensionID,
 
     # The data collection
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataId}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [Alias('TableName','Table_Name', 'DocumentCollection')]
     [string]
@@ -72,51 +72,43 @@
 
     # The data identifier
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataID}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [Alias('RowKey','DocumentID')]
     [string]
     $DataID,
 
-    # The data scope.  
-    # Can either be Project or User/Me.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/{Scope}/Collections/{DataCollection}/Documents/{DataID}'
-    )]
-    [string]
-    $Scope,
-
     # A list of asset types
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('AssetTypes')]
     [string[]]
     $AssetType,
 
     # If set, will include disabled extensions
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('Disabled')]
     [switch]
     $IncludeDisabled,
 
     # If set, will include extension installation issues
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeInstallationIssue','IncludeInstallationIssues')]
     [switch]
     $InstallationIssue,
 
     # If set, will include errors
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeErrors')]
     [switch]
     $IncludeError,
 
     # If set, will expand contributions.
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
-    [Parameter(ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensions')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('Contributions')]
     [switch]
     $Contribution,
@@ -141,17 +133,17 @@
     }
 
     process {
+        
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
+                $Organization
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
-        if ($psCmdlet.ParameterSetName -like '*/Data/*') {
-            $Server = "https://$organization.extmgmt.dev.azure.com/"
-        }
+        
         $uri += @(
             if ($IncludeDisabled) {
                 "includeDisabledExtensions=true"
