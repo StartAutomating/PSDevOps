@@ -11,6 +11,8 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/list?view=azure-devops-rest-5.1
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/get?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/azure/devops/extend/develop/data-storage?view=azure-devops#how-settings-are-stored
     #>
     [CmdletBinding(DefaultParameterSetName='_apis/extensionmanagement/installedextensions')]
     [OutputType('PSDevOps.InstalledExtension')]
@@ -48,7 +50,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [string]
     $PublisherID,
@@ -57,14 +59,14 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [string]
     $ExtensionID,
 
     # The data collection
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [Alias('TableName','Table_Name', 'DocumentCollection')]
     [string]
@@ -72,11 +74,27 @@
 
     # The data identifier
     [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/Default/Current/Collections/{DataCollection}/Documents/{DataID}'
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
     )]
     [Alias('RowKey','DocumentID')]
     [string]
     $DataID,
+
+    # The scope type.  By default, the value "default" (which maps to Project Collection)
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [ValidateSet('Default','Project','User')]
+    [string]
+    $ScopeType = 'Default',
+
+    # The scope modifier.  By default, the value "current" (which maps to the current project collection or project)
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [ValidateSet('Current','Me')]
+    [string]
+    $ScopeModifier = 'Current',
 
     # A list of asset types
     [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
