@@ -62,12 +62,13 @@
     [string[]]
     $Deny,
 
-    # If set, will not merge this entry with existing entries.  
-    # This will overwrite all permissions for the specified token.
+    # If set, will overwrite this entry with existing entries.
+    # By default, will merge permissions for the specified token.
     [Parameter(ValueFromPipelineByPropertyName,
         ParameterSetName='accesscontrolentries/{NamespaceId}')]
-    [string[]]
-    $NoMerge,
+    [Alias('NoMerge')]
+    [switch]
+    $Overwrite,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -121,10 +122,8 @@
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
 
-            $c++
-            Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$server $Organization $Project" -Id $progId -PercentComplete ($c * 100/$t)
 
-            $uri = # The URI is comprised of:
+            $uri = # The URI is comprised of
                 @(
                     "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                     $Organization            # the Organization,
@@ -170,29 +169,36 @@
                 }
             )
 
-            foreach ($Allowed in $Allow) {
+            $friendlyAllow = @(foreach ($Allowed in $Allow) {
                 if ($Allowed -match '^\d+$') {
                     $realAllow = $realAllow -bor $Allowed
                 } else {
                     foreach ($act in $cachedNamespaces.$namespaceID.actions) {
                         if ($act.Name -like $Allowed -or $act.DisplayName -like $Allowed) {
                             $realAllow = $realAllow -bor $act.bit
+                            $act.Name
                         }
                     }
                 }
-            }
+            })
 
-            foreach ($denied in $Deny) {
+            $friendlyDeny = @(foreach ($denied in $Deny) {
                 if ($denied -match '^\d+$') {
                     $realDeny = $realDeny -bor $denied
                 } else {
                     foreach ($act in $cachedNamespaces.$namespaceID.actions) {
                         if ($act.Name -like $denied -or $act.DisplayName -like $denied) {
                             $realDeny = $realDeny -bor $act.bit
+                            $act.Name
                         }
                     }
                 }
-            }
+            })
+
+
+            $c++
+            Write-Progress "Setting Permissions for $Identity" " (Allowing: $friendlyAllow Denying: $friendlyDeny) on $SecurityToken " -Id $progId -PercentComplete ($c * 100/$t)
+
 
             if (-not $Descriptors) {
                 Write-Error "No -Descriptor or -Identity provided"
@@ -214,7 +220,7 @@
             $invokeParams.Method = 'POST'
             $invokeParams.Body = [Ordered]@{
                 token = $SecurityToken
-                merge = -not $NoMerge
+                merge = -not $Overwrite
                 accessControlEntries = @(
                     foreach ($desc in $Descriptors) {
                         if (-not $desc) { continue } 
@@ -231,7 +237,7 @@
             
 
             $additionalProperties = @{Organization=$Organization;Server=$Server;SecurityToken=$SecurityToken}
-            if ($WhatIfPreference) { 
+            if ($WhatIfPreference) {
                 $invokeParams
                 continue
             }
@@ -241,6 +247,6 @@
             }
         }
 
-        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $progId -Completed
+        Write-Progress "Setting Permissions for $Identity" " " -Id $progId -Completed
     }
 }
