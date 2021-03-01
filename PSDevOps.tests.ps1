@@ -437,11 +437,11 @@ describe 'Calling REST APIs' {
                 should -Be Microsoft
         }
 
-        it 'Can Get-ADOExtension -Contribution' {
+        <#it 'Can Get-ADOExtension -Contribution' {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -AssetType ms-vss-dashboards-web-widget -Contribution |
                 Select-Object -First 1 -ExpandProperty Type |
                 Should -Be ms.vss-dashboards-web.widget
-        }
+        }#>
 
         it 'Can Get-ADOExtension with filters' {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |
