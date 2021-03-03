@@ -223,6 +223,9 @@
                     $out.Contributions |
                         & { process {
                             $contrib = $_
+                            if ($assetType -and $contrib.type -notin $assetType) {
+                                return
+                            } 
                             $contrib.psobject.Members.Add(
                                 [PSNoteProperty]::new('Organization', $Organization), $true)
                             $contrib.psobject.Members.Add(
