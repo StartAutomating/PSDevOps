@@ -36,7 +36,7 @@
         ParameterSetName='/{Project}/_apis/test/plans/configurations')]
     [Alias('ProjectID')]
     [string]
-    $Project,    
+    $Project,
 
     # If set, will return the test runs associated with a project.
     [Parameter(ParameterSetName='/{Project}/_apis/test/runs')]
@@ -108,7 +108,7 @@
     [Alias('TestAttachments')]
     [switch]
     $TestAttachment,
-    
+
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
@@ -139,7 +139,7 @@
     process {
         $in = $_
         $psParameterSet = $psCmdlet.ParameterSetName
-        
+
         $q.Enqueue(@{PSParameterSet=$psParameterSet} + $PSBoundParameters)
     }
     end {
@@ -167,7 +167,7 @@
             Write-Progress "Getting" " [$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
-                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace 
+                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
                     '(Plan|Run|Suite|Configuration|Point|Attachment|Result)', 'Test$0'
 
             $additionalProperty = @{

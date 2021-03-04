@@ -28,8 +28,8 @@
     [switch]
     $PermissionType,
 
-    # The Security Namespace ID.  
-    # For details about each namespace, see: 
+    # The Security Namespace ID.
+    # For details about each namespace, see:
     # https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='accesscontrollists/{NamespaceId}')]
@@ -70,7 +70,7 @@
     $DefinitionID,
 
     # The path to the build.
-    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]    
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
     [string]
     $Path ='/',
 
@@ -91,7 +91,7 @@
     $ProjectRepository,
 
     # If set, will get permissions for repositories within a project
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]    
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]
     [Alias('AllRepositories')]
     [switch]
     $AllRepository,
@@ -102,12 +102,12 @@
     $Descriptor,
 
     # If set and this is a hierarchical namespace, return child ACLs of the specified token.
-    [Parameter(ValueFromPipelineByPropertyName)]    
+    [Parameter(ValueFromPipelineByPropertyName)]
     [switch]
     $Recurse,
 
     # If set, populate the extended information properties for the access control entries in the returned lists.
-    [Parameter(ValueFromPipelineByPropertyName)]    
+    [Parameter(ValueFromPipelineByPropertyName)]
     [switch]
     $IncludeExtendedInfo,
 
@@ -135,14 +135,14 @@
 
         if ($psCmdlet.ParameterSetName -notin 'securitynamespaces', 'accesscontrollists/{NamespaceId}') {
             $in = $_
-            if ($ProjectID -and -not ($ProjectID -as [guid])) { 
+            if ($ProjectID -and -not ($ProjectID -as [guid])) {
                 $oldProgressPref = $ProgressPreference; $ProgressPreference = 'silentlycontinue'
                 $projectID = Get-ADOProject -Organization $Organization -Project $projectID | Select-Object -ExpandProperty ProjectID
                 $ProgressPreference = $oldProgressPref
                 if (-not $ProjectID) { return }
             }
             switch -Regex ($psCmdlet.ParameterSetName)  {
-                ProjectID {                    
+                ProjectID {
                     $null = $PSBoundParameters.Remove('ProjectID')
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
@@ -151,7 +151,7 @@
                     } + $PSBoundParameters)
                 }
                 Tagging {
-                    
+
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
                         NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
@@ -159,7 +159,7 @@
                     } + $PSBoundParameters)
                 }
                 ManageTFVC {
-                    
+
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
                         NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
@@ -167,7 +167,7 @@
                     } + $PSBoundParameters)
                 }
                 'BuildDefinition|BuildPermission' {
-                    
+
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
                         NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
@@ -177,10 +177,10 @@
                         ParameterSet='accesscontrollists/{NamespaceId}'
                         NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de'
                         SecurityToken = "$ProjectID$(($path -replace '\\','/').TrimEnd('/'))/$DefinitionID"
-                    } + $PSBoundParameters)                    
+                    } + $PSBoundParameters)
                 }
                 'RepositoryID|AllRepositories|ProjectRepository' {
-                    
+
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
@@ -192,7 +192,7 @@ if ($repositoryID) {'/' + $repositoryID}
 )"
                     } + $PSBoundParameters)
                 }
-            }            
+            }
             return
         }
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)

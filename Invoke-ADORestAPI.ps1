@@ -102,7 +102,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     [Alias('TypeNameOfProperty')]
     $DecorateProperty,
 
-    # If set, will run as a background job.  
+    # If set, will run as a background job.
     # This parameter will be ignored if the caller is piping the results of Invoke-ADORestAPI.
     [switch]
     $AsJob
@@ -305,8 +305,8 @@ $($MyInvocation.MyCommand.Name) @parameter
                     }
                 }
 
-                if ($Property -and $Property.Count) {                    
-                    foreach ($prop in $psProperties) {                        
+                if ($Property -and $Property.Count) {
+                    foreach ($prop in $psProperties) {
                         $in.PSObject.Members.Add($prop, $true)
                     }
                 }

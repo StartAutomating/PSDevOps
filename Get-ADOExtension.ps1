@@ -151,7 +151,7 @@
     }
 
     process {
-        
+
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
@@ -161,7 +161,7 @@
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
-        
+
         $uri += @(
             if ($IncludeDisabled) {
                 "includeDisabledExtensions=true"
@@ -225,7 +225,7 @@
                             $contrib = $_
                             if ($assetType -and $contrib.type -notin $assetType) {
                                 return
-                            } 
+                            }
                             $contrib.psobject.Members.Add(
                                 [PSNoteProperty]::new('Organization', $Organization), $true)
                             $contrib.psobject.Members.Add(

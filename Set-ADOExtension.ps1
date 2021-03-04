@@ -97,7 +97,7 @@
         #endregion Copy Invoke-ADORestAPI parameters
     }
 
-    process {        
+    process {
         if ($InputObject -is [Collections.IDictionary]) {
             $InputObject = [PSCustomObject]$InputObject
         } else {
@@ -118,7 +118,7 @@
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
-        
+
 
         $uri += @(
             if ($Server -ne "https://extmgmt.dev.azure.com/" -and
@@ -130,10 +130,10 @@
             }
         ) -join '&'
 
-        $existingData = Invoke-ADORestAPI -Uri $uri @invokeParams -ErrorAction SilentlyContinue 
+        $existingData = Invoke-ADORestAPI -Uri $uri @invokeParams -ErrorAction SilentlyContinue
         $existingDataWithID = $existingData | Where-Object id -EQ $DataID
-        $InputObject | Add-Member NoteProperty id $DataID -Force 
-        
+        $InputObject | Add-Member NoteProperty id $DataID -Force
+
         if ($existingDataWithID) {
             if (-not $Overwrite) {
                 foreach ($prop in $existingDataWithID.psobject.properties) {
@@ -144,7 +144,7 @@
             } else {
                 $InputObject | Add-Member NoteProperty __etag $existingDataWithID.__etag -Force
             }
-            
+
         }
 
         $invokeParams.Uri = $uri
@@ -156,6 +156,6 @@
         }
         if ($psCmdlet.ShouldProcess("PUT $uri")) {
             Invoke-ADORestAPI @invokeParams
-        }        
+        }
     }
 }

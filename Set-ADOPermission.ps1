@@ -101,7 +101,7 @@
             }
 
             process {
-                if (-not $script:CachedIdentities[$Identity]) {                    
+                if (-not $script:CachedIdentities[$Identity]) {
                     $searchUri =
                         "https://vssps.dev.azure.com/$Organization/_apis/identities?api-version=6.0&searchfilter=General&filterValue=$Identity"
                     $script:CachedIdentities[$Identity] = Invoke-ADORestAPI -Uri $searchUri
@@ -145,8 +145,8 @@
 
             $realAllow = 0
             $realDeny  = 0
-            if (-not $cachedNamespaces.$namespaceID) { 
-                $cachedNamespaces.$namespaceID = 
+            if (-not $cachedNamespaces.$namespaceID) {
+                $cachedNamespaces.$namespaceID =
                     Get-ADOPermission -Organization $Organization -PersonalAccessToken $psboundParameters["PersonalAccessToken"] |
                         Where-Object NamespaceID -EQ $NamespaceID |
                         Select-Object -First 1
@@ -223,7 +223,7 @@
                 merge = -not $Overwrite
                 accessControlEntries = @(
                     foreach ($desc in $Descriptors) {
-                        if (-not $desc) { continue } 
+                        if (-not $desc) { continue }
                         [Ordered]@{
                             descriptor = $desc
                             allow = $realAllow
@@ -234,7 +234,7 @@
                 )
             }
 
-            
+
 
             $additionalProperties = @{Organization=$Organization;Server=$Server;SecurityToken=$SecurityToken}
             if ($WhatIfPreference) {
@@ -242,7 +242,7 @@
                 continue
             }
 
-            if ($psCmdlet.ShouldProcess("Update $($cachedNamespaces.$namespaceID.Name) Permissions")) {            
+            if ($psCmdlet.ShouldProcess("Update $($cachedNamespaces.$namespaceID.Name) Permissions")) {
                 Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
             }
         }
