@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.3.1: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.4: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
     <Name>PSDevOps.Agent</Name>
@@ -587,6 +587,178 @@
         <Name>RuleID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.SecurityNamespace</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>ConvertFromBitmask</Name>
+        <Script>
+                        param(
+[int]
+$Bitmask
+)
+
+
+@(foreach ($act in $this.Actions) {
+    if ($Bitmask -band $act.bit) {
+        $act.Name
+    }    
+})
+
+
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
+        <Name>ConvertToBitmask</Name>
+        <Script>
+                        param(
+[Parameter(Mandatory,Position=0)]
+[string[]]
+$Permission
+)
+
+$bitMask = 0
+
+foreach ($act in $this.Actions) {
+    foreach ($p in $Permission) {
+        if ($act.Name -like $p -or $act.DisplayName -like $p) {
+            $bitMask = $bitmask -bor $act.bit
+        }
+    }
+}
+$bitMask
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>Permissions</Name>
+        <GetScriptBlock>
+                        foreach ($perm in $this.Actions) {
+    $perm.Name
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Role</Name>
+        <GetScriptBlock>
+                        [PSCustomObject][Ordered]@{
+    Read = @(
+        foreach ($act in $this.Actions) {
+            if ($this.readPermission -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+    Write = @(
+        foreach ($act in $this.Actions) {
+            if ($this.writePermission -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+    System = @(
+        foreach ($act in $this.Actions) {
+            if ($this.systemBitmask -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+}
+
+
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.SecurityNamespace</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>ConvertFromBitmask</Name>
+        <Script>
+                        param(
+[int]
+$Bitmask
+)
+
+
+@(foreach ($act in $this.Actions) {
+    if ($Bitmask -band $act.bit) {
+        $act.Name
+    }    
+})
+
+
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
+        <Name>ConvertToBitmask</Name>
+        <Script>
+                        param(
+[Parameter(Mandatory,Position=0)]
+[string[]]
+$Permission
+)
+
+$bitMask = 0
+
+foreach ($act in $this.Actions) {
+    foreach ($p in $Permission) {
+        if ($act.Name -like $p -or $act.DisplayName -like $p) {
+            $bitMask = $bitmask -bor $act.bit
+        }
+    }
+}
+$bitMask
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>Permissions</Name>
+        <GetScriptBlock>
+                        foreach ($perm in $this.Actions) {
+    $perm.Name
+}
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Role</Name>
+        <GetScriptBlock>
+                        [PSCustomObject][Ordered]@{
+    Read = @(
+        foreach ($act in $this.Actions) {
+            if ($this.readPermission -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+    Write = @(
+        foreach ($act in $this.Actions) {
+            if ($this.writePermission -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+    System = @(
+        foreach ($act in $this.Actions) {
+            if ($this.systemBitmask -band $act.bit) {
+                $act.Name
+            }
+        }
+    )
+}
+
+
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
