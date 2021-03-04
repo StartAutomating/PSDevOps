@@ -28,36 +28,88 @@
     [switch]
     $PermissionType,
 
-    # The Security Namespace ID.
+    # The Security Namespace ID.  
+    # For details about each namespace, see: 
+    # https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='accesscontrollists/{NamespaceId}')]
     [string]
     $NamespaceID,
 
     # The Security Token.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='accesscontrollists/{NamespaceId}')]
     [string]
     $SecurityToken,
 
+    # The Project ID.
+    # If this is provided without anything else, will get permissions for the projectID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
+    [Alias('Project')]
+    [string]
+    $ProjectID,
+
+    # If set, will get permissions for tagging related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
+    [switch]
+    $Tagging,
+
+    # If set, will get permissions for tagging related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
+    [switch]
+    $ManageTFVC,
+
+    # The Build Definition ID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
+    [string]
+    $DefinitionID,
+
+    # The path to the build.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]    
+    [string]
+    $Path ='/',
+
+    # If set, will get build and release permissions for a given project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
+    [switch]
+    $BuildPermission,
+
+    # If provided, will get build and release permissions for a given project's repositoryID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [string]
+    $RepositoryID,
+
+    # If set, will get permissions for repositories within a project
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
+    [Alias('ProjectRepositories')]
+    [switch]
+    $ProjectRepository,
+
+    # If set, will get permissions for repositories within a project
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]    
+    [Alias('AllRepositories')]
+    [switch]
+    $AllRepository,
+
     # The Descriptor
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
     $Descriptor,
 
     # If set and this is a hierarchical namespace, return child ACLs of the specified token.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]    
     [switch]
     $Recurse,
 
     # If set, populate the extended information properties for the access control entries in the returned lists.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrollists/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]    
     [switch]
     $IncludeExtendedInfo,
-
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -80,6 +132,69 @@
 
     process {
         $ParameterSet = $psCmdlet.ParameterSetName
+
+        if ($psCmdlet.ParameterSetName -notin 'securitynamespaces', 'accesscontrollists/{NamespaceId}') {
+            $in = $_
+            if ($ProjectID -and -not ($ProjectID -as [guid])) { 
+                $oldProgressPref = $ProgressPreference; $ProgressPreference = 'silentlycontinue'
+                $projectID = Get-ADOProject -Organization $Organization -Project $projectID | Select-Object -ExpandProperty ProjectID
+                $ProgressPreference = $oldProgressPref
+                if (-not $ProjectID) { return }
+            }
+            switch -Regex ($psCmdlet.ParameterSetName)  {
+                ProjectID {                    
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819'
+                        SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                Tagging {
+                    
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
+                        SecurityToken = "/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                ManageTFVC {
+                    
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
+                        SecurityToken = "/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                'BuildDefinition|BuildPermission' {
+                    
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
+                        SecurityToken = "$ProjectID$(($path -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de'
+                        SecurityToken = "$ProjectID$(($path -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                    } + $PSBoundParameters)                    
+                }
+                'RepositoryID|AllRepositories|ProjectRepository' {
+                    
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
+                        SecurityToken = "repo$(
+if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
+if ($ProjectID) { '/' + $projectId}
+)$(
+if ($repositoryID) {'/' + $repositoryID}
+)"
+                    } + $PSBoundParameters)
+                }
+            }            
+            return
+        }
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
     end {
@@ -103,10 +218,12 @@
 
             $uri += '?' # The URI has a query string containing:
             $uri += @(
-                if ($Recurse) { 'recurse=true' }
-                if ($includeExtendedInfo) { 'includeExtendedInfo=true' }
-                if ($SecurityToken) { "token=$SecurityToken"}
-                if ($Descriptor) { "descriptors=$($Descriptor -join ',')"}
+                if ($ParameterSet -eq 'accesscontrollists/{NamespaceId}') {
+                    if ($Recurse) { 'recurse=true' }
+                    if ($includeExtendedInfo) { 'includeExtendedInfo=true' }
+                    if ($SecurityToken) { "token=$SecurityToken"}
+                    if ($Descriptor) { "descriptors=$($Descriptor -join ',')"}
+                }
                 if ($Server -ne 'https://dev.azure.com/' -and
                     -not $PSBoundParameters.ApiVersion) {
                     $ApiVersion = '2.0'
@@ -125,6 +242,9 @@
             )
 
             $additionalProperties = @{Organization=$Organization;Server=$Server}
+            if ($ParameterSet -eq 'accesscontrollists/{NamespaceId}') {
+                $additionalProperties['NamespaceID'] = $NamespaceID
+            }
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }
 
