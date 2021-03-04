@@ -339,7 +339,7 @@
                     ".PullRequest"
                 }
                 else {
-                    'git/repositories'
+                    ''
                 }
 
             # Invoke the ADO Rest API.
