@@ -11,6 +11,8 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20lists/query
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query
+    .Link
+        https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
@@ -43,7 +45,7 @@
 
     # The Project ID.
     # If this is provided without anything else, will get permissions for the projectID
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
@@ -111,6 +113,11 @@
     [switch]
     $IncludeExtendedInfo,
 
+    # If set, will expand the ACE dictionary returned
+    [Alias('ACL')]
+    [switch]
+    $ExpandACL,
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -128,6 +135,9 @@
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
         $q = [Collections.Queue]::new()
+
+        $innerInvokeParams = @{} + $invokeParams
+        $innerInvokeParams.Remove('AsJob')
     }
 
     process {
@@ -135,6 +145,8 @@
 
         if ($psCmdlet.ParameterSetName -notin 'securitynamespaces', 'accesscontrollists/{NamespaceId}') {
             $in = $_
+            $PSBoundParameters['InputObject'] = $in
+            $PSBoundParameters['FriendlyName'] = $psCmdlet.ParameterSetName
             if ($ProjectID -and -not ($ProjectID -as [guid])) {
                 $oldProgressPref = $ProgressPreference; $ProgressPreference = 'silentlycontinue'
                 $projectID = Get-ADOProject -Organization $Organization -Project $projectID | Select-Object -ExpandProperty ProjectID
@@ -142,7 +154,7 @@
                 if (-not $ProjectID) { return }
             }
             switch -Regex ($psCmdlet.ParameterSetName)  {
-                ProjectID {
+                Project {
                     $null = $PSBoundParameters.Remove('ProjectID')
                     $q.Enqueue(@{
                         ParameterSet='accesscontrollists/{NamespaceId}'
@@ -200,12 +212,34 @@ if ($repositoryID) {'/' + $repositoryID}
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
 
+        if ($ExpandACL) {
+            $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization            
+            $resolveIdentity = {
+                param([Parameter(Mandatory,ValueFromPipelineByPropertyName)][string]$Descriptor)
+                begin {
+                    if (-not $script:ResolvedIdentities) { $script:ResolvedIdentities= @{} }
+                }
+                process {
+                    if (-not $script:ResolvedIdentities[$Descriptor]) { 
+                        $script:ResolvedIdentities[$Descriptor] =
+                            Invoke-ADORestAPI "https://vssps.dev.azure.com/$Organization/_apis/identities?api-version=6.0&descriptors=$Descriptor"
+                    }
+                    return $script:ResolvedIdentities[$Descriptor]
+                }
+            }
+        }
+
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
-
             $c++
-            Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$server $Organization $Project" -Id $progId -PercentComplete ($c * 100/$t)
+            $getProgressMessage = 
+                if ($friendlyName) {
+                    $friendlyName
+                } else {
+                    $(@($ParameterSet -split '/' -notlike '{*}')[-1])
+                }
+            Write-Progress "Getting $getProgressMessage" "$server $Organization" -Id $progId -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -237,7 +271,6 @@ if ($repositoryID) {'/' + $repositoryID}
             $typename = @($parameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') # We just need to drop the 's'
             $typeNames = @(
                 "$organization.$typename"
-                if ($Project) { "$organization.$Project.$typename" }
                 "PSDevOps.$typename"
             )
 
@@ -245,7 +278,53 @@ if ($repositoryID) {'/' + $repositoryID}
             if ($ParameterSet -eq 'accesscontrollists/{NamespaceId}') {
                 $additionalProperties['NamespaceID'] = $NamespaceID
             }
-            Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
+            if ($inputObject) {
+                $additionalProperties['InputObject'] = $inputObject
+            }
+
+            if ($ExpandACL) {
+                Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties |
+                    & { process  {
+                        $inObj = $_
+                        $aces =  $inObj.acesDictionary
+                        $inObj.psobject.properties.Remove('acesDictionary')
+                        $namespace = 
+                            foreach ($ns in $namespaceList) { 
+                                if ($ns.NamespaceId -eq $inObj.namespaceID) { $ns; break }
+                            }
+
+                        foreach ($prop in $aces.psobject.properties) {
+                            $aclOut = [Ordered]@{}
+                            $resolvedID = & $resolveIdentity $prop.Name 
+                            $aclOut.Identity = 
+                                if ($resolvedID.customDisplayName) {
+                                    $resolvedID.customDisplayName
+                                }
+                                elseif ($resolvedID.providerDisplayName) {
+                                    $resolvedID.providerDisplayName
+                                } else {
+                                    $resolvedID.descriptor
+                                }
+
+                            $aclOut.Allow = $namespace.ConvertFromBitmask($prop.value.allow)
+                            $aclOut.Deny  = $namespace.ConvertFromBitmask($prop.value.deny)
+                            $aclOut.Descriptor = $prop.Name
+                            foreach ($inProp in $inObj.psobject.properties) {
+                                $aclOut[$inProp.Name] = $inProp.Value
+                            }
+
+                            $aclOut = [PSCustomObject]$aclOut
+                            $aclOut.pstypenames.clear()
+                            $aclOut.pstypenames.add("PSDevOps.AccessControlEntry")
+                            $aclOut.pstypenames.add("$Organization.AccessControlEntry")
+                            $aclOut
+                        }
+                    } }
+            } else {
+                Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties -DecorateProperty @{
+                    AcesDictionary = "$Organization.ACEDictionary", "PSDevOps.ACEDictionary"
+                }
+            }
         }
 
         Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $progId -Completed
