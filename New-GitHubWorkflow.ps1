@@ -71,7 +71,10 @@ function New-GitHubWorkflow {
 
         # A list of build scripts.  Each build script will run as a step in the same job.
         [string[]]
-        $BuildScript
+        $BuildScript,
+
+        [string]
+        $RootDirectory
     )
 
     dynamicParam {
@@ -97,7 +100,7 @@ function New-GitHubWorkflow {
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
             BuildOption = $workflowOptions
         }
-        $DoNotExpandParameters = 'InputObject', 'BuildScript'
+        $DoNotExpandParameters = 'InputObject', 'BuildScript', 'RootDirectory'
     }
 
     process {
@@ -141,6 +144,7 @@ function New-GitHubWorkflow {
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep
 
         if ($BuildScript) {
+            if (-not $RootDirectory) { $RootDirectory = "$pwd" } 
             if (-not $yamlToBe.jobs) {
                 $yamlToBe.jobs = [Ordered]@{}
             }

@@ -104,9 +104,12 @@
             }
             return $false
         }
+
+        $rootDir = if ($RootDirectory) { $RootDirectory } else { $buildOption.RootDirectory }
     }
 
     process {
+        
         # If we have been given a path and an extension,
         if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') {
             if ($Extension -eq '.ps1') # and that extension is .ps1
@@ -420,16 +423,43 @@ $Name `@Parameters
 "@)
                 $innerScript = $sb
             } else {
-                $sb = [scriptBlock]::Create(@"
+                
+                if ($ScriptBlock.File -and $rootDir -and 
+                    $ScriptBlock.File -ilike "$rootDir*")
+                {
+                    $relativePath = '.' + 
+                        [IO.Path]::DirectorySeparatorChar + 
+                        $ScriptBlock.File.Substring("$rootDir".Length).TrimStart([IO.Path]::DirectorySeparatorChar)                    
+                    $sb = [scriptBlock]::Create(@"
+$CollectParameters
+$logParameters
+& '$relativePath' `@Parameters
+"@)
+                $innerScript = $sb
+                } else {
+                    $sb = [scriptBlock]::Create(@"
 $CollectParameters
 $logParameters
 & {$ScriptBlock} `@Parameters
 "@)
                 $innerScript = $sb
+                }               
+                
             }
             Remove-Item -Force function:_TempFunction
         }
+        else {
+            if ($ScriptBlock.File -and $rootDir -and 
+                $ScriptBlock.File -ilike "$rootDir*") {
+                $relativePath = '.' + 
+                        [IO.Path]::DirectorySeparatorChar + 
+                        $ScriptBlock.File.Substring("$rootDir".Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+                $innerScript = "& $relativePath"
+            }
+        }
         $out = [Ordered]@{}
+        
+            
         if ($BuildSystem -eq 'ADOPipeline') {
             if ($DebugPreference -ne 'silentlycontinue') {
                 $innerScript = @"
@@ -451,7 +481,7 @@ try {
             } else {
                 $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
-            $out.name = $Name
+            $out.name = $Name -replace '\.', '_' -replace '\W'
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters
@@ -460,7 +490,8 @@ try {
                 if (-not $out.env) { $out.env = @{}}
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
-        } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+        }
+        elseif ($BuildSystem -eq 'GitHubWorkflow') {
             if ($DebugPreference -ne 'silentlycontinue') {
                 $innerScript = @"
 try {
@@ -472,7 +503,7 @@ try {
 }
 "@
             }
-            $out.name = $Name
+            $out.name = $Name -replace '\.', '_' -replace '\W'
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
                 if (-not $out.env) { $out.env = @{}}
