@@ -114,7 +114,7 @@
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
             BuildOption = $workflowOptions
         }
-        $DoNotExpandParameters = 'InputObject', 'BuildScript', 'DockerImage', 'NodeJSScript', 'Icon', 'Color'
+        $DoNotExpandParameters = 'InputObject', 'BuildScript', 'DockerImage', 'NodeJSScript', 'Icon', 'Color', 'ActionInput', 'ActionOutput'
     }
 
     process {
@@ -164,6 +164,15 @@
                 $expandSplat.Remove($k)
             }
         }
+
+        if ($ActionInput) {
+            $stepsByType.inputs = $ActionInput
+        }
+        if ($ActionOutput) {
+            $stepsByType.outputs = $ActionOutput
+        }
+
+
         #endregion Expand Input
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep -InputParameter @{'*'='*'}
         if ($yamlToBe.steps) {
@@ -190,6 +199,7 @@
         $yamlToBe.Remove('On')
 
         
+        
         if ($BuildScript) {
             if (-not $yamlToBe.steps) {
                 $yamlToBe.steps = [Ordered]@{}
@@ -214,7 +224,10 @@
         if ($PassThru) {
             $yamlToBe
         } else {
-            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
+            
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace 
+                "$([Environment]::NewLine * 2)", [Environment]::NewLine -replace
+                "\$\{\{github.events.inputs", '${{inputs'
         }
     }
 }
