@@ -378,7 +378,7 @@
                      # If the parameter type was and [int[]], [string[]], or [float[]],
                     if ([int[]], [string[]],[float[]] -contains $paramType) {
                         # it can be split by semicolons.
-                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
+                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';' -replace '^[''`"]' -replace  '[''`"]$'"
                     }
                     if ([switch], [bool] -contains $paramType) {
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -match 'true';"
@@ -504,6 +504,7 @@ try {
 "@
             }
             $out.name = $Name -replace '\.', '_' -replace '\W'
+            $out.id   = $Name -replace '\.', '_' -replace '\W'
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
                 if (-not $out.env) { $out.env = @{}}
