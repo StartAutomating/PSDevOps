@@ -52,10 +52,26 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]
     [Alias('Project')]
     [string]
-    $ProjectID,
-
+    $ProjectID,    
+    
+    # If set, will get common permissions related to a project.
+    # These are:
+    # * Builds
+    # * Boards
+    # * Dashboards
+    # * Git Repositories
+    # * ServiceEndpoints
+    # * Project Permissions
+    # * Service Endpoints
+    # * ServiceHooks        
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]
+    [Alias('ProjectOverview')]
+    [switch]
+    $Overview,
+    
     # If set, will get permissions for tagging related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
     [switch]
@@ -162,6 +178,50 @@
                         SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
                     } + $PSBoundParameters)
                 }
+                ProjectOverview {
+                    $null = $psboundParameters.Remove('Recurse')
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819' # Project permissions
+                        SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87' # Repositories
+                        SecurityToken = "reposV2/$projectId"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '33344d9c-fc72-4d6f-aba5-fa317101a7e9' # Build definitions
+                        SecurityToken = "$ProjectID/"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de' # Releases
+                        SecurityToken = "$ProjectID/"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '8adf73b7-389a-4276-b638-fe1653f7efc7' # Dashboards
+                        SecurityToken = "`$/$ProjectID/"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c' # Service Endpoints
+                        SecurityToken = "endpoints/$ProjectID"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrollists/{NamespaceId}'
+                        NamespaceID = 'cb594ebe-87dd-4fc9-ac2c-6a10a4c92046' # Service Hooks
+                        SecurityToken = "PublisherSecurity/$ProjectID"
+                        Recurse = $true
+                    } + $PSBoundParameters)
+                }
                 Tagging {
 
                     $q.Enqueue(@{
@@ -222,7 +282,7 @@ if ($repositoryID) {'/' + $repositoryID}
                 process {
                     if (-not $script:ResolvedIdentities[$Descriptor]) { 
                         $script:ResolvedIdentities[$Descriptor] =
-                            Invoke-ADORestAPI "https://vssps.dev.azure.com/$Organization/_apis/identities?api-version=6.0&descriptors=$Descriptor"
+                            Invoke-ADORestAPI "https://vssps.dev.azure.com/$Organization/_apis/identities?api-version=6.0&descriptors=$Descriptor&queryMembership=Direct"
                     }
                     return $script:ResolvedIdentities[$Descriptor]
                 }
