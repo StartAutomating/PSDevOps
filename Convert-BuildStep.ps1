@@ -85,7 +85,7 @@
     $DefaultParameter = @{},
 
     # The build system.  Currently supported options, ADO and GitHub.  Defaulting to ADO.
-    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
+    [ValidateSet('ADOPipeline', 'ADOExtension','GitHubWorkflow','GitHubAction')]
     [string]
     $BuildSystem = 'ADOPipeline',
 
@@ -104,12 +104,9 @@
             }
             return $false
         }
-
-        $rootDir = if ($RootDirectory) { $RootDirectory } else { $buildOption.RootDirectory }
     }
 
     process {
-        
         # If we have been given a path and an extension,
         if ($PSCmdlet.ParameterSetName -eq 'PathAndExtension') {
             if ($Extension -eq '.ps1') # and that extension is .ps1
@@ -129,7 +126,7 @@
                         bash= $shellScript
                         displayName=$Name
                     } # echo out a bash: step.
-                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                } elseif ($BuildSystem -in 'GitHubWorkflow', 'GitHubAction') {
                     [Ordered]@{
                         name=$Name
                         run=$shellScript
@@ -149,7 +146,7 @@
                         }
                     }
                 }
-                elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                elseif ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
                     [Ordered]@{
                         name = $Name
                         run = $pythonScript
@@ -322,7 +319,7 @@
                         }
                     }
 
-                    if ($BuildSystem -eq 'GitHubWorkflow') {
+                    if ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
                         # In GitHub Workflows, variables can come from an event.
                         $eventName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $InputParameter.Keys
@@ -338,7 +335,12 @@
                                     $evt = ($evt -replace '\.(?:\*)?$') + '.' + $stepParamName
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike '*.*') {
-                                    $evt = 'github.events.inputs' + '.' + $stepParamName
+                                    $evt = 
+                                        $(if ($BuildSystem -eq 'GitHubWorkflow') {
+                                            '${{github.events.inputs.'
+                                        } else {
+                                            '${{inputs.'
+                                        }) + $stepParamName + '}}'
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike 'github.*') {
                                     $evt = "github." + '.' + $stepParamName
@@ -406,7 +408,7 @@ foreach ($k in @($parameters.Keys)) {
                 @(
                 if ($BuildSystem -eq 'ADOPipeline') {
                     'Write-Host "##[command]'
-                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                } elseif ($BuildSystem -in'GitHubWorkflow','GitHubAction') {
                     'Write-Host "::debug::'
                 }
                 if ($name) { $name}
@@ -423,43 +425,16 @@ $Name `@Parameters
 "@)
                 $innerScript = $sb
             } else {
-                
-                if ($ScriptBlock.File -and $rootDir -and 
-                    $ScriptBlock.File -ilike "$rootDir*")
-                {
-                    $relativePath = '.' + 
-                        [IO.Path]::DirectorySeparatorChar + 
-                        $ScriptBlock.File.Substring("$rootDir".Length).TrimStart([IO.Path]::DirectorySeparatorChar)                    
-                    $sb = [scriptBlock]::Create(@"
-$CollectParameters
-$logParameters
-& '$relativePath' `@Parameters
-"@)
-                $innerScript = $sb
-                } else {
-                    $sb = [scriptBlock]::Create(@"
+                $sb = [scriptBlock]::Create(@"
 $CollectParameters
 $logParameters
 & {$ScriptBlock} `@Parameters
 "@)
                 $innerScript = $sb
-                }               
-                
             }
             Remove-Item -Force function:_TempFunction
         }
-        else {
-            if ($ScriptBlock.File -and $rootDir -and 
-                $ScriptBlock.File -ilike "$rootDir*") {
-                $relativePath = '.' + 
-                        [IO.Path]::DirectorySeparatorChar + 
-                        $ScriptBlock.File.Substring("$rootDir".Length).TrimStart([IO.Path]::DirectorySeparatorChar)
-                $innerScript = "& $relativePath"
-            }
-        }
         $out = [Ordered]@{}
-        
-            
         if ($BuildSystem -eq 'ADOPipeline') {
             if ($DebugPreference -ne 'silentlycontinue') {
                 $innerScript = @"
@@ -481,7 +456,7 @@ try {
             } else {
                 $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
-            $out.name = $Name -replace '\.', '_' -replace '\W'
+            $out.name = $Name
             $out.displayName = $Name
             if ($definedParameters) {
                 $out.parameters = $definedParameters
@@ -490,8 +465,7 @@ try {
                 if (-not $out.env) { $out.env = @{}}
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
-        }
-        elseif ($BuildSystem -eq 'GitHubWorkflow') {
+        } elseif ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
             if ($DebugPreference -ne 'silentlycontinue') {
                 $innerScript = @"
 try {
@@ -503,8 +477,8 @@ try {
 }
 "@
             }
-            $out.name = $Name -replace '\.', '_' -replace '\W'
-            $out.id   = $Name -replace '\.', '_' -replace '\W'
+            $out.name = $Name
+            $out.id = $Name -replace '\W'
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
                 if (-not $out.env) { $out.env = @{}}
