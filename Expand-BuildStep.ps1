@@ -43,7 +43,7 @@
     [string[]]$DictionaryItemName,
 
     # The build system, either ADO or GitHub.
-    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
+    [ValidateSet('ADOPipeline', 'ADOExtension','GitHubWorkflow','GitHubAction')]
     [string]$BuildSystem = 'ADOPipeline',
 
     # The name of parameters that should be supplied from build variables.
@@ -167,6 +167,9 @@
                             $data
                         }
                     }
+                    elseif ($metaData.Extension -eq '.json') {
+                        [IO.File]::ReadAllText($metaData.Path) | ConvertFrom-Json                        
+                    }
                     #endregion Expand PSD1 Files
                     elseif ($v -is [Collections.IDictionary])
                     {
@@ -211,10 +214,11 @@
 
                                 $convertedBuildStep.Remove('parameters')
                             }
-                            if ($BuildSystem -eq 'GitHubWorkflow' -and $Root -and # If the BuildSystem was GitHub
+                            if ($BuildSystem -in 'GitHubWorkflow','GitHubAction' -and $Root -and # If the BuildSystem was GitHub
                                 $convertedBuildStep.parameters) {
 
                                 if (
+                                    $BuildSystem -eq 'GitHubAction' -or
                                     $convertedBuildStep.env.values -like '*.inputs.*' -and # and we have event inputs
                                     ($root.on.workflow_dispatch -is [Collections.IDictionary] -or # and we have a workflow_dispatch trigger.
                                     $root.on -eq 'workflow_dispatch' -or
@@ -247,7 +251,7 @@
                                                         workflow_dispatch = $workflowDispatch
                                                     }
                                     }
-                                    elseif ($root.Description) {
+                                    elseif ($BuildSystem -eq 'GitHubAction') {
                                         if (-not $root.inputs) { $root.inputs = [Ordered]@{} }
                                         $workflowDispatch = $root
                                     } else {
