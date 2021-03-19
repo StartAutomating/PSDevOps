@@ -10,7 +10,7 @@
     .Link
         Get-ADOTeam
     .Example
-        Get-ADOIdentity -Organization StartAutomating
+        Get-ADOIdentity -Organization StartAutomating -Filter 'GitHub'
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/ims/identities/read%20identities
     #>
@@ -23,6 +23,7 @@
     [string]
     $Organization,
 
+    # A dictionary of Access Control Entries 
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('AcesDictionary')]
     [PSObject]
@@ -38,9 +39,11 @@
     [switch]
     $Membership,    
 
+    # The filter used for a query
     [string]
     $Filter,
 
+    # The search type.  Can be:  AccountName, DisplayName, MailAddress, General, LocalGroupName
     [ValidateSet('AccountName','DisplayName','MailAddress','General','LocalGroupName')]
     [string]
     $SearchType = 'General',
