@@ -36,13 +36,13 @@
             $psDevOpsModule = Get-Module PSDevOps
             if ($psDevOpsModule) {
                 & $psDevOpsModule {
-                    $script:ComponentMetaData.GitHubWorkflow.Values | 
-                        Where-Object Type -eq Step |
+                    $script:ComponentMetaData.GitHubAction.Values | 
+                        Where-Object Type -eq Action |
                         Select-object -ExpandProperty Name 
                 }
             }
         })]
-        [PSObject[]]$Step,
+        [PSObject[]]$Action,
 
         # The DockerImage used for a GitHub Action.
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -107,7 +107,7 @@
         
         $expandBuildStepCmd  = $ExecutionContext.SessionState.InvokeCommand.GetCommand('Expand-BuildStep','Function')        
         $workflowOptions = @{}
-        $mynoun = "GitHubWorkflow"
+        $mynoun = "GitHubAction"
         $expandGitHubBuildStep = @{
             BuildSystem = $mynoun
             SingleItemName = 'On','Name'
@@ -175,13 +175,13 @@
 
         #endregion Expand Input
         $yamlToBe = Expand-BuildStep -StepMap $stepsByType @expandSplat @expandGitHubBuildStep -InputParameter @{'*'='*'}
-        if ($yamlToBe.steps) {
-            $steps = $yamlToBe.steps
+        if ($yamlToBe.actions.run) {
+            $actionSteps = $yamlToBe.actions
             $yamlToBe.runs = [Ordered]@{
                 using = "composite"
-                steps = @($steps)
+                steps = @($actionSteps)
             }
-            $yamlToBe.Remove('steps')            
+            $yamlToBe.Remove('actions')            
         }
         elseif ($DockerImage) {
             $yamlToBe.runs = [Ordered]@{
@@ -223,11 +223,9 @@
 
         if ($PassThru) {
             $yamlToBe
-        } else {
-            
+        } else {            
             @($yamlToBe | & $toYaml -Indent -2) -join '' -replace 
-                "$([Environment]::NewLine * 2)", [Environment]::NewLine -replace
-                "\$\{\{github.events.inputs", '${{inputs'
+                "$([Environment]::NewLine * 2)", [Environment]::NewLine
         }
     }
 }
