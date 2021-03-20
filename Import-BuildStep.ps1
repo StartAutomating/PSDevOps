@@ -60,9 +60,9 @@
     [Collections.IDictionary]
     $BuildSystemInclude = $(@{
         ADOPipeline    = '*'
-        ADOExtension   = 'Contributions', 'Tasks'
+        ADOExtension   = 'Contribution', 'Task'
         GitHubWorkflow = '*'
-        GitHubAction   = 'Actions'
+        GitHubAction   = 'Action'
     }),
 
     [Alias('BuildCommandTypes')]
@@ -242,11 +242,15 @@
                         $ThingNames[$t].Add($n)
                     }
 
-                    if ($BuildSystemInclude[$bs] -and 
-                            ($n -notlike $BuildSystemInclude[$bs] -and 
-                            $t -notlike $BuildSystemInclude[$bs])
+                    if ($BuildSystemInclude[$bs] -and -not $(
+                            foreach ($inc in $BuildSystemInclude[$bs]) {
+                                if ($n -like $inc -or $t -like $inc) {
+                                    $true; break
+                                }
+                            }
+                        )
                     ) {
-                       continue 
+                        continue 
                     }
                     
 
