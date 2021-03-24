@@ -35,6 +35,10 @@
     [string[]]
     $Descriptors,
 
+    # The maximum number of specific descriptors to request in one batch.
+    [int]
+    $DescriptorBatchSize = 50,
+
     # If set, will get membership information.
     [switch]
     $Membership,
@@ -82,26 +86,6 @@
             ) -as [string[]] -ne '' -join '/'
         if ($Recurse) { $Membership = $true }
         $uri += '?' # The URI has a query string containing:
-        $uri += @(
-            if ($AceDictionary) {
-                $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
-                $null = $psBoundParameters.Remove('AceDictionary')
-            }
-            if ($Descriptors) {
-                "descriptors=$($Descriptors -join ',')"
-            }
-            if ($Filter) {
-                "searchFilter=$SearchType"
-                "filterValue=$([Web.HttpUtility]::UrlEncode($Filter).Replace('+','%20'))"
-            }
-            if ($Membership) {
-                "queryMembership=Direct"
-            }
-            if ($ApiVersion) { # the api-version
-                "api-version=$apiVersion"
-            }
-        ) -join '&'
-
         # We want to decorate our return value.  .
         $typename = 'Identity' # We just need to drop the 's'
 
@@ -109,29 +93,80 @@
             "$organization.$typename"
             "PSDevOps.$typename"
         )
-
-
-
-
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
         $invokeParams.Property = @{Organization=$Organization}
 
-        if (-not $recurse) {
-            Invoke-ADORestAPI @invokeParams
-        } else {
-            $invokeParams.Cache = $true
-            Invoke-ADORestAPI @invokeParams |
-                Foreach-Object {
-                    $_
-                    if ($_.Members) {
-                        $paramCopy = @{} + $psBoundParameters
-                        $paramCopy['Descriptors'] = $_.members
-                        $paramCopy.Remove('Filter')
-                        Get-ADOIdentity @paramCopy
-                    }
+
+        $invokeParamsList = @(
+        if ($Descriptors -and $Descriptors.Length -gt $DescriptorBatchSize) {
+            for ($i = 0; $i -lt $Descriptors.Length; $i+=$DescriptorBatchSize) {
+                $descriptorBatch = $Descriptors[$i..($i + $DescriptorBatchSize - 1)]
+            }
+            $invokeCopy = @{} + $invokeParams
+            $invokeCopy.Uri = $uri + (@(
+                if ($AceDictionary) {
+                    $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
+                    $null = $psBoundParameters.Remove('AceDictionary')
                 }
+                if ($Descriptors) {
+                    "descriptors=$($Descriptors -join ',')"
+                }
+                if ($Membership) { "queryMembership=Direct" }
+                if ($ApiVersion) { # the api-version
+                    "api-version=$apiVersion"
+                }
+            ) -join '&')
+            $invokeCopy
+        } else {
+            $uri += @(
+                if ($AceDictionary) {
+                    $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
+                    $null = $psBoundParameters.Remove('AceDictionary')
+                }
+                if ($Descriptors) {
+                    "descriptors=$($Descriptors -join ',')"
+                }
+                if ($Filter) {
+                    "searchFilter=$SearchType"
+                    "filterValue=$([Web.HttpUtility]::UrlEncode($Filter).Replace('+','%20'))"
+                }
+                if ($Membership) {
+                    "queryMembership=Direct"
+                }
+                if ($ApiVersion) { # the api-version
+                    "api-version=$apiVersion"
+                }
+            ) -join '&'
+            $invokeParams.Uri = $uri
+            $invokeParams
+        })
+
+
+        foreach ($ip in $invokeParams) {
+            if (-not $recurse) {
+                Invoke-ADORestAPI @ip
+            } else {
+                $ip.Cache = $true
+                Invoke-ADORestAPI @ip|
+                    Foreach-Object {
+                        $_
+                        if ($_.Members) {
+                            $paramCopy = @{} + $psBoundParameters
+                            $paramCopy['Descriptors'] = $_.members
+                            $paramCopy.Remove('Filter')
+                            Get-ADOIdentity @paramCopy
+                        }
+                    }
+            }
         }
+
+
+
+
+
+
+
     }
 }
 
