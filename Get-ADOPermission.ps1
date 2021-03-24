@@ -55,8 +55,8 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]
     [Alias('Project')]
     [string]
-    $ProjectID,    
-    
+    $ProjectID,
+
     # If set, will get common permissions related to a project.
     # These are:
     # * Builds
@@ -66,12 +66,12 @@
     # * ServiceEndpoints
     # * Project Permissions
     # * Service Endpoints
-    # * ServiceHooks        
+    # * ServiceHooks
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]
     [Alias('ProjectOverview')]
     [switch]
     $Overview,
-    
+
     # If set, will get permissions for tagging related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
     [switch]
@@ -272,16 +272,16 @@ if ($repositoryID) {'/' + $repositoryID}
     }
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
-        
+
         if ($ExpandACL) {
-            
+
             $resolveIdentity = {
                 param([Parameter(Mandatory,ValueFromPipelineByPropertyName)][string]$Descriptor)
                 begin {
                     if (-not $script:ResolvedIdentities) { $script:ResolvedIdentities= @{} }
                 }
                 process {
-                    if (-not $script:ResolvedIdentities[$Descriptor]) { 
+                    if (-not $script:ResolvedIdentities[$Descriptor]) {
                         $script:ResolvedIdentities[$Descriptor] =
                             Invoke-ADORestAPI "https://vssps.dev.azure.com/$Organization/_apis/identities?api-version=6.0&descriptors=$Descriptor&queryMembership=Direct"
                     }
@@ -295,9 +295,10 @@ if ($repositoryID) {'/' + $repositoryID}
             $projectServiceEndpoints = $inputObject | Get-ADOServiceEndpoint
             $projectServiceHooks     = $inputObject | Get-ADOServiceHook
             $projectBuildDefinitions = $inputObject | Get-ADOBuild -Definition
+            $projectBoards           = $inputObject | Get-ADOProject -Board
         }
 
-        if ($ParameterSet -ne 'securitynamespaces') {            
+        if ($ParameterSet -ne 'securitynamespaces') {
             $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization
         }
 
@@ -305,9 +306,9 @@ if ($repositoryID) {'/' + $repositoryID}
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
 
-            
+
             $c++
-            $getProgressMessage = 
+            $getProgressMessage =
                 if ($friendlyName) {
                     $friendlyName
                 } else {
@@ -325,13 +326,13 @@ if ($repositoryID) {'/' + $repositoryID}
 
             Write-Progress "Getting $getProgressMessage" $(
                 if ($parameterSet -eq 'accesscontrollists/{NamespaceId}') {
-                    '' + $(foreach ($ns in $namespaceList) { 
+                    '' + $(foreach ($ns in $namespaceList) {
                         if ($ns.NamespaceId -eq $NamespaceID) { $ns.Name ; break }
                     }) + ' ' + $SecurityToken
                 } else {
-                    "$uri"   
+                    "$uri"
                 }) -Id $progId -PercentComplete ($c * 100/$t)
-              
+
 
             $uri += '?' # The URI has a query string containing:
             $uri += @(
@@ -362,7 +363,7 @@ if ($repositoryID) {'/' + $repositoryID}
                 $additionalProperties['NamespaceID']   = $NamespaceID
                 $additionalProperties['NamespaceName'] =
                     foreach ($ns in $namespaceList) {
-                        if ($ns.NamespaceId -eq $NamespaceID) { $ns; break }
+                        if ($ns.NamespaceId -eq $NamespaceID) { $ns.Name; break }
                     }
             }
             if ($inputObject) {
@@ -385,8 +386,8 @@ if ($repositoryID) {'/' + $repositoryID}
                         }
                         $expandedIdentities = $cachedIds[$aceList]
                         $inObj.psobject.properties.Remove('acesDictionary')
-                        $namespace = 
-                            foreach ($ns in $namespaceList) { 
+                        $namespace =
+                            foreach ($ns in $namespaceList) {
                                 if ($ns.NamespaceId -eq $inObj.namespaceID) { $ns; break }
                             }
 
@@ -395,7 +396,7 @@ if ($repositoryID) {'/' + $repositoryID}
                             $aclOut = [Ordered]@{}
                             $resolvedId = $expandedIdentities[$c]
                             $c++
-                            
+
 
                             $aclOut.IsReader = [bool]($prop.value.allow -band $namespace.readPermission)
                             $aclOut.IsWriter = [bool]($prop.value.allow -band $namespace.writePermission)
@@ -408,17 +409,24 @@ if ($repositoryID) {'/' + $repositoryID}
                             }
                             $aclOut.NamespaceName  = $namespace.Name
                             if ($Overview) {
-                                $aclOut.Target = 
+                                $aclOut.Target =
                                     switch ($namespace.Name) {
                                         Project { $inputObject }
-                                        'Git Repositories' { 
+                                        'Git Repositories' {
                                             foreach ($repo in $ProjectRepository) {
                                                 if ($aclOut.Token -like "*/$($repo.id)*") {
                                                     $repo;break
                                                 }
                                             }
                                         }
-                                        Build { 
+                                        Boards {
+                                            foreach ($board in $projectBoards) {
+                                                if ($aclOut.Token -like "*$($board.id)*") {
+                                                    $board;break
+                                                }
+                                            }
+                                        }
+                                        "Build|ReleaseManagement" {
                                             foreach ($def in $projectBuildDefinitions) {
                                                 if ($aclOut.Token -like "*/$($def.id)*") {
                                                     $def;break
@@ -438,20 +446,20 @@ if ($repositoryID) {'/' + $repositoryID}
                                                     $svc;break
                                                 }
                                             }
-                                        }                                        
+                                        }
                                     }
-                                    
-                                    
 
-                                
+
+
+
                             }
 
 
                             $resolvedIds = @()
-                                                        
+
                             # Resolving group membership without resolving it recursively is less helpful,
                             # but still helpful, so leave this alone for now
-                            $aclOut.Group = 
+                            $aclOut.Group =
                                 if ($resolvedId.members) {
                                     if ($resolvedID.customDisplayName) { $resolvedID.customDisplayName }
                                     elseif ($resolvedID.providerDisplayName) { $resolvedID.providerDisplayName }
@@ -465,11 +473,11 @@ if ($repositoryID) {'/' + $repositoryID}
                                 } else {
                                     $resolvedIds =@($resolvedID)
                                 }
-                            
-                            
+
+
                             foreach ($resolvedId in $resolvedIds) {
                                 $aclOut.IsGroup = $resolvedId.properties.SchemaClassName -eq 'Group'
-                                $aclOut.Identity = 
+                                $aclOut.Identity =
                                     if ($resolvedID.customDisplayName) { $resolvedID.customDisplayName }
                                     elseif ($resolvedID.providerDisplayName) { $resolvedID.providerDisplayName }
                                     else { $resolvedID.descriptor }
@@ -479,18 +487,18 @@ if ($repositoryID) {'/' + $repositoryID}
                                 $out.pstypenames.add("PSDevOps.AccessControlEntry")
                                 $out.pstypenames.add("$Organization.AccessControlEntry")
                                 $out
-                            }                                                        
+                            }
                         }
                     } }
             } else {
-                
-                if ($psCmdlet.ParameterSetName -eq 'securitynamespaces' -and 
+
+                if ($psCmdlet.ParameterSetName -eq 'securitynamespaces' -and
                     -not $invokeParams.AsJob) {
                     if (-not $script:CachedSecurityNamespaces) {
                         $script:CachedSecurityNamespaces = Invoke-ADORestAPI @invokeParams
                     }
                     $script:CachedSecurityNamespaces
-                } else {                    
+                } else {
                     Invoke-ADORestAPI @invokeParams -DecorateProperty @{
                         AcesDictionary = "$Organization.ACEDictionary", "PSDevOps.ACEDictionary"
                     }
