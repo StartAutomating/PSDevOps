@@ -154,6 +154,7 @@
 
         $innerInvokeParams = @{} + $invokeParams
         $innerInvokeParams.Remove('AsJob')
+        $innerInvokeParams.Remove('ExpandACL')
     }
 
     process {
@@ -271,9 +272,9 @@ if ($repositoryID) {'/' + $repositoryID}
     }
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
-
+        
         if ($ExpandACL) {
-            $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization            
+            
             $resolveIdentity = {
                 param([Parameter(Mandatory,ValueFromPipelineByPropertyName)][string]$Descriptor)
                 begin {
@@ -289,9 +290,22 @@ if ($repositoryID) {'/' + $repositoryID}
             }
         }
 
+        if ($Overview -and $inputObject) {
+            $projectRepositories     = $inputObject | Get-ADORepository
+            $projectServiceEndpoints = $inputObject | Get-ADOServiceEndpoint
+            $projectServiceHooks     = $inputObject | Get-ADOServiceHook
+            $projectBuildDefinitions = $inputObject | Get-ADOBuild -Definition
+        }
+
+        if ($ParameterSet -ne 'securitynamespaces') {            
+            $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization
+        }
+
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
+
+            
             $c++
             $getProgressMessage = 
                 if ($friendlyName) {
@@ -299,7 +313,6 @@ if ($repositoryID) {'/' + $repositoryID}
                 } else {
                     $(@($ParameterSet -split '/' -notlike '{*}')[-1])
                 }
-            Write-Progress "Getting $getProgressMessage" "$server $Organization" -Id $progId -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -309,6 +322,16 @@ if ($repositoryID) {'/' + $repositoryID}
                     (. $ReplaceRouteParameter $ParameterSet)
                                              # and any parameterized URLs in this parameter set.
                 ) -as [string[]] -ne ''  -join '/'
+
+            Write-Progress "Getting $getProgressMessage" $(
+                if ($parameterSet -eq 'accesscontrollists/{NamespaceId}') {
+                    '' + $(foreach ($ns in $namespaceList) { 
+                        if ($ns.NamespaceId -eq $NamespaceID) { $ns.Name ; break }
+                    }) + ' ' + $SecurityToken
+                } else {
+                    "$uri"   
+                }) -Id $progId -PercentComplete ($c * 100/$t)
+              
 
             $uri += '?' # The URI has a query string containing:
             $uri += @(
@@ -336,53 +359,141 @@ if ($repositoryID) {'/' + $repositoryID}
 
             $additionalProperties = @{Organization=$Organization;Server=$Server}
             if ($ParameterSet -eq 'accesscontrollists/{NamespaceId}') {
-                $additionalProperties['NamespaceID'] = $NamespaceID
+                $additionalProperties['NamespaceID']   = $NamespaceID
+                $additionalProperties['NamespaceName'] =
+                    foreach ($ns in $namespaceList) {
+                        if ($ns.NamespaceId -eq $NamespaceID) { $ns; break }
+                    }
             }
             if ($inputObject) {
                 $additionalProperties['InputObject'] = $inputObject
             }
 
+            $invokeParams.Uri = $uri
+            $invokeParams.Property = $additionalProperties
+            $invokeParams.PSTypeName = $typenames
+
             if ($ExpandACL) {
-                Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties |
+                $cachedIds = @{}
+                Invoke-ADORestAPI @invokeParams |
                     & { process  {
                         $inObj = $_
                         $aces =  $inObj.acesDictionary
+                        $aceList = $inObj.acesDictionary.psobject.properties.name -join ','
+                        if (-not $cachedIds[$aceList]) {
+                            $cachedIds[$aceList] = @($inObj | Get-ADOIdentity -Membership)
+                        }
+                        $expandedIdentities = $cachedIds[$aceList]
                         $inObj.psobject.properties.Remove('acesDictionary')
                         $namespace = 
                             foreach ($ns in $namespaceList) { 
                                 if ($ns.NamespaceId -eq $inObj.namespaceID) { $ns; break }
                             }
 
+                        $c = 0
                         foreach ($prop in $aces.psobject.properties) {
                             $aclOut = [Ordered]@{}
-                            $resolvedID = & $resolveIdentity $prop.Name 
-                            $aclOut.Identity = 
-                                if ($resolvedID.customDisplayName) {
-                                    $resolvedID.customDisplayName
-                                }
-                                elseif ($resolvedID.providerDisplayName) {
-                                    $resolvedID.providerDisplayName
-                                } else {
-                                    $resolvedID.descriptor
-                                }
+                            $resolvedId = $expandedIdentities[$c]
+                            $c++
+                            
 
+                            $aclOut.IsReader = [bool]($prop.value.allow -band $namespace.readPermission)
+                            $aclOut.IsWriter = [bool]($prop.value.allow -band $namespace.writePermission)
+                            $aclOut.IsAdmin  = [bool]($prop.value.allow -band $namespace.systemBitmask)
                             $aclOut.Allow = $namespace.ConvertFromBitmask($prop.value.allow)
                             $aclOut.Deny  = $namespace.ConvertFromBitmask($prop.value.deny)
                             $aclOut.Descriptor = $prop.Name
                             foreach ($inProp in $inObj.psobject.properties) {
                                 $aclOut[$inProp.Name] = $inProp.Value
                             }
+                            $aclOut.NamespaceName  = $namespace.Name
+                            if ($Overview) {
+                                $aclOut.Target = 
+                                    switch ($namespace.Name) {
+                                        Project { $inputObject }
+                                        'Git Repositories' { 
+                                            foreach ($repo in $ProjectRepository) {
+                                                if ($aclOut.Token -like "*/$($repo.id)*") {
+                                                    $repo;break
+                                                }
+                                            }
+                                        }
+                                        Build { 
+                                            foreach ($def in $projectBuildDefinitions) {
+                                                if ($aclOut.Token -like "*/$($def.id)*") {
+                                                    $def;break
+                                                }
+                                            }
+                                        }
+                                        ServiceHooks {
+                                            foreach ($svc in $projectServiceHooks) {
+                                                if ($aclOut.Token -like "*/$($svc.id)*") {
+                                                    $svc;break
+                                                }
+                                            }
+                                        }
+                                        ServiceEndpoints {
+                                            foreach ($svc in $projectServiceEndpoints) {
+                                                if ($aclOut.Token -like "*/$($svc.id)*") {
+                                                    $svc;break
+                                                }
+                                            }
+                                        }                                        
+                                    }
+                                    
+                                    
 
-                            $aclOut = [PSCustomObject]$aclOut
-                            $aclOut.pstypenames.clear()
-                            $aclOut.pstypenames.add("PSDevOps.AccessControlEntry")
-                            $aclOut.pstypenames.add("$Organization.AccessControlEntry")
-                            $aclOut
+                                
+                            }
+
+
+                            $resolvedIds = @()
+                                                        
+                            # Resolving group membership without resolving it recursively is less helpful,
+                            # but still helpful, so leave this alone for now
+                            $aclOut.Group = 
+                                if ($resolvedId.members) {
+                                    if ($resolvedID.customDisplayName) { $resolvedID.customDisplayName }
+                                    elseif ($resolvedID.providerDisplayName) { $resolvedID.providerDisplayName }
+                                    else { $resolvedID.descriptor }
+
+                                    $memberAceList = $resolvedID.members -join ','
+                                    if (-not $cachedIds[$memberAceList]) {
+                                        $cachedIds[$memberAceList] = @(Get-ADOIdentity -Organization $organization -Descriptors $resolvedID.members -Recurse -Membership)
+                                    }
+                                    $resolvedIds = $cachedIds[$memberAceList]
+                                } else {
+                                    $resolvedIds =@($resolvedID)
+                                }
+                            
+                            
+                            foreach ($resolvedId in $resolvedIds) {
+                                $aclOut.IsGroup = $resolvedId.properties.SchemaClassName -eq 'Group'
+                                $aclOut.Identity = 
+                                    if ($resolvedID.customDisplayName) { $resolvedID.customDisplayName }
+                                    elseif ($resolvedID.providerDisplayName) { $resolvedID.providerDisplayName }
+                                    else { $resolvedID.descriptor }
+
+                                $out = [PSCustomObject]$aclOut
+                                $out.pstypenames.clear()
+                                $out.pstypenames.add("PSDevOps.AccessControlEntry")
+                                $out.pstypenames.add("$Organization.AccessControlEntry")
+                                $out
+                            }                                                        
                         }
                     } }
             } else {
-                Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties -DecorateProperty @{
-                    AcesDictionary = "$Organization.ACEDictionary", "PSDevOps.ACEDictionary"
+                
+                if ($psCmdlet.ParameterSetName -eq 'securitynamespaces' -and 
+                    -not $invokeParams.AsJob) {
+                    if (-not $script:CachedSecurityNamespaces) {
+                        $script:CachedSecurityNamespaces = Invoke-ADORestAPI @invokeParams
+                    }
+                    $script:CachedSecurityNamespaces
+                } else {                    
+                    Invoke-ADORestAPI @invokeParams -DecorateProperty @{
+                        AcesDictionary = "$Organization.ACEDictionary", "PSDevOps.ACEDictionary"
+                    }
                 }
             }
         }
