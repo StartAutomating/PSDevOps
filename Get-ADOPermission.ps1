@@ -299,7 +299,7 @@ if ($repositoryID) {'/' + $repositoryID}
         }
 
         if ($ParameterSet -ne 'securitynamespaces') {
-            $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization
+            $namespaceList = Get-ADOPermission @innerInvokeParams -Organization $Organization -PermissionType
         }
 
         while ($q.Count) {
