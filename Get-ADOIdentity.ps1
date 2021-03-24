@@ -23,7 +23,7 @@
     [string]
     $Organization,
 
-    # A dictionary of Access Control Entries 
+    # A dictionary of Access Control Entries
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('AcesDictionary')]
     [PSObject]
@@ -34,10 +34,14 @@
     [Alias('Members')]
     [string[]]
     $Descriptors,
-    
+
     # If set, will get membership information.
     [switch]
-    $Membership,    
+    $Membership,
+
+    # If set, will recursively expand any group memberships discovered.
+    [switch]
+    $Recurse,
 
     # The filter used for a query
     [string]
@@ -54,11 +58,11 @@
     $ApiVersion = "6.0"
     )
 
-    dynamicParam { . $GetInvokeParameters -DynamicParameter }
+    dynamicParam { Invoke-ADORestApi -DynamicParameter }
 
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = . $getInvokeParameters $PSBoundParameters
+        $invokeParams = Invoke-ADORestApi -MapParameter $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
     }
 
@@ -76,19 +80,18 @@
                 (. $ReplaceRouteParameter $psParameterSet)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
-
+        if ($Recurse) { $Membership = $true }
         $uri += '?' # The URI has a query string containing:
         $uri += @(
             if ($AceDictionary) {
                 $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
+                $null = $psBoundParameters.Remove('AceDictionary')
             }
             if ($Descriptors) {
                 "descriptors=$($Descriptors -join ',')"
             }
             if ($Filter) {
                 "searchFilter=$SearchType"
-            }
-            if ($Filter) {
                 "filterValue=$([Web.HttpUtility]::UrlEncode($Filter).Replace('+','%20'))"
             }
             if ($Membership) {
@@ -98,7 +101,7 @@
                 "api-version=$apiVersion"
             }
         ) -join '&'
-        
+
         # We want to decorate our return value.  .
         $typename = 'Identity' # We just need to drop the 's'
 
@@ -108,12 +111,27 @@
         )
 
 
+
+
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
-        $invokeParams.Property = @{Organization=$Organization;Server=$Server}
+        $invokeParams.Property = @{Organization=$Organization}
 
-
-        Invoke-ADORestAPI @invokeParams
+        if (-not $recurse) {
+            Invoke-ADORestAPI @invokeParams
+        } else {
+            $invokeParams.Cache = $true
+            Invoke-ADORestAPI @invokeParams |
+                Foreach-Object {
+                    $_
+                    if ($_.Members) {
+                        $paramCopy = @{} + $psBoundParameters
+                        $paramCopy['Descriptors'] = $_.members
+                        $paramCopy.Remove('Filter')
+                        Get-ADOIdentity @paramCopy
+                    }
+                }
+        }
     }
 }
 
