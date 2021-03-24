@@ -55,6 +55,8 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/variables')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/configurations')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]
     [string]
     $ProjectID,
 
@@ -124,6 +126,12 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
     [switch]
     $Wiki,
+
+    # If set, will return any boards associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]
+    [Alias('Boards')]
+    [switch]
+    $Board,
 
     # If set, will return releases associated with the project.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
