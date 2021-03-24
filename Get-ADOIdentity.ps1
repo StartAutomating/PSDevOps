@@ -96,7 +96,10 @@
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
         $invokeParams.Property = @{Organization=$Organization}
-
+        if ($AceDictionary) {
+            $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
+            $null = $psBoundParameters.Remove('AceDictionary')
+        }
 
         $invokeParamsList = @(
         if ($Descriptors -and $Descriptors.Length -gt $DescriptorBatchSize) {
@@ -104,13 +107,9 @@
                 $descriptorBatch = $Descriptors[$i..($i + $DescriptorBatchSize - 1)]
             }
             $invokeCopy = @{} + $invokeParams
-            $invokeCopy.Uri = $uri + (@(
-                if ($AceDictionary) {
-                    $Descriptors += $AceDictionary.psobject.Properties | Select-Object -ExpandProperty Name
-                    $null = $psBoundParameters.Remove('AceDictionary')
-                }
+            $invokeCopy.Uri = $uri + (@(                
                 if ($Descriptors) {
-                    "descriptors=$($Descriptors -join ',')"
+                    "descriptors=$($descriptorBatch -join ',')"
                 }
                 if ($Membership) { "queryMembership=Direct" }
                 if ($ApiVersion) { # the api-version
@@ -160,13 +159,6 @@
                     }
             }
         }
-
-
-
-
-
-
-
     }
 }
 
