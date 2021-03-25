@@ -30,7 +30,8 @@ process {
             $script:InvokeADORestAPIParams = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
             $InvokeADORestApi = $executionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestApi', 'All')
             :nextInputParameter foreach ($in in ([Management.Automation.CommandMetaData]$InvokeADORestApi).Parameters.Keys) {
-                foreach ($ex in 'Uri','Method','Headers','Body','ContentType','ExpandProperty','Property','RemoveProperty','DecorateProperty','PSTypeName', 'ContinuationToken') {
+                foreach ($ex in 'Uri','Method','Headers','Body','ContentType','ExpandProperty','Property','RemoveProperty','DecorateProperty','PSTypeName', 'ContinuationToken',
+                    'UrlParameter','DynamicParameter','MapParameter') {
                     if ($in -like $ex) { continue nextInputParameter }
                 }
 
