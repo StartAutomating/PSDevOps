@@ -11,16 +11,12 @@
         Get-ADOWorkProcess -Organization StartAutomating -PersonalAccessToken $pat
     .Example
         Get-ADOProject -Organization StartAutomating -PersonalAccessToken $pat | Get-ADOWorkProcess
-    #>    
+    #>
+    [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/work/processes')]
     [OutputType('PSDevOps.WorkProcess')]
     param(
     # The Organization
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Organization}/_apis/projects/{ProjectID}/properties')]
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/workItemTypes',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/_apis/work/processes/{ProcessId}/behaviors',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Org')]
     [string]
     $Organization,
