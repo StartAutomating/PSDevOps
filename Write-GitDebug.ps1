@@ -1,14 +1,14 @@
-﻿function Write-GitHubDebug
+﻿function Write-GitDebug
 {
     <#
     .Synopsis
-        Writes an GitHub Warning
+        Writes a Git Warning
     .Description
         Writes an GitHub Workflow Warning
     .Example
-        Write-GitHubDebug "Debugging"
+        Write-GitDebug "Debugging"
     .Link
-        Write-GitHubError
+        Write-GitError
     .Link
         https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
     #>
