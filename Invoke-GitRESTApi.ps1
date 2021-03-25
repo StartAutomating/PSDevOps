@@ -14,9 +14,10 @@
         Invoke-RestMethod
     #>
     [OutputType([PSObject])]
+    [CmdletBinding(DefaultParameterSetName='Url')]
     param(
     # The REST API Url
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Url')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('Url')]
     [uri]
     $Uri,
@@ -170,7 +171,10 @@ Specifies the method used for the web request. The acceptable values for this pa
             $gitProgressId = [Random]::new().Next() 
         }
 
-
+        if ($MyInvocation.InvocationName -ne $MyInvocation.MyCommand.Name -and
+            $MyInvocation.InvocationName -like "$GitApiUrl*") {
+            $GitApiUrl = $MyInvocation.InvocationName
+        }
     }
 
     process {
