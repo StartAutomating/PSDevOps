@@ -128,8 +128,7 @@
     $Wiki,
 
     # If set, will return any boards associated with the project.
-    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]
-    [Alias('Boards')]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]    
     [switch]
     $Board,
 
