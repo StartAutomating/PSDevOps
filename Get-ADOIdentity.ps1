@@ -101,6 +101,11 @@
             $null = $psBoundParameters.Remove('AceDictionary')
         }
 
+        if (-not $Descriptors -and -not $Filter) {
+            Write-Warning "Get-ADOIdentity must be provided with -Descriptors or -Filter"
+            return
+        }
+
         $invokeParamsList = @(
         if ($Descriptors -and $Descriptors.Length -gt $DescriptorBatchSize) {
             for ($i = 0; $i -lt $Descriptors.Length; $i+=$DescriptorBatchSize) {
@@ -150,7 +155,7 @@
                 Invoke-ADORestAPI @ip|
                     Foreach-Object {
                         $_
-                        if ($_.Members) {
+                        if ($_.Members -and $_.Members.Count) {
                             $paramCopy = @{} + $psBoundParameters
                             $paramCopy['Descriptors'] = $_.members
                             $paramCopy.Remove('Filter')
