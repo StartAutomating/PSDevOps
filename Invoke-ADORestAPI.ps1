@@ -413,7 +413,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                 }
                 if ($ExpandProperty) {
                     if ($in.$ExpandProperty) {
-                        $in.$ExpandProperty
+                        return $in.$ExpandProperty
                     }
                 } elseif ($in.Value -and $in.Count) {  # If that's what we're dealing with
                     $in.Value # pass value down the pipe.
@@ -430,9 +430,13 @@ $($MyInvocation.MyCommand.Name) @parameter
             } } 2>&1 |
             & { process { # One more step of the pipeline will unroll each of the values.
 
-                if ($_ -is [string]) { return $_ }
-                if ($null -ne $_.Count -and $_.Count -eq 0) { return }
+                
                 $in = $_
+                if ($in -is [string]) { return $in }
+                if ($null -ne $in.Count -and $in.Count -eq 0) { 
+                    return 
+                }
+
                 if ($PSTypeName -and # If we have a PSTypeName (to apply formatting)
                     $in -isnot [Management.Automation.ErrorRecord] # and it is not an error (which we do not want to format)
                 ) {
@@ -471,7 +475,7 @@ $($MyInvocation.MyCommand.Name) @parameter
 
         # If we have a continuation token
         $paramCopy = @{} + $PSBoundParameters
-        $invokeResults = [Collections.Queue]::new()
+        $invokeResults = [Collections.ArrayList]::new()
         & {
             if ($responseHeaders -and $responseHeaders['X-MS-ContinuationToken'] -and $Uri -notmatch '\$(top|first)=') {
                 if ($Uri.Query -notmatch '\$(top|first)=') { # and the uri is not have top or first parameter
@@ -489,8 +493,12 @@ $($MyInvocation.MyCommand.Name) @parameter
                 $apiOutput
             }
         } | & { process {
-            $invokeResults.Enqueue($_)
-            $_
+            $in = $_
+            if ($in) {
+                $null = $invokeResults.Add($in)
+                $in
+
+            }
         } }
 
         if ($Method -eq 'Get') {
