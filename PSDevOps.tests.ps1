@@ -346,8 +346,8 @@ describe 'Calling REST APIs' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
             $startWhatIf.Method | should -Be POST
-            $startWhatIf.Body.Definition.ID | should -Be $latestBuild.Definition.ID
-            $startWhatIf.Body.Parameters | Should -Be $null
+            $startWhatIf.Body.Definition.ID | should -Match '\d+'
+            $startWhatIf.Body.Parameters    | Should -Not -BeLike '*System.DebugContext*'
 
             $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
             $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
