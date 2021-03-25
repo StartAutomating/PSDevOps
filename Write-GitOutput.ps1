@@ -1,20 +1,20 @@
-﻿function Write-GitHubOutput
+﻿function Write-GitOutput
 {
     <#
     .Synopsis
-        Writes GitHub Output
+        Writes Git Output
     .Description
         Writes formal Output to a GitHub step.
 
         This output can be referenced in subsequent steps.
     .Example
-        Write-GitHubOutput @{
+        Write-GitOutput @{
             key = 'value'
         }
     .Example
         Get-Random -Minimum 1 -Maximum 10 | Write-GitHubOutput -Name RandomNumber
     .Link
-        Write-GitHubError
+        Write-GitError
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
@@ -71,20 +71,20 @@
                 }
 
             }
-            Write-GitHubError @gitHubErrorParams
+            Write-GitError @gitHubErrorParams
         }
         #endregion Output Errors
         #region Output Warnings
         elseif ($InputObject -is [Management.Automation.WarningRecord])
         {
-            Write-GitHubWarning -Message $InputObject.Message
+            Write-GitWarning -Message $InputObject.Message
         }
         #endregion Output Warnings
         #region Output Debug and Verbose
         elseif ($InputObject -is [Management.Automation.VerboseRecord] -or
             $InputObject -is [Management.Automation.DebugRecord])
         {
-            Write-GitHubDebug -Message $InputObject.Message
+            Write-GitDebug -Message $InputObject.Message
         }
         #endregion Output Debug and Verbose
         #region Enqueue Remaining Input
