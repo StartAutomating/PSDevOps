@@ -158,6 +158,13 @@
     [string]
     $TargetReference,
 
+    # Filters pull requests with a paricular status.  If not specified, will default to Active.
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [ValidateSet('abandoned','active', 'all','completed', 'notset')]
+    [Alias('PRStatus')]
+    [string]
+    $PullRequestStatus,
+
     # If set, will include the parent repository
     [Parameter(ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
     [switch]
@@ -249,56 +256,64 @@
                 }
 
 
+                switch ($psParameterSet) {
+                    'git/repositories/{repositoryId}/items' {
+                        if ($IncludeMetadata) {
+                            "includeContentMetadata=true"
+                        }
+                        if ($RecursionLevel) {
+                            "recursionLevel=$recursionLevel"
+                        }
+                        if ($Download) {
+                            "download=true"
+                        } else {
+                            '$format=json'
+                        }
 
-                if ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
-                    if ($IncludeMetadata) {
-                        "includeContentMetadata=true"
-                    }
-                    if ($RecursionLevel) {
-                        "recursionLevel=$recursionLevel"
-                    }
-                    if ($Download) {
-                        "download=true"
-                    } else {
-                        '$format=json'
-                    }
+                        if ($scopePath) {
+                            "scopePath=$scopePath"
+                        }
 
-                    if ($scopePath) {
-                        "scopePath=$scopePath"
+                        if ($Latest) {
+                            "latestProcessedChange=true"
+                        }
+                        if ($VersionDescriptor) {
+                            "versionDescriptor.version=$VersionDescriptor"
+                        }
+                        if ($VersionOption) {
+                            "versionDescriptor.option=$VersionOption"
+                        }
+                        if ($VersionType) {
+                            "versionDescriptor.type=$VersionType"
+                        }
                     }
+                    'git/repositories/{repositoryId}/pullRequests' {
+                        if ($CreatorIdentity) {
+                            "searchCriteria.creatorId=$CreatorIdentity"
+                        }
+                        if ($SourceReference) {
+                            "searchCriteria.sourceRefName=$SourceReference"
+                        }
 
-                    if ($Latest) {
-                        "latestProcessedChange=true"
+                        if ($PullRequestStatus) {
+                            "searchCriteria.status=$PullRequestStatus"
+                        }
+
+                        if ($TargetReference) {
+                            "searchCriteria.targetRefName=$TargetReference"
+                        }
+
+                        if ($ReviewerIdentity) {
+                            "searchCriteria.reviewerID=$ReviewerIdentity"
+                        }
                     }
-                    if ($VersionDescriptor) {
-                        "versionDescriptor.version=$VersionDescriptor"
-                    }
-                    if ($VersionOption) {
-                        "versionDescriptor.option=$VersionOption"
-                    }
-                    if ($VersionType) {
-                        "versionDescriptor.type=$VersionType"
+                    'git/repositories' {
+                        "includeHidden=true"
+                        "includeLinks=true"
+                        "includeAllUrls=true"
                     }
                 }
-                elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
-                    if ($SourceReference) {
-                        "searchCriteria.sourceRefName=$SourceReference"
-                    }
-                    if ($TargetReference) {
-                        "searchCriteria.targetRefName=$TargetReference"
-                    }
-                    if ($CreatorIdentity) {
-                        "searchCriteria.creatorId=$CreatorIdentity"
-                    }
-                    if ($ReviewerIdentity) {
-                        "searchCriteria.reviewerID=$ReviewerIdentity"
-                    }
-                }
-                elseif ($psParameterSet -eq 'git/repositories') {
-                    if ($IncludeHidden) { "includeHidden=true" }
-                    if ($IncludeLink) { "includeLinks=true"}
-                    if ($IncludeRemoteUrl) { "includeAllUrls=true"}
-                }
+
                 if ($path) {
                     "path=$path"
                 }
