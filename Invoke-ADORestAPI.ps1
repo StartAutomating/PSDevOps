@@ -47,11 +47,17 @@ Specifies the method used for the web request. The acceptable values for this pa
     [Object]
     $Body,
 
-    # Parameters provided as part of the URL or query string.
+    # Parameters provided as part of the URL (in segments or a query string).
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Uri')]
     [Alias('UrlParameters')]
     [Collections.IDictionary]
     $UrlParameter = @{},
+
+    # Additional parameters provided after the URL.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Uri')]
+    [Alias('QueryParameters')]
+    [Collections.IDictionary]
+    $QueryParameter = @{},
 
     # Specifies the content type of the web request.
     # If this parameter is omitted and the request method is POST, Invoke-RestMethod sets the content type to application/x-www-form-urlencoded. Otherwise, the content type is not specified in the call.
@@ -299,11 +305,18 @@ $($MyInvocation.MyCommand.Name) @parameter
 
         #region Call Invoke-RestMethod
         if ($ContinuationToken) {
-            if (-not $uri.Query) {
-                $uri = "${uri}?ContinuationToken=$ContinuationToken"
-            } else {
-                $uri = "${uri}&continuationToken=$ContinuationToken"
-            }
+            $QueryParameter['ContinuationToken'] = $ContinuationToken
+        }
+
+        if ($QueryParameter -and $QueryParameter.Count) {
+            $uri = 
+                "$uri" +
+                $(if (-not $uri.Query) { '?' } else { '&' }) +
+                @(
+                    foreach ($qp in $QueryParameter.GetEnumerator()) {
+                        '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
+                    }
+                ) -join '&'
         }
         $webRequest =  [Net.WebRequest]::Create($uri)
         $webRequest.Method = $Method
