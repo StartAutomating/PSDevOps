@@ -1,4 +1,4 @@
-﻿function Hide-GitHubOutput
+﻿function Hide-GitOutput
 {
     <#
     .Synopsis
@@ -6,7 +6,7 @@
     .Description
         Prevents a message from being printed in a GitHub Workflow log.
     .Example
-        Hide-GitHubOutput 'IsItSecret?'
+        Hide-GitOutput 'IsItSecret?'
         'IsItSecret?' | Out-Host
     .Link
         Write-GitHubOutput
