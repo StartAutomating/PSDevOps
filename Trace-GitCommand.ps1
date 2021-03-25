@@ -1,4 +1,4 @@
-﻿function Trace-GitHubCommand
+﻿function Trace-GitCommand
 {
     <#
     .Synopsis
@@ -6,11 +6,11 @@
     .Description
         Traces information about a command as a debug message in a GitHub workflow.
     .Example
-        Trace-GitHubCommand -Command Get-Process -Parameter @{id=$pid}
+        Trace-GitCommand -Command Get-Process -Parameter @{id=$pid}
     .Example
-        $myInvocation | Trace-GitHubCommand
+        $myInvocation | Trace-GitCommand
     .Link
-        Write-GitHubDebug
+        Write-GitDebug
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]
@@ -32,7 +32,7 @@
     process {
         if ($Command) {
             #region Write Debug Message
-            Write-GitHubDebug -Message  (
+            Write-GitDebug -Message  (
                 $Command + ' ' + @(
                     if ($Parameter) {
                         foreach ($kv in $Parameter.GetEnumerator()) {
