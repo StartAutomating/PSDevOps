@@ -229,6 +229,6 @@
                 "PSDevOps.$typeName" -Property $additionalProperty
         }
 
-        Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
+        Write-Progress "Getting $typeName" "[$c/$t]" -Completed -Id $progId
     }
 }
