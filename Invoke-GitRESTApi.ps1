@@ -35,7 +35,7 @@ Specifies the method used for the web request. The acceptable values for this pa
  - Put
  - Trace
     #>
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [ValidateSet('GET','DELETE','HEAD','MERGE','OPTIONS','PATCH','POST', 'PUT', 'TRACE')]
     [string]
     $Method = 'GET',
@@ -43,11 +43,11 @@ Specifies the method used for the web request. The acceptable values for this pa
     # Specifies the body of the request.
     # If this value is a string, it will be passed as-is
     # Otherwise, this value will be converted into JSON.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Object]
     $Body,
 
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('UrlParameters')]
     [Collections.IDictionary]
     $UrlParameter = @{},
@@ -66,10 +66,12 @@ Specifies the method used for the web request. The acceptable values for this pa
 
     # The page number.  If provided, will only get one page of results.
     # If this is not provided, additional results will be fetched until they are exhausted.
+    [Parameter(ParameterSetName='Url')]
     [int]
     $Page,
 
     # The number of items to retreive on a single page.
+    [Parameter(ParameterSetName='Url')]
     [Alias('Per_Page')]
     [int]
     $PerPage,
@@ -78,26 +80,29 @@ Specifies the method used for the web request. The acceptable values for this pa
     # If not set, will be the depluralized last non-variable segment of a URL.
     # (i.e. "https://api.github.com/user/repos" would use a typename of 'repos'
     # so would: "https://api.github.com/users/{UserName}/repos")
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('Decorate','Decoration')]
     [string[]]
     $PSTypeName,
 
     # A set of additional properties to add to an object
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Collections.IDictionary]
     $Property,
 
     # A list of property names to remove from an object
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [string[]]
     $RemoveProperty,
 
     # If provided, will expand a given property returned from the REST api.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [string]
     $ExpandProperty,
 
     # If provided, will decorate the values within a property in the return object.
     # This allows nested REST properties to work with the PowerShell Extended Type System.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('TypeNameOfProperty')]
     [Collections.IDictionary]    
     $DecorateProperty,
@@ -107,23 +112,47 @@ Specifies the method used for the web request. The acceptable values for this pa
     [switch]
     $Cache,
 
+    # If set, will run as a background job.
+    # This parameter will be ignored if the caller is piping the results of Invoke-ADORestAPI.
+    # This parameter will also be ignore when calling with -DynamicParameter or -MapParameter.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $AsJob,
+
+    # If set, will get the dynamic parameters that should be provided to any function that wraps Invoke-ADORestApi
+    [Parameter(Mandatory,ParameterSetName='GetDynamicParameters',ValueFromPipelineByPropertyName)]
+    [Alias('DynamicParameters')]
+    [switch]
+    $DynamicParameter,
+
+    # If set, will return the parameters for any function that can be passed to Invoke-ADORestApi.
+    # Unmapped parameters will be added as a noteproperty of the returned dictionary.
+    [Parameter(Mandatory,ParameterSetName='MapParameters',ValueFromPipelineByPropertyName)]
+    [Alias('MapParameters')]
+    [Collections.IDictionary]
+    $MapParameter,
+
     # The GitAPIUrl
     # This will used if -Uri does not contain a hostname.
     # It will default to $env:GIT_API_URL if it is set, otherwise 'https://api.github.com/'
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [uri]
     $GitApiUrl = $(if ($env:GIT_API_URL) { $env:GIT_API_URL} else { "https://api.github.com/" } ),
 
     # Specifies the content type of the web request.
     # If this parameter is omitted and the request method is POST, Invoke-RestMethod sets the content type to application/x-www-form-urlencoded. Otherwise, the content type is not specified in the call.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [string]
     $ContentType = 'application/json',
 
     # Specifies the headers of the web request. Enter a hash table or dictionary.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('Header')]
     [Collections.IDictionary]
     $Headers,
 
     # Provides a custom user agent.  GitHub API requests require a User Agent.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [string]
     $UserAgent = "PSDevOps/1.0 (StartAutomating;PSDevOps;Invoke-GitRESTApi)"
 
@@ -190,7 +219,47 @@ Specifies the method used for the web request. The acceptable values for this pa
 
     process {
         $irmSplat = @{} + $PSBoundParameters    # First, copy PSBoundParameters.
+        if ($PSCmdlet.ParameterSetName -eq 'GetDynamicParameters') {
+            if (-not $script:InvokeGitRESTApiParams) {
+                $script:InvokeGitRESTApiParams = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
+                $InvokeGitRESTApi = $MyInvocation.MyCommand
+                :nextInputParameter foreach ($in in ([Management.Automation.CommandMetaData]$InvokeGitRESTApi).Parameters.Keys) {
+                    if ($in -notin 'Cache', 'PersonalAccessToken', 'AsJob') { continue nextInputParameter }
 
+                    $script:InvokeGitRESTApiParams.Add($in, [Management.Automation.RuntimeDefinedParameter]::new(
+                        $InvokeGitRESTApi.Parameters[$in].Name,
+                        $InvokeGitRESTApi.Parameters[$in].ParameterType,
+                        $InvokeGitRESTApi.Parameters[$in].Attributes
+                    ))
+                }
+                foreach ($paramName in $script:InvokeGitRESTApiParams.Keys) {
+                    foreach ($attr in $script:InvokeGitRESTApiParams[$paramName].Attributes) {
+                         if ($attr.ValueFromPipeline) {$attr.ValueFromPipeline = $false}
+                         if ($attr.ValueFromPipelineByPropertyName) {$attr.ValueFromPipelineByPropertyName = $false}
+                    }
+                }
+            }
+            return $script:InvokeGitRESTApiParams
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'MapParameters') {
+            $invokeParams = [Ordered]@{} + $MapParameter # Then we copy our parameters
+            $unmapped     = [Ordered]@{}
+            foreach ($k in @($invokeParams.Keys)) {  # and walk thru each parameter name.
+                # If a parameter isn't found in Invoke-ADORestAPI
+                if (-not $MyInvocation.MyCommand.Parameters.ContainsKey($k)) {
+                    $unmapped[$k] = $invokeParams[$k]
+                    $invokeParams.Remove($k) # we remove it.
+                }
+            }            
+            $invokeParams.psobject.properties.add([PSNoteProperty]::new('Unmapped',$unmapped))
+            return $invokeParams
+        }
+        
+        #region Prepare Parameters
+        
+        if (-not $PersonalAccessToken -and $script:CachedGitPAT) {
+            $PersonalAccessToken = $psBoundParameters['PersonalAccessToken'] = $script:CachedGitPAT # Then, use a cached PAT if appropriate.
+        }
         if ($AsJob -and ($MyInvocation.PipelinePosition -eq $MyInvocation.PipelineLength)) {
             $irmSplat.Remove('AsJob')
             Start-Job -ScriptBlock ([ScriptBlock]::Create("param([Hashtable]`$parameter)
@@ -199,11 +268,6 @@ $($MyInvocation.MyCommand.ScriptBlock)
 }
 $($MyInvocation.MyCommand.Name) @parameter
 ")) -ArgumentList $irmSplat
-        }
-        #region Prepare Parameters
-        
-        if (-not $PersonalAccessToken -and $script:CachedGitPAT) {
-            $PersonalAccessToken = $script:CachedGitPAT # Then, use a cached PAT if appropriate.
         }
 
         $authHeaderType = # Next we need to determine the correct auth header.
