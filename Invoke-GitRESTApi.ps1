@@ -52,6 +52,12 @@ Specifies the method used for the web request. The acceptable values for this pa
     [Collections.IDictionary]
     $UrlParameter = @{},
 
+    # Additional parameters provided in the query string.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
+    [Alias('QueryParameters')]
+    [Collections.IDictionary]
+    $QueryParameter = @{},
+
     # A Personal Access Token
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('PAT')]
@@ -96,6 +102,11 @@ Specifies the method used for the web request. The acceptable values for this pa
     [Collections.IDictionary]    
     $DecorateProperty,
 
+    # If set, will cache results from a request.  Only HTTP GET results will be cached.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $Cache,
+
     # The GitAPIUrl
     # This will used if -Uri does not contain a hostname.
     # It will default to $env:GIT_API_URL if it is set, otherwise 'https://api.github.com/'
@@ -128,7 +139,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     (?:          
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        \$(?<Variable>\w+)  | #     A $ followed by a <Variable> OR
+        `\$(?<Variable>\w+) | #     A `$ followed by a <Variable> OR
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )    
 |
@@ -144,7 +155,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     (?:               
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        \$(?<Variable>\w+)  | #     A $ followed by a <Variable> OR
+       `\$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR  
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 )
@@ -211,9 +222,31 @@ $($MyInvocation.MyCommand.Name) @parameter
         if (-not $uri.host -and $GitApiUrl)  {
             $uri = "$GitApiUrl" + $Uri
         }
+
+        
+
         
         $originalUri = "$uri"
         $uri = $RestVariable.Replace($uri, $ReplaceRestVariable)
+
+        if ($Page) { $QueryParameter['page'] = $Page }
+        if ($PerPage) { $QueryParameter['per_page']  = $PerPage }
+        if ($QueryParameter -and $QueryParameter.Count) {
+            $uri = 
+                "$uri" +
+                $(if (-not $uri.Query) { '?' } else { '&' }) +
+                @(
+                    foreach ($qp in $QueryParameter.GetEnumerator()) {
+                        '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
+                    }
+                ) -join '&'
+        }
+
+        if (-not $script:GitRequestCache) { $script:GitRequestCache = @{} }
+        if ($Cache -and $method -eq 'Get' -and $script:GitRequestCache[$uri]) {
+            foreach ($out in $script:GitRequestCache[$uri]) { $out }
+            return
+        }
         
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
@@ -234,23 +267,6 @@ $($MyInvocation.MyCommand.Name) @parameter
 
         #region Call Invoke-RestMethod
         
-        if ($Page) {
-            $uri= 
-                if (-not $uri.Query) {
-                    "${uri}?page=$Page"
-                } else {
-                    "${uri}&page=$Page"
-                }
-        }
-
-        if ($PerPage) {
-            $uri= 
-                if (-not $uri.Query) {
-                    "${uri}?per_page=$PerPage"
-                } else {
-                    "${uri}&per_page=$PerPage"
-                }
-        }
 
         $webRequest =  [Net.HttpWebRequest]::Create($uri)
         $webRequest.Method = $Method
@@ -260,7 +276,7 @@ $($MyInvocation.MyCommand.Name) @parameter
             foreach ($h in $irmSplat.Headers.GetEnumerator()) {
                 $webRequest.headers.add($h.Key, $h.Value)
             }
-        }        
+        }
         if ($irmSplat.Body) {
             $bytes = [Text.Encoding]::UTF8.GetBytes($irmSplat.Body)
             $webRequest.contentLength = $bytes.Length
@@ -409,29 +425,52 @@ $($MyInvocation.MyCommand.Name) @parameter
         # If we have a continuation token
         
         
-
-        if (-not $Page -and # If we weren't provided with a page number            
-            $responseHeaders.Link -match # but out .Link header
-                '<(?<u>[^>]+)>; rel="next"' # has a 'next' uri
-        ) {
-            
-            $apiOutput # output
-
-            # Then recursively call yourself with the next uri                
-            $uri = $PSBoundParameters['Uri'] = ($matches.u)
-            if ($ProgressPreference -ne 'silentlycontinue' -and 
-                $responseHeaders.Link -match '<(?<u>[^>]+)>; rel="last"'
+        $paramCopy = @{} + $PSBoundParameters
+        $invokeResults = [Collections.ArrayList]::new()
+        & {
+            if (-not $Page -and # If we weren't provided with a page number            
+                $responseHeaders.Link -match # but out .Link header
+                    '<(?<u>[^>]+)>; rel="next"' # has a 'next' uri
             ) {
-                $lastUri = [uri]$matches.u
-                $nextPageNumber = [Web.HttpUtility]::ParseQueryString($Uri.Query)["page"] -as [float]
-                $lastPageNumber = [Web.HttpUtility]::ParseQueryString($lastUri.Query)["page"] -as [float]
-                Write-Progress "$Method" "$uri [$nextPageNumber/$lastPageNumber]" -PercentComplete (
-                    $nextPageNumber * 100 / $lastPageNumber
-                ) -Id $gitProgressId
+            
+                $apiOutput # output
+
+                # Then recursively call yourself with the next uri                
+                $uri = $PSBoundParameters['Uri'] = ($matches.u)
+                if ($ProgressPreference -ne 'silentlycontinue' -and 
+                    $responseHeaders.Link -match '<(?<u>[^>]+)>; rel="last"'
+                ) {
+                    $lastUri = [uri]$matches.u
+                    $nextPageNumber = [Web.HttpUtility]::ParseQueryString(([uri]$Uri).Query)["page"] -as [float]
+                    $lastPageNumber = [Web.HttpUtility]::ParseQueryString($lastUri.Query)["page"] -as [float]
+                    Write-Progress "$Method" "$uri [$nextPageNumber/$lastPageNumber]" -PercentComplete (
+                        $nextPageNumber * 100 / $lastPageNumber
+                    ) -Id $gitProgressId
+                }
+                Invoke-GitRESTAPI @PSBoundParameters
+            } else { # If we didn't have a next page, just output
+                $apiOutput
             }
-            Invoke-GitRESTAPI @PSBoundParameters
-        } else { # If we didn't have a next page, just output
-            $apiOutput
+        } | & { process {
+            $in = $_
+            if ($in) {
+                $null = $invokeResults.Add($in)
+                $in
+
+            }
+        } }
+
+        if ($Method -eq 'Get') {
+            if ($Cache -and -not $ContinuationToken) {
+                $script:GitRequestCache[$uri] = $invokeResults.ToArray()
+            }
+        } else {
+            $null =
+                New-Event -SourceIdentifier "Invoke-GitRESTApi.$Method" -MessageData $(
+                    $paramCopy.Remove('PersonalAccessToken')
+                    $paramCopy+=@{Response = $response;Results  = $invokeResults.ToArray() }
+                    [PSCustomObject]$paramCopy
+                )
         }
 
         if ($ProgressPreference -ne 'silentlycontinue') {
