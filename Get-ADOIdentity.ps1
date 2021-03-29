@@ -37,7 +37,7 @@
 
     # The maximum number of specific descriptors to request in one batch.
     [int]
-    $DescriptorBatchSize = 50,
+    $DescriptorBatchSize = 25,
 
     # If set, will get membership information.
     [switch]
@@ -92,6 +92,7 @@
         $typeNames = @(
             "$organization.$typename"
             "PSDevOps.$typename"
+
         )
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
@@ -147,7 +148,7 @@
         })
 
 
-        foreach ($ip in $invokeParams) {
+        foreach ($ip in $invokeParamsList) {
             if (-not $recurse) {
                 Invoke-ADORestAPI @ip
             } else {
