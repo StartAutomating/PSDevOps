@@ -51,6 +51,28 @@
     [switch]
     $RetentionPolicy,
 
+    # If set, will list packages within a feed.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [Alias('ListPackages','ListPackage','Packages')]
+    [switch]
+    $PackageList,
+
+    # If set, will include all versions of packages within a feed.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [Alias('IncludeAllVersions')]
+    [switch]
+    $IncludeAllVersion,
+
+    # If set, will include descriptions of a package.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [switch]
+    $IncludeDescription,
+
+    # If provided, will return packages of a given protocol.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [string]
+    $ProtocolType,
+
     # If set, will get information about a Node Package Manager module.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
     [Alias('NodePackageManager')]
@@ -79,6 +101,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/nuget/packages/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/pypi/packages/{packageName}/versions/{packageVersion}')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
     [string]
     $PackageName,
 
@@ -113,14 +136,17 @@
     # The api version.  By default, 5.1-preview.
     [string]
     $ApiVersion = "5.1-preview")
-    dynamicParam { . $GetInvokeParameters -DynamicParameter }
+    dynamicParam {
+        Invoke-ADORestAPI -DynamicParameter
+    }
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = . $getInvokeParameters $PSBoundParameters
+        $invokeParams = Invoke-ADORestAPI -MapParameter $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
     }
 
     process {
+
         # First, construct a base URI.  It's made up of:
         $uriBase = "$Server".TrimEnd('/'), # * The server
             $Organization, # * The organization
@@ -174,17 +200,29 @@
             }
         }
 
-        $uri += @(
-            if ($FeedRole) { "feedRole=$($FeedRole.ToLower())" }
-            if ($IncludeDeleted) { "includeDeletedUpstreams=true" }
-            if ($Server -ne 'https://feeds.dev.azure.com/' -and
-                -not $PSBoundParameters.ApiVersion) {
-                $ApiVersion = '2.0'
+        if ($Server -ne 'https://feeds.dev.azure.com/' -and
+            -not $PSBoundParameters.ApiVersion) {
+            $ApiVersion = '2.0'
+        }
+        $qp = @{"api-version"=$ApiVersion}
+        if ($FeedRole) {
+            $qp.feedRole = $FeedRole.ToLower()
+        }
+        if ($IncludeDeleted) {
+            if ($packageList) {
+                $qp.includeDeleted = $true
+            } else {
+                $qp.includeDeletedUpstreams = $true
             }
-            if ($ApiVersion) { "api-version=$ApiVersion" }
-        ) -join '&'
+        }
+        if ($PackageName -and $PackageList) { $qp.PackageName = $PackageName }
+        if ($IncludeDescription) { $qp.includeDescription = $true }
+        if ($IncludeAllVersion) { $qp.includeAllVersions = $true }
+        if ($ProtocolType) { $qp.protocolType = $ProtocolType }
 
         $invokeParams.Uri = $uri
+
+        if ($PackageList) { $subTypeName = '.Package'}
 
         $typenames = @( # Prepare a list of typenames so we can customize formatting:
             if ($Organization -and $Project) {
@@ -205,6 +243,6 @@
 
 
         # Invoke the REST api
-        Invoke-ADORestAPI @invokeParams -PSTypeName $typenames # decorate results with the Typenames.
+        Invoke-ADORestAPI @invokeParams -PSTypeName $typenames -QueryParameter $qp # decorate results with the Typenames.
     }
 }
