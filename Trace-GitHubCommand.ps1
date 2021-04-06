@@ -32,7 +32,7 @@
     process {
         if ($Command) {
             #region Write Debug Message
-            Write-GitDebug -Message  (
+            Write-GitHubDebug -Message  (
                 $Command + ' ' + @(
                     if ($Parameter) {
                         foreach ($kv in $Parameter.GetEnumerator()) {
