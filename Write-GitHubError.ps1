@@ -1,16 +1,16 @@
-﻿function Write-GitWarning
+﻿function Write-GitHubError
 {
     <#
     .Synopsis
-        Writes an Git Warning
+        Writes a Git Error
     .Description
-        Writes an GitHub Workflow Warning
+        Writes a GitHub Workflow Error
     .Example
-        Write-GitWarning "Stuff hit the fan"
+        Write-GitHubError "Stuff hit the fan"
     .Link
-        Write-GitError
+        Write-GitHubWarning
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
@@ -18,7 +18,7 @@
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "",
         Justification="Directly outputs in certain scenarios")]
     param(
-    # The Warning message.
+    # The error message.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
     $Message,
@@ -55,8 +55,8 @@
                 "$($kv.Key.ToLower())=$($kv.Value)"
             }) -join ','
         #endregion Collect Additional Properties
-        # Then output the Warning with it's message.
-        $out = "::warning$(if ($properties){" $properties"})::$Message"
+        # Then output the error with it's message.
+        $out = "::error$(if ($properties){" $properties"})::$Message"
         if ($env:GITHUB_WORKFLOW -and $DebugPreference -eq 'SilentlyContinue') {
             Write-Host $out
         } else {

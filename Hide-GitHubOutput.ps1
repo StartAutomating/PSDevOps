@@ -1,4 +1,4 @@
-﻿function Hide-GitOutput
+﻿function Hide-GitHubOutput
 {
     <#
     .Synopsis
@@ -6,12 +6,12 @@
     .Description
         Prevents a message from being printed in a GitHub Workflow log.
     .Example
-        Hide-GitOutput 'IsItSecret?'
+        Hide-GitHubOutput 'IsItSecret?'
         'IsItSecret?' | Out-Host
     .Link
         Write-GitHubOutput
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",

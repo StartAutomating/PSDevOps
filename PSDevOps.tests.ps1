@@ -815,58 +815,58 @@ describe 'GitHub Worfklow tools' {
     context GitHubWorkflowOutput {
 
         it 'Can Write an GitHub Error' {
-            Write-GitError -Message "error!" -Debug |
+            Write-GitHubError -Message "error!" -Debug |
             should -Match '::error::error!'
         }
 
         it 'Can Write an GitHub Error with a SourcePath' {
-            Write-GitError -Message 'error!' -SourcePath file.cs -LineNumber 1 -Debug |
+            Write-GitHubError -Message 'error!' -SourcePath file.cs -LineNumber 1 -Debug |
             should -Be '::error file=file.cs,line=1::error!'
         }
 
         it 'Can Write a GitHub Warning' {
-            Write-GitWarning -Message "Warning!" -Debug |
+            Write-GitHubWarning -Message "Warning!" -Debug |
             should -Match '::warning::Warning!'
         }
 
         it 'Can Write a Github Debug Message' {
-            Write-GitDebug -Message "Debug" -Debug |
+            Write-GitHubDebug -Message "Debug" -Debug |
             should -Match '::debug::Debug'
         }
 
         it 'Can Write a GitHub Warning with a SourcePath' {
-            Write-GitWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
+            Write-GitHubWarning -Message 'Warning!' -SourcePath file.cs -LineNumber 1 -Debug |
             should -Be '::warning file=file.cs,line=1::Warning!'
         }
 
 
 
         it 'Can Write GitHub output' {
-            Write-GitOutput -InputObject @{key='value'} -Debug |
+            Write-GitHubOutput -InputObject @{key='value'} -Debug |
                 Should -Be '::set-output name=key::value'
         }
 
-        it 'Will call Write-GitDebug when provided a verbose or debug message' {
+        it 'Will call Write-GitHubDebug when provided a verbose or debug message' {
             Write-Verbose "verbose" -Verbose *>&1 |
-                Write-GitOutput -Debug |
+                Write-GitHubOutput -Debug |
                 should -BeLike '::debug::verbose'
         }
 
-        it 'Will call Write-GitError when provided an error' {
+        it 'Will call Write-GitHubError when provided an error' {
 
             & { Write-Error "problem" -ErrorAction Continue} 2>&1 |
-                Write-GitOutput -Debug |
+                Write-GitHubOutput -Debug |
                 should -BeLike '*::problem'
         }
 
         it 'Can Write GitHub output from the pipeline' {
-            1 | Write-GitOutput -Debug |
+            1 | Write-GitHubOutput -Debug |
                 Should -Be '::set-output name=output::1'
         }
 
-        it 'Will call Write-GitWarning when provided an error' {
+        it 'Will call Write-GitHubWarning when provided an error' {
             Write-Warning "problem" 3>&1 |
-                Write-GitOutput -Debug |
+                Write-GitHubOutput -Debug |
                 should -BeLike '::warning*::problem'
         }
 

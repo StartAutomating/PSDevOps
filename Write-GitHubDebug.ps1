@@ -1,4 +1,4 @@
-﻿function Write-GitDebug
+﻿function Write-GitHubDebug
 {
     <#
     .Synopsis
@@ -6,11 +6,11 @@
     .Description
         Writes an GitHub Workflow Warning
     .Example
-        Write-GitDebug "Debugging"
+        Write-GitHubDebug "Debugging"
     .Link
-        Write-GitError
+        Write-GitHubError
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
