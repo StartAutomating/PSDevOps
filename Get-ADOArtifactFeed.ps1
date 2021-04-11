@@ -296,7 +296,8 @@
         if ($metricsBatches.Count) {
             $c, $t = 0, $metricsBatches.Count
             foreach ($batch in $metricsBatches.GetEnumerator()) {
-                $packageIdBatch = foreach ($val in $batch.Value) { $val.body.packageIDs }
+                $packageIdBatch = @(foreach ($val in $batch.Value) { $val.body.packageIDs })
+                $packageNamesBatch = @(foreach ($val in $batch.Value) { $val.propety.PackageName })
                 $ip = $batch.Value[0]
                 $ip.body.packageIDs = $packageIdBatch
                 if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
@@ -305,8 +306,14 @@
                 }
                 
             
+                $rc = 0
                 # Invoke the REST api
-                Invoke-ADORestAPI @IP
+                Invoke-ADORestAPI @IP | 
+                    & { process { 
+                       $_.PackageName = $packageNamesBatch[$rc]
+                       $rc++
+                       $_ 
+                    } }
             }
         }
 
