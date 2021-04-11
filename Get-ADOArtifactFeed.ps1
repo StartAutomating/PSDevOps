@@ -58,12 +58,12 @@
     $PackageVersionList,
 
     # If set, will get provenance for a package version
-    [Parameter(Mandatory,ValueFromPipelineByPropretyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
     [switch]
     $Provenance,
 
     # A package version ID.  Only required when getting version provenance.
-    [Parameter(Mandatory,ValueFromPipelineByPropretyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
     [string]
     $VersionID,
 
@@ -139,9 +139,9 @@
     [string]
     $FeedRole,
 
-    # One or more package IDs.  These can be used to get Packages -Metrics.
+    # A -PackageID.  This can be used to get Packages -Metrics, -ListPackageVersion, or get -Provenance of a particular version.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/packagemetricsbatch')]
-    [string[]]
+    [string]
     $PackageID,
 
     # If set, will get package metrics.
@@ -279,7 +279,9 @@
                 )
             }
             if ($PackageVersionList) { $subTypeName = '.PackageVersion' }
-            if ($Metric) { $subTypeName = '.PackageMetri' }
+            if ($Metric) { $subTypeName = '.PackageMetric' }
+
+
 
             $typenames = @( # Prepare a list of typenames so we can customize formatting:
                 if ($Organization -and $Project) {
@@ -299,8 +301,11 @@
                     if ($FeedID) { $FeedID } elseif ($inputObject.feedId) { $inputobject.FeedID}
             }
 
-            if ($inputObject.packageID -and $inputObject.name) {
-                $invokeParams.Property["PackageName"] = $inputObject.name
+            if ($inputObject.packageID) {
+                if ($inputObject.name) {
+                    $invokeParams.Property["PackageName"] = $inputObject.name
+                }
+                $inputObject.Property["PackageID"] = $inputObject.PackageID
             }
 
 
