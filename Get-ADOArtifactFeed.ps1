@@ -248,6 +248,7 @@
             $invokeParams.Uri = $uri
 
             if ($PackageList) { $subTypeName = '.Package'}
+            if ($Metric) { $subTypeName = '.PackageMetrics' }
 
             $typenames = @( # Prepare a list of typenames so we can customize formatting:
                 if ($Organization -and $Project) {
@@ -263,7 +264,12 @@
             if (-not $subTypeName) {
                 $invokeParams.RemoveProperty = 'ViewID','ViewName'
             } else {
-                $invokeParams.Property["FeedID"] = $FeedID
+                $invokeParams.Property["FeedID"] = 
+                    if ($FeedID) { $FeedID } elseif ($inputObject.feedId) { $inputobject.FeedID} 
+            }
+
+            if ($inputObject.packageID -and $inputObject.name) {
+                $invokeParams.Property["PackageName"] = $inputObject.name
             }
 
 
@@ -297,6 +303,7 @@
                     $c++
                     Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
                 }
+                
             
                 # Invoke the REST api
                 Invoke-ADORestAPI @IP
