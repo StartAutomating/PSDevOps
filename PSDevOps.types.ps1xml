@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.4: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
     <Name>PSDevOps.Agent</Name>
@@ -34,6 +34,24 @@
       <AliasProperty>
         <Name>FeedID</Name>
         <ReferencedMemberName>fullyQualifiedId</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.ArtifactFeed.Package</Name>
+    <Members>
+      <AliasProperty>
+        <Name>packageId</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.ArtifactFeed.Package</Name>
+    <Members>
+      <AliasProperty>
+        <Name>packageId</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -303,6 +321,198 @@
         <Name>FieldName</Name>
         <ReferencedMemberName>ReferenceName</ReferencedMemberName>
       </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.GitIssue</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Created</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.created_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Updated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.updated_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.GitIssue</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Created</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.created_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Updated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.updated_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.GitObject</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>Initialize</Name>
+        <Script>
+                        $RestVariable = [Regex]::new(@'
+# Matches URL segments and query strings containing variables.
+# Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
+(?&gt;                           # A variable can be in a URL segment or subdomain
+    (?&lt;Start&gt;[/\.])           # Match the &lt;Start&gt;ing slash|dot ...
+    (?&lt;IsOptional&gt;\?)?        # ... an optional ? (to indicate optional) ...
+    (?:          
+        \{(?&lt;Variable&gt;\w+)\}| # ... A &lt;Variable&gt; name in {} OR
+        \[(?&lt;Variable&gt;\w+)\]| #     A &lt;Variable&gt; name in [] OR
+        \$(?&lt;Variable&gt;\w+)  | #     A $ followed by a &lt;Variable&gt; OR
+        \:(?&lt;Variable&gt;\w+)    #     A : followed by a &lt;Variable&gt;
+    )    
+|
+    (?&lt;IsOptional&gt;            # If it's optional it can also be 
+        [{\[](?&lt;Start&gt;/)      # a bracket or brace, followed by a slash
+    )
+    (?&lt;Variable&gt;\w+)[}\]]     # then a &lt;Variable&gt; name followed by } or ]
+|                             # OR it can be in a query parameter:
+    (?&lt;Start&gt;[?&amp;])            # Match The &lt;Start&gt;ing ? or &amp; ...
+    (?&lt;Query&gt;[\w\-]+)         # ... the &lt;Query&gt; parameter name ... 
+    =                         # ... an equals ...
+    (?&lt;IsOptional&gt;\?)?        # ... an optional ? (to indicate optional) ...
+    (?:               
+        \{(?&lt;Variable&gt;\w+)\}| # ... A &lt;Variable&gt; name in {} OR
+        \[(?&lt;Variable&gt;\w+)\]| #     A &lt;Variable&gt; name in [] OR
+        \$(?&lt;Variable&gt;\w+)  | #     A $ followed by a &lt;Variable&gt; OR
+        \:(?&lt;Variable&gt;\w+)    #     A : followed by a &lt;Variable&gt;
+    )
+)
+'@, 'IgnoreCase,IgnorePatternWhitespace')
+        
+foreach ($property in $this.psobject.properties) {
+    if (-not $property.Name.EndsWith("_url")) { continue }
+    $params = @(foreach ($match in $RestVariable.Matches($property.Value)) {
+        '$' + $match.Groups["Variable"].Value
+    }) -join ','
+    $newMethodName = $property.Name.Substring(0, $property.Name.Length - 4) -replace '_'
+    $newMethodName = 'Get' + $newMethodName.Substring(0,1).ToUpper() + $newMethodName.Substring(1)
+    
+    if (-not $this.$newMethodName) {
+        $this.psobject.methods.add([PSScriptMethod]::new(
+            $newMethodName, 
+            [ScriptBlock]::Create(@"
+param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psboundParameters
+"@)
+        ))
+    }
+}
+                    </Script>
+      </ScriptMethod>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.GitObject</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>Initialize</Name>
+        <Script>
+                        $RestVariable = [Regex]::new(@'
+# Matches URL segments and query strings containing variables.
+# Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
+(?&gt;                           # A variable can be in a URL segment or subdomain
+    (?&lt;Start&gt;[/\.])           # Match the &lt;Start&gt;ing slash|dot ...
+    (?&lt;IsOptional&gt;\?)?        # ... an optional ? (to indicate optional) ...
+    (?:          
+        \{(?&lt;Variable&gt;\w+)\}| # ... A &lt;Variable&gt; name in {} OR
+        \[(?&lt;Variable&gt;\w+)\]| #     A &lt;Variable&gt; name in [] OR
+        \$(?&lt;Variable&gt;\w+)  | #     A $ followed by a &lt;Variable&gt; OR
+        \:(?&lt;Variable&gt;\w+)    #     A : followed by a &lt;Variable&gt;
+    )    
+|
+    (?&lt;IsOptional&gt;            # If it's optional it can also be 
+        [{\[](?&lt;Start&gt;/)      # a bracket or brace, followed by a slash
+    )
+    (?&lt;Variable&gt;\w+)[}\]]     # then a &lt;Variable&gt; name followed by } or ]
+|                             # OR it can be in a query parameter:
+    (?&lt;Start&gt;[?&amp;])            # Match The &lt;Start&gt;ing ? or &amp; ...
+    (?&lt;Query&gt;[\w\-]+)         # ... the &lt;Query&gt; parameter name ... 
+    =                         # ... an equals ...
+    (?&lt;IsOptional&gt;\?)?        # ... an optional ? (to indicate optional) ...
+    (?:               
+        \{(?&lt;Variable&gt;\w+)\}| # ... A &lt;Variable&gt; name in {} OR
+        \[(?&lt;Variable&gt;\w+)\]| #     A &lt;Variable&gt; name in [] OR
+        \$(?&lt;Variable&gt;\w+)  | #     A $ followed by a &lt;Variable&gt; OR
+        \:(?&lt;Variable&gt;\w+)    #     A : followed by a &lt;Variable&gt;
+    )
+)
+'@, 'IgnoreCase,IgnorePatternWhitespace')
+        
+foreach ($property in $this.psobject.properties) {
+    if (-not $property.Name.EndsWith("_url")) { continue }
+    $params = @(foreach ($match in $RestVariable.Matches($property.Value)) {
+        '$' + $match.Groups["Variable"].Value
+    }) -join ','
+    $newMethodName = $property.Name.Substring(0, $property.Name.Length - 4) -replace '_'
+    $newMethodName = 'Get' + $newMethodName.Substring(0,1).ToUpper() + $newMethodName.Substring(1)
+    
+    if (-not $this.$newMethodName) {
+        $this.psobject.methods.add([PSScriptMethod]::new(
+            $newMethodName, 
+            [ScriptBlock]::Create(@"
+param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psboundParameters
+"@)
+        ))
+    }
+}
+                    </Script>
+      </ScriptMethod>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.GitRepo</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>CreatedAt</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.created_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                        $this.Owner.Login
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.GitRepo</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>CreatedAt</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.created_At
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>OwnerName</Name>
+        <GetScriptBlock>
+                        $this.Owner.Login
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -604,11 +814,8 @@ $Bitmask
 @(foreach ($act in $this.Actions) {
     if ($Bitmask -band $act.bit) {
         $act.Name
-    }    
+    }   
 })
-
-
-
                     </Script>
       </ScriptMethod>
       <ScriptMethod>
@@ -690,11 +897,8 @@ $Bitmask
 @(foreach ($act in $this.Actions) {
     if ($Bitmask -band $act.bit) {
         $act.Name
-    }    
+    }   
 })
-
-
-
                     </Script>
       </ScriptMethod>
       <ScriptMethod>
