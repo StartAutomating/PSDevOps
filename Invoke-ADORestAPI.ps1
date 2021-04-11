@@ -311,7 +311,7 @@ $($MyInvocation.MyCommand.Name) @parameter
         if ($QueryParameter -and $QueryParameter.Count) {
             $uri = 
                 "$uri" +
-                $(if (-not $uri.Query) { '?' } else { '&' }) +
+                $(if (-not $uri.Query) { '?' } elseif (-not "$Uri".EndsWith('?')) { '&' }) +
                 @(
                     foreach ($qp in $QueryParameter.GetEnumerator()) {
                         '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
