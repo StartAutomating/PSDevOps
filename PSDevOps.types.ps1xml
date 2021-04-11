@@ -56,6 +56,24 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.ArtifactFeed.PackageVersion</Name>
+    <Members>
+      <AliasProperty>
+        <Name>versionID</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.ArtifactFeed.PackageVersion</Name>
+    <Members>
+      <AliasProperty>
+        <Name>versionID</Name>
+        <ReferencedMemberName>id</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.ArtifactFeed.View</Name>
     <Members>
       <AliasProperty>
