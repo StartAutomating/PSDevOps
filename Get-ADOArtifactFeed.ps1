@@ -51,11 +51,29 @@
     [switch]
     $RetentionPolicy,
 
+    # If set, will list versions of a particular package.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages/{packageId}/versions')]
+    [Alias('ListVersions','ListVersion','PackageVersions')]
+    [switch]
+    $PackageVersionList,
+
+    # If set, will get provenance for a package version
+    [Parameter(Mandatory,ValueFromPipelineByPropretyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [switch]
+    $Provenance,
+
+    # A package version ID.  Only required when getting version provenance.
+    [Parameter(Mandatory,ValueFromPipelineByPropretyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [string]
+    $VersionID,
+
     # If set, will list packages within a feed.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
     [Alias('ListPackages','ListPackage','Packages')]
     [switch]
     $PackageList,
+
+
 
     # If set, will include all versions of packages within a feed.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
@@ -72,6 +90,8 @@
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
     [string]
     $ProtocolType,
+
+
 
     # If set, will get information about a Node Package Manager module.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
@@ -101,7 +121,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/nuget/packages/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/pypi/packages/{packageName}/versions/{packageVersion}')]
-    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]   
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
     [string]
     $PackageName,
 
@@ -153,13 +173,13 @@
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = Invoke-ADORestAPI -MapParameter $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-    
+
         $q = [Collections.Queue]::new()
     }
 
     process {
         $in = $_
-        $ParameterSet = $psCmdlet.ParameterSetName       
+        $ParameterSet = $psCmdlet.ParameterSetName
         $q.Enqueue(@{ParameterSet=$ParameterSet;InputObject=$in} + $PSBoundParameters)
     }
 
@@ -171,7 +191,7 @@
 
         :nextInputObject while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
-            
+
             # First, construct a base URI.  It's made up of:
             $uriBase = "$Server".TrimEnd('/'), # * The server
                 $Organization, # * The organization
@@ -247,8 +267,19 @@
 
             $invokeParams.Uri = $uri
 
-            if ($PackageList) { $subTypeName = '.Package'}
-            if ($Metric) { $subTypeName = '.PackageMetrics' }
+            if ($PackageList) {
+                $subTypeName = '.Package'
+                if (-not $invokeParams.DecorateProperty) { $invokeParams.DecorateProperty = @{} }
+                $invokeParams.DecorateProperty['Versions'] = @(
+                    if ($Organization -and $Project) {
+                        "$Organization.$Project.ArtifactFeed.PackageVersion"
+                    }
+                    "$Organization.ArtifactFeed.PackageVersion"
+                    "PSDevOps.ArtifactFeed.PackageVersion"
+                )
+            }
+            if ($PackageVersionList) { $subTypeName = '.PackageVersion' }
+            if ($Metric) { $subTypeName = '.PackageMetri' }
 
             $typenames = @( # Prepare a list of typenames so we can customize formatting:
                 if ($Organization -and $Project) {
@@ -264,8 +295,8 @@
             if (-not $subTypeName) {
                 $invokeParams.RemoveProperty = 'ViewID','ViewName'
             } else {
-                $invokeParams.Property["FeedID"] = 
-                    if ($FeedID) { $FeedID } elseif ($inputObject.feedId) { $inputobject.FeedID} 
+                $invokeParams.Property["FeedID"] =
+                    if ($FeedID) { $FeedID } elseif ($inputObject.feedId) { $inputobject.FeedID}
             }
 
             if ($inputObject.packageID -and $inputObject.name) {
@@ -279,7 +310,7 @@
                 if (-not $metricsBatches["$($invokeParams.Uri)"]) {
                     $metricsBatches["$($invokeParams.Uri)"] = @()
                 }
-                
+
                 $metricsBatches["$($invokeParams.Uri)"] += @{Method='POST';Body=@{packageIds=$PackageID}} + $invokeParams
                 continue nextInputObject
             }
@@ -287,32 +318,32 @@
                 $c++
                 Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
             }
-            
+
             # Invoke the REST api
             Invoke-ADORestAPI @invokeParams # decorate results with the Typenames.
         }
 
-        
+
         if ($metricsBatches.Count) {
             $c, $t = 0, $metricsBatches.Count
             foreach ($batch in $metricsBatches.GetEnumerator()) {
                 $packageIdBatch = @(foreach ($val in $batch.Value) { $val.body.packageIDs })
-                $packageNamesBatch = @(foreach ($val in $batch.Value) { $val.propety.PackageName })
+                $packageNamesBatch = @(foreach ($val in $batch.Value) { $val.property.PackageName })
                 $ip = $batch.Value[0]
                 $ip.body.packageIDs = $packageIdBatch
                 if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
                     $c++
                     Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
                 }
-                
-            
+
+
                 $rc = 0
                 # Invoke the REST api
-                Invoke-ADORestAPI @IP | 
-                    & { process { 
+                Invoke-ADORestAPI @IP |
+                    & { process {
                        $_.PackageName = $packageNamesBatch[$rc]
                        $rc++
-                       $_ 
+                       $_
                     } }
             }
         }
