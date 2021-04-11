@@ -269,13 +269,13 @@
 
             $invokeParams.PSTypename = $typenames
             $invokeParams.QueryParameter = $qp
-            if ($psParameterSet -eq 'packaging/Feeds/{feedId}/packagemetricsbatch') { # If we want to get metrics in a batch, let's batch
+            if ($parameterSet -eq 'packaging/Feeds/{feedId}/packagemetricsbatch') { # If we want to get metrics in a batch, let's batch
                 if (-not $metricsBatches["$($invokeParams.Uri)"]) {
                     $metricsBatches["$($invokeParams.Uri)"] = @()
                 }
                 
                 $metricsBatches["$($invokeParams.Uri)"] += @{Method='POST';Body=@{packageIds=$PackageID}} + $invokeParams
-
+                continue nextInputObject
             }
             if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
                 $c++
@@ -292,14 +292,14 @@
             foreach ($batch in $metricsBatches.GetEnumerator()) {
                 $packageIdBatch = foreach ($val in $batch.Value) { $val.body.packageIDs }
                 $ip = $batch.Value[0]
-                $ip.packageIDs = $packageIdBatch
+                $ip.body.packageIDs = $packageIdBatch
                 if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
                     $c++
                     Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
                 }
             
                 # Invoke the REST api
-                Invoke-ADORestAPI @invokeParams
+                Invoke-ADORestAPI @IP
             }
         }
 
