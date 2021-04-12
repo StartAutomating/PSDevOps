@@ -1,4 +1,4 @@
-﻿function Invoke-GitRestAPI
+﻿function Invoke-GitHubRestAPI
 {
     <#
     .Synopsis
