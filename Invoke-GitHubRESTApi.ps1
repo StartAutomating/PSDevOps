@@ -75,7 +75,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     [Alias('Per_Page')]
     [int]
     $PerPage,
-  
+
     # The typename of the results.
     # If not set, will be the depluralized last non-variable segment of a URL.
     # (i.e. "https://api.github.com/user/repos" would use a typename of 'repos'
@@ -104,7 +104,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     # This allows nested REST properties to work with the PowerShell Extended Type System.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Url')]
     [Alias('TypeNameOfProperty')]
-    [Collections.IDictionary]    
+    [Collections.IDictionary]
     $DecorateProperty,
 
     # If set, will cache results from a request.  Only HTTP GET results will be cached.
@@ -158,41 +158,41 @@ Specifies the method used for the web request. The acceptable values for this pa
 
     )
 
-    begin {
+    dynamicParam {
         $RestVariable = [Regex]::new(@'
 # Matches URL segments and query strings containing variables.
 # Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
 (?>                           # A variable can be in a URL segment or subdomain
     (?<Start>[/\.])           # Match the <Start>ing slash|dot ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
-    (?:          
+    (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
         `\$(?<Variable>\w+) | #     A `$ followed by a <Variable> OR
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
-    )    
+    )
 |
-    (?<IsOptional>            # If it's optional it can also be 
+    (?<IsOptional>            # If it's optional it can also be
         [{\[](?<Start>/)      # a bracket or brace, followed by a slash
     )
     (?<Variable>\w+)[}\]]     # then a <Variable> name followed by } or ]
 |                             # OR it can be in a query parameter:
     (?<Start>[?&])            # Match The <Start>ing ? or & ...
-    (?<Query>[\w\-]+)         # ... the <Query> parameter name ... 
+    (?<Query>[\w\-]+)         # ... the <Query> parameter name ...
     =                         # ... an equals ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
-    (?:               
+    (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-       `\$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR  
+       `\$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 )
 '@, 'IgnoreCase,IgnorePatternWhitespace')
-        
+
         $ReplaceRestVariable = {
             param($match)
-            
+
             if ($urlParameter -and $urlParameter[$match.Groups["Variable"].Value]) {
                 return $match.Groups["Start"].Value + $(
                         if ($match.Groups["Query"].Success) { $match.Groups["Query"].Value + '=' }
@@ -205,15 +205,56 @@ Specifies the method used for the web request. The acceptable values for this pa
             }
         }
 
-        if (-not $gitProgressId -and 
+        $dynamicParams = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        if ($MyInvocation.InvocationName -ne $MyInvocation.MyCommand.Name) {
+            $GitApiUrl = $MyInvocation.InvocationName
+            if ($GitApiUrl -notlike 'https://*') {
+                $GitApiUrl = "https://$GitApiUrl"
+            }
+
+            # Now here come the actual dynamic parameters.
+            $pos = 0
+            $UrlParameterDefaultValueKey = $MyInvocation.MyCommand.Name + ":URLParameter"
+            foreach ($match in $RestVariable.Matches($MyInvocation.InvocationName)) {
+
+                $dynamicParamName = $match.Groups["Variable"].Value
+
+
+                $paramAttr = [Management.Automation.ParameterAttribute]::new()
+                $paramAttr.ValueFromPipelineByPropertyName = $true
+                $paramAttr.Mandatory =
+                    -not $match.Groups["IsOptional"].Success -and
+                    -not $Global:PSDefaultParameterValues.$UrlParameterDefaultValueKey.$dynamicParamName
+                $paramAttr.HelpMessage = "$match"
+                $paramAttr.Position = $pos
+                $pos++
+
+                $dynamicParam =
+                    [Management.Automation.RuntimeDefinedParameter]::new($dynamicParamName, [string],$paramAttr)
+                $dynamicParamNames += $dynamicParamName
+                $dynamicParams.Add($dynamicParamName, $dynamicParam)
+            }
+        }
+        $DynamicParameterNames = $dynamicParams.Keys -as [string[]]
+        return $dynamicParams
+
+    }
+
+    begin {
+        if (-not $gitProgressId -and
             ($ProgressPreference -ne 'silentlycontinue')
         ) {
-            $gitProgressId = [Random]::new().Next() 
+            $gitProgressId = [Random]::new().Next()
         }
 
         if ($MyInvocation.InvocationName -ne $MyInvocation.MyCommand.Name -and
-            $MyInvocation.InvocationName -like "$GitApiUrl*") {
+            $MyInvocation.InvocationName -like "$GitApiUrl*" -or
+            $MyInvocation.InvocationName -like "$($GitApiUrl.Host)*") {
             $GitApiUrl = $MyInvocation.InvocationName
+            if ($GitApiUrl -notlike 'https://*') {
+                $GitApiUrl = "https://$GitApiUrl"
+            }
         }
     }
 
@@ -250,13 +291,13 @@ Specifies the method used for the web request. The acceptable values for this pa
                     $unmapped[$k] = $invokeParams[$k]
                     $invokeParams.Remove($k) # we remove it.
                 }
-            }            
+            }
             $invokeParams.psobject.properties.add([PSNoteProperty]::new('Unmapped',$unmapped))
             return $invokeParams
         }
-        
+
         #region Prepare Parameters
-        
+
         if (-not $PersonalAccessToken -and $script:CachedGitPAT) {
             $PersonalAccessToken = $psBoundParameters['PersonalAccessToken'] = $script:CachedGitPAT # Then, use a cached PAT if appropriate.
         }
@@ -272,31 +313,41 @@ $($MyInvocation.MyCommand.Name) @parameter
 
         $authHeaderType = # Next we need to determine the correct auth header.
             # If we're using the graph API, it's 'bearer'
-            if ($uri.Segments.Length -ge 2 -and $Uri.Segments[1] -eq 'graphql') { 
+            if ($uri.Segments.Length -ge 2 -and $Uri.Segments[1] -eq 'graphql') {
                 "bearer"
-            } else { 
+            } else {
                 "token"  # otherwise, it's 'token'.
             }
 
-        if (-not $uri.Host -and 
+        if (-not $uri.Host -and
             $uri -match "\w+\s+(?:http|/)") {
-            $method, $uri = $uri -split ' '            
+            $method, $uri = $uri -split ' '
         }
 
         if (-not $uri.host -and $GitApiUrl)  {
             $uri = "$GitApiUrl" + $Uri
         }
 
-        
 
-        
+        if ($UrlParameter.Count) { # If URLParameter was already populated, it might be a reference.
+            # we wouldn't want that reference to cache a parameter by accident, so create a local copy.
+            $UrlParameter = @{} + $UrlParameter
+        }
+        if ($dynamicParameterNames) {
+            foreach ($dynamicParamName in $dynamicParameterNames) {
+                if ($PSBoundParameters[$dynamicParamName]) {
+                    $UrlParameter[$dynamicParamName] = $PSBoundParameters[$dynamicParamName]
+                }
+            }
+        }
+
         $originalUri = "$uri"
         $uri = $RestVariable.Replace($uri, $ReplaceRestVariable)
 
         if ($Page) { $QueryParameter['page'] = $Page }
         if ($PerPage) { $QueryParameter['per_page']  = $PerPage }
         if ($QueryParameter -and $QueryParameter.Count) {
-            $uri = 
+            $uri =
                 "$uri" +
                 $(if (-not $uri.Query) { '?' } else { '&' }) +
                 @(
@@ -311,7 +362,7 @@ $($MyInvocation.MyCommand.Name) @parameter
             foreach ($out in $script:GitRequestCache[$uri]) { $out }
             return
         }
-        
+
         if ($PersonalAccessToken) { # If there was a personal access token, set the authorization header
             if ($Headers) { # (make sure not to step on other headers).
                 $irmSplat.Headers.Authorization = "$authHeaderType $PersonalAccessToken"
@@ -330,7 +381,7 @@ $($MyInvocation.MyCommand.Name) @parameter
         #endregion Prepare Parameters
 
         #region Call Invoke-RestMethod
-        
+
 
         $webRequest =  [Net.HttpWebRequest]::Create($uri)
         $webRequest.Method = $Method
@@ -351,7 +402,7 @@ $($MyInvocation.MyCommand.Name) @parameter
             $webRequest.contentLength = 0
         }
 
-        Write-Verbose "$Method $Uri [$($webRequest.ContentLength) bytes]"               
+        Write-Verbose "$Method $Uri [$($webRequest.ContentLength) bytes]"
 
         $response = . {
 
@@ -405,7 +456,7 @@ $($MyInvocation.MyCommand.Name) @parameter
         $null = $null
         # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
-        
+
 
         if (-not $PSTypeName) { # If we have no typename
             $PSTypeName = # the last non-variable uri segment, depluralized and trimming slashes will do
@@ -416,12 +467,12 @@ $($MyInvocation.MyCommand.Name) @parameter
         }
 
         $apiOutput =
-            $response | 
+            $response |
             & { process { # process each object in the response.
                 $in = $_
                 if ($Uri.Segments -and $uri.Segments[-1] -eq 'graphql') { # If it was from GraphQL
                     if ($in.data) {
-                        $in.data # data is in .data 
+                        $in.data # data is in .data
                     }
                     elseif ($in.errors) { # and errors need to be turned in PowerShell errors.
                         foreach ($err in $in.errors) {
@@ -487,21 +538,21 @@ $($MyInvocation.MyCommand.Name) @parameter
         #endregion Call Invoke-RestMethod
 
         # If we have a continuation token
-        
-        
+
+
         $paramCopy = @{} + $PSBoundParameters
         $invokeResults = [Collections.ArrayList]::new()
         & {
-            if (-not $Page -and # If we weren't provided with a page number            
+            if (-not $Page -and # If we weren't provided with a page number
                 $responseHeaders.Link -match # but out .Link header
                     '<(?<u>[^>]+)>; rel="next"' # has a 'next' uri
             ) {
-            
+
                 $apiOutput # output
 
-                # Then recursively call yourself with the next uri                
+                # Then recursively call yourself with the next uri
                 $uri = $PSBoundParameters['Uri'] = ($matches.u)
-                if ($ProgressPreference -ne 'silentlycontinue' -and 
+                if ($ProgressPreference -ne 'silentlycontinue' -and
                     $responseHeaders.Link -match '<(?<u>[^>]+)>; rel="last"'
                 ) {
                     $lastUri = [uri]$matches.u
@@ -511,7 +562,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                         $nextPageNumber * 100 / $lastPageNumber
                     ) -Id $gitProgressId
                 }
-                Invoke-GitRESTAPI @PSBoundParameters
+                Invoke-GitHubRESTAPI @PSBoundParameters
             } else { # If we didn't have a next page, just output
                 $apiOutput
             }
