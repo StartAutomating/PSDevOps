@@ -2,15 +2,15 @@
 {
     <#
     .Synopsis
-        Writes an GitHub Error
+        Writes a Git Error
     .Description
-        Writes an GitHub Workflow Error
+        Writes a GitHub Workflow Error
     .Example
         Write-GitHubError "Stuff hit the fan"
     .Link
         Write-GitHubWarning
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",

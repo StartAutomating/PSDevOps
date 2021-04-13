@@ -2,7 +2,7 @@
 {
     <#
     .Synopsis
-        Writes GitHub Output
+        Writes Git Output
     .Description
         Writes formal Output to a GitHub step.
 
@@ -12,7 +12,7 @@
             key = 'value'
         }
     .Example
-        Get-Random -Minimum 1 -Maximum 10 | Write-GitHubOutput -Name RandomNumber
+        Get-Random -Minimum 1 -Maximum 10 | Write-GitHubHubOutput -Name RandomNumber
     .Link
         Write-GitHubError
     #>

@@ -40,9 +40,9 @@
 
     # The different build systems supported.
     # Each buildsystem is the name of a subdirectory that can contain steps or other components.
-    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
+    [ValidateSet('ADOPipeline', 'ADOExtension','GitHubAction','GitHubWorkflow')]
     [string[]]
-    $BuildSystem = @('ADOPipeline', 'GitHubWorkflow'),
+    $BuildSystem = @('ADOPipeline', 'ADOExtension' ,'GitHubAction','GitHubWorkflow'),
 
     # A list of valid directory aliases for a given build system.
     # By default, ADOPipelines can exist within a directory named ADOPipeline, ADO, AzDO, or AzureDevOps.
@@ -50,8 +50,28 @@
     [Alias('BuildSystemAliases')]
     [Collections.IDictionary]
     $BuildSystemAlias = $(@{
-        ADOPipeline = 'ADO', 'AzDO', 'AzureDevOps'
+        ADOPipeline    = 'ADO', 'ADOPipelines', 'AzDO', 'AzDOPipelines', 'AzureDevOps', 'AzureDevopsPipelines'
+        ADOExtension   = 'ADO', 'ADOExtensions', 'AzDO', 'AzDOExtensions','AzureDevOps', 'AzureDevOpsExtensions'
         GitHubWorkflow = 'GitHub', 'GitHubWorkflows'
+        GitHubAction   = 'GitHub', 'GithubActions'
+    }),
+
+    [Alias('BuildSystemIncludes')]
+    [Collections.IDictionary]
+    $BuildSystemInclude = $(@{
+        ADOPipeline    = '*'
+        ADOExtension   = 'Contribution', 'Task'
+        GitHubWorkflow = '*'
+        GitHubAction   = 'Action'
+    }),
+
+    [Alias('BuildCommandTypes')]
+    [Collections.IDictionary]
+    $BuildCommandType = $(@{
+        ADOPipeline    = 'Step'
+        ADOExtension   = 'Task'
+        GitHubWorkflow = 'Step'
+        GitHubAction   = 'Action'
     })
     )
 
@@ -110,10 +130,7 @@
                     })
                 if ($resolvedBuildSystems) { # If any build systems resolved,
                     # Import steps from that directory
-                    foreach ($rbs in $resolvedBuildSystems) {
-                        # for that build system.
-                        Import-BuildStep -SourcePath $id.Fullname -BuildSystem $rbs
-                    }
+                    Import-BuildStep -SourcePath $id.Fullname -BuildSystem $resolvedBuildSystems                    
                 }
             }
             #endregion Import Module Files
@@ -134,7 +151,8 @@
                         continue nextCmd
                     }
                 }
-                # Then import the command into each build system as a 'Step'
+                # Then import the command into each build system as whatever type of object it should be 
+                # (for GitHubActions and ADOPipelines, 'Action' for GitHubActions, 'Task' for ADOExtensions)
                 foreach ($componentTypeName in $BuildSystem) {
                     if (-not $script:ComponentNames.ContainsKey($componentTypeName)) {
                         $script:ComponentNames[$componentTypeName] =
@@ -149,7 +167,7 @@
 
                     $ThingNames = $ComponentNames[   $componentTypeName]
                     $ThingData  = $ComponentMetaData[$componentTypeName]
-                    $t = 'Step'
+                    $t = $BuildCommandType[$componentTypeName]
                     if (-not $ThingNames.ContainsKey($t)) {
                         $ThingNames[$t] = [Collections.Generic.List[string]]::new()
                     }
@@ -158,75 +176,99 @@
                         $ThingNames[$t].Add($n)
                     }
 
-                    $ThingData["$($t).$($n)"] = [PSCustomObject][Ordered]@{
-                        Name      = $n
-                        Type      = $t
+                    $stepData = [PSCustomObject][Ordered]@{
+                        PSTypeName  = "PSDevOps.BuildStep"
+                        Name        = $n
+                        Type        = $t
                         ScriptBlock = $exCmd.ScriptBlock
-                        Module    = $Module
+                        Module      = $Module
+                        BuildSystem = $componentTypeName
                     }
+                    $stepData.pstypenames.add("PSDevOps.BuildStepCommand")
+                    $stepData.pstypenames.add("PSDevOps.$bs.BuildStep")
+                    $stepData.pstypenames.add("PSDevOps.$bs.BuildStepCommand")
+                    $ThingData["$($t).$($n)"] = $stepData
                 }
             }
             #endregion Import Module Commands
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'SourcePath') {
-            # If we've been provided a -SourcePath, start by making sure we only have one -BuildSystem.
-            if ($BuildSystem.Length -gt 1) {
-                Write-Error "Can only import from a -SourcePath for one -BuildSystem at a time."
-                return
-            }
-            $bs = $BuildSystem[0]
+            
+
             $sourceItem = Get-Item $SourcePath
             if ($sourceItem -isnot [IO.DirectoryInfo]) { # If the source path isn't a directory, error out.
                 Write-Error "-SourcePath must be a directory."
                 return
             }
-            if ($sourceItem.Name -ne $bs -and
-                $sourceItem.Name -notin $BuildSystemAlias[$bs]) {
-                # If the source path wasn't a _valid_ directory name, error out.
-                Write-Error (@(
-                    "-SourcePath must match -BuildSystem '$BuildSystem'.
-                    Must be '$BuildSystem' or '$($BuildSystemAlias[$bs] -join "','")'"
-                ) -join ([Environment]::NewLine))
-                return
-            }
-
-            #region Import Files for a BuildSystem
-            if (-not $script:ComponentNames.ContainsKey($bs)) { # Create a cash of data for this buildsystem
-                $script:ComponentNames[$bs] =
-                    [Collections.Generic.Dictionary[
-                        string,
-                        Collections.Generic.List[string]
-                    ]]::new([StringComparer]::OrdinalIgnoreCase)
-
-                $script:ComponentMetaData[$bs] =
-                    [Collections.Generic.Dictionary[string,PSObject]]::new([StringComparer]::OrdinalIgnoreCase)
-            }
-
             # Get all of the files beneath this point
             $fileList = Get-ChildItem -Filter * -Recurse -LiteralPath $sourceItem.FullName
-            $ThingNames = $script:ComponentNames[   $bs]
-            $ThingData  = $script:ComponentMetaData[$bs]
-            foreach ($f in $fileList) {
-                if ($f.Directory -eq $rootDir) { continue } # Skip all files more than one level down.
-                if ($f -is [IO.DirectoryInfo]) { continue } # Skip all directories.
-                $n = $f.Name.Substring(0, $f.Name.Length - $f.Extension.Length)
-                $t = $f.Directory.Name.TrimEnd('s') # Depluralize the directory name.
-                if (-not $ThingNames.ContainsKey($t)) {
-                    $ThingNames[$t] = [Collections.Generic.List[string]]::new()
-                }
-                if (-not $ThingNames[$t].Contains($n)) {
-                    $ThingNames[$t].Add($n)
+
+            foreach ($bs in $BuildSystem) {            
+                
+                if ($sourceItem.Name -ne $bs -and
+                    $sourceItem.Name -notin $BuildSystemAlias[$bs]) {
+                    # If the source path wasn't a _valid_ directory name, continue.
+                    Write-Error (@(
+                        "-SourcePath must match -BuildSystem '$BuildSystem'.
+                        Must be '$BuildSystem' or '$($BuildSystemAlias[$bs] -join "','")'"
+                    ) -join ([Environment]::NewLine))
+                    continue
                 }
 
-                # Make a collection of metadata for the thing, and store it by it's disambiguated name.
-                $ThingData["$($t).$($n)"] = [PSCustomObject][Ordered]@{
-                    Name      = $n
-                    Type      = $t
-                    Extension = $f.Extension
-                    Path      = $f.FullName
+            
+                #region Import Files for a BuildSystem
+                if (-not $script:ComponentNames.ContainsKey($bs)) { # Create a cash of data for this buildsystem
+                    $script:ComponentNames[$bs] =
+                        [Collections.Generic.Dictionary[
+                            string,
+                            Collections.Generic.List[string]
+                        ]]::new([StringComparer]::OrdinalIgnoreCase)
+
+                    $script:ComponentMetaData[$bs] =
+                        [Collections.Generic.Dictionary[string,PSObject]]::new([StringComparer]::OrdinalIgnoreCase)
                 }
+
+                $ThingNames = $script:ComponentNames[   $bs]
+                $ThingData  = $script:ComponentMetaData[$bs]
+                foreach ($f in $fileList) {
+                    if ($f.Directory -eq $rootDir) { continue } # Skip all files more than one level down.
+                    if ($f -is [IO.DirectoryInfo]) { continue } # Skip all directories.
+                    $n = $f.Name.Substring(0, $f.Name.Length - $f.Extension.Length)
+                    $t = $f.Directory.Name.TrimEnd('s') # Depluralize the directory name.
+                    if (-not $ThingNames.ContainsKey($t)) {
+                        $ThingNames[$t] = [Collections.Generic.List[string]]::new()
+                    }
+                    if (-not $ThingNames[$t].Contains($n)) {
+                        $ThingNames[$t].Add($n)
+                    }
+
+                    if ($BuildSystemInclude[$bs] -and -not $(
+                            foreach ($inc in $BuildSystemInclude[$bs]) {
+                                if ($n -like $inc -or $t -like $inc) {
+                                    $true; break
+                                }
+                            }
+                        )
+                    ) {
+                        continue 
+                    }
+                    
+
+                    # Make a collection of metadata for the thing, and store it by it's disambiguated name.
+                    $stepData = [PSCustomObject][Ordered]@{
+                        PSTypeName  = "PSDevOps.BuildStep"
+                        Name        = $n
+                        Type        = $t
+                        Extension   = $f.Extension
+                        Path        = $f.FullName
+                        BuildSystem = $bs
+                    }
+                    
+                    $stepData.pstypenames.add("PSDevOps.$bs.BuildStep")
+                    $ThingData["$($t).$($n)"] = $stepData
+                }
+                #endregion Import Files for a BuildSystem
             }
-            #endregion Import Files for a BuildSystem
         }
 
     }

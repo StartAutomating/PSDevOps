@@ -2,7 +2,7 @@
 {
     <#
     .Synopsis
-        Writes an GitHub Warning
+        Writes an Git Warning
     .Description
         Writes an GitHub Workflow Warning
     .Example
@@ -10,7 +10,7 @@
     .Link
         Write-GitHubError
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",
