@@ -51,6 +51,48 @@
     [switch]
     $RetentionPolicy,
 
+    # If set, will list versions of a particular package.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages/{packageId}/versions')]
+    [Alias('ListVersions','ListVersion','PackageVersions')]
+    [switch]
+    $PackageVersionList,
+
+    # If set, will get provenance for a package version
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [switch]
+    $Provenance,
+
+    # A package version ID.  Only required when getting version provenance.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/Packages/{packageId}/Versions/{VersionId}/provenance')]
+    [string]
+    $VersionID,
+
+    # If set, will list packages within a feed.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [Alias('ListPackages','ListPackage','Packages')]
+    [switch]
+    $PackageList,
+
+
+
+    # If set, will include all versions of packages within a feed.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [Alias('IncludeAllVersions')]
+    [switch]
+    $IncludeAllVersion,
+
+    # If set, will include descriptions of a package.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [switch]
+    $IncludeDescription,
+
+    # If provided, will return packages of a given protocol.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
+    [string]
+    $ProtocolType,
+
+
+
     # If set, will get information about a Node Package Manager module.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
     [Alias('NodePackageManager')]
@@ -79,6 +121,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/npm/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/nuget/packages/{packageName}/versions/{packageVersion}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/feeds/{feedId}/pypi/packages/{packageName}/versions/{packageVersion}')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedID}/packages')]
     [string]
     $PackageName,
 
@@ -96,6 +139,17 @@
     [string]
     $FeedRole,
 
+    # A -PackageID.  This can be used to get Packages -Metrics, -ListPackageVersion, or get -Provenance of a particular version.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='packaging/Feeds/{feedId}/packagemetricsbatch')]
+    [string]
+    $PackageID,
+
+    # If set, will get package metrics.
+    [Parameter(Mandatory,ParameterSetName='packaging/Feeds/{feedId}/packagemetricsbatch')]
+    [Alias('Metrics')]
+    [switch]
+    $Metric,
+
     # If set, will include deleted feeds.
     [switch]
     $IncludeDeleted,
@@ -106,105 +160,204 @@
     $Change,
 
     # The server.  By default https://feeds.dev.azure.com/.
-    [Parameter(ValueFromPipelineByPropertyName)]
     [uri]
     $Server = "https://feeds.dev.azure.com/",
 
     # The api version.  By default, 5.1-preview.
     [string]
     $ApiVersion = "5.1-preview")
-    dynamicParam { . $GetInvokeParameters -DynamicParameter }
+    dynamicParam {
+        Invoke-ADORestAPI -DynamicParameter
+    }
     begin {
         #region Copy Invoke-ADORestAPI parameters
-        $invokeParams = . $getInvokeParameters $PSBoundParameters
+        $invokeParams = Invoke-ADORestAPI -MapParameter $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
+
+        $q = [Collections.Queue]::new()
     }
 
     process {
-        # First, construct a base URI.  It's made up of:
-        $uriBase = "$Server".TrimEnd('/'), # * The server
-            $Organization, # * The organization
-            $(if ($Project) { $project}) -ne $null -join # * an optional project
-            '/'
+        $in = $_
+        $ParameterSet = $psCmdlet.ParameterSetName
+        $q.Enqueue(@{ParameterSet=$ParameterSet;InputObject=$in} + $PSBoundParameters)
+    }
 
-        $subTypeName = ''
-        if ($Change) { # If we're looking for changes,
-            $subtypeName = '.Change'
-            if (-not $FeedID) { # but haven't specified feed
-                $uri = $uriBase, "_apis/packaging/feedchanges?" -join '/'
-            } elseif ($Change) {
-                $uri = $uriBase, "_apis/packaging/feeds/$FeedID", 'packagechanges?' -join '/'
-            }
-        } elseif (-not $Change) {
-            $uriParameters = [Regex]::Replace($PSCmdlet.ParameterSetName, '/\{(?<Variable>\w+)\}', {param($match)
-                $var = $ExecutionContext.SessionState.PSVariable.Get($match.Groups['Variable'].ToString())
-                if ($null -ne $var.Value) {
-                    return '/' + ($var.Value.ToString())
-                } else {
-                    return ''
+
+    end {
+        $c, $t, $id = 0, $q.Count, [Random]::new().Next()
+
+        $metricsBatches = @{}
+
+        :nextInputObject while ($q.Count) {
+            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
+
+            # First, construct a base URI.  It's made up of:
+            $uriBase = "$Server".TrimEnd('/'), # * The server
+                $Organization, # * The organization
+                $(if ($Project) { $project}) -ne $null -join # * an optional project
+                '/'
+
+            $subTypeName = ''
+            if ($Change) { # If we're looking for changes,
+                $subtypeName = '.Change'
+                if (-not $FeedID) { # but haven't specified feed
+                    $uri = $uriBase, "_apis/packaging/feedchanges?" -join '/'
+                } elseif ($Change) {
+                    $uri = $uriBase, "_apis/packaging/feeds/$FeedID", 'packagechanges?' -join '/'
                 }
-            }, 'IgnoreCase,IgnorePatternWhitespace')
+            } elseif (-not $Change) {
+                $uriParameters = [Regex]::Replace($PSCmdlet.ParameterSetName, '/\{(?<Variable>\w+)\}', {param($match)
+                    $var = $ExecutionContext.SessionState.PSVariable.Get($match.Groups['Variable'].ToString())
+                    if ($null -ne $var.Value) {
+                        return '/' + ($var.Value.ToString())
+                    } else {
+                        return ''
+                    }
+                }, 'IgnoreCase,IgnorePatternWhitespace')
 
-            $uri = $uriBase, '_apis', $uriParameters -join '/' # Next, add on the REST api endpoint
-            $uri += '?'
-        }
-
-        foreach ($typeSwitch in 'View', 'Permission', 'RetentionPolicy', 'NPM', 'Nuget','Python', 'Universal') {
-            if ($PSBoundParameters.$typeSwitch -and -not $FeedID) {
-                $splat = @{} + $PSBoundParameters
-                $splat.Remove($typeSwitch)
-                $splat2 =
-                if ('NPM', 'NuGet', 'Python', 'Universal' -contains $typeSwitch) {
-                    $splat.Remove('PackageName')
-                    $splat.Remove('PackageVersion')
-                    $splat + @{$typeSwitch=$true;PackageName=$PackageName;PackageVersion=$PackageVersion}
-                } else {
-                    $splat + @{$typeSwitch=$true}
-                }
-
-                Get-ADOArtifactFeed @splat |
-                    & { process {
-                        $feedID = $_.FullyQualifiedID
-                        $_ | Get-ADOArtifactFeed @splat2 |
-                        Add-Member NoteProperty FeedID $feedID -Force -PassThru
-                    } }
-                return
-            } elseif ($PSBoundParameters.$typeSwitch) {
-                $subtypeName = ".$typeSwitch"
+                $uri = $uriBase, '_apis', $uriParameters -join '/' # Next, add on the REST api endpoint
+                $uri += '?'
             }
-        }
 
-        $uri += @(
-            if ($FeedRole) { "feedRole=$($FeedRole.ToLower())" }
-            if ($IncludeDeleted) { "includeDeletedUpstreams=true" }
+            foreach ($typeSwitch in 'View', 'Permission', 'RetentionPolicy', 'NPM', 'Nuget','Python', 'Universal') {
+                if ($PSBoundParameters.$typeSwitch -and -not $FeedID) {
+                    $splat = @{} + $PSBoundParameters
+                    $splat.Remove($typeSwitch)
+                    $splat2 =
+                    if ('NPM', 'NuGet', 'Python', 'Universal' -contains $typeSwitch) {
+                        $splat.Remove('PackageName')
+                        $splat.Remove('PackageVersion')
+                        $splat + @{$typeSwitch=$true;PackageName=$PackageName;PackageVersion=$PackageVersion}
+                    } else {
+                        $splat + @{$typeSwitch=$true}
+                    }
+
+                    Get-ADOArtifactFeed @splat |
+                        & { process {
+                            $feedID = $_.FullyQualifiedID
+                            $_ | Get-ADOArtifactFeed @splat2 |
+                            Add-Member NoteProperty FeedID $feedID -Force -PassThru
+                        } }
+                    continue nextInputObject
+                } elseif ($PSBoundParameters.$typeSwitch) {
+                    $subtypeName = ".$typeSwitch"
+                }
+            }
+
             if ($Server -ne 'https://feeds.dev.azure.com/' -and
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
-            if ($ApiVersion) { "api-version=$ApiVersion" }
-        ) -join '&'
-
-        $invokeParams.Uri = $uri
-
-        $typenames = @( # Prepare a list of typenames so we can customize formatting:
-            if ($Organization -and $Project) {
-                "$Organization.$Project.ArtifactFeed$subtypeName" # * $Organization.$Project.ArtifactFeed (if $product exists)
+            $qp = @{"api-version"=$ApiVersion}
+            if ($FeedRole) {
+                $qp.feedRole = $FeedRole.ToLower()
             }
-            "$Organization.ArtifactFeed$subtypeName" # * $Organization.ArtifactFeed
-            "PSDevOps.ArtifactFeed$subtypeName" # * PSDevOps.ArtifactFeed
-        )
+            if ($IncludeDeleted) {
+                if ($packageList) {
+                    $qp.includeDeleted = $true
+                } else {
+                    $qp.includeDeletedUpstreams = $true
+                }
+            }
+            if ($PackageName -and $PackageList) { $qp.PackageName = $PackageName }
+            if ($IncludeDescription) { $qp.includeDescription = $true }
+            if ($IncludeAllVersion) { $qp.includeAllVersions = $true }
+            if ($ProtocolType) { $qp.protocolType = $ProtocolType }
 
-        $additionalProperty = @{Organization=$Organization;Server=$Server}
-        if ($Project) { $additionalProperty['Project'] = $Project }
-        $invokeParams.Property = $additionalProperty
-        if (-not $subTypeName) {
-            $invokeParams.RemoveProperty = 'ViewID','ViewName'
-        } else {
-            $invokeParams.Property["FeedID"] = $FeedID
+            $invokeParams.Uri = $uri
+
+            if ($PackageList) {
+                $subTypeName = '.Package'
+                if (-not $invokeParams.DecorateProperty) { $invokeParams.DecorateProperty = @{} }
+                $invokeParams.DecorateProperty['Versions'] = @(
+                    if ($Organization -and $Project) {
+                        "$Organization.$Project.ArtifactFeed.PackageVersion"
+                    }
+                    "$Organization.ArtifactFeed.PackageVersion"
+                    "PSDevOps.ArtifactFeed.PackageVersion"
+                )
+            }
+            if ($PackageVersionList) { $subTypeName = '.PackageVersion' }
+            if ($Metric) { $subTypeName = '.PackageMetric' }
+
+
+
+            $typenames = @( # Prepare a list of typenames so we can customize formatting:
+                if ($Organization -and $Project) {
+                    "$Organization.$Project.ArtifactFeed$subtypeName" # * $Organization.$Project.ArtifactFeed (if $product exists)
+                }
+                "$Organization.ArtifactFeed$subtypeName" # * $Organization.ArtifactFeed
+                "PSDevOps.ArtifactFeed$subtypeName" # * PSDevOps.ArtifactFeed
+            )
+
+            $additionalProperty = @{Organization=$Organization;Server=$Server}
+            if ($Project) { $additionalProperty['Project'] = $Project }
+            $invokeParams.Property = $additionalProperty
+            if (-not $subTypeName) {
+                $invokeParams.RemoveProperty = 'ViewID','ViewName'
+            } else {
+                $invokeParams.Property["FeedID"] =
+                    if ($FeedID) { $FeedID } elseif ($inputObject.feedId) { $inputobject.FeedID}
+            }
+
+            if ($inputObject.packageID) {
+                if ($inputObject.name) {
+                    $invokeParams.Property["PackageName"] = $inputObject.name
+                }
+                $inputObject.Property["PackageID"] = $inputObject.PackageID
+            }
+
+
+            $invokeParams.PSTypename = $typenames
+            $invokeParams.QueryParameter = $qp
+            if ($parameterSet -eq 'packaging/Feeds/{feedId}/packagemetricsbatch') { # If we want to get metrics in a batch, let's batch
+                if (-not $metricsBatches["$($invokeParams.Uri)"]) {
+                    $metricsBatches["$($invokeParams.Uri)"] = @()
+                }
+
+                $metricsBatches["$($invokeParams.Uri)"] += @{Method='POST';Body=@{packageIds=$PackageID}} + $invokeParams
+                continue nextInputObject
+            }
+            if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
+                $c++
+                Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
+            }
+
+            # Invoke the REST api
+            Invoke-ADORestAPI @invokeParams # decorate results with the Typenames.
         }
 
 
-        # Invoke the REST api
-        Invoke-ADORestAPI @invokeParams -PSTypeName $typenames # decorate results with the Typenames.
+        if ($metricsBatches.Count) {
+            $c, $t = 0, $metricsBatches.Count
+            foreach ($batch in $metricsBatches.GetEnumerator()) {
+                $packageIdBatch = @(foreach ($val in $batch.Value) { $val.body.packageIDs })
+                $packageNamesBatch = @(foreach ($val in $batch.Value) { $val.property.PackageName })
+                $ip = $batch.Value[0]
+                $ip.body.packageIDs = $packageIdBatch
+                if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
+                    $c++
+                    Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id -PercentComplete ($c * 100/$t)
+                }
+
+
+                $rc = 0
+                # Invoke the REST api
+                Invoke-ADORestAPI @IP |
+                    & { process {
+                       $_.PackageName = $packageNamesBatch[$rc]
+                       $rc++
+                       $_
+                    } }
+            }
+        }
+
+
+        if ($t -gt 1 -and $ProgressPreference -ne 'silentlyContinue') {
+            Write-Progress "Getting $(@($ParameterSet -split '/' -notlike '{*}')[-1])" "$($invokeParams.Uri) " -Id $id  -Completed
+        }
+
     }
+
 }

@@ -77,13 +77,11 @@
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
     end {
-        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        $c, $t, $dashboardProgressId = 0, $q.Count, $(Get-Random)
 
         while ($q.Count) {
             . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
 
-            $c++
-            Write-Progress "Getting $(@($ParameterSet -split '/')[-1])" "$server $Organization $Project" -Id $progId -PercentComplete ($c * 100/$t)
 
             $uri = # The URI is comprised of:
                 @(
@@ -109,6 +107,11 @@
 
             # We want to decorate our return value.  Handily enough, both URIs contain a distinct name in the last URL segment.
             $typename = @($parameterSet -split '/' -notlike '{*}')[-1].TrimEnd('s') # We just need to drop the 's'
+            
+            Write-Progress "Getting $typename" "$server $Organization $Project" -Id $dashboardProgressId -PercentComplete ($c * 100/$t)
+            $c++
+
+            
             $typeNames = @(
                 "$organization.$typename"
                 if ($Project) { "$organization.$Project.$typename" }
@@ -128,7 +131,8 @@
             Invoke-ADORestAPI -Uri $uri @invokeParams -PSTypeName $typenames -Property $additionalProperties
         }
 
-        Write-Progress "Getting $($ParameterSet)" "$server $Organization $Project" -Id $progId -Completed
+        $null = $null
+        Write-Progress "Getting" "[$c/$t]" -Completed -Id $dashboardProgressId
     }
 }
 

@@ -91,6 +91,12 @@
     [string]
     $Team,
 
+    # If provided, will only return the first N results from a query.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName)]
+    [Alias('Top')]
+    [uint32]
+    $First,
+
     # If set, will return work item types.
     [Parameter(Mandatory,ParameterSetName='WorkItemTypes',ValueFromPipelineByPropertyName)]
     [Alias('WorkItemTypes','Type','Types')]
@@ -192,9 +198,13 @@
         elseif ($PSCmdlet.ParameterSetName -eq '/{Organization}/{Project}/{Team}/_apis/wit/wiql')
         {
             $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
-            $uri += if ($ApiVersion) {
-                "api-version=$ApiVersion"
-            }
+            $uri += 
+                @(if ($First) {
+                    "`$top=$First"
+                }
+                if ($ApiVersion) {
+                    "api-version=$ApiVersion"
+                }) -join '&'
 
             $realQuery = $Query
             if ($mine -or $CurrentIteration -or $Title -or $Project) {
@@ -241,6 +251,7 @@
                 }
             } else {
                 $selfSplat.Remove('Query')
+                $selfSplat.Remove('First')
                 $queryResults |
                     Get-ADOWorkItem @selfSplat
             }

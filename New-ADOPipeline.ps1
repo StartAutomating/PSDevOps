@@ -77,7 +77,11 @@
 
     # If set will run script using WindowsPowerShell if available.
     [switch]
-    $WindowsPowerShell
+    $WindowsPowerShell,
+
+    # If provided, will directly reference build steps beneath this directory.
+    [string]
+    $RootDirectory
     )
 
     dynamicParam {

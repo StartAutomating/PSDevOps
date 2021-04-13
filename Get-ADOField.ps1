@@ -10,12 +10,13 @@
     .Link
         Remove-ADOField
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/fields/list
     .Example
         Get-ADOField -Organization StartAutomating -Project PSDevOps
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for nulls")]
     [OutputType('PSDevOps.Field')]
+    [CmdletBinding(DefaultParameterSetName='_apis/wit/fields/{FieldName}')]
     param(
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -27,6 +28,24 @@
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Project,
+
+    # The name of the field.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string]
+    $FieldName,
+
+    # The processs identifier.  This is used to get field information related to a particular work process template.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/work/processes/{processId}/workitemtypes/{WorkItemTypeName}/fields/{FieldName}')]
+    [Alias('TypeID')]
+    [string]
+    $ProcessID,
+
+    # The name of the work item type.  This is used to get field information related to a particular work process template.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/work/processes/{processId}/workitemtypes/{WorkItemTypeName}/fields/{FieldName}')]
+    [string]
+    $WorkItemTypeName,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -63,30 +82,37 @@
             $(if ($Project) { $project}) -ne $null -join
             '/'
 
-        $uri = $uriBase, "_apis/wit/fields?" -join '/' # Next, add on the REST api endpoint
+        $uri = $uriBase, "$(. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)?" -join '/' # Next, add on the REST api endpoint
+        $typenames = @( # Prepare a list of typenames so we can customize formatting:
+            if ($Organization -and $Project) {
+                "$Organization.$Project.Field" # * $Organization.$Project.Field (if $product exists)
+            }
+            "$Organization.Field" # * $Organization.Field
+            'PSDevOps.Field' # * PSDevOps.Field
+        )
+        if ($uri -like '*/processes/*') {
+            $typenames = $typenames -replace 'Field', 'WorkProcess.Field'
+            if (-not $PSBoundParameters['apiVersion']) {
+                $ApiVersion = '5.1-preview'
+            }
+        }
         if ($ApiVersion) { # If an -ApiVersion exists, add that to query parameters.
             $uri += "api-version=$ApiVersion"
         }
         $invokeParams.Uri = $uri
 
         if ($Force) { # If we're forcing a refresh
-            $Script:ADOFieldCache.Remove($uriBase) # clear the cached results for $uriBase.
+            $Script:ADOFieldCache.Remove($uri) # clear the cached results for $uriBase.
         }
 
 
-        if (-not $Script:ADOFieldCache.$uriBase) { # If we have nothing cached,
-            $typenames = @( # Prepare a list of typenames so we can customize formatting:
-                if ($Organization -and $Project) {
-                    "$Organization.$Project.Field" # * $Organization.$Project.Field (if $product exists)
-                }
-                "$Organization.Field" # * $Organization.Field
-                'PSDevOps.Field' # * PSDevOps.Field
-            )
+        if (-not $Script:ADOFieldCache.$uri) { # If we have nothing cached,
+
 
             Write-Verbose "Caching ADO Fields for $uriBase"
 
             # Invoke the REST api
-            $Script:ADOFieldCache.$uriBase =
+            $Script:ADOFieldCache.$uri =
                 Invoke-ADORestAPI @invokeParams -PSTypeName $typenames -Property @{
                     Organization = $Organization
                     Project = $Project
@@ -96,6 +122,6 @@
         }
 
 
-        $Script:ADOFieldCache.$uriBase # Last but not least, output what was in the cache.
+        $Script:ADOFieldCache.$uri # Last but not least, output what was in the cache.
     }
 }

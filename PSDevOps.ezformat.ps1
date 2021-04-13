@@ -15,6 +15,7 @@ $myFormatFile = Join-Path $myRoot "$myModuleName.format.ps1xml"
 $formatting | Out-FormatData -ModuleName PSDevOps | Set-Content $myFormatFile -Encoding UTF8
 
 $types = @(
+    <#
     Write-TypeView -TypeName PSDevOps.ArtifactFeed.View -AliasProperty @{
         ViewID = 'id'
     }
@@ -40,10 +41,10 @@ $types = @(
     } -ScriptProperty @{
         LastUpdated = {[DateTime]$this.LastUpdateTime}
     } -DefaultDisplay Organization, Project, LastUpdateTime, Description
-
+    #>
     Join-Path $myRoot Types |
         Get-Item -ea ignore |
-        Import-TypeView
+        Import-TypeView -Deserialized
 
 )
 

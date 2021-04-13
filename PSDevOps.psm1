@@ -47,4 +47,5 @@ $extensionModules |
 
 $myInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Disconnect-ADO -Confirm:$false
+    Disconnect-GitHub
 }

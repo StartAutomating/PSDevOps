@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -346,9 +346,9 @@ describe 'Calling REST APIs' {
             $latestBuild = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -First 1
             $startWhatIf = $latestBuild | Start-ADOBuild -WhatIf
             $startWhatIf.Method | should -Be POST
+
+            $startWhatIf.Body.Definition.ID | should -Match '\d+'
             # (depending on what else is running in the pipeline, this can cause unexpected errors)
-            # $startWhatIf.Body.Definition.ID | should -Be $latestBuild.Definition.ID
-            # $startWhatIf.Body.Parameters | Should -Be $null
 
             $buildDefinitons = Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition -First 1
             $startWhatIf = $buildDefinitons | Start-ADOBuild -WhatIf
@@ -444,6 +444,7 @@ describe 'Calling REST APIs' {
                 Should -Be ms.vss-dashboards-web.widget
         }
         #>
+
 
         it 'Can Get-ADOExtension with filters' {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |

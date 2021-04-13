@@ -6,18 +6,17 @@
     .Description
         Removes projects in Azure DevOps or TFS.
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/states/delete?view=azure-devops-rest-5.1
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/states/delete
     .Example
         Remove-ADOProject -Organization StartAutomating -Project TestProject1 -PersonalAccessToken $pat
     #>
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
     [OutputType([Nullable],[PSObject])]
     param(
-    # The name or ID of the project.
+    # The ID of the project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
-    [Alias('ProjectName', 'ProjectID','ID')]
     [string]
-    $NameOrID,
+    $ProjectID,
 
     # The Organization
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -49,13 +48,14 @@
             $Organization
             '_apis'
             'projects'
-            if ($NameOrID -as [guid]) {
-                $NameOrID
+            if ($ProjectID -as [guid]) {
+                $ProjectID
             } else {
                 $myParams = @{} + $PSBoundParameters
+                $myParams.Remove('ProjectID')
                 $myParams.Remove('WhatIf')
                 $myParams.Remove('Confirm')
-                Get-ADOProject @myParams | Select-Object -First 1 -ExpandProperty ID
+                Get-ADOProject @myParams | Where-Object Name -Like $ProjectID | Select-Object -First 1 -ExpandProperty ID
             }
         ) -join '/'
         $uri += '?'

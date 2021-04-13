@@ -1,0 +1,4 @@
+﻿@{
+    Project = 'Name'
+    ProjectID = 'ID'
+}

@@ -1,7 +1,7 @@
 ﻿@{
     stage = 'UpdatePowerShellGallery'
     displayName = 'Update'
-    condition= "and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))"
+    condition= "and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/main'))"
     variables = @(@{
         group= 'Gallery'
     })
@@ -11,6 +11,10 @@
         pool=@{
             vmImage= 'windows-latest'
         }
-        steps = @('PublishPowerShellGallery')
+        steps = @(@{
+            checkout='self'
+            clean=$true
+            persistCredentials = $true
+        },'PublishPowerShellGallery')
     })
 }

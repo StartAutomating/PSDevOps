@@ -11,8 +11,10 @@
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/list?view=azure-devops-rest-5.1
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/extensionmanagement/installed%20extensions/get?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/azure/devops/extend/develop/data-storage?view=azure-devops#how-settings-are-stored
     #>
-    [CmdletBinding(DefaultParameterSetName='/{Organization}/_apis/extensionmanagement/installedextensions')]
+    [CmdletBinding(DefaultParameterSetName='_apis/extensionmanagement/installedextensions')]
     [OutputType('PSDevOps.InstalledExtension')]
     param(
     # The organization.
@@ -21,54 +23,110 @@
     $Organization,
 
     # A wildcard of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameLike,
 
     # A regular expression of the extension name.  Only extensions where the Extension Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $ExtensionNameMatch,
 
     # A wildcard of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameLike,
 
     # A regular expression of the publisher name.  Only extensions where the Publisher Name or ID matches the wildcard will be returned.
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [string]
     $PublisherNameMatch,
 
     # The Publisher of the Extension.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+        ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
     [string]
     $PublisherID,
 
     # The Extension Identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{Organization}/_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+        ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
     [string]
     $ExtensionID,
 
+    # The data collection
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [Alias('TableName','Table_Name', 'DocumentCollection')]
+    [string]
+    $DataCollection,
+
+    # The data identifier
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [Alias('RowKey','DocumentID')]
+    [string]
+    $DataID,
+
+    # The scope type.  By default, the value "default" (which maps to Project Collection)
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [ValidateSet('Default','Project','User')]
+    [string]
+    $ScopeType = 'Default',
+
+    # The scope modifier.  By default, the value "current" (which maps to the current project collection or project)
+    [Parameter(ValueFromPipelineByPropertyName,
+        ParameterSetName='_apis/extensionmanagement/installedExtensions/{PublisherID}/{ExtensionID}/Data/Scopes/{ScopeType}/{ScopeModifier}/Collections/{DataCollection}/Documents/{DataID}'
+    )]
+    [ValidateSet('Current','Me')]
+    [string]
+    $ScopeModifier = 'Current',
+
     # A list of asset types
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('AssetTypes')]
     [string[]]
     $AssetType,
 
     # If set, will include disabled extensions
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('Disabled')]
     [switch]
     $IncludeDisabled,
 
     # If set, will include extension installation issues
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeInstallationIssue','IncludeInstallationIssues')]
     [switch]
     $InstallationIssue,
 
     # If set, will include errors
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('IncludeErrors')]
     [switch]
     $IncludeError,
 
     # If set, will expand contributions.
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensionsByName/{PublisherID}/{ExtensionID}')]
+    [Parameter(ParameterSetName='_apis/extensionmanagement/installedExtensions')]
     [Alias('Contributions')]
     [switch]
     $Contribution,
@@ -93,14 +151,17 @@
     }
 
     process {
+
         $uri = # The URI is comprised of:
             @(
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
+                $Organization
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName)
                                          # and any parameterized URLs in this parameter set.
             ) -as [string[]] -ne '' -join '/'
 
         $uri += '?' # The URI has a query string containing:
+
         $uri += @(
             if ($IncludeDisabled) {
                 "includeDisabledExtensions=true"
@@ -122,6 +183,13 @@
                 "api-version=$apiVersion"
             }
         ) -join '&'
+
+        if ($PSCmdlet.ParameterSetName -like '*/Data/*') {
+            Invoke-ADORestAPI -Uri $uri @invokeParams
+            return
+        }
+
+
         $typename = @($psCmdlet.ParameterSetName -split '/')[-1].TrimEnd('s') # We just need to drop the 's'
         $typeNames = @(
             "$organization.$typename"
@@ -155,6 +223,9 @@
                     $out.Contributions |
                         & { process {
                             $contrib = $_
+                            if ($assetType -and $contrib.type -notin $assetType) {
+                                return
+                            }
                             $contrib.psobject.Members.Add(
                                 [PSNoteProperty]::new('Organization', $Organization), $true)
                             $contrib.psobject.Members.Add(

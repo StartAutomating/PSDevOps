@@ -87,6 +87,7 @@
                 Write-Progress "Adding Iteration Paths" "$IterationPath " -PercentComplete ($c * 100 / $t) -Id $id
             }
             $IterationPathParts= @($IterationPath -split '\\')
+            $getIterationPathParams.Depth = $IterationPathParts.Length + 2
             if (-not $allIterationPaths["$Organization/$Project"]) { # Cache ADO Iteration Paths
                 $allIterationPaths["$Organization/$Project"] = @(Get-ADOIterationPath @getIterationPathParams)
             }

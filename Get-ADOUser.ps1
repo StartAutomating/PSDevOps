@@ -11,6 +11,8 @@
         Get-ADOUser -Organization StartAutomating
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/users/list?view=azure-devops-rest-5.1
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/memberentitlementmanagement/user%20entitlements/search%20user%20entitlements
     #>
     [CmdletBinding(DefaultParameterSetName='graph/users')]
     [OutputType('PSDevOps.Team','PSDevOps.TeamMember')]
@@ -37,11 +39,35 @@
     [string]
     $Project,
 
-
     # The Team Identifier
     [Parameter(Mandatory,ParameterSetName='projects/{Project}/teams/{teamId}/members',ValueFromPipelineByPropertyName)]
     [string]
     $TeamID,
+
+    # If set, will get user entitlement data.
+    [Parameter(Mandatory,ParameterSetName='userentitlements',ValueFromPipelineByPropertyName)]
+    [switch]
+    $Entitlement,
+
+    # If provided, will filter user entitlement data.
+    [Parameter(ParameterSetName='userentitlements',ValueFromPipelineByPropertyName)]
+    [string]
+    $Filter,
+
+    # If provided, will order user entitlement data.
+    [Parameter(ParameterSetName='userentitlements',ValueFromPipelineByPropertyName)]
+    [string]
+    $OrderBy, 
+    
+    # If provided, will select given properties of user entitlement data.
+    [Parameter(ParameterSetName='userentitlements',ValueFromPipelineByPropertyName)]
+    [string[]]
+    $Select,
+
+    # If provided, will get graph users of one or more subject types.
+    [Parameter(ParameterSetName='graph/users',ValueFromPipelineByPropertyName)]
+    [string[]]
+    $SubjectType,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -70,6 +96,10 @@
         if ($psParameterSet -like 'graph*') {
             $server = 'https://vssps.dev.azure.com/'
         }
+        elseif ($psParameterSet -like 'userentitlements*') {
+            $server = 'https://vsaex.dev.azure.com/'
+            $ApiVersion = '6.0-preview'
+        }
 
 
 
@@ -88,9 +118,11 @@
                 -not $PSBoundParameters.ApiVersion) {
                 $ApiVersion = '2.0'
             }
-            if ($ApiVersion) { # the api-version
-                "api-version=$apiVersion"
-            }
+            if ($Filter) { "`$filter=$Filter" }
+            if ($OrderBy){ "`$orderBy=$orderBy" }
+            if ($select) { "select=$($select -join ',')" }
+            if ($SubjectType){ "subjectTypes=$($SubjectType -join ',')" }
+            if ($ApiVersion) { "api-version=$apiVersion" }            
         ) -join '&'
 
         if ($MemberURL) {

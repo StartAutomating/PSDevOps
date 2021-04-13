@@ -51,6 +51,12 @@
         ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{Organization}/{ProjectID}/_apis/release/approvals')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/variables')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/configurations')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
+        ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]
     [string]
     $ProjectID,
 
@@ -93,6 +99,18 @@
     [switch]
     $TestPlan,
 
+    # If set, will return the test variables associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/variables')]
+    [Alias('TestVariables')]
+    [switch]
+    $TestVariable,
+
+    # If set, will return the test variables associated with a project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/testplan/configurations')]
+    [Alias('TestConfigurations')]
+    [switch]
+    $TestConfiguration,
+
     # If set, will a specific project plan.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}')]
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/plans/{PlanID}/deliverytimeline')]
@@ -108,6 +126,11 @@
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/wiki/wikis')]
     [switch]
     $Wiki,
+
+    # If set, will return any boards associated with the project.
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/work/boards')]    
+    [switch]
+    $Board,
 
     # If set, will return releases associated with the project.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{ProjectID}/_apis/release/releases')]
@@ -192,6 +215,10 @@
                 $typeName = 'TestPlan'
             }
 
+            if ($typeName -eq 'PolicyConfiguration' -and $psParameterSet -like '*test*') {
+                $typeName = 'TestConfiguration'
+            }
+
 
             $additionalProperty = @{
                 Organization = $Organization
@@ -202,6 +229,6 @@
                 "PSDevOps.$typeName" -Property $additionalProperty
         }
 
-        Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
+        Write-Progress "Getting $typeName" "[$c/$t]" -Completed -Id $progId
     }
 }

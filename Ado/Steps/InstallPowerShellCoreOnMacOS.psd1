@@ -1,8 +1,8 @@
 ﻿@{
     script=@'
 brew update
-brew tap caskroom/cask
-brew cask install powershell
+brew tap homebrew/cask
+brew install --cask powershell
 '@
     displayName = 'Install PowerShell Core'
 }

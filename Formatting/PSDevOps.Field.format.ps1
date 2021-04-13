@@ -1,1 +1,1 @@
-﻿Write-FormatView -TypeName PSDevOps.Field -Property Name, ReferenceName, Description -Wrap
+﻿Write-FormatView -TypeName PSDevOps.Field -Property Name, FieldName, Description -Wrap

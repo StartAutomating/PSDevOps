@@ -1,7 +1,7 @@
 ﻿$orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
 $imported = Import-Module ".\$moduleName.psd1" -Force -PassThru
-$foundModule = Find-Module -Name $ModuleName
-if ($foundModule.Version -ge $imported.Version) {
+$foundModule = try { Find-Module -Name $ModuleName -ErrorAction SilentlyContinue } catch {}
+if ($foundModule -and $foundModule.Version -ge $imported.Version) {
     Write-Warning "##vso[task.logissue type=warning]Gallery Version of $moduleName is more recent ($($foundModule.Version) >= $($imported.Version))"
 } else {
     $gk = '$(GalleryKey)'
