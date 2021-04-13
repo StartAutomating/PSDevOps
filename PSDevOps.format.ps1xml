@@ -360,31 +360,28 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
-      <Name>PSDevOps.GitIssue</Name>
+      <Name>PSDevOps</Name>
       <ViewSelectedBy>
-        <TypeName>PSDevOps.GitIssue</TypeName>
+        <TypeName>PSDevOps</TypeName>
       </ViewSelectedBy>
       <TableControl>
-        <AutoSize />
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Number</Label>
+            <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>State</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Title</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Parameters</Label>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
-          <!-- {ConditionalColor:"
-    if ($_.labels.count -eq 1) { # If there&apos;s only one label
-        &apos;#&apos; + $_.labels[0].color # use that color code.
-    }
-"}-->
           <TableRowEntry>
+            <Wrap />
             <TableColumnItems>
+              <!-- {ConditionalColor:"&quot;Success&quot;"}-->
               <TableColumnItem>
                 <ScriptBlock>$moduleName = 'PSDevOps'
 do {
@@ -413,56 +410,36 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 
 
                 $__ = $_
-                $ci = . {
-    if ($_.labels.count -eq 1) { # If there's only one label
-        '#' + $_.labels[0].color # use that color code.
-    }
-}
+                $ci = . {"Success"}
                 $_ = $__
                 if ($ci -is [string]) {
                     $ci = . ${PSDevOps_SetOutputStyle} $ci
                 } else {
                     $ci = . ${PSDevOps_SetOutputStyle} @ci
                 }
-                $output = . {$_.'Number'}
+                $output = . {$_.'Name'}
                 @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.labels.count -eq 1) { # If there's only one label
-        '#' + $_.labels[0].color # use that color code.
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
-                }
-                $output = . {$_.'State'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
-                </ScriptBlock>
+                <PropertyName>ScriptType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.labels.count -eq 1) { # If there's only one label
-        '#' + $_.labels[0].color # use that color code.
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
-                }
-                $output = . {$_.'Title'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
-                </ScriptBlock>
+                <PropertyName>Synopsis</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>        
+        @(foreach ($kv in ([Management.Automation.CommandMetaData]$_).Parameters.GetEnumerator()) {
+            @(
+            . ${PSDevOps_SetOutputStyle} -ForegroundColor Verbose 
+            "[$($kv.Value.ParameterType)]"
+            . ${PSDevOps_ClearOutputStyle}
+            . ${PSDevOps_SetOutputStyle} -ForegroundColor Warning
+            "`$$($kv.Key)"
+            . ${PSDevOps_ClearOutputStyle}
+            ) -join ''
+        }) -join [Environment]::NewLine
+    </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -470,23 +447,15 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
-      <Name>PSDevOps.GitRepo</Name>
+      <Name>Description</Name>
       <ViewSelectedBy>
-        <TypeName>PSDevOps.GitRepo</TypeName>
+        <TypeName>PSDevOps</TypeName>
       </ViewSelectedBy>
-      <GroupBy>
-        <PropertyName>OwnerName</PropertyName>
-      </GroupBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
             <Alignment>left</Alignment>
             <Width>30</Width>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>*</Label>
-            <Alignment>left</Alignment>
-            <Width>5</Width>
           </TableColumnHeader>
           <TableColumnHeader>
             <Alignment>left</Alignment>
@@ -498,9 +467,6 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
             <TableColumnItems>
               <TableColumnItem>
                 <PropertyName>Name</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>$_.'stargazers_count'</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>
@@ -636,11 +602,21 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>*</Label>
-            <Alignment>left</Alignment>
+            <Alignment>Center</Alignment>
             <Width>5</Width>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Alignment>left</Alignment>
+            <Label>!</Label>
+            <Alignment>Center</Alignment>
+            <Width>5</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>/</Label>
+            <Alignment>Center</Alignment>
+            <Width>5</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -652,6 +628,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.'stargazers_count'</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.'open_issues_count'</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.'forks_count'</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>

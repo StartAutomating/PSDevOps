@@ -380,6 +380,24 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.GitLicense</Name>
+    <Members>
+      <AliasProperty>
+        <Name>License</Name>
+        <ReferencedMemberName>Key</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.GitLicense</Name>
+    <Members>
+      <AliasProperty>
+        <Name>License</Name>
+        <ReferencedMemberName>Key</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.GitObject</Name>
     <Members>
       <ScriptMethod>
