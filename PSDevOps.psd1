@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.4.9'
+    ModuleVersion = '0.5'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,27 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5
+---
+* Improved Git Functionality
+** New-GitHubAction
+** Invoke-GitHubRESTApi
+** Connect/Disconnect-GitHub (enabling smart aliases like api.github.com/zen and api.github.com/repos/<owner>/<repo>)
+** Formatting for GitHub Issues and Repos
+* Azure DevOps Additions/Fixes
+** Invoke-ADORestAPI -AsJob
+
+** Get-ADOArtifactFeed now has -Metric, -PackageList, -PackageVersionList, -Provenance
+** Get-ADOIdentity [new]
+** Get-ADOProject now has -Board, -TestVariable, -TestConfiguration
+** Get-ADOPermission is now more API-complete and has parameter sets for permission types
+** Set-ADOPermission
+** Get-ADOExtension can now read extension data
+** Set-ADOExtension can now set extension data
+** Get-ADOTest [new]
+** New-ADOPipeline now has -RootDirectory
+** Tons of New Type Definitions and Formatters
+
 0.4.9
 ---
 * New Command: Wait-ADOBuild
