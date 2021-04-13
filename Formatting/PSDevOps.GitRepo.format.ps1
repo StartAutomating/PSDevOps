@@ -1,4 +1,4 @@
-﻿Write-FormatView -TypeName PSDevOps.GitRepo, PSDevOps.GitFork -Property Name, '*', '!', '/', Description  -VirtualProperty @{
+﻿Write-FormatView -TypeName PSDevOps.GitRepo -Property Name, '*', '!', '/', Description  -VirtualProperty @{
     '*' = {$_.'stargazers_count'}
     '!' = {$_.'open_issues_count'}
     '/' = {$_.'forks_count'}
