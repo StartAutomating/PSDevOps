@@ -11,7 +11,7 @@
     .Link
         Write-GitHubOutput
     .Link
-        https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+        https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions
     #>
     [OutputType([string])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "",

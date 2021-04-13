@@ -10,7 +10,7 @@
     .Example
         $myInvocation | Trace-GitHubCommand
     .Link
-        Write-GitHubDebug
+        Write-GitDebug
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost", "", Justification="Directly outputs in certain scenarios")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForUnusableFunction", "", Justification="Directly outputs in certain scenarios")]

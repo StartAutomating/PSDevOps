@@ -85,7 +85,7 @@
     $DefaultParameter = @{},
 
     # The build system.  Currently supported options, ADO and GitHub.  Defaulting to ADO.
-    [ValidateSet('ADOPipeline', 'GitHubWorkflow')]
+    [ValidateSet('ADOPipeline', 'ADOExtension','GitHubWorkflow','GitHubAction')]
     [string]
     $BuildSystem = 'ADOPipeline',
 
@@ -126,7 +126,7 @@
                         bash= $shellScript
                         displayName=$Name
                     } # echo out a bash: step.
-                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                } elseif ($BuildSystem -in 'GitHubWorkflow', 'GitHubAction') {
                     [Ordered]@{
                         name=$Name
                         run=$shellScript
@@ -146,7 +146,7 @@
                         }
                     }
                 }
-                elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                elseif ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
                     [Ordered]@{
                         name = $Name
                         run = $pythonScript
@@ -319,7 +319,7 @@
                         }
                     }
 
-                    if ($BuildSystem -eq 'GitHubWorkflow') {
+                    if ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
                         # In GitHub Workflows, variables can come from an event.
                         $eventName =
                             & $MatchesAnyWildcard $disambiguatedParameter, $parameterName $InputParameter.Keys
@@ -335,7 +335,12 @@
                                     $evt = ($evt -replace '\.(?:\*)?$') + '.' + $stepParamName
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike '*.*') {
-                                    $evt = 'github.events.inputs' + '.' + $stepParamName
+                                    $evt = 
+                                        $(if ($BuildSystem -eq 'GitHubWorkflow') {
+                                            '${{github.events.inputs.'
+                                        } else {
+                                            '${{inputs.'
+                                        }) + $stepParamName + '}}'
                                 }
                                 if ($evt -notlike '${{*' -and $evt -notlike 'github.*') {
                                     $evt = "github." + '.' + $stepParamName
@@ -375,7 +380,7 @@
                      # If the parameter type was and [int[]], [string[]], or [float[]],
                     if ([int[]], [string[]],[float[]] -contains $paramType) {
                         # it can be split by semicolons.
-                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';'"
+                        "`$Parameters.$ParameterName = `$parameters.$ParameterName -split ';' -replace '^[''`"]' -replace  '[''`"]$'"
                     }
                     if ([switch], [bool] -contains $paramType) {
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -match 'true';"
@@ -403,7 +408,7 @@ foreach ($k in @($parameters.Keys)) {
                 @(
                 if ($BuildSystem -eq 'ADOPipeline') {
                     'Write-Host "##[command]'
-                } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+                } elseif ($BuildSystem -in'GitHubWorkflow','GitHubAction') {
                     'Write-Host "::debug::'
                 }
                 if ($name) { $name}
@@ -460,7 +465,7 @@ try {
                 if (-not $out.env) { $out.env = @{}}
                 $out.env."SYSTEM_ACCESSTOKEN"='$(System.AccessToken)'
             }
-        } elseif ($BuildSystem -eq 'GitHubWorkflow') {
+        } elseif ($BuildSystem -in 'GitHubWorkflow','GitHubAction') {
             if ($DebugPreference -ne 'silentlycontinue') {
                 $innerScript = @"
 try {
@@ -473,6 +478,7 @@ try {
 "@
             }
             $out.name = $Name
+            $out.id = $Name -replace '\W'
             $out.shell = 'pwsh'
             if ($eventParameters.Count) {
                 if (-not $out.env) { $out.env = @{}}

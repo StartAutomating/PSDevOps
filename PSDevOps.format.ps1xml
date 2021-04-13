@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.3.1: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.8.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <ViewDefinitions>
     <View>
@@ -264,6 +264,40 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </CustomControl>
     </View>
     <View>
+      <Name>PSDevOps.BuildStep</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.BuildStep</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>BuildSystem</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Extension</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.ExtensionContribution</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.ExtensionContribution</TypeName>
@@ -316,6 +350,157 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>ReferenceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.GitIssue</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.GitIssue</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize />
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Number</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Title</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <!-- {ConditionalColor:"
+    if ($_.labels.count -eq 1) { # If there&apos;s only one label
+        &apos;#&apos; + $_.labels[0].color # use that color code.
+    }
+"}-->
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$moduleName = 'PSDevOps'
+do {
+    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+    if (-not $lm) { continue } 
+    if ($lm.FormatPartsLoaded) { break }
+    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+            $ParentNode = $partNodeName.Node.ParentNode
+            "$($ParentNode.Name)={
+$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+        }
+    }) -join [Environment]::NewLine
+    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+        Import-Module -Global
+    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+    
+    if (-not $lm.OnRemove) {
+        $lm.OnRemove = $onRemove
+    } else {
+        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+    }
+    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+
+} while ($false)
+
+
+                $__ = $_
+                $ci = . {
+    if ($_.labels.count -eq 1) { # If there's only one label
+        '#' + $_.labels[0].color # use that color code.
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'Number'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $__ = $_
+                $ci = . {
+    if ($_.labels.count -eq 1) { # If there's only one label
+        '#' + $_.labels[0].color # use that color code.
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'State'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                $__ = $_
+                $ci = . {
+    if ($_.labels.count -eq 1) { # If there's only one label
+        '#' + $_.labels[0].color # use that color code.
+    }
+}
+                $_ = $__
+                if ($ci -is [string]) {
+                    $ci = . ${PSDevOps_SetOutputStyle} $ci
+                } else {
+                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                }
+                $output = . {$_.'Title'}
+                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>PSDevOps.GitRepo</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.GitRepo</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>OwnerName</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+            <Width>30</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>*</Label>
+            <Alignment>left</Alignment>
+            <Width>5</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap />
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.'stargazers_count'</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>
