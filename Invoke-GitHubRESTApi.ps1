@@ -462,7 +462,9 @@ $($MyInvocation.MyCommand.Name) @parameter
             $PSTypeName = # the last non-variable uri segment, depluralized and trimming slashes will do
                 ([uri]($RestVariable.Replace($originalUri, ''))).Segments[-1].TrimEnd('s').TrimEnd('/')
             $PSTypeName = $PSTypeName[0].TrimEnd('.') # then trim any trailing dot.
-            $PSTypeName = 'PSDevOps.Git' + $PSTypeName[0].Substring(0,1).ToUpper() + $PSTypeName[0].Substring(1)
+            if ($PSTypeName) {
+                $PSTypeName = 'PSDevOps.Git' + $PSTypeName[0].Substring(0,1).ToUpper() + $PSTypeName[0].Substring(1)
+            }
             $PSTypeName += 'PSDevOps.GitObject'
         }
 
