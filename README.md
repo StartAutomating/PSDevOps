@@ -7,11 +7,31 @@ PowerShell Tools for DevOps
 
 __PSDevOps helps you automate DevOps using PowerShell.__
 
-Using PSDevOps, you can:
+### What is PSDevOps?
+
+PSDevOps is a PowerShell module that makes it easier to automate DevOps with PowerShell.
 
 * [Automate Azure DevOps](#Automate-Azure-DevOps)
 * [Creating Complex Pipelines](#Creating-Complex-Pipelines)
+* [Dealing with DevOps](#Dealing-with-DevOps)
+* [Get the GitHub API](#PSDevOps-GitHub-API)
+* [Write GitHub Actions](#Write-GitHub-Actions)
 * [Write GitHub Workflows](#Write-GitHub-Workflows)
+
+#### What do you mean 'Easier to Automate'?
+
+If you're familiar with PowerShell, you might know about the Object Pipeline.  
+This allows you to pass objects together, instead of parsing text at each step.
+While this is great, not many PowerShell commands or REST apis take full advantage of this feature.
+
+PSDevOps does.
+
+Almost every command in PSDevOps is pipeline-aware.  
+Related commands can often be piped together, and command results can often be piped back into a command to return additional information.
+
+Additionally, PSDevOps output is often 'decorated' with extended type information.
+
+This allows the PowerShell types and formatting engine to extend the return object and customize it's display.
 
 ### Automate Azure DevOps
 
@@ -53,6 +73,21 @@ Get-ADOAgentPool | # Gets agent pools from the organization
     Get-ADOAgentPool  # Gets individual agents within a pool, because the prior object returned a PoolID.
 ~~~
 
+
+#### Invoke-ADORESTApi
+
+In orer to ensure that you can always work with Azure DevOps, even if there isn't already a function in PSDevOps, there's Invoke-ADORestAPI.
+
+Invoke-ADORestAPI can be used like Invoke-RESTMethod, and also has a number of additional features.
+
+For instance:
+
+* -AsJob (Launch long-running queries as a job)
+* -Body (autoconverted to JSON)
+* -ExpandProperty (Expand out a particular property from output)
+* -PSTypeName (apply decoration to output)
+* -UrlParameter (Replace parameters within a URL)
+* -QueryParameter (Pass parameters within a querystring)
 
 #### Help
 
@@ -146,6 +181,73 @@ PSDevOps makes this much nicer by abstracting away this ugliness into easy-to-us
 * Write-ADOProgress
 * Write-ADOWarning
 
+
+### Dealing with DevOps
+
+
+DevOps is a hybrid discipline combining the skillset of Devolopers and Operations.  
+With DevOps, the focus is on automation, and PowerShell is often the language of choice.
+
+By convention, most developers write their scripts according to a psuedostandard:
+
+> ```*-*.ps1``` Scripts containing a function  
+> ```*.*.ps1``` 'Special' Scripts, often used by particular modules
+> ```*.ps1``` Simple scripts that are run interactively.
+
+
+PSDevOps has a command, Get-PSDevOps, that helps to identify these scripts and their requirements.
+
+~~~PowerShell
+Get-Module PSDevOps | Get-PSDevOps
+~~~
+
+
+### PSDevOps GitHub API
+
+PSDevOps also provides a few functions to work with the GitHub API.
+
+* Connect/Disconnect-GitHub
+* Invoke-GitHubRESTAPI
+
+Invoke-GitHubRESTAPI works like Invoke-ADORestAPI, as a general-purpose wrapper for GitHub REST API calls.
+
+It also has a number of additional features, for example:
+
+* -AsJob (Launch long-running queries as a job)
+* -Body (autoconverted to JSON)
+* -ExpandProperty (Expand out a particular property from output)
+* -PSTypeName (apply decoration to output)
+* -UrlParameter (Replace parameters within a URL)
+* -QueryParameter (Pass parameters within a querystring)
+
+Because GitHub's REST api is predictable and exposed with OpenAPI, Invoke-GitHubRESTAPI also enables two very interesting scenarios:
+
+1. Connect-GitHub can automatically create a shortcut for every endpoint in the GitHub API
+2. Invoke-GitHubRESTAPI can automatically decorate return values more apporopriately.
+
+This means that PSDevOps can integrate with GitHub's REST API with a very small amount of code, and easily customize how GitHub output displays and works in PowerShell.
+
+### Write GitHub Actions
+
+You can automatically generate GitHub actions off of any PowerShell script or command.
+
+First, create a /GitHub/Actions folder in your module directory, then put one or more .ps1 files in it.
+
+Then, 
+~~~PowerShell
+Import-BuildStep -ModuleName YourModule
+~~~
+
+Then, you can generate your action.yml with some code like this.
+
+~~~PowerShell
+New-GitHubAction -Name "Name Of Action" -Description 'Action Description' -Action MyAction -Icon minimize -ActionOutput ([Ordered]@{
+    SomeOutput = [Ordered]@{
+        description = "Some Output"
+        value = '${{steps.MyAction.outputs.SomeOutput}}'
+    }    
+})
+~~~
 
 ### Write GitHub Workflows
 
