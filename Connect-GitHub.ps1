@@ -76,15 +76,15 @@
 
         $rootUrl = [uri]($GitHubOpenAPI.servers | Select-Object -First 1 -ExpandProperty URL)
         $dynamicModuleContent = @(foreach ($path in $GitHubOpenAPI.paths.psobject.properties) {
-            $aliasName = $rootUrl.host + $path.Name -replace '{', '[' -replace '}',']'
+            $aliasName = $rootUrl.host + $path.Name -replace '{', '<' -replace '}','>'
             "Set-Alias '$AliasName' Invoke-GitHubRESTApi"
         }) -join [Environment]::NewLine
 
         $dynamicModuleContent += ";Export-ModuleMember -Alias *"
 
         #region Create and import module
-        $dynamicModule = New-Module -Name $dynamicModuleName -ScriptBlock ([ScriptBlock]::Create($dynamicModuleContent))
-
+        $dynamicModule = New-Module -Name $dynamicModuleName -ScriptBlock ([ScriptBlock]::Create($dynamicModuleContent)) 
+        
         $dynamicModule| Import-Module -Global -PassThru:$passThru
         #endregion Create and import module
 

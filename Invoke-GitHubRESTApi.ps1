@@ -159,6 +159,7 @@ Specifies the method used for the web request. The acceptable values for this pa
     )
 
     dynamicParam {
+        $myInv = $MyInvocation
         $RestVariable = [Regex]::new(@'
 # Matches URL segments and query strings containing variables.
 # Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
@@ -168,7 +169,8 @@ Specifies the method used for the web request. The acceptable values for this pa
     (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        `\$(?<Variable>\w+) | #     A `$ followed by a <Variable> OR
+        \<(?<Variable>\w+)\>| #     A <Variable> name in <> OR
+        \$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 |
@@ -184,7 +186,8 @@ Specifies the method used for the web request. The acceptable values for this pa
     (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
         \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-       `\$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR
+        \<(?<Variable>\w+)\>| #     A <Variable> name in <> OR
+        \$(?<Variable>\w+)  | #     A `$ followed by a <Variable> OR
         \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 )
