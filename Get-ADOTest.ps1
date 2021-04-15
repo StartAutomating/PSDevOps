@@ -48,7 +48,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
         ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}/suites')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [string]
     $TestPlanID,
 
@@ -72,15 +72,15 @@
 
     # If set, will return results related to a particular test suite.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}/suites/{TestSuiteID}')]
+        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [string]
     $TestSuiteID,
 
     # If set, will return test points within a suite.
     [Parameter(Mandatory,
-        ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [Alias('TestPoints')]
     [switch]
     $TestPoint,
