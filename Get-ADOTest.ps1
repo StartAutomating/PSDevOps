@@ -126,7 +126,7 @@
         $q = [Collections.Queue]::new()
     }
     process {
-        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName} + $PSBoundParameters)
+        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
     }
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
@@ -154,7 +154,7 @@
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
                 '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
-                    '(Plan|Run|Suite|Configuration|Point|Attachment|Result)', 'Test$0'
+                    '(TestPlan|Plan|Run|Suite|Configuration|TestPoint|Attachment|Result)', 'Test$0'
 
             $additionalProperty = @{
                 Organization = $Organization
@@ -162,7 +162,12 @@
                 Server = $Server
             }
             if ($ProjectID)   { $additionalProperty.ProjectID = $ProjectID }
-            if ($TestPlanID)  { $additionalProperty.TestPlanID = $TestPlanID }
+            if ($TestPlanID)  { 
+                $additionalProperty.TestPlanID = $TestPlanID 
+            }
+            if ($inputObject.TestPlanName) {
+                $additionalProperty['TestPlanName'] = $inputObject.TestPlanName
+            }
             if ($TestSuiteID) { $additionalProperty.TestSuiteID = $TestSuiteID }
             Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
                 "PSDevOps.$typeName" -Property $additionalProperty
