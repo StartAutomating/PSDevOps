@@ -162,6 +162,8 @@
                 Server = $Server
             }
             if ($ProjectID) { $additionalProperty.ProjectID = $ProjectID }
+            if ($TestPlanID) { $additionalProperty.TestPlanID = $TestPlanID }
+            if ($TestSuiteID) { $additionalProperty.TestSuiteID = $TestSuiteID }
             Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
                 "PSDevOps.$typeName" -Property $additionalProperty
         }
