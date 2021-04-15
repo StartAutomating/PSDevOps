@@ -1174,6 +1174,13 @@ $bitMask
         <Name>TestSuiteID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.LastUpdatedDate
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -1183,6 +1190,13 @@ $bitMask
         <Name>TestSuiteID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.LastUpdatedDate
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
