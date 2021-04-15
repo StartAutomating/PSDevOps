@@ -155,7 +155,7 @@
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
                 '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace 
                     'TestPlan', 'Plan' -replace 'TestPoint','Point' -replace
-                    '(Plan|Run|Suite|Configuration|Attachment|Result)', 'Test$0'
+                    '(Plan|Point|Run|Suite|Configuration|Attachment|Result)', 'Test$0'
 
             $additionalProperty = @{
                 Organization = $Organization
