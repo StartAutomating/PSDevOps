@@ -37,18 +37,18 @@
     $TestRunID,
 
     # If set, will return the test plans associated with a project.
-    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/test/plans')]
+    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplans')]
     [Alias('TestPlans')]
     [switch]
     $TestPlan,
 
     # If set, will return results related to a specific test plan.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [string]
     $TestPlanID,
 
@@ -65,22 +65,22 @@
     $TestConfiguration,
 
     # If set, will list test suites related to a plan.
-    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites')]
+    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites')]
     [Alias('TestSuites')]
     [switch]
     $TestSuite,
 
     # If set, will return results related to a particular test suite.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites/{TestSuiteID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [string]
     $TestSuiteID,
 
     # If set, will return test points within a suite.
     [Parameter(Mandatory,
-        ParameterSetName='/{ProjectID}/_apis/test/plans/{TestPlanID}/suites/{TestSuiteID}/points')]
+        ParameterSetName='/{ProjectID}/_apis/testplans/{TestPlanID}/suites/{TestSuiteID}/points')]
     [Alias('TestPoints')]
     [switch]
     $TestPoint,
