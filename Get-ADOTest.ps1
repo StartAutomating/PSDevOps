@@ -153,8 +153,9 @@
             Write-Progress "Getting" " [$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
-                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
-                    '(TestPlan|Plan|Run|Suite|Configuration|TestPoint|Attachment|Result)', 'Test$0'
+                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace 
+                    'TestPlan', 'Plan' -replace 'TestPoint','Point' -replace
+                    '(Plan|Run|Suite|Configuration|Attachment|Result)', 'Test$0'
 
             $additionalProperty = @{
                 Organization = $Organization
