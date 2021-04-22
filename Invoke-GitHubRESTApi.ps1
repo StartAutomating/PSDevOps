@@ -441,7 +441,12 @@ $($MyInvocation.MyCommand.Name) @parameter
                     @{}
                 }
 
-            $streamIn = [IO.StreamReader]::new($rs, $webResponse.Contentencoding)
+            $streamIn = 
+                if ($webResponse.ContentEncoding) {
+                    [IO.StreamReader]::new($rs, $webResponse.ContentEncoding)
+                } else {
+                    [IO.StreamReader]::new($rs)
+                }
             $strResponse = $streamIn.ReadToEnd()
             if ($webResponse.ContentType -like '*json*') {
                 try {
