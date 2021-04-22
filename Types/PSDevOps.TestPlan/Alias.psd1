@@ -1,3 +1,4 @@
 ﻿@{
     TestPlanID = 'ID'
+    TestPlanName = 'Name'
 }

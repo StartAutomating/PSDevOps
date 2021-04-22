@@ -1120,6 +1120,10 @@ $bitMask
         <Name>TestPlanID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <AliasProperty>
+        <Name>TestPlanName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
     </Members>
   </Type>
   <Type>
@@ -1128,6 +1132,10 @@ $bitMask
       <AliasProperty>
         <Name>TestPlanID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>TestPlanName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
       </AliasProperty>
     </Members>
   </Type>
@@ -1174,6 +1182,13 @@ $bitMask
         <Name>TestSuiteID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.LastUpdatedDate
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
@@ -1183,6 +1198,13 @@ $bitMask
         <Name>TestSuiteID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
+      <ScriptProperty>
+        <Name>LastUpdated</Name>
+        <GetScriptBlock>
+                        [DateTime]$this.LastUpdatedDate
+
+                    </GetScriptBlock>
+      </ScriptProperty>
     </Members>
   </Type>
   <Type>
