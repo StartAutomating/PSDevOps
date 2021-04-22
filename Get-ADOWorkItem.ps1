@@ -292,7 +292,7 @@
                     $postBody.fields = $Field
                 }
                 if ($Related) {
-                    $postBody.expand = 'relations'
+                    $postBody.'$expand' = 'relations'
                 }
                 $invokeParams.Uri = $uri
                 $invokeParams.Method = 'POST'
@@ -330,7 +330,7 @@
                 if ($field) {
                     $restResponse.fields |
                         Add-Member NoteProperty ID $ID -PassThru
-                } elseif ($comment -and $restResponse.Comments) {
+                } elseif ($comment) {
                     foreach ($wiComment in $restResponse.Comments) {
                         $wiComment.pstypenames.clear()
                         $wiComment.pstypenames.add("$Organization.WorkItem.Comment")
