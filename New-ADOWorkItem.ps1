@@ -164,7 +164,7 @@
                 }
 
         $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
-        $uri = $uriBase, "_apis/wit/workitems", "`$$($Type -replace '\s', '')?" -join '/'
+        $uri = $uriBase, "_apis/wit/workitems", "`$$($Type)?" -join '/'
         if ($Server -ne 'https://dev.azure.com/' -and
             -not $PSBoundParameters.ApiVersion) {
             $ApiVersion = '2.0'
