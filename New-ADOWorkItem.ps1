@@ -41,6 +41,17 @@
     [string]
     $Project,
 
+    # A collection of relationships for the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Relationships')]
+    [Collections.IDictionary]
+    $Relationship,
+
+    # A list of comments to be added to the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [PSObject[]]
+    $Comment,
+
     # If set, will not validate rules.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('BypassRules','NoRules','NoRule')]
@@ -190,6 +201,35 @@
                 }
             }
         }
+        if ($Relationship) {# If we've been provided with a -Relationship.
+            if ($Relationship.Keys -notlike '*.*') {
+                $relationshipTypes = Invoke-ADORestAPI -Uri $(@(
+                    "$Server".TrimEnd('/'), $Organization, 'workitemrelationtypes'
+                ) -join '/') -Cache | Group-Object Name -AsHashTable # find out what type of Relationships exist.
+            }
+            :nextRelationship foreach ($kv in $Relationship.GetEnumerator()) { # Check out each relationship.
+                $relType =
+                    if ($kv.Key -notlike '*.*') { # If we don't know that much about them,
+                        if (-not $relationshipTypes[$kv.Key]) { # try to find their full name.
+                            # If we couldn't, that's a yellow flag.
+                            Write-Warning "$($kv.Key) is an unknown relationship type.  Valid types are: $($relationshipTypes | Select-Object -ExpandProperty Name)"
+                            continue nextRelationship
+                        }
+                        $relationshipTypes[$kv.Key].ReferenceName
+                    } else {
+                        $kv.Key
+                    }
+
+                $patchOperations += @{ # Forge the relationship.
+                    op='add'
+                    path ='/relations/-'
+                    value = @{
+                        rel = $relType
+                        url = $kv.Value
+                    }
+                }
+            }
+        }
 
         $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
         $invokeParams.Method = 'POST'
@@ -210,7 +250,6 @@
                             "Use Get-ADOWorkItem -WorkItemType to find valid types"
                         ),'UnknownWorkItemType', 'NotSpecified', $restResponse)
                 )
-
             } else {
                 return $restResponse
             }
@@ -219,6 +258,14 @@
         }
 
         if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
-        & $outWorkItem $restResponse
+        if (-not $Comment) {
+            & $outWorkItem $restResponse
+        } else {
+            $outputtedWorkItem = & $outWorkItem $restResponse
+            $null = foreach ($com in $Comment) {
+                $outputtedWorkItem.AddComment($com)
+            }
+            $outputtedWorkItem
+        }
     }
 }

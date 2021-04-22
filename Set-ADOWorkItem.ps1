@@ -57,6 +57,17 @@
     [string]
     $ParentID,
 
+    # A collection of relationships for the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Relationships')]
+    [Collections.IDictionary]
+    $Relationship,
+
+    # A list of comments to be added to the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [PSObject[]]
+    $Comment,
+
     # If set, will not validate rules.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('BypassRules','NoRules','NoRule')]
@@ -195,9 +206,12 @@
                     & $fixField $prop $validFieldTable
                 })
 
-            if ($ParentID) {
+            if ($ParentID -or $Relationship) {
                 $thisWorkItem =
                     Invoke-ADORestAPI -Uri "$uri&`$expand=relations" @invokeParams
+            }
+
+            if ($ParentID) {
                 $c = 0
                 $updates = @(foreach ($rel in $thisWorkItem.relations) {
                     if ($rel.rel -eq 'System.LinkTypes.Hierarchy-Reverse') {
@@ -222,6 +236,54 @@
                 }
             }
 
+            if ($Relationship) { # If we've been provided with a -Relationship
+                $relationshipTypes = Invoke-ADORestAPI -Uri $(@(
+                    "$Server".TrimEnd('/'), $Organization, 'workitemrelationtypes'
+                ) -join '/') -Cache | Group-Object Name -AsHashTable # find out what type of Relationships exist.
+
+                $singleRelationshipTypes = @{}
+                foreach ($k in @($relationshipTypes.Keys)) { # Then, find out which relationships are exclusive.
+                    if ($relationshipTypes[$k].Attributes.SingleTarget) {
+                        $singleRelationshipTypes[$relationshipTypes[$k].ReferenceName] = $relationshipTypes[$k]
+                    }
+                }
+
+                :nextRelationship foreach ($kv in $Relationship.GetEnumerator()) { # Check out each relationship.
+                    $relType =
+                        if ($kv.Key -notlike '*.*') { # If we don't know that much about them,
+                            if (-not $relationshipTypes[$kv.Key]) { # try to find their full name.
+                                # If we couldn't, that's a yellow flag.
+                                Write-Warning "$($kv.Key) is an unknown relationship type.  Valid types are: $($relationshipTypes | Select-Object -ExpandProperty Name)"
+                                continue nextRelationship
+                            }
+                            $relationshipTypes[$kv.Key].ReferenceName
+                        } else {
+                            $kv.Key
+                        }
+
+                    $c =0
+                    foreach ($rel in $thisWorkItem.relations) { # Check our existing relationships.
+                        # If the new relationship already exists and must be exlusive
+                        if ($relType -eq $rel.rel -and $singleRelationshipTypes[$rel.rel]) {
+                            $patchOperations += @{ # then a breakup must occur before starting a new relationship.
+                                op = 'remove'
+                                path = "/relations/$c"
+                            }
+                        }
+                        $c++
+                    }
+
+                    $patchOperations += @{ # Forge the new relationship.
+                        op='add'
+                        path ='/relations/-'
+                        value = @{
+                            rel = $relType
+                            url = $kv.Value
+                        }
+                    }
+                }
+            }
+
             $invokeParams.Uri = $uri
             $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
             $invokeParams.Method = 'PATCH'
@@ -233,7 +295,16 @@
             if (-not $PSCmdlet.ShouldProcess("Patch $uri with $($invokeParams.body)")) { return }
             $restResponse =  Invoke-ADORestAPI @invokeParams
             if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
-            & $outWorkItem $restResponse
+            if (-not $Comment) {
+                & $outWorkItem $restResponse
+            } else {
+                $outputtedWorkItem = & $outWorkItem $restResponse
+                $null = foreach ($com in $Comment) {
+                    $outputtedWorkItem.AddComment($com)
+                }
+                $outputtedWorkItem
+            }
+
         } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
 
 
