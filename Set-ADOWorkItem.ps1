@@ -174,11 +174,49 @@
             }
         }
         #endregion Output Work Item
+        $q = [Collections.Queue]::new()
     }
 
     process {
         if ($PSCmdlet.ParameterSetName -eq 'ByID') {
+            $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
+        } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
 
+
+            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
+            if ($Server -ne 'https://dev.azure.com/' -and
+                -not $PSBoundParameters.ApiVersion) {
+                $ApiVersion = '2.0'
+            }
+            $uri +=
+                @(if ($ApiVersion) {
+                    "api-version=$ApiVersion"
+                }) -join '&'
+
+            $invokeParams.Method = "POST"
+            $invokeParams.Body = ConvertTo-Json @{query=$Query}
+            $invokeParams["Uri"] = $uri
+
+            $queryResult = Invoke-ADORestAPI @invokeParams
+            $c, $t, $progId  = 0, $queryResult.workItems.count, [Random]::new().Next()
+            $myParams = @{} + $PSBoundParameters
+            $myParams.Remove('Query')
+            foreach ($wi in $queryResult.workItems) {
+                $c++
+                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId
+                Set-ADOWorkItem @myParams -ID $wi.ID
+            }
+
+            Write-Progress "Updating Work Items" "Complete" -Completed -Id $progId
+        }
+    }
+
+    end {
+       $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        while ($q.Count) {
+            . $dq $q
+
+            Write-Progress "Updating Work Items" " [$c of $t] $ID" -PercentComplete ($c * 100 /$t) -Id $progId
 
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
             $validFields =
@@ -203,8 +241,6 @@
             if ($InputObject -is [Collections.IDictionary]) {
                 $InputObject = [PSCustomObject]$InputObject
             }
-
-
 
             $patchOperations =
                 @(foreach ($prop in $InputObject.psobject.properties) {
@@ -310,35 +346,9 @@
                 }
                 $outputtedWorkItem
             }
-
-        } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
-
-
-            $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
-            if ($Server -ne 'https://dev.azure.com/' -and
-                -not $PSBoundParameters.ApiVersion) {
-                $ApiVersion = '2.0'
-            }
-            $uri +=
-                @(if ($ApiVersion) {
-                    "api-version=$ApiVersion"
-                }) -join '&'
-
-            $invokeParams.Method = "POST"
-            $invokeParams.Body = ConvertTo-Json @{query=$Query}
-            $invokeParams["Uri"] = $uri
-
-            $queryResult = Invoke-ADORestAPI @invokeParams
-            $c, $t, $progId  = 0, $queryResult.workItems.count, [Random]::new().Next()
-            $myParams = @{} + $PSBoundParameters
-            $myParams.Remove('Query')
-            foreach ($wi in $queryResult.workItems) {
-                $c++
-                Write-Progress "Updating Work Items" " [$c of $t]" -PercentComplete ($c * 100 /$t) -Id $progId
-                Set-ADOWorkItem @myParams -ID $wi.ID
-            }
-
-            Write-Progress "Updating Work Items" "Complete" -Completed -Id $progId
         }
+
+        Write-Progress "Updating Work Items" "Complete" -Completed -Id $progId
+
     }
 }

@@ -155,121 +155,137 @@
             }
         }
         #endregion Output Work Item
+        $q = [Collections.Queue]::new()
     }
 
     process {
-        $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
+        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
+    }
 
-        $validFields =
-                if ($script:ADOFieldCache.$uribase) {
-                    $script:ADOFieldCache.$uribase
-                } else {
-                    Get-ADOField -Organization $Organization -Project $Project -Server $Server @invokeParams
-                }
-
-        $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
-        $uri = $uriBase, "_apis/wit/workitems", "`$$($Type)?" -join '/'
-        if ($Server -ne 'https://dev.azure.com/' -and
-            -not $PSBoundParameters.ApiVersion) {
-            $ApiVersion = '2.0'
-        }
-        $uri +=
-            @(
-            if ($ApiVersion) {"api-version=$ApiVersion" }
-            if ($BypassRule) { 'bypassRules=true' }
-            if ($SupressNotification) { 'supressNotifications=true'}
-            if ($ValidateOnly) { 'validateOnly=true'}
-            ) -join '&'
+    end {
+        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        while ($q.Count) {
+            . $dq $q
+            $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
 
 
+            $c++
+            Write-Progress "Creating" "$type [$c/$t]" -PercentComplete ($c * 100 / $t) -Id $progId
 
-        $invokeParams.Uri = $uri
-
-        if ($InputObject -is [Collections.IDictionary]) {
-            $InputObject = [PSCustomObject]$InputObject
-        }
-
-        $patchOperations =
-            @(foreach ($prop in $InputObject.psobject.properties) {
-                if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
-                & $fixField $prop $validFieldTable
-            })
-
-        if ($parentID) {
-            $patchOperations += @{
-                op='add'
-                path ='/relations/-'
-                value = @{
-                    rel = 'System.LinkTypes.Hierarchy-Reverse'
-                    url = $uriBase, '_apis/wit', $ParentID -join '/'
-                }
-            }
-        }
-        if ($Relationship) {# If we've been provided with a -Relationship.
-            if ($Relationship.Keys -notlike '*.*') {
-                $relationshipTypes = Invoke-ADORestAPI -Uri $(@(
-                    "$Server".TrimEnd('/'), $Organization, 'workitemrelationtypes'
-                ) -join '/') -Cache | Group-Object Name -AsHashTable # find out what type of Relationships exist.
-            }
-            :nextRelationship foreach ($kv in $Relationship.GetEnumerator()) { # Check out each relationship.
-                $relType =
-                    if ($kv.Key -notlike '*.*') { # If we don't know that much about them,
-                        if (-not $relationshipTypes[$kv.Key]) { # try to find their full name.
-                            # If we couldn't, that's a yellow flag.
-                            Write-Warning "$($kv.Key) is an unknown relationship type.  Valid types are: $($relationshipTypes | Select-Object -ExpandProperty Name)"
-                            continue nextRelationship
-                        }
-                        $relationshipTypes[$kv.Key].ReferenceName
+            $validFields =
+                    if ($script:ADOFieldCache.$uribase) {
+                        $script:ADOFieldCache.$uribase
                     } else {
-                        $kv.Key
+                        Get-ADOField -Organization $Organization -Project $Project -Server $Server @invokeParams
                     }
 
-                $patchOperations += @{ # Forge the relationship.
+            $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
+            $uri = $uriBase, "_apis/wit/workitems", "`$$($Type)?" -join '/'
+            if ($Server -ne 'https://dev.azure.com/' -and
+                -not $PSBoundParameters.ApiVersion) {
+                $ApiVersion = '2.0'
+            }
+            $uri +=
+                @(
+                    if ($ApiVersion) {"api-version=$ApiVersion" }
+                    if ($BypassRule) { 'bypassRules=true' }
+                    if ($SupressNotification) { 'supressNotifications=true'}
+                    if ($ValidateOnly) { 'validateOnly=true'}
+                ) -join '&'
+
+            $invokeParams.Uri = $uri
+
+            if ($InputObject -is [Collections.IDictionary]) {
+                $InputObject = [PSCustomObject]$InputObject
+            }
+
+            $patchOperations =
+                @(foreach ($prop in $InputObject.psobject.properties) {
+                    if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
+                    & $fixField $prop $validFieldTable
+                })
+
+            if ($parentID) {
+                $patchOperations += @{
                     op='add'
                     path ='/relations/-'
                     value = @{
-                        rel = $relType
-                        url = $kv.Value
+                        rel = 'System.LinkTypes.Hierarchy-Reverse'
+                        url = $uriBase, '_apis/wit', $ParentID -join '/'
                     }
                 }
             }
-        }
+            if ($Relationship) {# If we've been provided with a -Relationship.
+                if ($Relationship.Keys -notlike '*.*') {
+                    $relationshipTypes = Invoke-ADORestAPI -Uri $(@(
+                        "$Server".TrimEnd('/'), $Organization, 'workitemrelationtypes'
+                    ) -join '/') -Cache | Group-Object Name -AsHashTable # find out what type of Relationships exist.
+                }
+                :nextRelationship foreach ($kv in $Relationship.GetEnumerator()) { # Check out each relationship.
+                    $relType =
+                        if ($kv.Key -notlike '*.*') { # If we don't know that much about them,
+                            if (-not $relationshipTypes[$kv.Key]) { # try to find their full name.
+                                # If we couldn't, that's a yellow flag.
+                                Write-Warning "$($kv.Key) is an unknown relationship type.  Valid types are: $($relationshipTypes | Select-Object -ExpandProperty Name)"
+                                continue nextRelationship
+                            }
+                            $relationshipTypes[$kv.Key].ReferenceName
+                        } else {
+                            $kv.Key
+                        }
 
-        $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
-        $invokeParams.Method = 'POST'
-        $invokeParams.ContentType = 'application/json-patch+json'
-        if ($WhatIfPreference) {
-            $invokeParams.Remove('PersonalAccessToken')
-            return $invokeParams
-        }
-        if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { return }
-        $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
+                    $patchOperations += @{ # Forge the relationship.
+                        op='add'
+                        path ='/relations/-'
+                        value = @{
+                            rel = $relType
+                            url = $kv.Value
+                        }
+                    }
+                }
+            }
 
-        if ($restResponse.ErrorDetails.Message) {
-            $errorDetails = $restResponse.ErrorDetails.Message | ConvertFrom-Json
-            if ($errorDetails.message -like 'VS402323*') {
-                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                        [Exception]::new(
-                            $errorDetails.message + [Environment]::NewLine +
-                            "Use Get-ADOWorkItem -WorkItemType to find valid types"
-                        ),'UnknownWorkItemType', 'NotSpecified', $restResponse)
-                )
+            $invokeParams.Body = ConvertTo-Json $patchOperations -Depth 100
+            $invokeParams.Method = 'POST'
+            $invokeParams.ContentType = 'application/json-patch+json'
+            if ($WhatIfPreference) {
+                $invokeParams.Remove('PersonalAccessToken')
+                $invokeParams
+                continue
+            }
+            if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { continue }
+            $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
+
+            if ($restResponse.ErrorDetails.Message) {
+                $errorDetails = $restResponse.ErrorDetails.Message | ConvertFrom-Json
+                if ($errorDetails.message -like 'VS402323*') {
+                    $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                            [Exception]::new(
+                                $errorDetails.message + [Environment]::NewLine +
+                                "Use Get-ADOWorkItem -WorkItemType to find valid types"
+                            ),'UnknownWorkItemType', 'NotSpecified', $restResponse)
+                    )
+                } else {
+                    $restResponse
+                    continue
+                }
+            } elseif ($restResponse.Exception) {
+                $restResponse
+                continue
+            }
+
+            if (-not $restResponse.fields) { continue } # If the return value had no fields property, we're done.
+            if (-not $Comment) {
+                & $outWorkItem $restResponse
             } else {
-                return $restResponse
+                $outputtedWorkItem = & $outWorkItem $restResponse
+                $null = foreach ($com in $Comment) {
+                    $outputtedWorkItem.AddComment($com)
+                }
+                $outputtedWorkItem
             }
-        } elseif ($restResponse.Exception) {
-            return $restResponse
         }
 
-        if (-not $restResponse.fields) { return } # If the return value had no fields property, we're done.
-        if (-not $Comment) {
-            & $outWorkItem $restResponse
-        } else {
-            $outputtedWorkItem = & $outWorkItem $restResponse
-            $null = foreach ($com in $Comment) {
-                $outputtedWorkItem.AddComment($com)
-            }
-            $outputtedWorkItem
-        }
+        Write-Progress "Creating" "$type [$c/$t]" -Completed -Id $progId
     }
 }
