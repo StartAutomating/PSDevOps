@@ -11,13 +11,16 @@
     .Link
         Get-ADOProject
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/test/runs/list    
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/test/runs/list
+    .Link
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/test/results/list
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/test/test%20%20suites/list
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/testplan/test%20%20suites/get%20test%20suites%20for%20plan
     #>
     [OutputType('PSDevOps.Project','PSDevOps.Property')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
     # The project identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -92,6 +95,25 @@
     [switch]
     $TestResult,
 
+    # If set, will return the first N results within a test run.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [int]$First,
+
+    # If set, will return the skip N results within a test run.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [int]$Skip,
+
+    # If provided, will only return test results with one of the provided outcomes.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [ValidateSet('Unspecified','None','Passed','Failed','Inconclusive','Timeout','Aborted','Blocked','NotExecuted','Warning','Error','NotApplicable','Passed','InProgress','NotImpacted')]
+    [string[]]$Outcome,
+
+    # Details to include with the test results.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [Alias('ResultDetails')]
+    [ValidateSet('None', 'Iterations','WorkItems')]
+    [string[]]$ResultDetail,
+
     # If set, will return test attachments to a run.
     [Parameter(Mandatory,
         ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/attachments')]
@@ -153,7 +175,7 @@
             Write-Progress "Getting" " [$c/$t] $uri" -PercentComplete ($c * 100 / $t) -Id $progId
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
-                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace 
+                '\{' -replace '\}' -replace 'ies$', 'y' -replace 's$' -replace 'ID$' -replace
                     'TestPlan', 'Plan' -replace 'TestPoint','Point' -replace
                     '(Plan|Point|Run|Suite|Configuration|Attachment|Result)', 'Test$0'
 
@@ -163,15 +185,27 @@
                 Server = $Server
             }
             if ($ProjectID)   { $additionalProperty.ProjectID = $ProjectID }
-            if ($TestPlanID)  { 
-                $additionalProperty.TestPlanID = $TestPlanID 
+            if ($TestPlanID)  {
+                $additionalProperty.TestPlanID = $TestPlanID
             }
             if ($inputObject.TestPlanName) {
                 $additionalProperty['TestPlanName'] = $inputObject.TestPlanName
             }
             if ($TestSuiteID) { $additionalProperty.TestSuiteID = $TestSuiteID }
-            Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
-                "PSDevOps.$typeName" -Property $additionalProperty
+            $invokeParams.Uri = $uri
+            $invokeParams.PSTypeName = "$Organization.$typeName", "PSDevOps.$typeName"
+            $invokeParams.Property = $additionalProperty
+            $queryParams = @{}
+            if ($First) { $queryParams.'$top'  = $First }
+            if ($Skip)  { $queryParams.'$skip' = $Skip  }
+            if ($ResultDetail) {
+                $queryParams.detailsToInclude = $ResultDetail -join ','
+            }
+            if ($Outcome) {
+                $queryParams.outcomes = $Outcome -join ','
+            }
+            $invokeParams.QueryParameter = $queryParams
+            Invoke-ADORestAPI @invokeParams
         }
 
         Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
