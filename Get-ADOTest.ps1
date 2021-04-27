@@ -36,6 +36,7 @@
     # If set, will return results related to a specific test run.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/attachments')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
     [string]
     $TestRunID,
 
@@ -97,6 +98,7 @@
 
     # If set, will return the first N results within a test run.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [Alias('Top')]
     [int]$First,
 
     # If set, will return the skip N results within a test run.
