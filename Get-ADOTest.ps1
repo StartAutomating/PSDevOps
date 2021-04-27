@@ -101,6 +101,11 @@
     [Alias('Top')]
     [int]$First,
 
+    # If provided, will return the continue to return results of the maximum batch size until the total is reached.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
+    [Alias('TotalTests','TestCount')]
+    [int]$Total,
+
     # If set, will return the skip N results within a test run.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
     [int]$Skip,
@@ -198,8 +203,7 @@
             $invokeParams.PSTypeName = "$Organization.$typeName", "PSDevOps.$typeName"
             $invokeParams.Property = $additionalProperty
             $queryParams = @{}
-            if ($First) { $queryParams.'$top'  = $First }
-            if ($Skip)  { $queryParams.'$skip' = $Skip  }
+
             if ($ResultDetail) {
                 $queryParams.detailsToInclude = $ResultDetail -join ','
             }
@@ -207,7 +211,26 @@
                 $queryParams.outcomes = $Outcome -join ','
             }
             $invokeParams.QueryParameter = $queryParams
-            Invoke-ADORestAPI @invokeParams
+            if ($First) { $queryParams.'$top'  = $First }
+            if ($Skip)  { $queryParams.'$skip' = $Skip  }
+            if ($Total) {
+                $Count = 0
+                $innerProgressId = Get-Random
+                do {
+                    $resultBatch = @(Invoke-ADORestAPI @invokeParams)
+                    $count += $resultBatch.Length
+                    $skip = $queryParams.'$skip' = $count
+                    Write-Progress "Getting Results" " [$Count/$total] $uri" -PercentComplete (
+                        $Count * 100 / $Total
+                    ) -ParentId $progId -Id $innerProgressId
+                    if ($resultBatch.Length) {
+                        $resultBatch
+                    }
+                } while ($resultBatch -and ($count -lt $Total))
+            } else {
+                Invoke-ADORestAPI @invokeParams
+            }
+
         }
 
         Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
