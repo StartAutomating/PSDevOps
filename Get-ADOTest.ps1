@@ -134,6 +134,11 @@
     [string]
     $Organization,
 
+    # If set, will always retrieve fresh data.
+    # By default, cached data will be returned.
+    [switch]
+    $Force,
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -211,6 +216,7 @@
                 $queryParams.outcomes = $Outcome -join ','
             }
             $invokeParams.QueryParameter = $queryParams
+            if (-not $Force) { $invokeParams.Cache = $true }
             if ($First) { $queryParams.'$top'  = $First }
             if ($Skip)  { $queryParams.'$skip' = $Skip  }
             if ($Total) {
