@@ -295,12 +295,7 @@ $($MyInvocation.MyCommand.Name) @parameter
         #endregion Prepare Parameters
 
         if (-not $script:AzureDevOpsRequestCache) { $script:AzureDevOpsRequestCache = @{} }
-        if ($Cache -and $method -eq 'Get' -and $script:AzureDevOpsRequestCache[$uri]) {
-            foreach ($out in $script:AzureDevOpsRequestCache[$uri]) { $out }
-            return
-        }
 
-        $originalUri = "$uri"
         $uri = $RestVariable.Replace($uri, $ReplaceRestVariable)
 
         #region Call Invoke-RestMethod
@@ -309,7 +304,7 @@ $($MyInvocation.MyCommand.Name) @parameter
         }
 
         if ($QueryParameter -and $QueryParameter.Count) {
-            $uri = 
+            $uri =
                 "$uri" +
                 $(if (-not $uri.Query) { '?' } elseif (-not "$Uri".EndsWith('?')) { '&' }) +
                 @(
@@ -317,6 +312,10 @@ $($MyInvocation.MyCommand.Name) @parameter
                         '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
                     }
                 ) -join '&'
+        }
+        if ($Cache -and $method -eq 'Get' -and $script:AzureDevOpsRequestCache[$uri]) {
+            foreach ($out in $script:AzureDevOpsRequestCache[$uri]) { $out }
+            return
         }
         $webRequest =  [Net.WebRequest]::Create($uri)
         $webRequest.Method = $Method
@@ -443,11 +442,11 @@ $($MyInvocation.MyCommand.Name) @parameter
             } } 2>&1 |
             & { process { # One more step of the pipeline will unroll each of the values.
 
-                
+
                 $in = $_
                 if ($in -is [string]) { return $in }
-                if ($null -ne $in.Count -and $in.Count -eq 0) { 
-                    return 
+                if ($null -ne $in.Count -and $in.Count -eq 0) {
+                    return
                 }
 
                 if ($PSTypeName -and # If we have a PSTypeName (to apply formatting)
