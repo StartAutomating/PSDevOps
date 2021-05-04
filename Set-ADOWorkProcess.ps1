@@ -129,8 +129,7 @@
         if ($Disable) { $body.IsEnabled = $false }
         if ($Enable -and -not $Disable) { $body.IsEnabled = $true }
         if ($Default.IsPresent)  { $body.IsDefault = [bool]$Default }
-
-        $invokeParams.Body = @{}
+        $invokeParams.Body = $body
         if ($WhatIfPreference) {
             $invokeParams.Remove('PersonalAccessToken')
             return $invokeParams
