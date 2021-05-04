@@ -159,7 +159,7 @@
     }
 
     process {
-        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
+        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName} + $PSBoundParameters)
     }
 
     end {

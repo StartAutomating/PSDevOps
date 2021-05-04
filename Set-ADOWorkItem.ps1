@@ -179,7 +179,7 @@
 
     process {
         if ($PSCmdlet.ParameterSetName -eq 'ByID') {
-            $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
+            $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;} + $PSBoundParameters)
         } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
 
 
