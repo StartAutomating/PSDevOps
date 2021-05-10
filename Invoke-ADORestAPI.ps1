@@ -315,14 +315,14 @@ $($MyInvocation.MyCommand.Name) @parameter
         }
 
         if ($QueryParameter -and $QueryParameter.Count) {
-            $uri = 
+            $uri =
                 "$uri" +
                 $(if (-not $uri.Query) { '?' } elseif (-not "$Uri".EndsWith('?')) { '&' }) +
-                @(
-                    foreach ($qp in $QueryParameter.GetEnumerator()) {
+                $(
+                    @(foreach ($qp in $QueryParameter.GetEnumerator()) {
                         '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
-                    }
-                ) -join '&'
+                    }) -join '&'
+                )
         }
         $webRequest =  [Net.WebRequest]::Create($uri)
         $webRequest.Method = $Method
@@ -455,11 +455,11 @@ $($MyInvocation.MyCommand.Name) @parameter
             } } 2>&1 |
             & { process { # One more step of the pipeline will unroll each of the values.
 
-                
+
                 $in = $_
                 if ($in -is [string]) { return $in }
-                if ($null -ne $in.Count -and $in.Count -eq 0) { 
-                    return 
+                if ($null -ne $in.Count -and $in.Count -eq 0) {
+                    return
                 }
 
                 if ($PSTypeName -and # If we have a PSTypeName (to apply formatting)
