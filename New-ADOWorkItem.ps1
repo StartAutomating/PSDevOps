@@ -52,6 +52,11 @@
     [PSObject[]]
     $Comment,
 
+    # A list of tags to assign to the work item.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string[]]
+    $Tag,
+
     # If set, will not validate rules.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('BypassRules','NoRules','NoRule')]
@@ -204,6 +209,14 @@
                     if ($MyInvocation.MyCommand.Parameters.Keys -contains $prop.Name) { continue }
                     & $fixField $prop $validFieldTable
                 })
+
+            if ($Tag) {
+                $patchOperations += @{
+                    op='add'
+                    path ='/fields/system.tags'
+                    value = $Tag
+                }
+            }
 
             if ($parentID) {
                 $patchOperations += @{
