@@ -202,6 +202,8 @@
         $invokeParams.Uri = $uri
         $invokeParams.PSTypeName = $typeNames
         $invokeParams.Property = @{Organization=$Organization;Server=$Server}
+        if ($TeamID)  { $invokeParams.Property.TeamID  = $TeamID  }
+        if ($in.Team) { $invokeParams.Property.Team    = $in.Team }
         if ($Project) { $invokeParams.Property.Project = $Project }
         if ($Identity) {
             $null = $invokeParams.Property.Remove('Server')
