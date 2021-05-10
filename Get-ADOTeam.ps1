@@ -81,7 +81,7 @@
 
     # If set, will return the team field values.
     [Parameter(Mandatory,ParameterSetName='/{Project}/{teamId}/_apis/work/teamsettings/teamfieldvalues')]
-    [Alias('FieldValues')]
+    [Alias('FieldValues','AreaPath')]
     [switch]
     $FieldValue,
 
