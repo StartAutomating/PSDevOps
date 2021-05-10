@@ -1091,6 +1091,49 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
       </TableControl>
     </View>
     <View>
+      <Name>PSDevOps.TeamFieldValue</Name>
+      <ViewSelectedBy>
+        <TypeName>PSDevOps.TeamFieldValue</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Field</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Values</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>
+        $_.field.ReferenceName
+    </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>DefaultValue</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+            foreach ($v in $_.values) {
+                if ($v.IncludeChildren) { 
+                    "$($v.value)/*"
+                } else {
+                    "$($v.value)"
+                }
+            }
+    </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>PSDevOps.TestPlan</Name>
       <ViewSelectedBy>
         <TypeName>PSDevOps.TestPlan</TypeName>
