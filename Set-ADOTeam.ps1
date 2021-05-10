@@ -13,7 +13,7 @@
                 Custom = 'Value'
             }
     .Link
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/work/teamsettings/update?view=azure-devops-rest-6.0
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/work/teamsettings/update
     #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([Nullable],[PSObject])]
@@ -58,6 +58,21 @@
     [ValidateSet('AsRequirements','AsTasks','Off')]
     [string]
     $BugBehavior,
+
+    # The default area path used for a team.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings/teamfieldvalues',ValueFromPipelineByPropertyName)]
+    [string]
+    $DefaultAreaPath,
+
+    # A list of valid area paths used for a team
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings/teamfieldvalues',ValueFromPipelineByPropertyName)]
+    [string[]]
+    $AreaPath,
+
+    # If set, will allow work items on the team to be assigned to child area paths of any -AreaPath.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings/teamfieldvalues',ValueFromPipelineByPropertyName)]
+    [switch]
+    $IncludeChildren,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -110,7 +125,14 @@
                     $invokeParams.Method = 'PATCH'
                     $invokeParams.Body = $settings
                 }
-
+                elseif ($group.Name -like '*/teamfieldvalues:*') {
+                    $fieldValues = @{defaultValue = $DefaultAreaPath;values=@()}
+                    foreach ($ap in $AreaPath) {
+                        $fieldValues.values += @{value = $ap;includeChildren=[bool]$IncludeChildren}
+                    }
+                    $invokeParams.Method = 'PATCH'
+                    $invokeParams.Body = $fieldValues
+                }
 
                 if ($invokeParams.Body) {
                     $uriBase, $null = $group.Name -split ':', 2
