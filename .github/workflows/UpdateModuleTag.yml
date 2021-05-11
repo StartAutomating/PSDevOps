@@ -1,0 +1,93 @@
+﻿
+name: UpdateModuleTag
+on: 
+  - workflow_dispatch
+  - pull_request: 
+      branches: 
+      - main
+      - master
+      if: ${{github.event.action == 'closed' && github.event.merged == true}}
+      paths-ignore: 
+      - 'docs/**'
+      - '*.help.txt'
+      - '*.md'
+
+jobs: 
+  UpdateModuleTag: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: TagModuleVersion
+        id: TagModuleVersion
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          $Parameters.UserEmail = ${env:UserEmail}
+          $Parameters.UserName = ${env:UserName}
+          $Parameters.TagVersionFormat = ${env:TagVersionFormat}
+          $Parameters.TagAnnotationFormat = ${env:TagAnnotationFormat}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: TagModuleVersion $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {param(
+          [string]
+          $ModulePath,
+          
+          # The user email associated with a git commit.
+          [string]
+          $UserEmail,
+          
+          # The user name associated with a git commit.
+          [string]
+          $UserName,
+          
+          # The tag version format (default value: 'v$(imported.Version)')
+          # This can expand variables.  $imported will contain the imported module.
+          [string]
+          $TagVersionFormat = 'v$($imported.Version)',
+          
+          # The tag version format (default value: '$($imported.Name) $(imported.Version)')
+          # This can expand variables.  $imported will contain the imported module.
+          [string]
+          $TagAnnotationFormat = '$($imported.Name) $($imported.Version)'
+          )
+          
+          $imported = 
+          if (-not $ModulePath) {
+              $orgName, $moduleName = $env:BUILD_REPOSITORY_ID -split "/"
+              Import-Module ".\$moduleName.psd1" -Force -PassThru -Global
+          } else {    
+              Import-Module $modulePath -Force -PassThru -Global
+          }
+          
+          if (-not $imported) { return } 
+          
+          $targetVersion  =$ExecutionContext.InvokeCommand.ExpandString($TagVersionFormat)
+          
+          $versionTagExists = git tag --list | Where-Object { $_ -eq $targetVersion } 
+          
+          if ($versionTagExists) { 
+              "::warning::Version $($versionTagExists)"
+              return 
+          }
+          
+          if (-not $UserName) { $UserName = $env:GITHUB_ACTOR }
+          if (-not $UserEmail) { $UserEmail = "$UserName@github.com" }
+          git config --global user.email $UserEmail
+          git config --global user.name  $UserName
+          
+          git tag -a $targetVersion -m $ExecutionContext.InvokeCommand.ExpandString($TagAnnotationFormat)
+          git push --tags
+          
+          if ($env:GITHUB_ACTOR) {
+              exit 0
+          }
+          
+          
+          } @Parameters
+
