@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.1'
+    ModuleVersion = '0.5.2'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,21 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5.2
+---
+* Get-ADOTeam:  Adding alias -AreaPath for -TeamFieldValue, carrying on team property
+* Set-ADOTeam:  Support for -DefaultAreaPath/-AreaPath (TeamFieldValues api, fixing issue #92)
+* Get-ADOTest:  Enabling pagination and filtering of results.
+** Invoke-ADORestAPI:  Fixing -Cache(ing) correctly (#88)
+** Invoke-GitHubRESTAPI: Only using .ContentEncoding if present in results (PowerShell core fix)
+* Get-ADOWorkItem:
+** Fixing -Related (#79)
+** Fixing -Comment errors when there are no commments (#80)
+* New/Set-ADOWorkItem:
+** Adding -Relationship and -Comment (#81)
+** Improving Formatting of Work Items (#82)
+** Adding -Tag
+* Invoke-ADORestAPI:  Fixing issue with -QueryParameter
 0.5.1
 ---
 * Bugfixes:

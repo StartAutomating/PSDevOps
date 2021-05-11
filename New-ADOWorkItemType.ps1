@@ -11,6 +11,12 @@
         Get-ADOProject -Organization StartAutomating -Project PSDevOps |
             Get-ADOWorkProcess |
                 New-ADOWorkItemType -Name ServiceRequest -Color 'ddee00' -Icon icon_flame
+    .Example        
+        Get-ADOProject -Organization StartAutomating -Project PSDevOps | # Get a project
+            Get-ADOWorkProcess |  # Get it's process
+            Get-ADOWorkItemType|  # Get work item types
+            Where-Object Name -eq 'Cmdlet' | # Filter the cmdlet type
+            New-ADOWorkItemType -State Cancelled -Color 'ff2200' -StateCategory Removed  # create a new state.
     .Link
         Get-ADOWorkItemType
     .Link

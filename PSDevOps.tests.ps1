@@ -681,9 +681,9 @@ describe 'Working with Work Items' {
 
         it 'Can create, update, and remove a work item' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
-            $wi = New-ADOWorkItem -InputObject @{Title = 'Test-WorkItem' } -Type Issue -ParentID 1 @splat
+            $wi = New-ADOWorkItem -InputObject @{Title = 'Test-WorkItem' } -Type Issue -ParentID 1 @splat -Tag 'PSDevOpsUnitTest' -Comment 'Added while unit testing'
             $wi.'System.Title' | should -be 'Test-WorkItem'
-            $wi2 = Set-ADOWorkItem -InputObject @{Description = 'Testing Creating Work Items' } -ID $wi.ID @splat
+            $wi2 = Set-ADOWorkItem -InputObject @{Description = 'Testing Creating Work Items' } -ID $wi.ID @splat -Tag 'UpdatedByPSDevOpsUnitTest' -Comment 'Updating while unit testing'
             $wi2.'System.Description' | should -be 'Testing Creating Work Items'
             $wi2 = Set-ADOWorkItem -InputObject @{Description = 'Updating via Query' } -Query "select [System.ID] from WorkItems Where [System.ID] = $($wi2.ID)" @splat
             $wi2.'System.Description' | should -be 'Updating Via query'

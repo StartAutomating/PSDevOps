@@ -129,6 +129,12 @@ Specifies the method used for the web request. The acceptable values for this pa
     [switch]
     $Cache,
 
+    # If set, will return results as a byte array.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Binary','AsByteArray')]
+    [switch]
+    $AsByte,
+
     # If set, will run as a background job.
     # This parameter will be ignored if the caller is piping the results of Invoke-ADORestAPI.
     # This parameter will also be ignore when calling with -DynamicParameter or -MapParameter.
@@ -206,7 +212,7 @@ Specifies the method used for the web request. The acceptable values for this pa
                 :nextInputParameter foreach ($in in ([Management.Automation.CommandMetaData]$InvokeADORestApi).Parameters.Keys) {
                     foreach ($ex in 'Uri','Method','Headers','Body','ContentType',
                         'ExpandProperty','Property','RemoveProperty','DecorateProperty',
-                        'PSTypeName', 'ContinuationToken', 'DynamicParameter', 'MapParameter', 'UrlParameter') {
+                        'PSTypeName', 'ContinuationToken', 'DynamicParameter', 'MapParameter', 'UrlParameter', 'AsByte') {
                         if ($in -like $ex) { continue nextInputParameter }
                     }
 
@@ -307,11 +313,11 @@ $($MyInvocation.MyCommand.Name) @parameter
             $uri =
                 "$uri" +
                 $(if (-not $uri.Query) { '?' } elseif (-not "$Uri".EndsWith('?')) { '&' }) +
-                @(
-                    foreach ($qp in $QueryParameter.GetEnumerator()) {
+                $(
+                    @(foreach ($qp in $QueryParameter.GetEnumerator()) {
                         '' + $qp.Key + '=' + [Web.HttpUtility]::UrlEncode($qp.Value).Replace('+', '%20')
-                    }
-                ) -join '&'
+                    }) -join '&'
+                )
         }
         if ($Cache -and $method -eq 'Get' -and $script:AzureDevOpsRequestCache[$uri]) {
             foreach ($out in $script:AzureDevOpsRequestCache[$uri]) { $out }
@@ -393,7 +399,13 @@ $($MyInvocation.MyCommand.Name) @parameter
                 } else {
                     @{}
                 }
-
+            if ($AsByte) {
+                $ms = [IO.MemoryStream]::new()
+                $rs.CopyTo($ms)
+                $ms.ToArray()
+                $ms.Dispose()
+                return
+            }
             $streamIn = [IO.StreamReader]::new($rs, $webResponse.Contentencoding)
             $strResponse = $streamIn.ReadToEnd()
             if ($webResponse.ContentType -like '*json*') {

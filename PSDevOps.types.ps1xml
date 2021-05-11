@@ -1325,6 +1325,25 @@ return Invoke-RestMethod $this.contentUri
         <ReferencedMemberName>System.Title</ReferencedMemberName>
       </AliasProperty>
       <ScriptMethod>
+        <Name>AddComment</Name>
+        <Script>
+                        param($Comment)
+
+$commentBody = 
+    if ($Comment -is [string]) {
+        @{text=$Comment}
+    } else {
+        $Comment
+    }
+
+Invoke-ADORestAPI -Uri "$($this.Url)/comments" -QueryParameter @{"api-version"="5.1-preview"} -Method POST -Body $commentBody -PSTypeName @(
+    "$($this.Organization).$($this.Project).WorkItem.Comment"
+    "$($this.Organization).WorkItem.Comment"
+    "PSDevOps.WorkItem.Comment"
+)
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
         <Name>HTMLToText</Name>
         <Script>
                         param([string]$html)
@@ -1376,6 +1395,25 @@ return Invoke-RestMethod $this.contentUri
         <ReferencedMemberName>System.Title</ReferencedMemberName>
       </AliasProperty>
       <ScriptMethod>
+        <Name>AddComment</Name>
+        <Script>
+                        param($Comment)
+
+$commentBody = 
+    if ($Comment -is [string]) {
+        @{text=$Comment}
+    } else {
+        $Comment
+    }
+
+Invoke-ADORestAPI -Uri "$($this.Url)/comments" -QueryParameter @{"api-version"="5.1-preview"} -Method POST -Body $commentBody -PSTypeName @(
+    "$($this.Organization).$($this.Project).WorkItem.Comment"
+    "$($this.Organization).WorkItem.Comment"
+    "PSDevOps.WorkItem.Comment"
+)
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
         <Name>HTMLToText</Name>
         <Script>
                         param([string]$html)
@@ -1402,6 +1440,110 @@ return Invoke-RestMethod $this.contentUri
         <Name>CreatedDate</Name>
         <GetScriptBlock>
                         [DateTime]$this.'System.CreatedDate'
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>PSDevOps.WorkItem.Comment</Name>
+    <Members>
+      <AliasProperty>
+        <Name>CommentID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Comment</Name>
+        <GetScriptBlock>
+                        $this.Text -replace
+    '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
+    '&lt;/div&gt;', [Environment]::NewLine -replace
+    '&lt;li&gt;',"* " -replace
+    '&lt;/li&gt;', [Environment]::NewLine -replace
+    '\&lt;[^\&gt;]+\&gt;', '' -replace
+    '&amp;quot;', '"' -replace 
+    '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>CreatedAt</Name>
+        <GetScriptBlock>
+                        ([DateTime]$this.CreatedDate).ToLocalTime()
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ModifiedAt</Name>
+        <GetScriptBlock>
+                        ([DateTime]$this.ModifiedDate).ToLocalTime()
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Reaction</Name>
+        <GetScriptBlock>
+                        Invoke-ADORestAPI -Uri "$($this.Url)/reactions" -Property @{
+    Project = $this.Project
+    Organization = $this.Organization
+    WorkItemID = $this.WorkItemID
+    Comment = $this.Comment
+} -PSTypeName @(
+    "$($this.Organization).$($this.Project).WorkItem.CommentReaction"
+    "$($this.Organization)..WorkItem.CommentReaction"
+    'PSDevOps.WorkItem.CommentReaction'
+)
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.WorkItem.Comment</Name>
+    <Members>
+      <AliasProperty>
+        <Name>CommentID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Comment</Name>
+        <GetScriptBlock>
+                        $this.Text -replace
+    '&lt;br(?:/)?&gt;', [Environment]::NewLine -replace
+    '&lt;/div&gt;', [Environment]::NewLine -replace
+    '&lt;li&gt;',"* " -replace
+    '&lt;/li&gt;', [Environment]::NewLine -replace
+    '\&lt;[^\&gt;]+\&gt;', '' -replace
+    '&amp;quot;', '"' -replace 
+    '&amp;nbsp;',' ' -replace ([Environment]::NewLine * 2), [Environment]::NewLine
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>CreatedAt</Name>
+        <GetScriptBlock>
+                        ([DateTime]$this.CreatedDate).ToLocalTime()
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ModifiedAt</Name>
+        <GetScriptBlock>
+                        ([DateTime]$this.ModifiedDate).ToLocalTime()
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Reaction</Name>
+        <GetScriptBlock>
+                        Invoke-ADORestAPI -Uri "$($this.Url)/reactions" -Property @{
+    Project = $this.Project
+    Organization = $this.Organization
+    WorkItemID = $this.WorkItemID
+    Comment = $this.Comment
+} -PSTypeName @(
+    "$($this.Organization).$($this.Project).WorkItem.CommentReaction"
+    "$($this.Organization)..WorkItem.CommentReaction"
+    'PSDevOps.WorkItem.CommentReaction'
+)
 
                     </GetScriptBlock>
       </ScriptProperty>
