@@ -1,12 +1,10 @@
-﻿
 name: UpdateModuleTag
 on: 
-  - workflow_dispatch
-  - pull_request: 
+  workflow_dispatch:  
+  pull_request: 
       branches: 
       - main
-      - master
-      if: ${{github.event.action == 'closed' && github.event.merged == true}}
+      - master      
       paths-ignore: 
       - 'docs/**'
       - '*.help.txt'
@@ -14,6 +12,7 @@ on:
 
 jobs: 
   UpdateModuleTag: 
+    if: ${{github.event.action == 'closed' && github.event.merged == true}}
     runs-on: ubuntu-latest
     steps: 
       - name: Check out repository
