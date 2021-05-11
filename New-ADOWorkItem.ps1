@@ -214,7 +214,7 @@
                 $patchOperations += @{
                     op='add'
                     path ='/fields/system.tags'
-                    value = $Tag
+                    value = $Tag -join ';'
                 }
             }
 
