@@ -41,6 +41,7 @@
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests/{pullRequestId}',ValueFromPipelineByPropertyName)]
     [string]
     $RepositoryID,
 
@@ -164,6 +165,12 @@
     [Alias('PRStatus')]
     [string]
     $PullRequestStatus,
+
+    # Get pull request with a specific id
+    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests/{pullRequestId}',ValueFromPipelineByPropertyName)]
+    [Alias('PRID')]
+    [string]
+    $PullRequestID,
 
     # If set, will include the parent repository
     [Parameter(ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
@@ -350,7 +357,7 @@
                 elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/items') {
                     ".File"
                 }
-                elseif ($psParameterSet -eq 'git/repositories/{repositoryId}/pullrequests') {
+                elseif ($psParameterSet -in ('git/repositories/{repositoryId}/pullrequests', 'git/repositories/{repositoryId}/pullrequests/{pullRequestId}')) {
                     ".PullRequest"
                 }
                 else {
