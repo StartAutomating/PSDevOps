@@ -552,13 +552,13 @@ describe 'Calling REST APIs' {
         }
     }
 
-    context 'Service Hooks' -Skip:$IsFork {
-        it 'Can Get Publishers of Service Hooks' {
+    context 'Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' -Skip:$IsFork {
             Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
                 Select-Object -First 1 -ExpandProperty ID |
                 Should -be Audit
         }
-        it 'Can Get Consumers of Service Hooks' {
+        it 'Can Get Consumers of Service Hooks' -Skip:$IsFork {
             Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
                 Select-Object -First 1 -ExpandProperty ID |
                 Should -be appVeyor
@@ -608,15 +608,15 @@ describe 'Calling REST APIs' {
         }
     }
 
-    context WorkProcesses -Skip:$IsFork {
-        it 'Can get work procceses related to a project' {
+    context WorkProcesses {
+        it 'Can get work procceses related to a project' -Skip:$IsFork {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                 Get-ADOWorkProcess |
                     Select-Object -ExpandProperty Name |
                         should -Be 'StartAutomating Basic'
         }
 
-        it 'Can get work item types related to a process' {
+        it 'Can get work item types related to a process' -Skip:$IsFork {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                 Get-ADOWorkProcess |
                     Get-ADOWorkItemType |
@@ -624,7 +624,7 @@ describe 'Calling REST APIs' {
                             should -Be issue
         }
 
-        it 'Can create new work item types' {
+        it 'Can create new work item types' -Skip:$IsFork {
             $whatIfResult =
                 Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                     Get-ADOWorkProcess |
@@ -634,7 +634,7 @@ describe 'Calling REST APIs' {
                 should -Be icon_flame
         }
 
-        it 'Can remove custom work item types' {
+        it 'Can remove custom work item types' -Skip:$IsFork {
             $whatIfResult =
                 Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                     Get-ADOWorkProcess |
