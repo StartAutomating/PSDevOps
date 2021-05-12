@@ -216,13 +216,13 @@ describe 'Creating Pipelines' {
 }
 
 describe 'Calling REST APIs' {
-    it 'Can invoke an Azure DevOps REST api' -Skip:$IsFork {
+    it 'Can invoke an Azure DevOps REST api' {
         $org = 'StartAutomating'
         $project = 'PSDevOps'
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
 
-    it 'Can Connect to Azure DevOps (Connect-ADO)' {
+    it 'Can Connect to Azure DevOps (Connect-ADO)' -Skip:$IsFork {
         $connection = Connect-ADO -Organization StartAutomating -PersonalAccessToken $testPat
         $connection.Organization | Should -Be StartAutomating
     }
@@ -437,8 +437,8 @@ describe 'Calling REST APIs' {
         }
     }
 
-    context 'Extensions' -Skip:$IsFork {
-        it 'Can Get-ADOExtension' {
+    context 'Extensions' {
+        it 'Can Get-ADOExtension' -Skip:$IsFork {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherID ms -ExtensionID feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should -Be Microsoft
@@ -452,27 +452,27 @@ describe 'Calling REST APIs' {
         #>
 
 
-        it 'Can Get-ADOExtension with filters' {
+        it 'Can Get-ADOExtension with filters' -Skip:$IsFork {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 Should -Be Microsoft
         }
 
-        it 'Can Install-ADOExtension' {
+        it 'Can Install-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be POST
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
-        it 'Can Uninstall-ADOExtension' {
+        it 'Can Uninstall-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be DELETE
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
-        it 'Can Enable-ADOExtension' {
+        it 'Can Enable-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Enable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be PATCH
@@ -480,7 +480,7 @@ describe 'Calling REST APIs' {
             $whatIf.body.installState.flags | Should -Be none
         }
 
-        it 'Can Disable-ADOExtension' {
+        it 'Can Disable-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Disable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be PATCH
@@ -490,7 +490,7 @@ describe 'Calling REST APIs' {
 
 
 
-        it 'Get Get-ADOTask' {
+        it 'Get Get-ADOTask' -Skip:$IsFork {
             Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty PSTypenames |
                 Select-Object -Last 1 |
