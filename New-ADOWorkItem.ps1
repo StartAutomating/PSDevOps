@@ -169,10 +169,11 @@
 
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        $originalInvokeParams = $invokeParams
         while ($q.Count) {
             . $dq $q
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
-
+            $invokeParams = @{} + $originalInvokeParams
 
             $c++
             Write-Progress "Creating" "$type [$c/$t]" -PercentComplete ($c * 100 / $t) -Id $progId

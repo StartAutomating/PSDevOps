@@ -217,10 +217,11 @@
     }
 
     end {
-       $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        $originalInvokeParams = $invokeParams
         while ($q.Count) {
             . $dq $q
-
+            $invokeParams = @{} + $originalInvokeParams
             Write-Progress "Updating Work Items" " [$c of $t] $ID" -PercentComplete ($c * 100 /$t) -Id $progId
 
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
