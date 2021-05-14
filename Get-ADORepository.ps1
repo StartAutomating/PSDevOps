@@ -38,10 +38,10 @@
     $Project,
 
     # The Repository ID
-    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
     [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests/{pullRequestId}',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/items',ValueFromPipelineByPropertyName)]    
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}',ValueFromPipelineByPropertyName)]    
     [string]
     $RepositoryID,
 
@@ -167,7 +167,7 @@
     $PullRequestStatus,
 
     # Get pull request with a specific id
-    [Parameter(ParameterSetName='git/repositories/{repositoryId}/pullrequests/{pullRequestId}',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='git/repositories/{repositoryId}/pullrequests/{pullRequestId}',ValueFromPipelineByPropertyName)]
     [Alias('PRID')]
     [string]
     $PullRequestID,
