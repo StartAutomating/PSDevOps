@@ -1,4 +1,9 @@
-﻿0.5.2
+﻿0.5.3
+---
+* Get-ADORepository  :  Adding -PullRequestID
+* New/Set-ADOWorkItem:  Fixing pipelining issue
+
+0.5.2
 ---
 * Get-ADOTeam:  Adding alias -AreaPath for -TeamFieldValue, carrying on team property
 * Set-ADOTeam:  Support for -DefaultAreaPath/-AreaPath (TeamFieldValues api, fixing issue #92)
