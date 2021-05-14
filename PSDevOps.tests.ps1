@@ -5,6 +5,12 @@ param(
     $TestProject = 'PSDevOps'
 )
 
+$IsFork = $env:SYSTEM_PULLREQUEST_ISFORK -eq 'true'
+
+if ($IsFork) {
+    Write-Verbose "Build is from a fork - some tests will be skipped"
+}
+
 Write-Verbose "Testing with $testOrg/$TestProject"
 
 $testPat =
@@ -216,7 +222,7 @@ describe 'Calling REST APIs' {
         Invoke-ADORestAPI "https://dev.azure.com/$org/$project/_apis/build/builds/?api-version=5.1" -PSTypeName AzureDevOps.Build
     }
 
-    it 'Can Connect to Azure DevOps (Connect-ADO)' {
+    it 'Can Connect to Azure DevOps (Connect-ADO)' -Skip:$IsFork {
         $connection = Connect-ADO -Organization StartAutomating -PersonalAccessToken $testPat
         $connection.Organization | Should -Be StartAutomating
     }
@@ -238,7 +244,7 @@ describe 'Calling REST APIs' {
                 Select-Object -ExpandProperty Name |
                     Should -Be PSDevOps
         }
-        it 'Can create projects' {
+        it 'Can create projects' -Skip:$IsFork {
             $whatIfResult =
                 New-ADOProject -Name TestProject -Description "A Test Project" -Public -Abbreviation 'TP' -Organization StartAutomating -Process Agile -WhatIf -PersonalAccessToken $testPat
             $bodyObject = $whatIfResult.body | ConvertFrom-Json
@@ -302,7 +308,7 @@ describe 'Calling REST APIs' {
                 Should -BeLike '*/git/repositories*'
         }
 
-        it 'Can Remove Repositories' {
+        it 'Can Remove Repositories' -Skip:$IsFork {
             $whatIf =
                 Remove-ADORepository -Organization StartAutomating -Project PSDevOps -RepositoryID PSDevOps -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be DELETE
@@ -325,7 +331,7 @@ describe 'Calling REST APIs' {
             $buildDefinitions.Count | should -BeGreaterThan 1
             $buildDefinitions[0].Name  |should -beLike *PSDevOps*
         }
-        it 'Can get build -DefinitionYAML, given a build definition' {
+        it 'Can get build -DefinitionYAML, given a build definition' -Skip:$IsFork {
             $buildDefinitionYaml = $(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition |
                 Select-Object -First 1 |
                 Get-ADOBuild -DefinitionYAML -PersonalAccessToken $testPat)
@@ -385,11 +391,11 @@ describe 'Calling REST APIs' {
 
     context 'Agent Pools' {
         # These tests will return nothing when run with a SystemAccessToken, so we will only fail if they error
-        it 'Can Get-ADOAgentPool for a given -Organization and -Project' {
+        it 'Can Get-ADOAgentPool for a given -Organization and -Project' -Skip:$IsFork {
             Get-ADOAgentPool -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
 
-        it 'Can Get-ADOAgentPool for a given -Organization' {
+        it 'Can Get-ADOAgentPool for a given -Organization' -Skip:$IsFork {
             Get-ADOAgentPool -Organization StartAutomating -PersonalAccessToken $testPat -ErrorAction Stop
         }
 
@@ -407,7 +413,7 @@ describe 'Calling REST APIs' {
     }
 
     context 'Service Endpoints:' {
-        it 'Can Get-ADOServiceEndpoint' {
+        it 'Can Get-ADOServiceEndpoint' -Skip:$IsFork {
             Get-ADOServiceEndpoint -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat -ErrorAction Stop
         }
 
@@ -432,7 +438,7 @@ describe 'Calling REST APIs' {
     }
 
     context 'Extensions' {
-        it 'Can Get-ADOExtension' {
+        it 'Can Get-ADOExtension' -Skip:$IsFork {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherID ms -ExtensionID feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 should -Be Microsoft
@@ -446,27 +452,27 @@ describe 'Calling REST APIs' {
         #>
 
 
-        it 'Can Get-ADOExtension with filters' {
+        it 'Can Get-ADOExtension with filters' -Skip:$IsFork {
             Get-ADOExtension -Organization StartAutomating -PersonalAccessToken $testPat -PublisherNameLike Micro* -ExtensionNameLike *feed* -PublisherNameMatch ms -ExtensionNameMatch feed |
                 Select-Object -First 1 -ExpandProperty PublisherName |
                 Should -Be Microsoft
         }
 
-        it 'Can Install-ADOExtension' {
+        it 'Can Install-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Install-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be POST
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
-        it 'Can Uninstall-ADOExtension' {
+        it 'Can Uninstall-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Uninstall-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be DELETE
             $whatIf.Uri | Should -BeLike '*/YodLabs/yodlabs-githubstats*'
         }
 
-        it 'Can Enable-ADOExtension' {
+        it 'Can Enable-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Enable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be PATCH
@@ -474,7 +480,7 @@ describe 'Calling REST APIs' {
             $whatIf.body.installState.flags | Should -Be none
         }
 
-        it 'Can Disable-ADOExtension' {
+        it 'Can Disable-ADOExtension' -Skip:$IsFork {
             $whatIf =
                 Disable-ADOExtension -Organization StartAutomating -PublisherID YodLabs -ExtensionID yodlabs-githubstats -WhatIf -PersonalAccessToken $testPat
             $whatIf.Method | Should -Be PATCH
@@ -484,7 +490,7 @@ describe 'Calling REST APIs' {
 
 
 
-        it 'Get Get-ADOTask' {
+        it 'Get Get-ADOTask' -Skip:$IsFork {
             Get-ADOTask -Organization StartAutomating -PersonalAccessToken $testPat |
                 Select-Object -First 1 -ExpandProperty PSTypenames |
                 Select-Object -Last 1 |
@@ -523,7 +529,7 @@ describe 'Calling REST APIs' {
                 }
         }
 
-        it 'Can clear widgets settings within dashboards' {
+        it 'Can clear widgets settings within dashboards' -Skip:$IsFork {
             $whatIf = @(Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
                 Select-Object -First 1 |
                 Get-ADODashboard -Widget |
@@ -533,7 +539,7 @@ describe 'Calling REST APIs' {
             $whatIf.body.settings | Should -Be 'null'
         }
 
-        it 'Can update dashboards' {
+        it 'Can update dashboards' -Skip:$IsFork {
             $whatIf = Get-ADODashboard -Organization StartAutomating -PersonalAccessToken $testPat -Project PSDevOps -Team 'PSDevOps Team' |
                 Get-ADODashboard -Widget |
                 Select-Object -First 1 |
@@ -547,12 +553,12 @@ describe 'Calling REST APIs' {
     }
 
     context 'Service Hooks' {
-        it 'Can Get Publishers of Service Hooks' {
+        it 'Can Get Publishers of Service Hooks' -Skip:$IsFork {
             Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Publisher |
                 Select-Object -First 1 -ExpandProperty ID |
                 Should -be Audit
         }
-        it 'Can Get Consumers of Service Hooks' {
+        it 'Can Get Consumers of Service Hooks' -Skip:$IsFork {
             Get-ADOServiceHook -Organization StartAutomating -PersonalAccessToken $testPat -Consumer |
                 Select-Object -First 1 -ExpandProperty ID |
                 Should -be appVeyor
@@ -603,14 +609,14 @@ describe 'Calling REST APIs' {
     }
 
     context WorkProcesses {
-        it 'Can get work procceses related to a project' {
+        it 'Can get work procceses related to a project' -Skip:$IsFork {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                 Get-ADOWorkProcess |
                     Select-Object -ExpandProperty Name |
                         should -Be 'StartAutomating Basic'
         }
 
-        it 'Can get work item types related to a process' {
+        it 'Can get work item types related to a process' -Skip:$IsFork {
             Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                 Get-ADOWorkProcess |
                     Get-ADOWorkItemType |
@@ -618,7 +624,7 @@ describe 'Calling REST APIs' {
                             should -Be issue
         }
 
-        it 'Can create new work item types' {
+        it 'Can create new work item types' -Skip:$IsFork {
             $whatIfResult =
                 Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                     Get-ADOWorkProcess |
@@ -628,7 +634,7 @@ describe 'Calling REST APIs' {
                 should -Be icon_flame
         }
 
-        it 'Can remove custom work item types' {
+        it 'Can remove custom work item types' -Skip:$IsFork {
             $whatIfResult =
                 Get-ADOProject -Organization StartAutomating -Project PSDevOps -PersonalAccessToken $testPat |
                     Get-ADOWorkProcess |
