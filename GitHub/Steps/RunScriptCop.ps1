@@ -20,5 +20,5 @@ $importedModule |
     Out-Host
 
 foreach ($issue in $scriptCopIssues) {
-    Write-GitWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
+    Write-GitHubWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
 }
