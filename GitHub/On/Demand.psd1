@@ -1,1 +1,1 @@
-﻿'workflow_dispatch'
+﻿@{'workflow_dispatch'=@{}}
