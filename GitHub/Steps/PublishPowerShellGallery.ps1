@@ -13,7 +13,8 @@ $($gitHubEvent | ConvertTo-Json -Depth 100)
 ::endgroup::
 "@ | Out-Host
 
-if (-not ($gitHubEvent.pullrequest.merged) -and (-not $gitHubEvent.psobject.properties['input'])) {
+if (-not ($gitHubEvent.head_commit.message -match "Merge Pull Request #(?<PRNumber>\d+)") -and 
+    (-not $gitHubEvent.psobject.properties['inputs'])) {
     "::warning::Pull Request has not merged, skipping" | Out-Host
     return
 }
@@ -35,16 +36,25 @@ if ($foundModule -and $foundModule.Version -ge $imported.Version) {
     "::warning::Gallery Version of $moduleName is more recent ($($foundModule.Version) >= $($imported.Version))" | Out-Host        
 } else {
     
-    $gk = '${{secrets.GalleryKey}}'
+    $gk = '${{secrets.GALLERYKEY}}'
     
-    $moduleTempPath = Join-Path $pwd $moduleName
+    $rn = Get-Random
+    $moduleTempFolder = Join-Path $pwd "$rn"
+    $moduleTempPath = Join-Path $moduleTempFolder $moduleName
+    New-Item -ItemType Directory -Path $moduleTempPath -Force | Out-Host
                     
     Write-Host "Staging Directory: $ModuleTempPath"
                             
-    $imported | Split-Path | Copy-Item -Destination $moduleTempPath -Recurse
+    $imported | Split-Path | 
+        Get-ChildItem -Force | 
+        Where-Object Name -NE $rn |
+        Copy-Item -Destination $moduleTempPath -Recurse
+    
     $moduleGitPath = Join-Path $moduleTempPath '.git'
     Write-Host "Removing .git directory"
-    Remove-Item -Recurse -Force $moduleGitPath
+    if (Test-Path $moduleGitPath) {
+        Remove-Item -Recurse -Force $moduleGitPath
+    }
     Write-Host "Module Files:"
     Get-ChildItem $moduleTempPath -Recurse
     Write-Host "Publishing $moduleName [$($imported.Version)] to Gallery"
