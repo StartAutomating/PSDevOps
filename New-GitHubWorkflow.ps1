@@ -96,7 +96,7 @@ function New-GitHubWorkflow {
         $workflowOptions = @{}
         $expandGitHubBuildStep = @{
             BuildSystem = $mynoun
-            SingleItemName = 'On','Name'
+            SingleItemName = 'Name','On'
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
             BuildOption = $workflowOptions
         }
