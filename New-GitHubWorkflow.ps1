@@ -133,6 +133,8 @@ function New-GitHubWorkflow {
 
         #endregion Map Dynamic Input
 
+        if ($RootDirectory) { $workflowOptions.RootDirectory = $RootDirectory}
+
         #region Expand Input
         $expandSplat = @{} + $PSBoundParameters
         foreach ($k in @($expandSplat.Keys)) {
