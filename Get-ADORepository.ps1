@@ -341,6 +341,10 @@
                     Server = $Server
                 }
 
+            if ($RepositoryID) {
+                $invokeParams.Property.RepositoryID = $RepositoryID
+            }
+
             $subTypeName =
                 if ($psParameterSet -eq 'git/recycleBin/repositories') {
                     '.Recycled'
