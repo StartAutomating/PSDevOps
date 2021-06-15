@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.3'
+    ModuleVersion = '0.5.4'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,24 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5.4:
+---
+* Formatting Improvments:
+** Get-ADOField now includes .Type
+** Get-ADOExtension now includes .Version
+* Set-ADOTeam -DefaultAreaPath/-AreaPath parameter set issue fixed (fixes #103 / #92)
+** Added tests for Set-ADOTeam
+* GitHub Workflow Definition Improvements:
+** New Triggers:
+*** On PullToMain
+** New Jobs:
+*** UpdateModuleTag
+*** PublishToGallery
+** New Steps:
+*** PublishPowerShellGallery
+*** TagModuleVersion
+* New-GitHubWorkflow/New-ADOPipeline now support -RootDirectory
+* Fixing pluralization / list issue with multiple GitHub Workflow "On"
 0.5.3
 ---
 * Get-ADORepository  :  Adding -PullRequestID
@@ -86,18 +104,6 @@
 * Bugfixes:
 ** Honoring Get-ADOBuild -DefinitionName
 * Disconnect-ADO is now run prior at the start of Connect-ADO, and on module unload.
-0.4.6
----
-* New-ADOPipeline/New-GitHubWorkflow:  Adding -BuildScript
-* Connect-ADO:  Auto-detecting connected user's teams and adding tab completion for -Project/-ProjectID/-Team/-TeamID
-* Convert-BuildStep: Re-ordering YAML for GitHub Workflows (putting .runs last)
-* Convert-ADOPipeline:  Not returning .inputs when there are no .inputs
-* Get-ADOProject:  Adding -PolicyType and -PolicyConfiguration
-* Get-ADORepository:  Adding -PullRequest, -SourceReference, -TargetReference, -ReviewerIdentity, -CreatorIdentity.
-* Get-ADOBuild:  Adding -DefinitionName
-* Invoke-ADORestAPI:  Passing content length of 0 when body is empty.
-* Updating README
-
 '@
         }
         Colors = @{
