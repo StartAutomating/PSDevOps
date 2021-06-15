@@ -1,4 +1,4 @@
-﻿Write-FormatView -TypeName PSDevOps.InstalledExtension -Property 'PublisherName(ID)', 'ExtensionName(ID)', Contributions -Width 20, 25 -Wrap -VirtualProperty @{
+﻿Write-FormatView -TypeName PSDevOps.InstalledExtension -Property 'PublisherName(ID)', 'ExtensionName(ID)', Version, Contributions -Wrap -Width 20, 20, 20 -VirtualProperty @{
     Contributions = {
         ($_.Contributions | 
             Out-String -Width ($host.UI.RawUI.BufferSize.Width - 45)).Trim()
