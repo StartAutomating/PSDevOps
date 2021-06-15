@@ -289,6 +289,18 @@ describe 'Calling REST APIs' {
             $whatIf.uri    | Should -BeLike '*/MyTeam*'
             $whatIf.Method | Should -Be DELETE
         }
+
+        it 'Can set team -DefaultAreaPath and -AreaPath' {
+            $whatIf = 
+                Get-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID 'PSDevOps Team' -PersonalAccessToken $testPat |
+                    Set-ADOTeam -DefaultAreaPath "MyAreaPath" -WhatIf -AreaPath "An\AreaPath", "Another\AreaPath"
+
+            $whatIf.Method | Should -Be PATCH
+            $whatIf.Uri | Should -BeLike '*teamFieldvalue*'
+            $whatIf.Body.defaultValue | Should -Be MyAreaPath
+
+            
+        } 
     }
 
     context Repositories {
