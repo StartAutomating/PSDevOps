@@ -96,7 +96,7 @@ function New-GitHubWorkflow {
         $workflowOptions = @{}
         $expandGitHubBuildStep = @{
             BuildSystem = $mynoun
-            SingleItemName = 'On','Name'
+            SingleItemName = 'Name','On'
             DictionaryItemName = 'Jobs', 'Inputs','Outputs'
             BuildOption = $workflowOptions
         }
@@ -132,6 +132,8 @@ function New-GitHubWorkflow {
         }
 
         #endregion Map Dynamic Input
+
+        if ($RootDirectory) { $workflowOptions.RootDirectory = $RootDirectory}
 
         #region Expand Input
         $expandSplat = @{} + $PSBoundParameters

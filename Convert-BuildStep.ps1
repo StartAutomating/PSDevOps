@@ -424,6 +424,20 @@ $logParameters
 $Name `@Parameters
 "@)
                 $innerScript = $sb
+            } elseif ($BuildOption.RootDirectory -and $ScriptBlock.File -and 
+                $ScriptBlock.File -like "$($BuildOption.RootDirectory)*") {
+                $relativeScriptPath = 
+                    $ScriptBlock.File.Substring(
+                        $BuildOption.RootDirectory.Length
+                    ).TrimStart(
+                        [IO.Path]::DirectorySeparatorChar
+                    ).Replace('\','/')
+                $sb = [ScriptBlock]::Create(@"
+$CollectParameters
+$logParameters
+& './$relativeScriptPath' `@Parameters
+"@)
+                $innerScript = $sb
             } else {
                 $sb = [scriptBlock]::Create(@"
 $CollectParameters

@@ -108,7 +108,8 @@
         }
 
         $splatMe.Remove('StepMap')
-        :nextKey foreach ($kv in $stepMap.GetEnumerator()) {
+        
+        :nextKey foreach ($kv in $stepMap.GetEnumerator()) {            
             if ($kv.Key.EndsWith('s') -and -not $singleton) { # Already pluralized
                 $thingType = $kv.Key.Substring(0,$kv.Key.Length -1)
                 $propName = $kv.Key
@@ -117,8 +118,9 @@
                 $propName = $kv.Key
             } else {
                 $thingType = $kv.Key
+                $thingTypePlural = $kv.Key + 's'
                 $propName =
-                    if ($SingleItemName -notcontains $thingType -and
+                    if ($SingleItemName -notcontains $thingType -and                        
                         $thingType -notmatch '\W$' -and
                         $theComponentNames.Keys -contains $thingType) {
                         $kv.Key.Substring(0,1).ToLower() + $kv.Key.Substring(1) + 's'
@@ -311,6 +313,26 @@
                 if ($PluralItemName -contains $propName -and
                     $outObject[$propName] -isnot [Collections.IList]) {
                     $outObject[$propName] = @($outObject[$propName])
+                }
+
+                if ($SingleItemName -contains $propName -and 
+                    $outObject[$propName] -is [Collections.IList]) {
+                    $newOut = [Ordered]@{}
+                    foreach ($obj in $outObject[$propName]) {
+                        if ($obj -is [Collections.IDictionary]) {
+                            $k = @($obj.Keys)[0]
+                            if ($obj.Count -eq 1 -and 
+                                $obj.Keys -contains $k) {
+                                $newOut[$k] = $obj.$k
+                            } else {
+                                $newOut[$k] = $obj
+                            }
+                        }
+                        elseif ($obj -is [string]) {
+                            $newOut[$obj] = [Ordered]@{}
+                        }
+                    }
+                    $outObject[$propName] = $newOut
                 }
             }
         }
