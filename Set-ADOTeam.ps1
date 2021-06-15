@@ -27,11 +27,13 @@
 
     # The project.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings/teamfieldvalues',ValueFromPipelineByPropertyName)]
     [string]
     $Project,
 
     # The team.
     [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings',ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/{Team}/_apis/work/teamsettings/teamfieldvalues',ValueFromPipelineByPropertyName)]
     [string]
     $Team,
 
