@@ -164,21 +164,21 @@ Specifies the method used for the web request. The acceptable values for this pa
     (?<Start>[/\.])           # Match the <Start>ing slash|dot ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
-        \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
+        \{(?<Variable>\w+)\} # ... A <Variable> name in {} OR    
     )
 |
-    (?<IsOptional>            # If it's optional it can also be
+    (?<IsOptional>            # If it's optional it can also be 
         [{\[](?<Start>/)      # a bracket or brace, followed by a slash
     )
     (?<Variable>\w+)[}\]]     # then a <Variable> name followed by } or ]
 
 |                             # OR it can be in a query parameter:
     (?<Start>[\?\&])          # Match The <Start>ing ? or & ...
-    (?<Query>[\$\w\-]+)       # ... the <Query> parameter name ...
+    (?<Query>[\$\w\-]+)       # ... the <Query> parameter name ... 
     =                         # ... an equals ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
-        \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
+        \{(?<Variable>\w+)\} # ... A <Variable> name in {} OR
     )
 )
 '@, 'IgnoreCase,IgnorePatternWhitespace')
