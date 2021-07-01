@@ -372,7 +372,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                         $streamIn.Dispose()
                         $PSCmdlet.WriteError(
                             [Management.Automation.ErrorRecord]::new(
-                                [Exception]::new($strResponse, $ex.Exception.InnerException
+                                [Exception]::new("$($ex.Exception.InnerException.Response.StatusCode, $ex.Exception.InnerException.Response.StatusDescription)$strResponse ", $ex.Exception.InnerException
                             ), $ex.Exception.HResult, 'NotSpecified', $webRequest)
                         )
                         return
