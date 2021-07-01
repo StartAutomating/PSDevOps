@@ -200,6 +200,15 @@
   <Type>
     <Name>PSDevOps.Build.Artifact</Name>
     <Members>
+      <ScriptMethod>
+        <Name>Download</Name>
+        <Script>
+                        if ($this.resource.downloadUrl) {
+    Invoke-ADORestAPI -Uri $this.resource.downloadURL -AsByte
+}
+
+                    </Script>
+      </ScriptMethod>
       <ScriptProperty>
         <Name>ArtifactData</Name>
         <GetScriptBlock>
@@ -219,6 +228,15 @@
   <Type>
     <Name>Deserialized.PSDevOps.Build.Artifact</Name>
     <Members>
+      <ScriptMethod>
+        <Name>Download</Name>
+        <Script>
+                        if ($this.resource.downloadUrl) {
+    Invoke-ADORestAPI -Uri $this.resource.downloadURL -AsByte
+}
+
+                    </Script>
+      </ScriptMethod>
       <ScriptProperty>
         <Name>ArtifactData</Name>
         <GetScriptBlock>
