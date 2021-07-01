@@ -397,7 +397,7 @@ $($MyInvocation.MyCommand.Name) @parameter
             if ($AsByte) {
                 $ms = [IO.MemoryStream]::new()
                 $rs.CopyTo($ms)
-                $ms.ToArray()
+                ,$ms.ToArray()
                 $ms.Dispose()
                 return
             }
@@ -419,6 +419,9 @@ $($MyInvocation.MyCommand.Name) @parameter
         $null = $null
         # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
+        if ($response -is [byte[]]) {
+            return $response
+        }
 
         $apiOutput =
             $response |
@@ -429,7 +432,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                 # A lot of things in the Azure DevOps REST apis come back as a count/value pair
                 if ($in -eq 'null') {
                     return
-                }
+                }                
                 if ($ExpandProperty) {
                     if ($in.$ExpandProperty) {
                         return $in.$ExpandProperty
@@ -451,7 +454,7 @@ $($MyInvocation.MyCommand.Name) @parameter
 
 
                 $in = $_
-                if ($in -is [string]) { return $in }
+                if ($in -is [string]) { return $in }                
                 if ($null -ne $in.Count -and $in.Count -eq 0) {
                     return
                 }
