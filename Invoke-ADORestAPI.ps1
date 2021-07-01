@@ -157,33 +157,28 @@ Specifies the method used for the web request. The acceptable values for this pa
     )
 
      begin {
+        # From [Irregular](https://github.com/StartAutomating/Irregular):
+        # ?<REST_Variable> -VariableFormat Braces
         $RestVariable = [Regex]::new(@'
-# Matches URL segments and query strings containing variables.
-# Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
 (?>                           # A variable can be in a URL segment or subdomain
     (?<Start>[/\.])           # Match the <Start>ing slash|dot ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
-        \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        `\$(?<Variable>\w+) | #     A `$ followed by a <Variable> OR
-        \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 |
     (?<IsOptional>            # If it's optional it can also be
         [{\[](?<Start>/)      # a bracket or brace, followed by a slash
     )
     (?<Variable>\w+)[}\]]     # then a <Variable> name followed by } or ]
+
 |                             # OR it can be in a query parameter:
-    (?<Start>[?&])            # Match The <Start>ing ? or & ...
-    (?<Query>[\w\-]+)         # ... the <Query> parameter name ...
+    (?<Start>[\?\&])          # Match The <Start>ing ? or & ...
+    (?<Query>[\$\w\-]+)       # ... the <Query> parameter name ...
     =                         # ... an equals ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
         \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
-        \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        \`$(?<Variable>\w+) | #     A $ followed by a <Variable> OR
-        \:(?<Variable>\w+)    #     A : followed by a <Variable>
     )
 )
 '@, 'IgnoreCase,IgnorePatternWhitespace')
