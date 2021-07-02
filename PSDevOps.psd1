@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.4'
+    ModuleVersion = '0.5.4.1'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,11 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5.4.1:
+---
+* Fixing Invoke-ADORestApi issues:  #111,#114,#115
+* Attaching .BuildID and .DefinitionID properties to Get-ADOBuild where appropriate.
+
 0.5.4:
 ---
 * Formatting Improvments:
@@ -96,14 +101,6 @@
 ** Get-ADOProject now has -TestRun, -TestPlan, -Release, and -PendingApproval (and better progress bars)
 ** Get-ADOWorkItemType now has -Field
 ** Commands for Picklists:  Add/Get/Remove/Update-ADOPicklist
-0.4.7
-----
-* New Commands:
-** Add/Get/Remove-ADOWiki
-** Get-ADOPermission
-* Bugfixes:
-** Honoring Get-ADOBuild -DefinitionName
-* Disconnect-ADO is now run prior at the start of Connect-ADO, and on module unload.
 '@
         }
         Colors = @{

@@ -157,33 +157,28 @@ Specifies the method used for the web request. The acceptable values for this pa
     )
 
      begin {
+        # From [Irregular](https://github.com/StartAutomating/Irregular):
+        # ?<REST_Variable> -VariableFormat Braces
         $RestVariable = [Regex]::new(@'
-# Matches URL segments and query strings containing variables.
-# Variables can be enclosed in brackets or curly braces, or preceeded by a $ or :
 (?>                           # A variable can be in a URL segment or subdomain
     (?<Start>[/\.])           # Match the <Start>ing slash|dot ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
-        \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
-        \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        `\$(?<Variable>\w+) | #     A `$ followed by a <Variable> OR
-        \:(?<Variable>\w+)    #     A : followed by a <Variable>
+        \{(?<Variable>\w+)\} # ... A <Variable> name in {} OR    
     )
 |
-    (?<IsOptional>            # If it's optional it can also be
+    (?<IsOptional>            # If it's optional it can also be 
         [{\[](?<Start>/)      # a bracket or brace, followed by a slash
     )
     (?<Variable>\w+)[}\]]     # then a <Variable> name followed by } or ]
+
 |                             # OR it can be in a query parameter:
-    (?<Start>[?&])            # Match The <Start>ing ? or & ...
-    (?<Query>[\w\-]+)         # ... the <Query> parameter name ...
+    (?<Start>[\?\&])          # Match The <Start>ing ? or & ...
+    (?<Query>[\$\w\-]+)       # ... the <Query> parameter name ... 
     =                         # ... an equals ...
     (?<IsOptional>\?)?        # ... an optional ? (to indicate optional) ...
     (?:
-        \{(?<Variable>\w+)\}| # ... A <Variable> name in {} OR
-        \[(?<Variable>\w+)\]| #     A <Variable> name in [] OR
-        \`$(?<Variable>\w+) | #     A $ followed by a <Variable> OR
-        \:(?<Variable>\w+)    #     A : followed by a <Variable>
+        \{(?<Variable>\w+)\} # ... A <Variable> name in {} OR
     )
 )
 '@, 'IgnoreCase,IgnorePatternWhitespace')
@@ -377,7 +372,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                         $streamIn.Dispose()
                         $PSCmdlet.WriteError(
                             [Management.Automation.ErrorRecord]::new(
-                                [Exception]::new($strResponse, $ex.Exception.InnerException
+                                [Exception]::new("$($ex.Exception.InnerException.Response.StatusCode, $ex.Exception.InnerException.Response.StatusDescription)$strResponse ", $ex.Exception.InnerException
                             ), $ex.Exception.HResult, 'NotSpecified', $webRequest)
                         )
                         return
@@ -402,7 +397,7 @@ $($MyInvocation.MyCommand.Name) @parameter
             if ($AsByte) {
                 $ms = [IO.MemoryStream]::new()
                 $rs.CopyTo($ms)
-                $ms.ToArray()
+                ,$ms.ToArray()
                 $ms.Dispose()
                 return
             }
@@ -424,6 +419,9 @@ $($MyInvocation.MyCommand.Name) @parameter
         $null = $null
         # We call Invoke-RestMethod with the parameters we've passed in.
         # It will take care of converting the results from JSON.
+        if ($response -is [byte[]]) {
+            return $response
+        }
 
         $apiOutput =
             $response |
@@ -434,7 +432,7 @@ $($MyInvocation.MyCommand.Name) @parameter
                 # A lot of things in the Azure DevOps REST apis come back as a count/value pair
                 if ($in -eq 'null') {
                     return
-                }
+                }                
                 if ($ExpandProperty) {
                     if ($in.$ExpandProperty) {
                         return $in.$ExpandProperty
@@ -456,7 +454,7 @@ $($MyInvocation.MyCommand.Name) @parameter
 
 
                 $in = $_
-                if ($in -is [string]) { return $in }
+                if ($in -is [string]) { return $in }                
                 if ($null -ne $in.Count -and $in.Count -eq 0) {
                     return
                 }
