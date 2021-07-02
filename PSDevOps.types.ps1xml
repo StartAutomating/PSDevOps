@@ -198,6 +198,62 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.Build.Artifact</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>Download</Name>
+        <Script>
+                        if ($this.resource.downloadUrl) {
+    Invoke-ADORestAPI -Uri $this.resource.downloadURL -AsByte
+}
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ArtifactData</Name>
+        <GetScriptBlock>
+                        $this.resource.data
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ArtifactType</Name>
+        <GetScriptBlock>
+                        $this.Resource.type
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.Build.Artifact</Name>
+    <Members>
+      <ScriptMethod>
+        <Name>Download</Name>
+        <Script>
+                        if ($this.resource.downloadUrl) {
+    Invoke-ADORestAPI -Uri $this.resource.downloadURL -AsByte
+}
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptProperty>
+        <Name>ArtifactData</Name>
+        <GetScriptBlock>
+                        $this.resource.data
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>ArtifactType</Name>
+        <GetScriptBlock>
+                        $this.Resource.type
+
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>

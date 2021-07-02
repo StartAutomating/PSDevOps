@@ -1,0 +1,1 @@
+﻿$this.Resource.type

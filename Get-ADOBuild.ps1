@@ -269,6 +269,11 @@
                 $definitionID = $psBoundParameters['DefinitionID'] = $in.DefinitionID
             }
         }
+        if (($ParameterSet -like '*{BuildId}*') -and 
+            -not $BuildID -and 
+            ($in.BuildID -ne $null)) {
+            $buildID      = $psBoundParameters['BuildID'] = $in.BuildID
+        }
 
         $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
     }
@@ -331,6 +336,7 @@
                 )"
 
             $subtypename = @($parameterSet -replace '/{\w+}', '' -split '/')[-1].TrimEnd('s')
+
             $subtypeName =
                 if ($subtypename -eq 'Build') {
                     ''
@@ -349,6 +355,19 @@
                     "$Organization.$project.Repository", "$Organization.Repository", "PSDevOps.Repository"
             }
 
+            $invokeParams.Property = @{
+                Organization = $Organization
+                Project = $Project
+                Server = $Server
+            }
+
+            if ($BuildID) {
+                $invokeParams.Property.BuildID = $BuildID
+            }
+
+            if ($DefinitionID) {
+                $invokeParams.Property.DefinitionID = $DefinitionID
+            }
 
             if ($Detail)
             {
@@ -356,11 +375,7 @@
                 $null = $DequedInput.Remove('Detail')
                 $null = $DequedInput.Remove('ParameterSet')
                 $null = $DequedInput.Remove('AsJob')
-                Invoke-ADORestAPI @invokeParams -Property @{
-                    Organization = $Organization
-                    Project = $Project
-                    Server = $Server
-                } |
+                Invoke-ADORestAPI @invokeParams |
                     Add-Member NoteProperty ChangeSet -Value (Get-ADOBuild @DequedInput -ChangeSet) -Force -PassThru |
                     Add-Member NoteProperty Timeline -Value (Get-ADOBuild @DequedInput -Timeline) -Force -PassThru |
                     Add-Member NoteProperty Artifacts -Value (Get-ADOBuild @DequedInput -Artifact) -Force -PassThru |
@@ -392,11 +407,7 @@
             }
             else
             {
-                Invoke-ADORestAPI @invokeParams -Property @{
-                    Organization = $Organization
-                    Project = $Project
-                    Server = $Server
-                }
+                Invoke-ADORestAPI @invokeParams
             }
         }
         if ($t -gt 1) {
