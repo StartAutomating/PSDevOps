@@ -93,6 +93,7 @@
 
     # If provided, will only return the first N results from a query.
     [Parameter(ParameterSetName='/{Organization}/{Project}/{Team}/_apis/wit/wiql',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
     [Alias('Top')]
     [uint32]
     $First,
@@ -102,6 +103,32 @@
     [Alias('WorkItemTypes','Type','Types')]
     [switch]
     $WorkItemType,
+
+    # If set, will return work item shared queries
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [switch]
+    $SharedQuery,
+
+    # If set, will return shared queries that have been deleted.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [switch]
+    $IncludeDeleted,
+
+    # If provided, will return shared queries up to a given depth.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [int]
+    $Depth,
+
+    # If provided, will filter the shared queries returned
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [int]
+    $SharedQueryFilter,
+
+    # Determines how data from shared queries will be expanded.  By default, expands all data.
+    [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [ValidateSet('All','Clauses','Minimal','None', 'Wiql')]
+    [string]
+    $ExpandSharedQuery = 'All',
 
     # One or more fields.
     [Alias('Fields','Select')]
@@ -181,6 +208,20 @@
             $selfSplat.Query = "Select [System.ID] from WorkItems Where [System.Title] contains '$title'"
             Get-ADOWorkItem @selfSplat
         }
+        elseif ($psCmdlet.ParameterSetName -eq '/{Organization}/{Project}/_apis/wit/queries') {
+            $myInvokeParams = @{} + $invokeParams
+            $myInvokeParams.Url = "$Server".TrimEnd('/') + $psCmdlet.ParameterSetName
+
+            $myInvokeParams.QueryParameter = @{'$expand'= $ExpandSharedQuery}
+            $myInvokeParams.UrlParameter = @{} + $psBoundParameters
+            if ($IncludeDeleted) { $myInvokeParams.QueryParameter.'$includeDeleted' = $true }
+            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}
+            Invoke-ADORestAPI @myInvokeParams -PSTypeName @(
+                "$Organization.$Project.SharedQuery" # * $Organization.$Project.SharedQuery
+                "$Organization.SharedQuery" # * $Organization.SharedQuery
+                "PSDevOps.SharedQuery" # * PSDevOps.SharedQuery
+            )
+        }
         elseif (
             $PSCmdlet.ParameterSetName -in
             '/{Organization}/{Project}/_apis/wit/workitems/{id}',
@@ -198,7 +239,7 @@
         elseif ($PSCmdlet.ParameterSetName -eq '/{Organization}/{Project}/{Team}/_apis/wit/wiql')
         {
             $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
-            $uri += 
+            $uri +=
                 @(if ($First) {
                     "`$top=$First"
                 }
