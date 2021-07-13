@@ -211,11 +211,12 @@
         elseif ($psCmdlet.ParameterSetName -eq '/{Organization}/{Project}/_apis/wit/queries') {
             $myInvokeParams = @{} + $invokeParams
             $myInvokeParams.Url = "$Server".TrimEnd('/') + $psCmdlet.ParameterSetName
-
+            
             $myInvokeParams.QueryParameter = @{'$expand'= $ExpandSharedQuery}
             $myInvokeParams.UrlParameter = @{} + $psBoundParameters
             if ($IncludeDeleted) { $myInvokeParams.QueryParameter.'$includeDeleted' = $true }
-            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}
+            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}           
+            $myInvokeParams.Property = @{Organization = $Organization;Project=$Project}
             Invoke-ADORestAPI @myInvokeParams -PSTypeName @(
                 "$Organization.$Project.SharedQuery" # * $Organization.$Project.SharedQuery
                 "$Organization.SharedQuery" # * $Organization.SharedQuery
@@ -239,7 +240,7 @@
         elseif ($PSCmdlet.ParameterSetName -eq '/{Organization}/{Project}/{Team}/_apis/wit/wiql')
         {
             $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
-            $uri +=
+            $uri += 
                 @(if ($First) {
                     "`$top=$First"
                 }
@@ -302,6 +303,7 @@
                 "api-version=$ApiVersion"
             }
             $invokeParams.Uri =  $uri
+            $invokeParams.Property = @{Organization = $Organization}
             $workItemTypes = Invoke-ADORestAPI @invokeParams
             $workItemTypes -replace '"":', '"_blank":' |
                 ConvertFrom-Json |
