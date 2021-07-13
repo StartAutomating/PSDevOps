@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.4.1'
+    ModuleVersion = '0.5.4.2'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,10 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5.4.2:
+---
+* Adding Register-ADOArtifactFeed (Fixes #118)
+
 0.5.4.1:
 ---
 * Fixing Invoke-ADORestApi issues:  #111,#114,#115
