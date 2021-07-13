@@ -6,6 +6,8 @@
     .Description
         Registers an Azure DevOps artifact feed as a PowerShell Repository.
         thThis allows Install-Module, Publish-Module, and Save-Module to work against an Azure DevOps artifact feed.
+    .Example
+        Register-ADOArtifactFeed -Organization MyOrg -Project MyProject -Name MyFeed -PersonalAccessToken $myPat
     .Link
         https://docs.microsoft.com/en-us/azure/devops/artifacts/tutorials/private-powershell-library?view=azure-devops
     .Link
@@ -21,6 +23,7 @@
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "",
         Justification="Abstracting Credential Structure is part of the point")]
+    [OutputType('Microsoft.PowerShell.Commands.PSRepository')]
     param(
     # The name of the organization.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -33,10 +36,9 @@
     $Project,
 
     # The name or ID of the feed.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
-    [Alias('fullyQualifiedId')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]    
     [string]
-    $FeedID,
+    $Name,
 
     # The personal access token used to connect to the feed.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -50,13 +52,13 @@
     $EmailAddress,
 
     # If provided, will create a repository source using a given name.
-    # By default, the RepositoryName will be $Organization-$Project-$FeedID
+    # By default, the RepositoryName will be $Organization-$Project-$Name
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $RepositoryName,
 
     # If provided, will create a repository using a given URL.
-    # By default, the RepositoryURL is predicted using -Organization, -Project, and -FeedID
+    # By default, the RepositoryURL is predicted using -Organization, -Project, and -Name
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $RepositoryUrl,
@@ -73,11 +75,11 @@
     process {
         #region Check if Repository Already Exists
         $targetName   = if ($RepositoryName) { $RepositoryName }
-                        elseif ($Project) { "${Organization}-${Project}-${FeedID}" }
-                        else { "${Organization}-${FeedID}" }
+                        elseif ($Project) { "${Organization}-${Project}-${Name}" }
+                        else { "${Organization}-${Name}" }
         $targetSource = if ($RepositoryUrl)  { $RepositoryUrl }
-                        elseif ($Project) { "https://pkgs.dev.azure.com/$Organization/$Project/_packaging/$FeedID/nuget/v2" }
-                        else { "https://pkgs.dev.azure.com/$Organization/_packaging/$FeedID/nuget/v2" }
+                        elseif ($Project) { "https://pkgs.dev.azure.com/$Organization/$Project/_packaging/$Name/nuget/v2" }
+                        else { "https://pkgs.dev.azure.com/$Organization/_packaging/$Name/nuget/v2" }
         $psRepoExists = $psRepos  |
             Where-Object {
                 $_.Name -eq $targetName -or
@@ -109,6 +111,9 @@
         $repoCred = [Management.Automation.PSCredential]::new($EmailAddress, (ConvertTo-SecureString -AsPlainText -Force $PersonalAccessToken))
 
         Register-PSRepository -Name $targetName -SourceLocation $targetSource -PublishLocation $targetSource -InstallationPolicy Trusted -Credential $repoCred
+        if ($?) {
+            Get-PSRepository -Name $targetName
+        }
         #endregion Create Credential and Register-PSRepository
     }
 }
