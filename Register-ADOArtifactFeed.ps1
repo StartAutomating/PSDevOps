@@ -28,7 +28,7 @@
     $Organization,
 
     # The Project
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $Project,
 
@@ -73,9 +73,11 @@
     process {
         #region Check if Repository Already Exists
         $targetName   = if ($RepositoryName) { $RepositoryName }
-                        else { "${Organization}-${Project}-${FeedID}" }
+                        elseif ($Project) { "${Organization}-${Project}-${FeedID}" }
+                        else { "${Organization}-${FeedID}" }
         $targetSource = if ($RepositoryUrl)  { $RepositoryUrl }
-                        else { "https://pkgs.dev.azure.com/$Organization/$Project/_packaging/$FeedID/nuget/v2" }
+                        elseif ($Project) { "https://pkgs.dev.azure.com/$Organization/$Project/_packaging/$FeedID/nuget/v2" }
+                        else { "https://pkgs.dev.azure.com/$Organization/_packaging/$FeedID/nuget/v2" }
         $psRepoExists = $psRepos  |
             Where-Object {
                 $_.Name -eq $targetName -or
