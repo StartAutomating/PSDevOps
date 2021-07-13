@@ -38,6 +38,12 @@
     [string]
     $Query,
 
+    # If set, will return work item shared queries
+    [Parameter(Mandatory,ParameterSetName='/{Organization}/{Project}/_apis/wit/queries/{QueryID}',ValueFromPipelineByPropertyName)]
+    [string]
+    $QueryID,
+
+
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -58,7 +64,12 @@
     }
 
     process {
-        if ($PSCmdlet.ParameterSetName -eq 'ByID') { # If we're removing by ID
+        $psParameterSet = $PSCmdlet.ParameterSetName
+        $in = $_
+        if ($in.QueryID) {
+            $psParameterSet = '/{Organization}/{Project}/_apis/wit/queries/{QueryID}'
+        }
+        if ($psParameterSet -eq 'ByID') { # If we're removing by ID
             $uriBase = "$Server".TrimEnd('/'), $Organization, $Project -join '/'
             $uri = $uriBase, "_apis/wit/workitems", "${ID}?" -join '/'
 
@@ -75,7 +86,7 @@
             $invokeParams.Method = 'DELETE'
             if (-not $PSCmdlet.ShouldProcess("Remove Work Item $ID")) { return }
             Invoke-ADORestAPI @invokeParams
-        } elseif ($PSCmdlet.ParameterSetName -eq 'ByQuery') {
+        } elseif ($psParameterSet -eq 'ByQuery') {
 
 
             $uri = "$Server".TrimEnd('/'), $Organization, $Project, "_apis/wit/wiql?" -join '/'
@@ -98,6 +109,16 @@
             }
 
             Write-Progress "Updating Work Items" "Complete" -Completed -Id $progId
+        }
+        elseif ($psParameterSet -eq '/{Organization}/{Project}/_apis/wit/queries/{QueryID}') {                       
+            $invokeParams.Method = "DELETE"            
+            $invokeParams["Uri"] = "$Server".TrimEnd('/') + $psParameterSet
+            $invokeParams.QueryParameter = @{"api-version"="$ApiVersion"}
+            if ($WhatIfPreference) {
+                $invokeParams.Remove('PersonalAccessToken')
+                return $invokeParams
+            }
+            Invoke-ADORestAPi @invokeParams
         }
     }
 }
