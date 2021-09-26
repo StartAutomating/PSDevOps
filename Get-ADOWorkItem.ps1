@@ -116,6 +116,7 @@
 
     # If provided, will return shared queries up to a given depth.
     [Parameter(ParameterSetName='/{Organization}/{Project}/_apis/wit/queries',ValueFromPipelineByPropertyName)]
+    [ValidateRange(0,2)]
     [int]
     $Depth,
 
@@ -215,13 +216,18 @@
             $myInvokeParams.QueryParameter = @{'$expand'= $ExpandSharedQuery}
             $myInvokeParams.UrlParameter = @{} + $psBoundParameters
             if ($IncludeDeleted) { $myInvokeParams.QueryParameter.'$includeDeleted' = $true }
-            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}           
+            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}   
+            if ($Depth) { $myInvokeParams.QueryParameter.'$depth' = $Depth}           
             $myInvokeParams.Property = @{Organization = $Organization;Project=$Project}
             Invoke-ADORestAPI @myInvokeParams -PSTypeName @(
                 "$Organization.$Project.SharedQuery" # * $Organization.$Project.SharedQuery
                 "$Organization.SharedQuery" # * $Organization.SharedQuery
                 "PSDevOps.SharedQuery" # * PSDevOps.SharedQuery
-            )
+            ) -DecorateProperty @{Children=
+                "$Organization.$Project.SharedQuery", # * $Organization.$Project.SharedQuery
+                "$Organization.SharedQuery", # * $Organization.SharedQuery
+                "PSDevOps.SharedQuery" # * PSDevOps.SharedQuery
+            }
         }
         elseif (
             $PSCmdlet.ParameterSetName -in
