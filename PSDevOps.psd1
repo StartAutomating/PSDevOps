@@ -12,6 +12,9 @@
 0.5.5:
 ---
 * Azure DevOps: Adding support for Shared Queries (Fixes #117)
+** Get-ADOWorkItem -SharedQuery can get shared queries
+** New-ADOWorkItem -WIQL will create shared queries.  -FolderName will create folders.
+** Remove-ADOWorkItem -QueryID can remove a shared query by ID
 * GitHub Workflows:
 ** Adding Job/Step definitions to Release Module
 ** Adding -NoCoverage to RunPester Step
