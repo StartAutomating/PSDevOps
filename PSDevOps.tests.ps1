@@ -702,7 +702,7 @@ describe 'Working with Work Items' {
 
             it 'Can create shared queries' {
                 $testWiql = "select * from WorkItems"
-                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL "select * from WorkItems" -QueryName Test -QueryPath "Shared Queries"  -PersonalAccessToken $testPat -WhatIf
+                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL $testWiql -QueryName Test -QueryPath "Shared Queries"  -PersonalAccessToken $testPat -WhatIf
                 $NewSharedQuery.body.wiql | Should -Be $testWiql
             }
         }
