@@ -198,6 +198,31 @@
         }
         #endregion Output Work Item
 
+
+        #region ExpandSharedQueries
+        $expandSharedQueries = {
+            param([Parameter(ValueFromPipeline)]$node)
+            process {
+                if (-not $node) { return }
+                $node.pstypenames.clear()
+                foreach ($typeName in "$organization.SharedQuery",
+                    "$organization.$Project.SharedQuery",
+                    "PSDevOps.SharedQuery"
+                ) {
+                    $node.pstypenames.Add($typeName)
+                }
+                $node |
+                    Add-Member NoteProperty Organization $organization -Force -PassThru |
+                    Add-Member NoteProperty Project $Project -Force -PassThru |
+                    Add-Member NoteProperty Server $Server -Force -PassThru
+                if ($node.haschildren) {
+                    $node.children |
+                        & $MyInvocation.MyCommand.ScriptBlock
+                }
+            }
+        }
+        #endregion ExpandSharedQueries
+
         $allIDS = [Collections.ArrayList]::new()
     }
 
@@ -212,22 +237,15 @@
         elseif ($psCmdlet.ParameterSetName -eq '/{Organization}/{Project}/_apis/wit/queries') {
             $myInvokeParams = @{} + $invokeParams
             $myInvokeParams.Url = "$Server".TrimEnd('/') + $psCmdlet.ParameterSetName
-            
+
             $myInvokeParams.QueryParameter = @{'$expand'= $ExpandSharedQuery}
             $myInvokeParams.UrlParameter = @{} + $psBoundParameters
             if ($IncludeDeleted) { $myInvokeParams.QueryParameter.'$includeDeleted' = $true }
-            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}   
-            if ($Depth) { $myInvokeParams.QueryParameter.'$depth' = $Depth}           
+            if ($First) { $myInvokeParams.QueryParameter.'$top' = $First}
+            if ($Depth) { $myInvokeParams.QueryParameter.'$depth' = $Depth}
             $myInvokeParams.Property = @{Organization = $Organization;Project=$Project}
-            Invoke-ADORestAPI @myInvokeParams -PSTypeName @(
-                "$Organization.$Project.SharedQuery" # * $Organization.$Project.SharedQuery
-                "$Organization.SharedQuery" # * $Organization.SharedQuery
-                "PSDevOps.SharedQuery" # * PSDevOps.SharedQuery
-            ) -DecorateProperty @{Children=
-                "$Organization.$Project.SharedQuery", # * $Organization.$Project.SharedQuery
-                "$Organization.SharedQuery", # * $Organization.SharedQuery
-                "PSDevOps.SharedQuery" # * PSDevOps.SharedQuery
-            }
+            Invoke-ADORestAPI @myInvokeParams | & $expandSharedQueries
+            return
         }
         elseif (
             $PSCmdlet.ParameterSetName -in
@@ -246,7 +264,7 @@
         elseif ($PSCmdlet.ParameterSetName -eq '/{Organization}/{Project}/{Team}/_apis/wit/wiql')
         {
             $uri = "$Server".TrimEnd('/') + (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) + '?'
-            $uri += 
+            $uri +=
                 @(if ($First) {
                     "`$top=$First"
                 }
@@ -261,7 +279,6 @@
                 } else {
                     $realQuery += ' AND '
                 }
-
 
                 $realQuery +=
                     @(
