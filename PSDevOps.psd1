@@ -12,7 +12,11 @@
 0.5.5:
 ---
 * Azure DevOps: Adding support for Shared Queries (Fixes #117)
-* GitHub Workflows:  Adding Job/Step definitions to Release Module
+* GitHub Workflows:
+** Adding Job/Step definitions to Release Module
+** Adding -NoCoverage to RunPester Step
+** Creating Example workflow that publishes PSDevOps.
+
 0.5.4.2:
 ---
 * Adding Register-ADOArtifactFeed (Fixes #118)
