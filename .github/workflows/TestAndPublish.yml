@@ -125,6 +125,8 @@ jobs:
           $Parameters = @{}
           $Parameters.ModulePath = ${env:ModulePath}
           $Parameters.PesterMaxVersion = ${env:PesterMaxVersion}
+          $Parameters.NoCoverage = ${env:NoCoverage}
+          $Parameters.NoCoverage = $parameters.NoCoverage -match 'true';
           foreach ($k in @($parameters.Keys)) {
               if ([String]::IsNullOrEmpty($parameters[$k])) {
                   $parameters.Remove($k)
@@ -143,7 +145,11 @@ jobs:
           $ModulePath,
           # The Pester max version.  By default, this is pinned to 4.99.99.
           [string]
-          $PesterMaxVersion = '4.99.99'
+          $PesterMaxVersion = '4.99.99',
+          
+          # If set, will not collect code coverage.
+          [switch]
+          $NoCoverage
           )
           
           $global:ErrorActionPreference = 'continue'
@@ -155,11 +161,18 @@ jobs:
           $importedModule = Import-Module $ModulePath -Force -PassThru
           $importedPester, $importedModule | Out-Host
           
+          $codeCoverageParameters = @{
+          CodeCoverage = "$($importedModule | Split-Path)\*-*.ps1"
+          CodeCoverageOutputFile = ".\$moduleName.Coverage.xml"
+          }
+          
+          if ($NoCoverage) {
+              $codeCoverageParameters = @{}
+          }
           
           
           $result = 
-              Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
-                  -CodeCoverage "$($importedModule | Split-Path)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
+              Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml @codeCoverageParameters
           
           "::set-output name=TotalCount::$($result.TotalCount)",
           "::set-output name=PassedCount::$($result.PassedCount)",
@@ -467,4 +480,6 @@ jobs:
               }
           }
           } @Parameters
-
+env: 
+  SYSTEM_ACCESSTOKEN: ${{ secrets.AZUREDEVOPSPAT }}
+  NoCoverage: true
