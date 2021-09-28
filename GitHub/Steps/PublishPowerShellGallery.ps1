@@ -15,7 +15,7 @@ $($gitHubEvent | ConvertTo-Json -Depth 100)
 
 if (-not ($gitHubEvent.head_commit.message -match "Merge Pull Request #(?<PRNumber>\d+)") -and 
     (-not $gitHubEvent.psobject.properties['inputs'])) {
-    "::warning::Pull Request has not merged, skipping" | Out-Host
+    "::warning::Pull Request has not merged, skipping Gallery Publish" | Out-Host
     return
 }
 
