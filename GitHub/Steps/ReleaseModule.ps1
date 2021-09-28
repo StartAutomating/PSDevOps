@@ -48,7 +48,8 @@ if (-not $imported) { return }
 
 $targetVersion  =$ExecutionContext.InvokeCommand.ExpandString($TagVersionFormat)
 $targetReleaseName = $targetVersion
-$releasesURL    = '${{env.GITHUB_API_URL}}/repos/${{github.repository}}/releases'
+$releasesURL    = 'https://api.github.com/repos/${{github.repository}}/releases'
+"Release URL: $releasesURL" | Out-Host
 $listOfReleases = Invoke-RestMethod -Uri $releasesURL -Method Get -Headers @{
     "Accept" = "application/vnd.github.v3+json"    
     "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
