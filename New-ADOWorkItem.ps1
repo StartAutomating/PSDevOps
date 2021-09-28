@@ -230,6 +230,7 @@
                 $queryPathParts = @($QueryPath -split '/')
                 $sharedQueries  = $null
                 foreach ($qp in $queryPathParts) {
+                    if (-not $qp) { continue }
                     if (-not ($qp -as [guid])) {
                         $sharedQueries  = Get-ADOWorkItem -SharedQuery @orgAndProject -Depth 2
                         break
