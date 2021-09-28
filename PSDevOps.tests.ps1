@@ -693,15 +693,7 @@ describe 'Working with Work Items' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
                 $queryResults[0].'System.WorkItemType' | should -be Epic
             }            
-
-            it 'Can create shared queries' {
-                $testWiql = "select * from WorkItems"
-                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL $testWiql -QueryName Test -PersonalAccessToken $testPat -WhatIf
-                $NewSharedQuery.body.wiql | Should -Be $testWiql
-            }
         }
-
-
 
         it 'Can create, update, and remove a work item' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
