@@ -692,17 +692,11 @@ describe 'Working with Work Items' {
             it 'Will not use workitemsbatch when using an old version of the REST api' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
                 $queryResults[0].'System.WorkItemType' | should -be Epic
-            }
-
-            it 'Can get shared queries' {
-                $sharedQueries = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -SharedQuery -PersonalAccessToken $testPat -Depth 2
-                $sharedQueryWiql = $sharedQueries | Where-Object Wiql | Select-Object -ExpandProperty Wiql
-                $sharedQueryWiql | Should -BeLike '*select*from*workitems'
-            }
+            }            
 
             it 'Can create shared queries' {
                 $testWiql = "select * from WorkItems"
-                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL $testWiql -QueryName Test -QueryPath "Shared Queries"  -PersonalAccessToken $testPat -WhatIf
+                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL $testWiql -QueryName Test -PersonalAccessToken $testPat -WhatIf
                 $NewSharedQuery.body.wiql | Should -Be $testWiql
             }
         }
