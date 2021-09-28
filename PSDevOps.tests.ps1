@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -291,7 +291,7 @@ describe 'Calling REST APIs' {
         }
 
         it 'Can set team -DefaultAreaPath and -AreaPath' {
-            $whatIf = 
+            $whatIf =
                 Get-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID 'PSDevOps Team' -PersonalAccessToken $testPat |
                     Set-ADOTeam -DefaultAreaPath "MyAreaPath" -WhatIf -AreaPath "An\AreaPath", "Another\AreaPath"
 
@@ -299,8 +299,8 @@ describe 'Calling REST APIs' {
             $whatIf.Uri | Should -BeLike '*teamFieldvalue*'
             $whatIf.Body.defaultValue | Should -Be MyAreaPath
 
-            
-        } 
+
+        }
     }
 
     context Repositories {
@@ -692,10 +692,8 @@ describe 'Working with Work Items' {
             it 'Will not use workitemsbatch when using an old version of the REST api' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
                 $queryResults[0].'System.WorkItemType' | should -be Epic
-            }
+            }            
         }
-
-
 
         it 'Can create, update, and remove a work item' {
             $splat = @{Organization = $TestOrg; Project = $TestProject; PersonalAccessToken = $testPat }
@@ -707,6 +705,8 @@ describe 'Working with Work Items' {
             $wi2.'System.Description' | should -be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
+
+
 
         it 'Can get work proccesses' {
             Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |

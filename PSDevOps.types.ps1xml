@@ -1084,6 +1084,24 @@ $bitMask
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.SharedQuery</Name>
+    <Members>
+      <AliasProperty>
+        <Name>QueryID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.SharedQuery</Name>
+    <Members>
+      <AliasProperty>
+        <Name>QueryID</Name>
+        <ReferencedMemberName>ID</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.State</Name>
     <Members>
       <AliasProperty>
