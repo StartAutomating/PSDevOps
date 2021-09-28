@@ -15,7 +15,7 @@
     [OutputType('PSDevOps.WorkItem')]
     param(
     # The InputObject
-    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]    
+    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [PSObject]
     $InputObject,
 
@@ -51,7 +51,7 @@
     [Parameter(ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
     [ValidateSet('childFirst','parentFirst')]
     [string]
-    $QueryRecursiveOption,    
+    $QueryRecursiveOption,
 
     # If provided, create a shared query folder.
     [Parameter(Mandatory, ParameterSetName='SharedQueryFolder',ValueFromPipelineByPropertyName)]
@@ -97,7 +97,7 @@
     $BypassRule,
 
     # If set, will only validate rules, but will not update the work item.
-    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('ValidateRules','ValidateRule','CheckRule','CheckRules')]
     [switch]
     $ValidateOnly,
@@ -194,7 +194,7 @@
         }
         #endregion Output Work Item
 
-        
+
 
         $q = [Collections.Queue]::new()
     }
@@ -228,8 +228,8 @@
                 }
 
                 $queryPathParts = @($QueryPath -split '/')
-                $sharedQueries  = $null 
-                foreach ($qp in $queryPathParts) { 
+                $sharedQueries  = $null
+                foreach ($qp in $queryPathParts) {
                     if (-not ($qp -as [guid])) {
                         $sharedQueries  = Get-ADOWorkItem -SharedQuery @orgAndProject -Depth 2
                         break
@@ -237,7 +237,7 @@
                 }
 
                 if ($sharedQueries) {
-                    $queryPathId = $sharedQueries | 
+                    $queryPathId = $sharedQueries |
                        Where-Object Path -eq $QueryPath |
                        Select-Object -ExpandProperty ID
                     if (-not $queryPathId) {
@@ -246,16 +246,17 @@
                     } else {
                         $QueryPath = $queryPathId
                     }
-                }                
+                }
 
                 $uri = $uriBase, "_apis/wit/queries", $(if ($QueryPath) { $QueryPath }) -ne '' -join '/'
                 $uri = $uri.ToString().TrimEnd('/')
-                $uri += '?' + 
-                    @(
-                        if ($ApiVersion) {"api-version=$ApiVersion" }
-                    ) -join '&'
+                $uri += '?' +
+                    (@(
+                        if ($ApiVersion) { "api-version=$ApiVersion" }
+                        if ($validateOnly) { "validateWiqlOnly=true" }
+                    ) -join '&')
                 $invokeParams.uri = $uri
-                
+
                 $queryObject = @{}
                 if ($psParameterSet -eq 'SharedQueryFolder') {
                     $queryObject['name'] = $FolderName
@@ -266,9 +267,11 @@
                     if ($queryRecursionOption) {
                         $queryObject['queryRecursionOption'] = $queryRecursionOption
                     }
+
                 } else {
                     $queryObject['name'] = $QueryName
                     $queryObject['wiql'] = $WIQL
+
                 }
 
                 $invokeParams.Body = ConvertTo-Json $queryObject -Depth 100
@@ -284,7 +287,7 @@
                     $invokeParams
                     continue
                 }
-                
+
                 if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { continue }
                 $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
                 $restResponse
