@@ -10,7 +10,11 @@ param(
 $ModulePath,
 # The Pester max version.  By default, this is pinned to 4.99.99.
 [string]
-$PesterMaxVersion = '4.99.99'
+$PesterMaxVersion = '4.99.99',
+
+# If set, will not collect code coverage.
+[switch]
+$NoCoverage
 )
 
 $global:ErrorActionPreference = 'continue'
@@ -22,11 +26,18 @@ $importedPester = Import-Module Pester -Force -PassThru -MaximumVersion $PesterM
 $importedModule = Import-Module $ModulePath -Force -PassThru
 $importedPester, $importedModule | Out-Host
 
+$codeCoverageParameters = @{
+CodeCoverage = "$($importedModule | Split-Path)\*-*.ps1"
+CodeCoverageOutputFile = ".\$moduleName.Coverage.xml"
+}
+
+if ($NoCoverage) {
+    $codeCoverageParameters = @{}
+}
 
 
 $result = 
-    Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml `
-        -CodeCoverage "$($importedModule | Split-Path)\*-*.ps1" -CodeCoverageOutputFile ".\$moduleName.Coverage.xml"
+    Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml @codeCoverageParameters
 
 "::set-output name=TotalCount::$($result.TotalCount)",
 "::set-output name=PassedCount::$($result.PassedCount)",
