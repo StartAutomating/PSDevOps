@@ -1,0 +1,485 @@
+﻿
+name: Analyze, Test, Tag, and Publish
+on: 
+  push: 
+  pull_request: 
+  workflow_dispatch: 
+jobs: 
+  PowerShellStaticAnalysis: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: InstallScriptCop
+        id: InstallScriptCop
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module -Name ScriptCop -Repository PSGallery -Force -Scope CurrentUser
+          Import-Module ScriptCop -Force -PassThru
+      - name: InstallPSScriptAnalyzer
+        id: InstallPSScriptAnalyzer
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module -Name PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser
+          Import-Module PSScriptAnalyzer -Force -PassThru
+      - name: InstallPSDevOps
+        id: InstallPSDevOps
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module -Name PSDevOps -Repository PSGallery -Force -Scope CurrentUser
+          Import-Module PSDevOps -Force -PassThru
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: RunScriptCop
+        id: RunScriptCop
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: RunScriptCop $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {param([string]$ModulePath)
+          Import-Module ScriptCop, PSDevOps -PassThru | Out-Host
+          
+          if (-not $ModulePath) {
+              $orgName, $moduleName = $env:GITHUB_REPOSITORY -split "/"
+              $ModulePath = ".\$moduleName.psd1"
+          }
+          if ($ModulePath -like '*PSDevOps*') { 
+              Remove-Module PSDeVOps # If running ScriptCop on PSDeVOps, we need to remove the global module first.
+          }
+          
+           
+          $importedModule =Import-Module $ModulePath -Force -PassThru 
+          
+          $importedModule | Out-Host
+          
+          $importedModule | 
+              Test-Command |
+              Tee-Object -Variable scriptCopIssues |
+              Out-Host
+          
+          foreach ($issue in $scriptCopIssues) {
+              Write-GitHubWarning -Message "$($issue.ItemWithProblem): $($issue.Problem)"
+          }
+          } @Parameters
+      - name: RunPSScriptAnalyzer
+        id: RunPSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Import-Module PSScriptAnalyzer, PSDevOps -PassThru | Out-Host
+          $invokeScriptAnalyzerSplat = @{Path='.\'}
+          if ($ENV:PSScriptAnalyzer_Recurse) {
+              $invokeScriptAnalyzerSplat.Recurse = $true
+          }
+          $result = Invoke-ScriptAnalyzer @invokeScriptAnalyzerSplat
+          
+          foreach ($r in $result) {
+              if ('information', 'warning' -contains $r.Severity) {
+                  Write-GitHubWarning -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
+              }
+              elseif ($r.Severity -eq 'Error') {
+                  Write-GitHubError -Message "$($r.RuleName) : $($r.Message)" -SourcePath $r.ScriptPath -LineNumber $r.Line -ColumnNumber $r.Column
+              }
+          }
+  TestPowerShellOnLinux: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: InstallPester
+        id: InstallPester
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.PesterMaxVersion = ${env:PesterMaxVersion}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: InstallPester $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {<#
+          .Synopsis
+              Installs Pester
+          .Description
+              Installs Pester
+          #>
+          param(
+          # The maximum pester version.  Defaults to 4.99.99.
+          [string]
+          $PesterMaxVersion = '4.99.99'
+          )
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module -Name Pester -Repository PSGallery -Force -Scope CurrentUser -MaximumVersion $PesterMaxVersion -SkipPublisherCheck -AllowClobber
+          Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion} @Parameters
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: RunPester
+        id: RunPester
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          $Parameters.PesterMaxVersion = ${env:PesterMaxVersion}
+          $Parameters.NoCoverage = ${env:NoCoverage}
+          $Parameters.NoCoverage = $parameters.NoCoverage -match 'true';
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: RunPester $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {<#
+          .Synopsis
+              Runs Pester
+          .Description
+              Runs Pester tests after importing a PowerShell module
+          #>
+          param(
+          # The module path.  If not provided, will default to the second half of the repository ID.
+          [string]
+          $ModulePath,
+          # The Pester max version.  By default, this is pinned to 4.99.99.
+          [string]
+          $PesterMaxVersion = '4.99.99',
+          
+          # If set, will not collect code coverage.
+          [switch]
+          $NoCoverage
+          )
+          
+          $global:ErrorActionPreference = 'continue'
+          $global:ProgressPreference    = 'silentlycontinue'
+          
+          $orgName, $moduleName = $env:GITHUB_REPOSITORY -split "/"
+          if (-not $ModulePath) { $ModulePath = ".\$moduleName.psd1" }
+          $importedPester = Import-Module Pester -Force -PassThru -MaximumVersion $PesterMaxVersion
+          $importedModule = Import-Module $ModulePath -Force -PassThru
+          $importedPester, $importedModule | Out-Host
+          
+          $codeCoverageParameters = @{
+          CodeCoverage = "$($importedModule | Split-Path)\*-*.ps1"
+          CodeCoverageOutputFile = ".\$moduleName.Coverage.xml"
+          }
+          
+          if ($NoCoverage) {
+              $codeCoverageParameters = @{}
+          }
+          
+          
+          $result = 
+              Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml @codeCoverageParameters
+          
+          "::set-output name=TotalCount::$($result.TotalCount)",
+          "::set-output name=PassedCount::$($result.PassedCount)",
+          "::set-output name=FailedCount::$($result.FailedCount)" | Out-Host
+          if ($result.FailedCount -gt 0) {
+              "::debug:: $($result.FailedCount) tests failed"
+              foreach ($r in $result.TestResult) {
+                  if (-not $r.Passed) {
+                      "::error::$($r.describe, $r.context, $r.name -join ' ') $($r.FailureMessage)"
+                  }
+              }
+              throw "::error:: $($result.FailedCount) tests failed"
+          }
+          } @Parameters
+      - name: PublishTestResults
+        uses: actions/upload-artifact@v2
+        with: 
+          name: PesterResults
+          path: '**.TestResults.xml'
+        if: ${{always()}}
+  TagReleaseAndPublish: 
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    steps: 
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: TagModuleVersion
+        id: TagModuleVersion
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          $Parameters.UserEmail = ${env:UserEmail}
+          $Parameters.UserName = ${env:UserName}
+          $Parameters.TagVersionFormat = ${env:TagVersionFormat}
+          $Parameters.TagAnnotationFormat = ${env:TagAnnotationFormat}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: TagModuleVersion $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {param(
+          [string]
+          $ModulePath,
+          
+          # The user email associated with a git commit.
+          [string]
+          $UserEmail,
+          
+          # The user name associated with a git commit.
+          [string]
+          $UserName,
+          
+          # The tag version format (default value: 'v$(imported.Version)')
+          # This can expand variables.  $imported will contain the imported module.
+          [string]
+          $TagVersionFormat = 'v$($imported.Version)',
+          
+          # The tag version format (default value: '$($imported.Name) $(imported.Version)')
+          # This can expand variables.  $imported will contain the imported module.
+          [string]
+          $TagAnnotationFormat = '$($imported.Name) $($imported.Version)'
+          )
+          
+          
+          $gitHubEvent = if ($env:GITHUB_EVENT_PATH) {
+              [IO.File]::ReadAllText($env:GITHUB_EVENT_PATH) | ConvertFrom-Json
+          } else { $null }
+          
+          
+          @"
+          ::group::GitHubEvent
+          $($gitHubEvent | ConvertTo-Json -Depth 100)
+          ::endgroup::
+          "@ | Out-Host
+          
+          if (-not ($gitHubEvent.head_commit.message -match "Merge Pull Request #(?<PRNumber>\d+)") -and 
+              (-not $gitHubEvent.psobject.properties['inputs'])) {
+              "::warning::Pull Request has not merged, skipping Tagging" | Out-Host
+              return
+          }
+          
+          
+          
+          $imported = 
+          if (-not $ModulePath) {
+              $orgName, $moduleName = $env:GITHUB_REPOSITORY -split "/"
+              Import-Module ".\$moduleName.psd1" -Force -PassThru -Global
+          } else {    
+              Import-Module $modulePath -Force -PassThru -Global
+          }
+          
+          if (-not $imported) { return } 
+          
+          $targetVersion  =$ExecutionContext.InvokeCommand.ExpandString($TagVersionFormat)
+          $existingTags     = git tag --list
+          
+          @"
+          Target Version: $targetVersion
+          
+          Existing Tags:
+          $($existingTags  -join [Environment]::NewLine)
+          "@ | Out-Host
+          
+          $versionTagExists = $existingTags | Where-Object { $_ -match $targetVersion } 
+          
+          if ($versionTagExists) { 
+              "::warning::Version $($versionTagExists)"
+              return 
+          }
+          
+          if (-not $UserName) { $UserName = $env:GITHUB_ACTOR }
+          if (-not $UserEmail) { $UserEmail = "$UserName@github.com" }
+          git config --global user.email $UserEmail
+          git config --global user.name  $UserName
+          
+          git tag -a $targetVersion -m $ExecutionContext.InvokeCommand.ExpandString($TagAnnotationFormat)
+          git push origin --tags
+           
+          if ($env:GITHUB_ACTOR) {
+              exit 0
+          }} @Parameters
+      - name: ReleaseModule
+        id: ReleaseModule
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          $Parameters.UserEmail = ${env:UserEmail}
+          $Parameters.UserName = ${env:UserName}
+          $Parameters.TagVersionFormat = ${env:TagVersionFormat}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: ReleaseModule $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {param(
+          [string]
+          $ModulePath,
+          
+          # The user email associated with a git commit.
+          [string]
+          $UserEmail,
+          
+          # The user name associated with a git commit.
+          [string]
+          $UserName,
+          
+          # The tag version format (default value: 'v$(imported.Version)')
+          # This can expand variables.  $imported will contain the imported module.
+          [string]
+          $TagVersionFormat = 'v$($imported.Version)'
+          )
+          
+          
+          $gitHubEvent = if ($env:GITHUB_EVENT_PATH) {
+              [IO.File]::ReadAllText($env:GITHUB_EVENT_PATH) | ConvertFrom-Json
+          } else { $null }
+          
+          
+          @"
+          ::group::GitHubEvent
+          $($gitHubEvent | ConvertTo-Json -Depth 100)
+          ::endgroup::
+          "@ | Out-Host
+          
+          if (-not ($gitHubEvent.head_commit.message -match "Merge Pull Request #(?<PRNumber>\d+)") -and 
+              (-not $gitHubEvent.psobject.properties['inputs'])) {
+              "::warning::Pull Request has not merged, skipping GitHub release" | Out-Host
+              return
+          }
+          
+          
+          
+          $imported = 
+          if (-not $ModulePath) {
+              $orgName, $moduleName = $env:GITHUB_REPOSITORY -split "/"
+              Import-Module ".\$moduleName.psd1" -Force -PassThru -Global
+          } else {    
+              Import-Module $modulePath -Force -PassThru -Global
+          }
+          
+          if (-not $imported) { return } 
+          
+          $targetVersion  =$ExecutionContext.InvokeCommand.ExpandString($TagVersionFormat)
+          $targetReleaseName = $targetVersion
+          $releasesURL    = 'https://api.github.com/repos/${{github.repository}}/releases'
+          "Release URL: $releasesURL" | Out-Host
+          $listOfReleases = Invoke-RestMethod -Uri $releasesURL -Method Get -Headers @{
+              "Accept" = "application/vnd.github.v3+json"    
+              "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+          }
+          
+          $releaseExists = $listOfReleases | Where-Object tag_name -eq $targetVersion
+          
+          if ($releaseExists) {
+              "::warning::Release '$($releaseExists.Name )' Already Exists" | Out-Host
+              return
+          }
+          
+          
+          Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
+              [Ordered]@{
+                  owner = '${{github.owner}}'
+                  repo  = '${{github.repository}}'
+                  tag_name = $targetVersion
+                  name = "$($imported.Name) $targetVersion"
+                  body = 
+                      if ($env:RELEASENOTES) {
+                          $env:RELEASENOTES
+                      } elseif ($imported.PrivateData.PSData.ReleaseNotes) {
+                          $imported.PrivateData.PSData.ReleaseNotes
+                      } else {
+                          "$($imported.Name) $targetVersion"
+                      }
+                  draft = if ($env:RELEASEISDRAFT) { [bool]::Parse($env:RELEASEISDRAFT) } else { $false }
+                  prerelease = if ($env:PRERELEASE) { [bool]::Parse($env:PRERELEASE) } else { $false }
+              } | ConvertTo-Json
+          ) -Headers @{
+              "Accept" = "application/vnd.github.v3+json"
+              "Content-type" = "application/json"
+              "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+          }
+          } @Parameters
+      - name: PublishPowerShellGallery
+        id: PublishPowerShellGallery
+        shell: pwsh
+        run: |
+          $Parameters = @{}
+          $Parameters.ModulePath = ${env:ModulePath}
+          foreach ($k in @($parameters.Keys)) {
+              if ([String]::IsNullOrEmpty($parameters[$k])) {
+                  $parameters.Remove($k)
+              }
+          }
+          Write-Host "::debug:: PublishPowerShellGallery $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
+          & {param(
+          [string]
+          $ModulePath
+          )
+          $gitHubEvent = if ($env:GITHUB_EVENT_PATH) {
+              [IO.File]::ReadAllText($env:GITHUB_EVENT_PATH) | ConvertFrom-Json
+          } else { $null }
+          
+          
+          @"
+          ::group::GitHubEvent
+          $($gitHubEvent | ConvertTo-Json -Depth 100)
+          ::endgroup::
+          "@ | Out-Host
+          
+          if (-not ($gitHubEvent.head_commit.message -match "Merge Pull Request #(?<PRNumber>\d+)") -and 
+              (-not $gitHubEvent.psobject.properties['inputs'])) {
+              "::warning::Pull Request has not merged, skipping Gallery Publish" | Out-Host
+              return
+          }
+          
+          
+          $imported = 
+          if (-not $ModulePath) {
+              $orgName, $moduleName = $env:GITHUB_REPOSITORY -split "/"
+              Import-Module ".\$moduleName.psd1" -Force -PassThru -Global
+          } else {    
+              Import-Module $modulePath -Force -PassThru -Global
+          }
+          
+          if (-not $imported) { return } 
+          
+          $foundModule = try { Find-Module -Name $imported.Name -ErrorAction SilentlyContinue } catch {}
+          
+          if ($foundModule -and $foundModule.Version -ge $imported.Version) {
+              "::warning::Gallery Version of $moduleName is more recent ($($foundModule.Version) >= $($imported.Version))" | Out-Host        
+          } else {
+              
+              $gk = '${{secrets.GALLERYKEY}}'
+              
+              $rn = Get-Random
+              $moduleTempFolder = Join-Path $pwd "$rn"
+              $moduleTempPath = Join-Path $moduleTempFolder $moduleName
+              New-Item -ItemType Directory -Path $moduleTempPath -Force | Out-Host
+                              
+              Write-Host "Staging Directory: $ModuleTempPath"
+                                      
+              $imported | Split-Path | 
+                  Get-ChildItem -Force | 
+                  Where-Object Name -NE $rn |
+                  Copy-Item -Destination $moduleTempPath -Recurse
+              
+              $moduleGitPath = Join-Path $moduleTempPath '.git'
+              Write-Host "Removing .git directory"
+              if (Test-Path $moduleGitPath) {
+                  Remove-Item -Recurse -Force $moduleGitPath
+              }
+              Write-Host "Module Files:"
+              Get-ChildItem $moduleTempPath -Recurse
+              Write-Host "Publishing $moduleName [$($imported.Version)] to Gallery"
+              Publish-Module -Path $moduleTempPath -NuGetApiKey $gk
+              if ($?) {
+                  Write-Host "Published to Gallery"
+              } else {
+                  Write-Host "Gallery Publish Failed"
+                  exit 1
+              }
+          }
+          } @Parameters
+env: 
+  SYSTEM_ACCESSTOKEN: ${{ secrets.AZUREDEVOPSPAT }}
+  NoCoverage: true

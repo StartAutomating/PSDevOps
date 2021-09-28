@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.4.2'
+    ModuleVersion = '0.5.5'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
@@ -9,6 +9,17 @@
             ProjectURI = 'https://github.com/StartAutomating/PSDevOps'
             LicenseURI = 'https://github.com/StartAutomating/PSDevOps/blob/master/LICENSE'
             ReleaseNotes = @'
+0.5.5:
+---
+* Azure DevOps: Adding support for Shared Queries (Fixes #117)
+** Get-ADOWorkItem -SharedQuery can get shared queries
+** New-ADOWorkItem -WIQL will create shared queries.  -FolderName will create folders.
+** Remove-ADOWorkItem -QueryID can remove a shared query by ID
+* GitHub Workflows:
+** Adding Job/Step definitions to Release Module
+** Adding -NoCoverage to RunPester Step
+** Creating Example workflow that publishes PSDevOps.
+
 0.5.4.2:
 ---
 * Adding Register-ADOArtifactFeed (Fixes #118)
@@ -94,17 +105,6 @@
 ** PSDevOps now includes a file to generate it's own build
 ** PublishTest/CodeCoverage Results steps will always() run
 ** Convert-BuildStep will add a .Name to each script step.
-0.4.8
----
-* Improved Tracing
-** New Commands: Write-ADOOutput, Trace-ADOCommand/GitHubCommand
-** Renaming Command / Adding Parameters:  Set-ADOVariable -> Write-ADOVariable.  Added -IsOutput & -IsReadOnly.
-** Adding Trace-GitHubCommand/ADOCommand
-** Improved logging of parameters in Convert-BuildStep
-* New Functionality in Azure DevOps:
-** Get-ADOProject now has -TestRun, -TestPlan, -Release, and -PendingApproval (and better progress bars)
-** Get-ADOWorkItemType now has -Field
-** Commands for Picklists:  Add/Get/Remove/Update-ADOPicklist
 '@
         }
         Colors = @{
