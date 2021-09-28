@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]
     $TestOrg = 'StartAutomating',
     [string]
@@ -291,7 +291,7 @@ describe 'Calling REST APIs' {
         }
 
         it 'Can set team -DefaultAreaPath and -AreaPath' {
-            $whatIf = 
+            $whatIf =
                 Get-ADOTeam -Organization StartAutomating -Project PSDevOps -TeamID 'PSDevOps Team' -PersonalAccessToken $testPat |
                     Set-ADOTeam -DefaultAreaPath "MyAreaPath" -WhatIf -AreaPath "An\AreaPath", "Another\AreaPath"
 
@@ -299,8 +299,8 @@ describe 'Calling REST APIs' {
             $whatIf.Uri | Should -BeLike '*teamFieldvalue*'
             $whatIf.Body.defaultValue | Should -Be MyAreaPath
 
-            
-        } 
+
+        }
     }
 
     context Repositories {
@@ -693,6 +693,18 @@ describe 'Working with Work Items' {
                 $queryResults = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query 'Select [System.ID] from WorkItems Where [System.WorkItemType] = "Epic"' -PersonalAccessToken $testPat -ApiVersion '3.0'
                 $queryResults[0].'System.WorkItemType' | should -be Epic
             }
+
+            it 'Can get shared queries' {
+                $sharedQueries = Get-ADOWorkItem -Organization StartAutomating -Project PSDevOps -SharedQuery -PersonalAccessToken $testPat -Depth 2
+                $sharedQueryWiql = $sharedQueries | Where-Object Wiql | Select-Object -ExpandProperty Wiql
+                $sharedQueryWiql | Should -BeLike '*select*from*workitems'
+            }
+
+            it 'Can create shared queries' {
+                $testWiql = "select * from WorkItems"
+                $NewSharedQuery = New-ADOWorkItem -Organization StartAutomating -Project PSDevOps -WIQL "select * from WorkItems" -QueryName Test -QueryPath "Shared Queries"  -PersonalAccessToken $testPat -WhatIf
+                $NewSharedQuery.body.wiql | Should -Be $testWiql
+            }
         }
 
 
@@ -707,6 +719,8 @@ describe 'Working with Work Items' {
             $wi2.'System.Description' | should -be 'Updating Via query'
             Remove-ADOWorkItem @splat -Query "select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -Confirm:$false
         }
+
+
 
         it 'Can get work proccesses' {
             Get-ADOWorkProcess -Organization $TestOrg -PersonalAccessToken $testPat |
