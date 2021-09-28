@@ -11,22 +11,55 @@
     .Link
         Invoke-ADORestAPI
     #>
-    [CmdletBinding(DefaultParameterSetName='ByID',SupportsShouldProcess=$true)]
+    [CmdletBinding(DefaultParameterSetName='WorkItem',SupportsShouldProcess=$true)]
     [OutputType('PSDevOps.WorkItem')]
     param(
     # The InputObject
-    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]    
     [PSObject]
     $InputObject,
 
     # The type of the work item.
-    [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+    [Parameter(Mandatory, ParameterSetName='WorkItem',ValueFromPipelineByPropertyName)]
     [Alias('WorkItemType')]
     [string]
     $Type,
 
+    # If set, will create a shared query for work items.  The -InputObject will be passed to the body.
+    [Parameter(Mandatory,ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
+    [string]
+    $QueryName,
+
+    # If provided, will create shared queries beneath a given folder.
+    [Parameter(ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
+    [Parameter(ParameterSetName='SharedQueryFolder',ValueFromPipelineByPropertyName)]
+    [string]
+    $QueryPath,
+
+    # If provided, create a shared query with a given WIQL.
+    [Parameter(Mandatory, ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
+    [string]
+    $WIQL,
+
+    # If provided, the shared query created may be hierchical
+    [Parameter(ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
+    [ValidateSet('Flat','OneHop', 'Tree')]
+    [string]
+    $QueryType,
+
+    # The recursion option for use in a tree query.
+    [Parameter(ParameterSetName='SharedQuery',ValueFromPipelineByPropertyName)]
+    [ValidateSet('childFirst','parentFirst')]
+    [string]
+    $QueryRecursiveOption,    
+
+    # If provided, create a shared query folder.
+    [Parameter(Mandatory, ParameterSetName='SharedQueryFolder',ValueFromPipelineByPropertyName)]
+    [string]
+    $FolderName,
+
     # The work item ParentID
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [string]
     $ParentID,
 
@@ -42,13 +75,13 @@
     $Project,
 
     # A collection of relationships for the work item.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [Alias('Relationships')]
     [Collections.IDictionary]
     $Relationship,
 
     # A list of comments to be added to the work item.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [PSObject[]]
     $Comment,
 
@@ -58,19 +91,19 @@
     $Tag,
 
     # If set, will not validate rules.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [Alias('BypassRules','NoRules','NoRule')]
     [switch]
     $BypassRule,
 
     # If set, will only validate rules, but will not update the work item.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [Alias('ValidateRules','ValidateRule','CheckRule','CheckRules')]
     [switch]
     $ValidateOnly,
 
     # If set, will only validate rules, but will not update the work item.
-    [Parameter(ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='WorkItem')]
     [Alias('SuppressNotifications','SkipNotification','SkipNotifications','NoNotify')]
     [switch]
     $SupressNotification,
@@ -160,6 +193,9 @@
             }
         }
         #endregion Output Work Item
+
+        
+
         $q = [Collections.Queue]::new()
     }
 
@@ -177,13 +213,84 @@
 
             $c++
             Write-Progress "Creating" "$type [$c/$t]" -PercentComplete ($c * 100 / $t) -Id $progId
-
+            $orgAndProject = @{Organization=$Organization;Project=$Project}
             $validFields =
                     if ($script:ADOFieldCache.$uribase) {
                         $script:ADOFieldCache.$uribase
                     } else {
-                        Get-ADOField -Organization $Organization -Project $Project -Server $Server @invokeParams
+                        Get-ADOField @orgAndProject -Server $Server @invokeParams
                     }
+
+            if ($psParameterSet -in 'SharedQuery', 'SharedQueryFolder') {
+                if ($Server -ne 'https://dev.azure.com/' -and
+                    -not $PSBoundParameters.ApiVersion) {
+                    $ApiVersion = '2.0'
+                }
+
+                $queryPathParts = @($QueryPath -split '/')
+                $sharedQueries  = $null 
+                foreach ($qp in $queryPathParts) { 
+                    if (-not ($qp -as [guid])) {
+                        $sharedQueries  = Get-ADOWorkItem -SharedQuery @orgAndProject -Depth 2
+                        break
+                    }
+                }
+
+                if ($sharedQueries) {
+                    $queryPathId = $sharedQueries | 
+                       Where-Object Path -eq $QueryPath |
+                       Select-Object -ExpandProperty ID
+                    if (-not $queryPathId) {
+                        Write-Error "Unable to find Query Path '$QueryPath'"
+                        continue
+                    } else {
+                        $QueryPath = $queryPathId
+                    }
+                }                
+
+                $uri = $uriBase, "_apis/wit/queries", $(if ($QueryPath) { $QueryPath }) -ne '' -join '/'
+                $uri = $uri.ToString().TrimEnd('/')
+                $uri += '?' + 
+                    @(
+                        if ($ApiVersion) {"api-version=$ApiVersion" }
+                    ) -join '&'
+                $invokeParams.uri = $uri
+                
+                $queryObject = @{}
+                if ($psParameterSet -eq 'SharedQueryFolder') {
+                    $queryObject['name'] = $FolderName
+                    $queryObject['isFolder'] = $true
+                    if ($QueryType) {
+                        $queryObject['queryType'] = $QueryType
+                    }
+                    if ($queryRecursionOption) {
+                        $queryObject['queryRecursionOption'] = $queryRecursionOption
+                    }
+                } else {
+                    $queryObject['name'] = $QueryName
+                    $queryObject['wiql'] = $WIQL
+                }
+
+                $invokeParams.Body = ConvertTo-Json $queryObject -Depth 100
+                $invokeParams.Method = 'POST'
+                $invokeParams.ContentType = 'application/json'
+                $invokeParams.PSTypeName = @(
+                    "$Organization.$psParameterSet"
+                    "$Organization.$project.$psParameterSet"
+                    "PSDevOps.$psParameterSet"
+                )
+                if ($WhatIfPreference) {
+                    $invokeParams.Remove('PersonalAccessToken')
+                    $invokeParams
+                    continue
+                }
+                
+                if (-not $PSCmdlet.ShouldProcess("POST $uri with $($invokeParams.body)")) { continue }
+                $restResponse =  Invoke-ADORestAPI @invokeParams 2>&1
+                $restResponse
+                continue
+            }
+
 
             $validFieldTable = $validFields | Group-Object ReferenceName -AsHashTable
             $uri = $uriBase, "_apis/wit/workitems", "`$$($Type)?" -join '/'
