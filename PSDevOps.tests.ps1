@@ -340,7 +340,7 @@ describe 'Calling REST APIs' {
         }
         it 'Can get build definitions' {
             $buildDefinitions = @(Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition)
-            $buildDefinitions.Count | should -BeGreaterThan 1
+            $buildDefinitions.Count | should -BeGreaterThan 0
             $buildDefinitions[0].Name  |should -beLike *PSDevOps*
         }
         it 'Can get build -DefinitionYAML, given a build definition' -Skip:$IsFork {

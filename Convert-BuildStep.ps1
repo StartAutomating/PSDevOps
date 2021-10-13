@@ -385,6 +385,11 @@
                     if ([switch], [bool] -contains $paramType) {
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -match 'true';"
                     }
+                    if ([psobject], [object],[PSObject[]] -contains $paramType) {
+                        "`$Parameters.$ParameterName = ConvertFrom-JSON @'" + 
+                            [Environment]::NewLine + 
+                            '${{parameters.$ParameterName}}' + [Environment]::NewLine + "'@"
+                    }
                     # If the parameter type was a scriptblock
                     if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
                         "`$Parameters.$ParameterName = foreach (`$p in `$parameters.$ParameterName){ [ScriptBlock]::Create(`$p) }"
@@ -470,8 +475,13 @@ try {
             } else {
                 $out.powershell = "$innerScript" -replace '`\$\{','${'
             }
+            if ($ScriptBlock -and $ScriptBlock.Attributes) {
+                if ("$($ScriptBlock.Attributes.ConditionString)") {
+                    $out.condition = "$($ScriptBlock.Attributes.ConditionString)"
+                }
+            }
             $out.name = $Name
-            $out.displayName = $Name
+            $out.displayName = $Name            
             if ($definedParameters) {
                 $out.parameters = $definedParameters
             }
@@ -504,6 +514,23 @@ try {
                 $out.parameters = $definedParameters
             }
             $out.run = "$innerScript" -replace '`\$\{','${'
+        }
+        if ($ScriptBlock -and $ScriptBlock.Attributes.Key -ne '') { # If the scriptblock has .Attributes with .Key properties
+            foreach ($attr in $ScriptBlock.Attributes) {            # each of those attributes 
+                if ($attr -isnot [Reflection.AssemblyMetadataAttribute]) { continue }
+                if ($out.($attr.Key)) {  # If it already had the key, use the original case.
+                    $originalNameCase =
+                        foreach ($prop in $out.psobject.properties) {
+                            if ($prop.Name -eq $attr.Key) {
+                                $prop.Name
+                                break
+                            }
+                        }
+                    $out.$originalNameCase = $attr.Value
+                } else {
+                    $out.($attr.Key) = $attr.value
+                }                                    
+            }
         }
         $out
     }
