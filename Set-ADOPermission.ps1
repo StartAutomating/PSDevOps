@@ -120,13 +120,19 @@
     [string[]]
     $Deny,
 
-
     # If set, will overwrite this entry with existing entries.
     # By default, will merge permissions for the specified token.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('NoMerge')]
     [switch]
     $Overwrite,
+
+    # If set, will inherit this permissions.
+    # By permissions will not be inherited.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('InheritPermission','InheritPermissions')]
+    [switch]
+    $Inherit,
 
     # The server.  By default https://dev.azure.com/.
     # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
@@ -275,7 +281,7 @@ if ($BranchName) {
                 }
             )
 
-            $friendlyAllow = @(foreach ($Allowed in $Allow) {
+            $friendlyAllow = @(:nextAllow foreach ($Allowed in $Allow) {
                 if ($Allowed -match '^\d+$') {
                     $realAllow = $realAllow -bor $Allowed
                 } else {
@@ -283,12 +289,15 @@ if ($BranchName) {
                         if ($act.Name -like $Allowed -or $act.DisplayName -like $Allowed) {
                             $realAllow = $realAllow -bor $act.bit
                             $act.Name
+                            continue nextAllow
                         }
                     }
+                    Write-Warning "Permission '$Allowed' not found in '$($cachedNamespaces.$NamespaceID.Name)'.
+$($cachedNamespaces.$namespaceID.actions | Format-Table -Property Name, DisplayName | Out-String)"
                 }
             })
 
-            $friendlyDeny = @(foreach ($denied in $Deny) {
+            $friendlyDeny = @(:nextDeny foreach ($denied in $Deny) {
                 if ($denied -match '^\d+$') {
                     $realDeny = $realDeny -bor $denied
                 } else {
@@ -296,8 +305,11 @@ if ($BranchName) {
                         if ($act.Name -like $denied -or $act.DisplayName -like $denied) {
                             $realDeny = $realDeny -bor $act.bit
                             $act.Name
+                            continue nextDeny
                         }
                     }
+                    Write-Warning "Permission '$denied' not found in '$($cachedNamespaces.$NamespaceID.Name)'.
+$($cachedNamespaces.$namespaceID.actions | Format-Table -Property Name, DisplayName | Out-String)"
                 }
             })
 
@@ -327,6 +339,7 @@ if ($BranchName) {
             $invokeParams.Body = [Ordered]@{
                 token = $SecurityToken
                 merge = -not $Overwrite
+                inheritPermissions = if ($Inherit) { $true } else { $false}
                 # inheritPermissions = $false
                 accessControlEntries = @(
                     foreach ($desc in $Descriptors) {
@@ -340,10 +353,6 @@ if ($BranchName) {
                     }
                 )
             }
-
-            <#$invokeParams.Body = @{
-                value = @($invokeParams.Body)
-            }#>
 
             $additionalProperties = @{Organization=$Organization;Server=$Server;SecurityToken=$SecurityToken}
             if ($WhatIfPreference) {
