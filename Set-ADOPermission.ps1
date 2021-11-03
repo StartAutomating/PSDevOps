@@ -20,6 +20,67 @@
     [string]
     $Organization,
 
+    # The Project ID.
+    # If this is provided without anything else, will get permissions for the projectID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]    
+    [Alias('Project')]
+    [string]
+    $ProjectID,
+
+    # The Build Definition ID
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
+    [string]
+    $DefinitionID,
+
+    # The path to the build.
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
+    [string]
+    $Path ='/',
+
+    # If set, will set build and release permissions for a given project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
+    [switch]
+    $BuildPermission,
+
+    # If set, will set permissions for repositories within a project
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
+    [Alias('ProjectRepositories')]
+    [switch]
+    $ProjectRepository,
+
+    # If provided, will set permissions for a given repositoryID    
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [string]
+    $RepositoryID,
+
+    # If provided, will set permissions for a given branch within a repository    
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]
+    [string]
+    $BranchName,
+
+    # If set, will set permissions for all repositories within a project
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]
+    [Alias('AllRepositories')]
+    [switch]
+    $AllRepository,
+
+    # If set, will set permissions for tagging related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
+    [switch]
+    $Tagging,
+
+    # If set, will set permissions for Team Foundation Version Control related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
+    [switch]
+    $ManageTFVC,
+
     # If set, will list the type of permisssions.
     [Parameter(ParameterSetName='securitynamespaces')]
     [Alias('SecurityNamespace', 'ListPermissionType','ListSecurityNamespace')]
@@ -45,27 +106,24 @@
     $Descriptor,
 
     # One or more identities.  Identities will be converted into descriptors.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrolentries/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
     $Identity,
 
     # One or more allow permissions.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrolentries/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
     $Allow,
 
     # One or more deny permissions.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrolentries/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string[]]
     $Deny,
 
+
     # If set, will overwrite this entry with existing entries.
     # By default, will merge permissions for the specified token.
-    [Parameter(ValueFromPipelineByPropertyName,
-        ParameterSetName='accesscontrolentries/{NamespaceId}')]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('NoMerge')]
     [switch]
     $Overwrite,
@@ -113,15 +171,63 @@
 
     process {
         $ParameterSet = $psCmdlet.ParameterSetName
-        $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
+        if ($psCmdlet.ParameterSetName -notin 'securitynamespaces', 'accesscontrolentries/{NamespaceId}') {
+            if ($ProjectID -and -not ($ProjectID -as [guid])) {
+                $oldProgressPref = $ProgressPreference; $ProgressPreference = 'silentlycontinue'
+                $projectID = Get-ADOProject -Organization $Organization -Project $projectID | Select-Object -ExpandProperty ProjectID
+                $ProgressPreference = $oldProgressPref
+                if (-not $ProjectID) { return }
+            }
+            switch -Regex ($psCmdlet.ParameterSetName) {
+                Project {
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                        NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819'
+                        SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                Tagging {
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                        NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
+                        SecurityToken = "/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                ManageTFVC {
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                        NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
+                        SecurityToken = "/$ProjectID"
+                    } + $PSBoundParameters)
+                }
+                'RepositoryID|AllRepositories|ProjectRepository' {
+                    $q.Enqueue(@{
+                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                        NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
+                        SecurityToken = "repo$(
+if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
+if ($ProjectID) { '/' + $projectId}
+)$(
+if ($repositoryID) {'/' + $repositoryID}
+)$(
+if ($BranchName) {
+    '/refs/heads/' + ([BitConverter]::ToString([Text.Encoding]::Unicode.GetBytes($BranchName)).Replace('-','').ToLower())
+}
+)"
+
+                    } + $PSBoundParameters)
+                }
+            }
+        } else {
+            $q.Enqueue(@{ParameterSet=$ParameterSet} + $PSBoundParameters)
+        }
     }
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
 
         while ($q.Count) {
-            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).
-
-
+            . $DQ $q # Pop one off the queue and declare all of it's variables (see /parts/DQ.ps1).            
 
             $uri = # The URI is comprised of
                 @(
@@ -147,7 +253,7 @@
             $realDeny  = 0
             if (-not $cachedNamespaces.$namespaceID) {
                 $cachedNamespaces.$namespaceID =
-                    Get-ADOPermission -Organization $Organization -PersonalAccessToken $psboundParameters["PersonalAccessToken"] |
+                    Get-ADOPermission -Organization $Organization -PersonalAccessToken $psboundParameters["PersonalAccessToken"] -PermissionType |
                         Where-Object NamespaceID -EQ $NamespaceID |
                         Select-Object -First 1
             }
@@ -221,6 +327,7 @@
             $invokeParams.Body = [Ordered]@{
                 token = $SecurityToken
                 merge = -not $Overwrite
+                # inheritPermissions = $false
                 accessControlEntries = @(
                     foreach ($desc in $Descriptors) {
                         if (-not $desc) { continue }
@@ -234,7 +341,9 @@
                 )
             }
 
-
+            <#$invokeParams.Body = @{
+                value = @($invokeParams.Body)
+            }#>
 
             $additionalProperties = @{Organization=$Organization;Server=$Server;SecurityToken=$SecurityToken}
             if ($WhatIfPreference) {

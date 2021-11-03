@@ -77,7 +77,7 @@
     [switch]
     $Tagging,
 
-    # If set, will get permissions for tagging related to the current project.
+    # If set, will get permissions for Team Foundation Version Control related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [switch]
     $ManageTFVC,
@@ -98,9 +98,15 @@
     $BuildPermission,
 
     # If provided, will get build and release permissions for a given project's repositoryID
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]    
     [string]
     $RepositoryID,
+
+    # If provided, will get permissions for a given branch within a repository    
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='RepositoryBranch')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='AllRepositories')]
+    [string]
+    $BranchName,
 
     # If set, will get permissions for repositories within a project
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
@@ -262,6 +268,10 @@ if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
 if ($ProjectID) { '/' + $projectId}
 )$(
 if ($repositoryID) {'/' + $repositoryID}
+)$(
+if ($BranchName) {
+    '/refs/heads/' + ([BitConverter]::ToString([Text.Encoding]::Unicode.GetBytes($BranchName)).Replace('-','').ToLower())
+}
 )"
                     } + $PSBoundParameters)
                 }
