@@ -20,6 +20,32 @@
     </Members>
   </Type>
   <Type>
+    <Name>PSDevOps.AreaPath</Name>
+    <Members>
+      <AliasProperty>
+        <Name>AreaPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>AreaPathID</Name>
+        <ReferencedMemberName>Identifier</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.AreaPath</Name>
+    <Members>
+      <AliasProperty>
+        <Name>AreaPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>AreaPathID</Name>
+        <ReferencedMemberName>Identifier</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>PSDevOps.ArtifactFeed</Name>
     <Members>
       <AliasProperty>
@@ -257,6 +283,10 @@
     <Name>PSDevOps.Build.Definition</Name>
     <Members>
       <AliasProperty>
+        <Name>BuildPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
         <Name>DefinitionID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
       </AliasProperty>
@@ -265,6 +295,10 @@
   <Type>
     <Name>Deserialized.PSDevOps.Build.Definition</Name>
     <Members>
+      <AliasProperty>
+        <Name>BuildPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
       <AliasProperty>
         <Name>DefinitionID</Name>
         <ReferencedMemberName>ID</ReferencedMemberName>
@@ -610,6 +644,14 @@ param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psbou
   <Type>
     <Name>PSDevOps.IterationPath</Name>
     <Members>
+      <AliasProperty>
+        <Name>IterationID</Name>
+        <ReferencedMemberName>Identifier</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>IterationPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
       <ScriptProperty>
         <Name>EndDate</Name>
         <GetScriptBlock>
@@ -641,6 +683,14 @@ param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psbou
   <Type>
     <Name>Deserialized.PSDevOps.IterationPath</Name>
     <Members>
+      <AliasProperty>
+        <Name>IterationID</Name>
+        <ReferencedMemberName>Identifier</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>IterationPath</Name>
+        <ReferencedMemberName>Path</ReferencedMemberName>
+      </AliasProperty>
       <ScriptProperty>
         <Name>EndDate</Name>
         <GetScriptBlock>

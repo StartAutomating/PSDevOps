@@ -21,7 +21,7 @@
                 <PropertyName>Organization</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Path</PropertyName>
+                <PropertyName>AreaPath</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -721,7 +721,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>Path</PropertyName>
+                <PropertyName>IterationPath</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>StartDate</PropertyName>
