@@ -1,1 +1,1 @@
-﻿Write-FormatView -TypeName PSDevOps.AreaPath -Property Organization, Path
+﻿Write-FormatView -TypeName PSDevOps.AreaPath -Property Organization, AreaPath
