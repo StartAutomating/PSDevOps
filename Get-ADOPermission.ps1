@@ -7,6 +7,10 @@
         Gets Azure DevOps security permissions.
     .Example
         Get-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
+    .Example
+        Get-ADOProject -Organization MyOrganization -Project MyProject | # Get the project
+            Get-ADOTeam | # get the teams within the project
+            Get-ADOPermission -Dashboard # get the dashboard permissions of each team within the project.
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20lists/query
     .Link
@@ -44,18 +48,37 @@
     $SecurityToken,
 
     # The Project ID.
-    # If this is provided without anything else, will get permissions for the projectID
+    # If this is provided without anything else, will get permissions for the projectID    
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='RepositoryID')]    
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectRepository')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ProjectOverview')]    
     [Alias('Project')]
     [string]
     $ProjectID,
+
+    # If provided, will get permissions related to a given teamID. ( see Get-ADOTeam)
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [string]
+    $TeamID,
+
+    # If provided, will get permissions related to an Area Path. ( see Get-ADOAreaPath )
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
+    [string]
+    $AreaPath,
+
+    # If provided, will get permissions related to an Iteration Path. ( see Get-ADOIterationPath )
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
+    [string]
+    $IterationPath,
 
     # If set, will get common permissions related to a project.
     # These are:
@@ -77,10 +100,26 @@
     [switch]
     $Tagging,
 
+    # If set, will get permissions for analytics related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [switch]
+    $Analytics,
+
     # If set, will get permissions for Team Foundation Version Control related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [switch]
     $ManageTFVC,
+
+    # If set, will get permissions for Delivery Plans.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Plan')]
+    [switch]
+    $Plan,
+
+    # If set, will get dashboard permissions related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [Alias('Dashboards')]
+    [switch]
+    $Dashboard,
 
     # The Build Definition ID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
@@ -90,7 +129,7 @@
     # The path to the build.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
     [string]
-    $Path ='/',
+    $BuildPath ='/',
 
     # If set, will get build and release permissions for a given project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
@@ -176,92 +215,138 @@
                 $ProgressPreference = $oldProgressPref
                 if (-not $ProjectID) { return }
             }
-            switch -Regex ($psCmdlet.ParameterSetName)  {
+            $psBoundParameters["ParameterSet"] ='accesscontrollists/{NamespaceId}'
+            switch -Regex ($psCmdlet.ParameterSetName)  {                
                 Project {
                     $null = $PSBoundParameters.Remove('ProjectID')
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819'
                         SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
+                    } + $PSBoundParameters)
+
+                }
+                'AreaPath|IterationPath' {
+                    $gotPath =
+                        if ($psCmdlet.ParameterSetName -eq 'AreaPath') {
+                            Get-ADOAreaPath -Organization $Organization -Project $ProjectID -AreaPath $AreaPath
+                        } else {
+                            Get-ADOIterationPath -Organization $Organization -Project $ProjectID -IterationPath $iterationPath
+                        }
+                        
+                    if (-not $gotPath) {
+                        continue
+                    }
+                    $PathIdList = @(
+                        $gotPath.Identifier
+                        $parentUri = $gotPath._links.parent.href
+                        while ($parentUri) {
+                            $parentPath = Invoke-ADORestAPI -Uri $parentUri
+                            $parentPath.identifier
+                            $parentUri = $parentPath._links.parent.href
+                        }
+                    )
+
+                    [Array]::Reverse($PathIdList)
+                                        
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    
+                    $q.Enqueue(@{                        
+                        NamespaceID = 
+                            if ($psCmdlet.ParameterSetName -eq 'AreaPath') { 
+                                '83e28ad4-2d72-4ceb-97b0-c7726d5502c3'
+                            } else {
+                                'bf7bfa03-b2b7-47db-8113-fa2e002cc5b1'    
+                            }
+                        SecurityToken = @(foreach($PathId in $PathIdList) {
+                            "vstfs:///Classification/Node/$PathId"
+                        }) -join ':'
+                    } + $PSBoundParameters)
+                }
+                Analytics {
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{                        
+                        NamespaceID = if ($ProjectID) { '58450c49-b02d-465a-ab12-59ae512d6531' } else { 'd34d3680-dfe5-4cc6-a949-7d9c68f73cba'} 
+                        SecurityToken = "`$/$(if ($ProjectID) { $ProjectID } else { 'Shared' })"
+                    } + $PSBoundParameters)
+                }
+                Dashboard {
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{                        
+                        NamespaceID = '8adf73b7-389a-4276-b638-fe1653f7efc7'
+                        SecurityToken = "$/$(if ($ProjectID) { $ProjectID })/$(if ($teamID) { $teamid } else { [guid]::Empty } )"
                     } + $PSBoundParameters)
                 }
                 ProjectOverview {
                     $null = $psboundParameters.Remove('Recurse')
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819' # Project permissions
                         SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87' # Repositories
                         SecurityToken = "reposV2/$projectId"
                         Recurse = $true
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '33344d9c-fc72-4d6f-aba5-fa317101a7e9' # Build definitions
                         SecurityToken = "$ProjectID/"
                         Recurse = $true
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de' # Releases
                         SecurityToken = "$ProjectID/"
                         Recurse = $true
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '8adf73b7-389a-4276-b638-fe1653f7efc7' # Dashboards
                         SecurityToken = "`$/$ProjectID/"
                         Recurse = $true
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c' # Service Endpoints
                         SecurityToken = "endpoints/$ProjectID"
                         Recurse = $true
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                       
                         NamespaceID = 'cb594ebe-87dd-4fc9-ac2c-6a10a4c92046' # Service Hooks
                         SecurityToken = "PublisherSecurity/$ProjectID"
                         Recurse = $true
                     } + $PSBoundParameters)
                 }
+                Plan {
+                    $q.Enqueue(@{                        
+                        NamespaceID = 'bed337f8-e5f3-4fb9-80da-81e17d06e7a8'
+                        SecurityToken = "Plan"
+                    } + $PSBoundParameters)
+                }
                 Tagging {
 
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
                         SecurityToken = "/$ProjectID"
                     } + $PSBoundParameters)
                 }
                 ManageTFVC {
 
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
                         SecurityToken = "/$ProjectID"
                     } + $PSBoundParameters)
                 }
                 'BuildDefinition|BuildPermission' {
 
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
-                        SecurityToken = "$ProjectID$(($path -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                        SecurityToken = "$ProjectID$(($buildpath -replace '\\','/').TrimEnd('/'))/$DefinitionID"
                     } + $PSBoundParameters)
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de'
-                        SecurityToken = "$ProjectID$(($path -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                        SecurityToken = "$ProjectID$(($buildpath -replace '\\','/').TrimEnd('/'))/$DefinitionID"
                     } + $PSBoundParameters)
                 }
                 'RepositoryID|AllRepositories|ProjectRepository' {
 
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrollists/{NamespaceId}'
+                    $q.Enqueue(@{                       
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
                         SecurityToken = "repo$(
 if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
