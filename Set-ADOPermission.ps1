@@ -9,6 +9,8 @@
         Set-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20entries/set%20access%20control%20entries
+    .Link
+        https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference
     #>
     [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
@@ -23,6 +25,10 @@
     # The Project ID.
     # If this is provided without anything else, will get permissions for the projectID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
@@ -33,6 +39,21 @@
     [string]
     $ProjectID,
 
+    # If provided, will set permissions related to a given teamID. ( see Get-ADOTeam)
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [string]
+    $TeamID,
+
+    # If provided, will set permissions related to an Area Path. ( see Get-ADOAreaPath )
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
+    [string]
+    $AreaPath,
+
+    # If provided, will set permissions related to an Iteration Path. ( see Get-ADOIterationPath )
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
+    [string]
+    $IterationPath,
+
     # The Build Definition ID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
     [string]
@@ -41,7 +62,7 @@
     # The path to the build.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
     [string]
-    $Path ='/',
+    $BuildPath ='/',
 
     # If set, will set build and release permissions for a given project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildPermission')]
@@ -184,32 +205,97 @@
                 $ProgressPreference = $oldProgressPref
                 if (-not $ProjectID) { return }
             }
+            $psBoundParameters['ParameterSet']='accesscontrolentries/{NamespaceId}'
             switch -Regex ($psCmdlet.ParameterSetName) {
                 Project {
                     $null = $PSBoundParameters.Remove('ProjectID')
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '52d39943-cb85-4d7f-8fa8-c6baac873819'
                         SecurityToken = "`$PROJECT:vstfs:///Classification/TeamProject/$ProjectID"
                     } + $PSBoundParameters)
                 }
+                Analytics {
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{                        
+                        NamespaceID = if ($ProjectID) { '58450c49-b02d-465a-ab12-59ae512d6531' } else { 'd34d3680-dfe5-4cc6-a949-7d9c68f73cba'} 
+                        SecurityToken = "`$/$(if ($ProjectID) { $ProjectID } else { 'Shared' })"
+                    } + $PSBoundParameters)
+                }
+                'AreaPath|IterationPath' {
+                    $gotPath =
+                        if ($psCmdlet.ParameterSetName -eq 'AreaPath') {
+                            Get-ADOAreaPath -Organization $Organization -Project $ProjectID -AreaPath $AreaPath
+                        } else {
+                            Get-ADOIterationPath -Organization $Organization -Project $ProjectID -IterationPath $iterationPath
+                        }
+                        
+                    if (-not $gotPath) {
+                        continue
+                    }
+                    $PathIdList = @(
+                        $gotPath.Identifier
+                        $parentUri = $gotPath._links.parent.href
+                        while ($parentUri) {
+                            $parentPath = Invoke-ADORestAPI -Uri $parentUri
+                            $parentPath.identifier
+                            $parentUri = $parentPath._links.parent.href
+                        }
+                    )
+
+                    [Array]::Reverse($PathIdList)
+                                        
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    
+                    $q.Enqueue(@{                        
+                        NamespaceID = 
+                            if ($psCmdlet.ParameterSetName -eq 'AreaPath') { 
+                                '83e28ad4-2d72-4ceb-97b0-c7726d5502c3'
+                            } else {
+                                'bf7bfa03-b2b7-47db-8113-fa2e002cc5b1'    
+                            }
+                        SecurityToken = @(foreach($PathId in $PathIdList) {
+                            "vstfs:///Classification/Node/$PathId"
+                        }) -join ':'
+                    } + $PSBoundParameters)
+                }
+                Dashboard {
+                    $null = $PSBoundParameters.Remove('ProjectID')
+                    $q.Enqueue(@{                        
+                        NamespaceID = '8adf73b7-389a-4276-b638-fe1653f7efc7'
+                        SecurityToken = "$/$(if ($ProjectID) { $ProjectID })/$(if ($teamID) { $teamid } else { [guid]::Empty } )"
+                    } + $PSBoundParameters)
+                }
+                Plan {
+                    $q.Enqueue(@{                        
+                        NamespaceID = 'bed337f8-e5f3-4fb9-80da-81e17d06e7a8'
+                        SecurityToken = "Plan"
+                    } + $PSBoundParameters)
+                }
                 Tagging {
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
                         SecurityToken = "/$ProjectID"
                     } + $PSBoundParameters)
                 }
                 ManageTFVC {
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
                         SecurityToken = "/$ProjectID"
                     } + $PSBoundParameters)
                 }
+                'BuildDefinition|BuildPermission' {
+
+                    $q.Enqueue(@{                        
+                        NamespaceID = 'a39371cf-0841-4c16-bbd3-276e341bc052'
+                        SecurityToken = "$ProjectID$(($BuildPath -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                    } + $PSBoundParameters)
+                    $q.Enqueue(@{                        
+                        NamespaceID = 'c788c23e-1b46-4162-8f5e-d7585343b5de'
+                        SecurityToken = "$ProjectID$(($BuildPath -replace '\\','/').TrimEnd('/'))/$DefinitionID"
+                    } + $PSBoundParameters)
+                }
                 'RepositoryID|AllRepositories|ProjectRepository' {
-                    $q.Enqueue(@{
-                        ParameterSet='accesscontrolentries/{NamespaceId}'
+                    $q.Enqueue(@{                        
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
                         SecurityToken = "repo$(
 if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
