@@ -13,7 +13,11 @@ $UserName,
 # The tag version format (default value: 'v$(imported.Version)')
 # This can expand variables.  $imported will contain the imported module.
 [string]
-$TagVersionFormat = 'v$($imported.Version)'
+$TagVersionFormat = 'v$($imported.Version)',
+
+# The release name format (default value: '$($imported.Name) $($imported.Version)')
+[string]
+$ReleaseNameFormat = '$($imported.Name) $($imported.Version)'
 )
 
 
@@ -68,7 +72,7 @@ Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
         owner = '${{github.owner}}'
         repo  = '${{github.repository}}'
         tag_name = $targetVersion
-        name = "$($imported.Name) $targetVersion"
+        name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
         body = 
             if ($env:RELEASENOTES) {
                 $env:RELEASENOTES
