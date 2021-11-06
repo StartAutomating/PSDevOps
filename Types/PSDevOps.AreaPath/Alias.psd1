@@ -1,0 +1,4 @@
+﻿@{
+    AreaPathID = 'Identifier'
+    AreaPath   = 'Path'    
+}
