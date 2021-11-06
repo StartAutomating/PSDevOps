@@ -86,7 +86,7 @@
                 "$server".TrimEnd('/')   # the Server (minus any trailing slashes),
                 (. $ReplaceRouteParameter $PSCmdlet.ParameterSetName) # and any parameterized URLs in this parameter set.
                 if ($AreaPath) {
-                    $AreaPath
+                    $AreaPath -replace '\\','/' -replace '.+/Area' -replace '^/'
                 }
             ) -as [string[]] -ne '' -join '/'
 
