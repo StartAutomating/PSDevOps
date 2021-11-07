@@ -1,10 +1,9 @@
-name: Trace On Issue Opened Or Edited
+﻿
+name: Trace On Issue Closed
 on: 
   issues: 
     types: 
-    - opened
-    - edited
-  workflow_dispatch: 
+    - closed
 jobs: 
   TraceGitHubEvent: 
     runs-on: ubuntu-latest
