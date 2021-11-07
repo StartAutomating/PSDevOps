@@ -305,6 +305,7 @@ jobs:
           $Parameters.UserEmail = ${env:UserEmail}
           $Parameters.UserName = ${env:UserName}
           $Parameters.TagVersionFormat = ${env:TagVersionFormat}
+          $Parameters.ReleaseNameFormat = ${env:ReleaseNameFormat}
           foreach ($k in @($parameters.Keys)) {
               if ([String]::IsNullOrEmpty($parameters[$k])) {
                   $parameters.Remove($k)
@@ -326,7 +327,11 @@ jobs:
           # The tag version format (default value: 'v$(imported.Version)')
           # This can expand variables.  $imported will contain the imported module.
           [string]
-          $TagVersionFormat = 'v$($imported.Version)'
+          $TagVersionFormat = 'v$($imported.Version)',
+          
+          # The release name format (default value: '$($imported.Name) $($imported.Version)')
+          [string]
+          $ReleaseNameFormat = '$($imported.Name) $($imported.Version)'
           )
           
           
@@ -381,7 +386,7 @@ jobs:
                   owner = '${{github.owner}}'
                   repo  = '${{github.repository}}'
                   tag_name = $targetVersion
-                  name = "$($imported.Name) $targetVersion"
+                  name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
                   body = 
                       if ($env:RELEASENOTES) {
                           $env:RELEASENOTES
