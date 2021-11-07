@@ -2,8 +2,7 @@
 name: Trace On the Hour
 on: 
   schedule: 
-    cron: 
-    - '0 0-23 * * *'
+    - cron: '0 0-23 * * *'
 jobs: 
   TraceGitHubEvent: 
     runs-on: ubuntu-latest
