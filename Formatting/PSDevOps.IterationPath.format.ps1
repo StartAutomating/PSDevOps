@@ -1,1 +1,1 @@
-﻿Write-FormatView -TypeName PSDevOps.IterationPath -Property Path, StartDate, EndDate -AutoSize
+﻿Write-FormatView -TypeName PSDevOps.IterationPath -Property IterationPath, StartDate, EndDate -AutoSize

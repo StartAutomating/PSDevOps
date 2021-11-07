@@ -1,0 +1,4 @@
+﻿@{
+    IterationID   = 'Identifier'
+    IterationPath = 'Path'
+}

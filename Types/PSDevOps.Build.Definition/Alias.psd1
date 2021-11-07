@@ -1,1 +1,4 @@
-﻿@{DefinitionID = 'ID'}
+﻿@{
+    DefinitionID = 'ID'
+    BuildPath    = 'Path'
+}
