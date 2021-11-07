@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.5.5.1'
+    ModuleVersion = '0.5.6'
     RootModule = 'PSDevOps.psm1'
     Description = 'PowerShell Tools for DevOps'
     Guid = 'e6b56c5f-41ac-4ba4-8b88-2c063f683176'
