@@ -1,0 +1,7 @@
+﻿@{
+    issues = @{
+        types = @('opened')
+    }
+}
+
+
