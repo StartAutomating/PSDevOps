@@ -1,4 +1,3 @@
-﻿
 name: Trace On Issue Opened Or Edited
 on: 
   issues: 
