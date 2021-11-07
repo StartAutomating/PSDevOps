@@ -5,7 +5,6 @@ on:
     types: 
     - opened
     - edited
-  workflow_dispatch: 
 jobs: 
   TraceGitHubEvent: 
     runs-on: ubuntu-latest
