@@ -102,6 +102,17 @@
     [switch]
     $ManageTFVC,
 
+        # If set, will get permissions for Delivery Plans.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Plan')]
+    [switch]
+    $Plan,
+
+    # If set, will get dashboard permissions related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [Alias('Dashboards')]
+    [switch]
+    $Dashboard,
+    
     # If set, will list the type of permisssions.
     [Parameter(ParameterSetName='securitynamespaces')]
     [Alias('SecurityNamespace', 'ListPermissionType','ListSecurityNamespace')]
