@@ -51,6 +51,7 @@
     # If this is provided without anything else, will get permissions for the projectID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Tagging')]
@@ -120,6 +121,18 @@
     [Alias('Dashboards')]
     [switch]
     $Dashboard,
+
+
+    # If set, will get all service endpoints permissions.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ServiceEndpoint')]
+    [Alias('ServiceEndpoints')]
+    [switch]
+    $ServiceEndpoint,
+
+    # If set, will get endpoint permissions related to a particular endpoint.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]    
+    [string]
+    $EndpointID,
 
     # The Build Definition ID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='BuildDefinition')]
@@ -317,6 +330,22 @@
                     $q.Enqueue(@{
                         NamespaceID = 'bed337f8-e5f3-4fb9-80da-81e17d06e7a8'
                         SecurityToken = "Plan"
+                    } + $PSBoundParameters)
+                }
+                'ServiceEndpoint|EndpointID' {
+                    if ($psCmdlet.ParameterSetName -eq 'ServiceEndpoint') {
+                        $PSBoundParameters['Recurse'] = $true
+                    }
+
+                    if ($EndpointID) {
+                        $q.Enqueue(@{
+                            NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c'
+                            SecurityToken = "endpoints/Collection/$(if ($EndpointID) {$EndpointID})"
+                        } + $PSBoundParameters)
+                    }
+                    $q.Enqueue(@{
+                        NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c'
+                        SecurityToken = "endpoints/$(if ($ProjectID) {"$ProjectID/"})$(if ($EndpointID) {$EndpointID})"
                     } + $PSBoundParameters)
                 }
                 Tagging {
