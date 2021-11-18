@@ -26,6 +26,7 @@
     # If this is provided without anything else, will get permissions for the projectID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
@@ -97,21 +98,27 @@
     [switch]
     $Tagging,
 
+
     # If set, will set permissions for Team Foundation Version Control related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [switch]
     $ManageTFVC,
 
-        # If set, will get permissions for Delivery Plans.
+    # If set, will set permissions for Delivery Plans.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Plan')]
     [switch]
     $Plan,
 
-    # If set, will get dashboard permissions related to the current project.
+    # If set, will set dashboard permissions related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
     [Alias('Dashboards')]
     [switch]
     $Dashboard,
+
+    # If set, will set endpoint permissions related to a particular endpoint.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]
+    [string]
+    $EndpointID,
     
     # If set, will list the type of permisssions.
     [Parameter(ParameterSetName='securitynamespaces')]
@@ -281,6 +288,16 @@
                         NamespaceID = 'bed337f8-e5f3-4fb9-80da-81e17d06e7a8'
                         SecurityToken = "Plan"
                     } + $PSBoundParameters)
+                }
+                EndpointID {
+                    $q.Enqueue(@{
+                        NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c'
+                        SecurityToken = "endpoints/$(
+                            if ($ProjectID) {"$ProjectID/"} else { "Collection/"}
+                        )$(
+                            if ($EndpointID) {$EndpointID}
+                        )"
+                    } + $PSBoundParameters)                    
                 }
                 Tagging {
                     $q.Enqueue(@{                        
