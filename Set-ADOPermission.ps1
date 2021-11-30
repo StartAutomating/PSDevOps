@@ -431,7 +431,6 @@ $($cachedNamespaces.$namespaceID.actions | Format-Table -Property Name, DisplayN
             $c++
             Write-Progress "Setting Permissions for $Identity" " (Allowing: $friendlyAllow Denying: $friendlyDeny) on $SecurityToken " -Id $progId -PercentComplete ($c * 100/$t)
 
-
             if (-not $Descriptors) {
                 Write-Error "No -Descriptor or -Identity provided"
                 return
