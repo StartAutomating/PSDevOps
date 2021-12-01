@@ -1691,4 +1691,30 @@ Invoke-ADORestAPI -Uri "$($this.Url)/comments" -QueryParameter @{"api-version"="
       </AliasProperty>
     </Members>
   </Type>
+  <Type>
+    <Name>PSDevOps.WorkProcess</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ProcessID</Name>
+        <ReferencedMemberName>TypeID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ProcessName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Deserialized.PSDevOps.WorkProcess</Name>
+    <Members>
+      <AliasProperty>
+        <Name>ProcessID</Name>
+        <ReferencedMemberName>TypeID</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>ProcessName</Name>
+        <ReferencedMemberName>Name</ReferencedMemberName>
+      </AliasProperty>
+    </Members>
+  </Type>
 </Types>
