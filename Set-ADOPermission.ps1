@@ -26,6 +26,7 @@
     # If this is provided without anything else, will get permissions for the projectID
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Project')]
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='Analytics')]
+    [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='AreaPath')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='IterationPath')]
@@ -97,11 +98,28 @@
     [switch]
     $Tagging,
 
+
     # If set, will set permissions for Team Foundation Version Control related to the current project.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='ManageTFVC')]
     [switch]
     $ManageTFVC,
 
+    # If set, will set permissions for Delivery Plans.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Plan')]
+    [switch]
+    $Plan,
+
+    # If set, will set dashboard permissions related to the current project.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='Dashboard')]
+    [Alias('Dashboards')]
+    [switch]
+    $Dashboard,
+
+    # If set, will set endpoint permissions related to a particular endpoint.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='EndpointID')]
+    [string]
+    $EndpointID,
+    
     # If set, will list the type of permisssions.
     [Parameter(ParameterSetName='securitynamespaces')]
     [Alias('SecurityNamespace', 'ListPermissionType','ListSecurityNamespace')]
@@ -271,6 +289,16 @@
                         SecurityToken = "Plan"
                     } + $PSBoundParameters)
                 }
+                EndpointID {
+                    $q.Enqueue(@{
+                        NamespaceID = '49b48001-ca20-4adc-8111-5b60c903a50c'
+                        SecurityToken = "endpoints/$(
+                            if ($ProjectID) {"$ProjectID/"} else { "Collection/"}
+                        )$(
+                            if ($EndpointID) {$EndpointID}
+                        )"
+                    } + $PSBoundParameters)                    
+                }
                 Tagging {
                     $q.Enqueue(@{                        
                         NamespaceID = 'bb50f182-8e5e-40b8-bc21-e8752a1e7ae2'
@@ -402,7 +430,6 @@ $($cachedNamespaces.$namespaceID.actions | Format-Table -Property Name, DisplayN
 
             $c++
             Write-Progress "Setting Permissions for $Identity" " (Allowing: $friendlyAllow Denying: $friendlyDeny) on $SecurityToken " -Id $progId -PercentComplete ($c * 100/$t)
-
 
             if (-not $Descriptors) {
                 Write-Error "No -Descriptor or -Identity provided"

@@ -1,4 +1,11 @@
-﻿0.5.6:
+﻿0.5.7:
+---
+* Fixing issue with setting branch permissions (#136)
+* Get/Set-ADOPermission:  Support for ServiceEndpoints (#137)
+* Set-ADOPermission:  Exposing specialized parameter sets (#138)
+* PSDevOps.WorkProcess objects now return .ProcessName and .ProcessID as alias properties
+
+0.5.6:
 ---
 ### Azure DevOps Improvements
 * Get-ADOPermission    :  Can now get permissions related to Dashboards, Analytics, AreaPaths, and IterationPaths

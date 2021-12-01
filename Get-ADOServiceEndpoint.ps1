@@ -103,7 +103,8 @@
                 '.Type'
             } else {
                 ''
-            }
+            }        
+
         Invoke-ADORestAPI @invokeParams -Uri $uri -PSTypeName @( # Prepare a list of typenames so we can customize formatting:
             "$Organization.$Project.ServiceEndpoint$subTypeName" # * $Organization.$Project.ServiceEndpoint
             "$Organization.ServiceEndpoint$subTypeName" # * $Organization.ServiceEndpoint

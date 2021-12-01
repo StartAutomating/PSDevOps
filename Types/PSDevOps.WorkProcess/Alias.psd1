@@ -1,0 +1,4 @@
+﻿@{
+    ProcessName = 'Name'
+    ProcessID   = 'TypeID'
+}
