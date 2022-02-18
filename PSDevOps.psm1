@@ -2,7 +2,8 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForSlowScript", "", Justification="Performance is not a priority for this module")]
 param()
 #region Import Functions
-foreach ($file in Get-ChildItem -Path $psScriptRoot -Filter *-*.ps1) {
+$functionsRoot = Join-Path $psScriptRoot Functions
+foreach ($file in Get-ChildItem -Path $functionsRoot.Fullname -Filter *-*.ps1 -Recurse) {
     . $file.FullName
 }
 #endregion Import Functions
