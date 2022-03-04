@@ -1,4 +1,4 @@
-#region Piecemeal [ 0.1.3 ] : Easy Extensible Plugins for PowerShell
+#region Piecemeal [ 0.1.6 ] : Easy Extensible Plugins for PowerShell
 # (Install-Module Piecemeal; Install-Piecemeal -ExtensionModule 'PSDevOps' -ExtensionModuleAlias 'psdo' -ExtensionTypeName 'PSDevOps.Extension' -OutputPath '.\Get-PSDevOpsExtension.ps1' )
 function Get-PSDevOpsExtension
 {
@@ -33,6 +33,22 @@ function Get-PSDevOpsExtension
     [Alias('ThatExtends', 'For')]
     [string[]]
     $CommandName,
+
+    # The name of an extension
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [ValidateNotNullOrEmpty()]    
+    [string[]]
+    $ExtensionName,
+
+    # If provided, will treat -ExtensionName as a wildcard.
+    [Parameter(ValueFromPipelineByPropertyName)]    
+    [switch]
+    $Like,
+
+    # If provided, will treat -ExtensionName as a regular expression.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [switch]
+    $Match,
 
     # If set, will return the dynamic parameters object of all the PSDevOps Extensions for a given command.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -77,6 +93,11 @@ function Get-PSDevOpsExtension
     [switch]
     $NoMandatoryDynamicParameter,
 
+    # If set, will validate this input against [ValidateScript], [ValidatePattern], and [ValidateSet] attributes found on an extension.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [PSObject]
+    $ValidateInput,
+
     # The parameters to the extension.  Only used when determining if the extension -CouldRun.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Collections.IDictionary]
@@ -85,7 +106,7 @@ function Get-PSDevOpsExtension
     )
 
     begin {
-        $ExtensionNameRegEx = '(?<!-)(extension|ext|ex|x)\.ps1$'
+        $ExtensionPattern = '(?<!-)(extension|ext|ex|x)\.ps1$'
         $ExtensionModule = 'PSDevOps'
         $ExtensionModuleAlias = 'psdo'
         $ExtensionTypeName = 'PSDevOps.Extension'
@@ -101,6 +122,20 @@ function Get-PSDevOpsExtension
             $ExtensionCommand
             )
             process {
+                if ($ExtensionName) {
+                    :CheckExtensionName do {
+                        foreach ($exn in $ExtensionName) {
+                            if ($like) { 
+                                if ($extensionCommand -like $exn) { break CheckExtensionName }
+                            }
+                            elseif ($match) {
+                                if ($ExtensionCommand -match $exn) { break CheckExtensionName }
+                            }
+                            elseif ($ExtensionCommand -eq $exn) { break CheckExtensionName }
+                        }
+                        return
+                    } while ($false)                    
+                }
                 if ($Command) {
                     foreach ($ext in $ExtensionCommand.ExtensionCommands) {
                         if ($ext.Name -in $command) {
@@ -160,6 +195,17 @@ function Get-PSDevOpsExtension
                 'Attributes', {$this.ScriptBlock.Attributes}
             ))
             $extCmd.PSObject.Properties.Add([PSScriptProperty]::new(
+                'Rank', {
+                    foreach ($attr in $this.ScriptBlock.Attributes) {
+                        if ($attr -is [Reflection.AssemblyMetaDataAttribute] -and 
+                            $attr.Key -in 'Order', 'Rank') {
+                            return $attr.Value -as [int]
+                        }
+                    }
+                    return 0
+                }
+            ))
+            $extCmd.PSObject.Properties.Add([PSScriptProperty]::new(
                 'Description',
                 {
                     # From ?<PowerShell_HelpField> in Irregular (https://github.com/StartAutomating/Irregular)
@@ -186,6 +232,40 @@ function Get-PSDevOpsExtension
                 ).Groups["Content"].Value
             }))
 
+            $extCmd.PSObject.Methods.Add([psscriptmethod]::new('Validate', {
+                param([PSObject]$ValidateInput)
+
+                try {
+                    # We can attempt to create a variable using our attributes and $validateInput
+                    [psvariable]::new("validating", $ValidateInput, 'None', $this.Attributes)
+                } catch {
+                    $ex = $_ # If this throws an exception, we may wish to clean it up.
+                    foreach ($attr in $this.ScriptBlock.Attributes) {
+                        if ($attr -is [Management.Automation.ValidateSetAttribute]) {
+                            if ($ValidateInput -notin $attr.ValidValues) {
+                                throw "'$ValidateInput' is not a valid value.  Valid values are '$(@($attr.ValueValues) -join "','")'"
+                            }
+                        }
+                        if ($attr -is [Management.Automation.ValidatePatternAttribute]) {
+                            $matched = [Regex]::new($attr.RegexPattern, $attr.Options, [Timespan]::FromSeconds(1)).Match($ValidateInput)
+                            if (-not $matched.Success) {
+                                throw "'$ValidateInput' is not a valid value.  Valid values must match the pattern '$($attr.RegexPattern)'"
+                            }
+                        }
+                        if ($attr -is [Management.Automation.ValidateRangeAttribute]) {
+                            if ($null -ne $attr.MinRange -and $validateInput -lt $attr.MinRange) {
+                                throw "'$ValidateInput' is below the minimum range [ $($attr.MinRange)-$($attr.MaxRange) ]"
+                            }
+                            if ($null -ne $attr.MaxRange -and $validateInput -gt $attr.MaxRange) {
+                                throw "'$ValidateInput' is above the maximum range [ $($attr.MinRange)-$($attr.MaxRange) ]"
+                            }
+                        }
+                    }
+                    throw $ex.Exception
+                }
+                return $true
+            }))
+
             $extCmd.PSObject.Methods.Add([PSScriptMethod]::new('GetDynamicParameters', {
                 param(
                 [string]
@@ -195,17 +275,27 @@ function Get-PSDevOpsExtension
                 $PositionOffset,
 
                 [switch]
-                $NoMandatory
+                $NoMandatory,
+
+                [string[]]
+                $commandList
                 )
 
                 $ExtensionDynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
                 $Extension = $this
-                foreach ($in in @(([Management.Automation.CommandMetaData]$Extension).Parameters.Keys)) {
+                
+                :nextDynamicParameter foreach ($in in @(([Management.Automation.CommandMetaData]$Extension).Parameters.Keys)) {
                     $attrList = [Collections.Generic.List[Attribute]]::new()
+                    $validCommandNames = @()
                     foreach ($attr in $extension.Parameters[$in].attributes) {
                         if ($attr -isnot [Management.Automation.ParameterAttribute]) {
                             # we can passthru any non-parameter attributes
                             $attrList.Add($attr)
+                            if ($attr -is [Management.Automation.CmdletAttribute] -and $commandList) {
+                                $validCommandNames += (
+                                    ($attr.VerbName -replace '\s') + '-' + ($attr.NounName -replace '\s')
+                                ) -replace '^\-' -replace '\-$'
+                            }
                         } else {
                             # but parameter attributes need to copied.
                             $attrCopy = [Management.Automation.ParameterAttribute]::new()
@@ -216,7 +306,6 @@ function Get-PSDevOpsExtension
                                     $attrCopy.($prop.Name) = $attr.($prop.Name)
                                 }
                             }
-
 
                             $attrCopy.ParameterSetName =                                
                                 if ($ParameterSetName) {
@@ -251,6 +340,15 @@ function Get-PSDevOpsExtension
                         }
                     }
 
+
+                    if ($commandList -and $validCommandNames) {
+                        :CheckCommandValidity do { 
+                            foreach ($vc in $validCommandNames) {
+                                if ($commandList -contains $vc) { break CheckCommandValidity }
+                            }
+                            continue nextDynamicParameter
+                        } while ($false)
+                    }
                     $ExtensionDynamicParameters.Add($in, [Management.Automation.RuntimeDefinedParameter]::new(
                         $Extension.Parameters[$in].Name,
                         $Extension.Parameters[$in].ParameterType,
@@ -308,8 +406,20 @@ function Get-PSDevOpsExtension
             }
             process {
                 $extCmd = $_
+                if ($ValidateInput) {
+                    try {
+                        if (-not $extCmd.Validate($ValidateInput)) {
+                            return
+                        }
+                    } catch {
+                        Write-Error $_
+                        return
+                    }
+                }
+                
+
                 if ($DynamicParameter -or $DynamicParameterSetName -or $DynamicParameterPositionOffset -or $NoMandatoryDynamicParameter) {
-                    $extensionParams = $extCmd.GetDynamicParameters($DynamicParameterSetName, $DynamicParameterPositionOffset, $NoMandatoryDynamicParameter)
+                    $extensionParams = $extCmd.GetDynamicParameters($DynamicParameterSetName, $DynamicParameterPositionOffset, $NoMandatoryDynamicParameter, $CommandName)
                     foreach ($kv in $extensionParams.GetEnumerator()) {
                         if ($commandExtended -and ([Management.Automation.CommandMetaData]$commandExtended).Parameters.$($kv.Key)) {
                             continue
@@ -331,7 +441,7 @@ function Get-PSDevOpsExtension
                     }
                 }
                 elseif ($CouldRun) {
-
+                    if (-not $extCmd) { return }
                     $couldRunExt = $extCmd.CouldRun($Parameter)
                     if (-not $couldRunExt) { return }
                     [PSCustomObject][Ordered]@{
@@ -343,6 +453,7 @@ function Get-PSDevOpsExtension
                     return
                 }
                 elseif ($Run) {
+                    if (-not $extCmd) { return }
                     $couldRunExt = $extCmd.CouldRun($Parameter)
                     if (-not $couldRunExt) { return }
                     if ($extCmd.InheritanceLevel -eq 'InheritedReadOnly') { return }
@@ -373,9 +484,9 @@ function Get-PSDevOpsExtension
 
         $extensionFullRegex =
             if ($ExtensionModule) {
-                "\.(?>$(@(@($ExtensionModule) + $ExtensionModuleAlias) -join '|'))\." + $ExtensionNameRegEx
+                "\.(?>$(@(@($ExtensionModule) + $ExtensionModuleAlias) -join '|'))\." + $ExtensionPattern
             } else {
-                $ExtensionNameRegEx
+                $ExtensionPattern
             }
 
         #region Find Extensions
@@ -442,13 +553,15 @@ function Get-PSDevOpsExtension
                 Where-Object Name -Match $extensionFullRegex |
                 ConvertToExtension |
                 . WhereExtends $CommandName |
+                Sort-Object Rank, Name |
                 OutputExtension
         } else {
             $script:PSDevOpsExtensions |
-                . WhereExtends $CommandName |
+                . WhereExtends $CommandName |                
+                Sort-Object Rank, Name |
                 OutputExtension
         }
     }
 }
-#endregion Piecemeal [ 0.1.3 ] : Easy Extensible Plugins for PowerShell
+#endregion Piecemeal [ 0.1.6 ] : Easy Extensible Plugins for PowerShell
 
