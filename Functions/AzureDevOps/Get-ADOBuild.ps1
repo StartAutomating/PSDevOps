@@ -355,10 +355,21 @@
                     "$Organization.$project.Repository", "$Organization.Repository", "PSDevOps.Repository"
             }
 
+            if (-not ($Project -as [guid])) {
+                $ProjectName = $Project
+                $projectID   = Get-ADOProject -Organization $Organization -Project $Project -Cache |
+                                Select-Object -ExpandProperty ProjectID
+            } else {
+                $ProjectName = Get-ADOProject -Organization $Organization -Project $Project -Cache |
+                                Select-Object -ExpandProperty ProjectName
+                $ProjectId = $Project
+            }
             $invokeParams.Property = @{
                 Organization = $Organization
-                Project = $Project
-                Server = $Server
+                Project      = $Project
+                ProjectID    = $projectID
+                ProjectName  = $ProjectName
+                Server       = $Server
             }
 
             if ($BuildID) {
