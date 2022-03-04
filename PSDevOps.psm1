@@ -3,7 +3,7 @@
 param()
 #region Import Functions
 $functionsRoot = Join-Path $psScriptRoot Functions
-foreach ($file in Get-ChildItem -Path $functionsRoot.Fullname -Filter *-*.ps1 -Recurse) {
+foreach ($file in Get-ChildItem -Path "$functionsRoot" -Filter *-*.ps1 -Recurse) {
     . $file.FullName
 }
 #endregion Import Functions
