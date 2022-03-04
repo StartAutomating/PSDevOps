@@ -297,7 +297,7 @@
                     } + $PSBoundParameters)
                     $q.Enqueue(@{
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87' # Repositories
-                        SecurityToken = "reposV2/$projectId"
+                        SecurityToken = "repoV2/$projectId"
                         Recurse = $true
                     } + $PSBoundParameters)
                     $q.Enqueue(@{
@@ -377,7 +377,7 @@
 
                     $q.Enqueue(@{
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
-                        SecurityToken = "reposV2$(
+                        SecurityToken = "repoV2$(
 if ($ProjectID) { '/' + $projectId}
 )$(
 if ($repositoryID) {'/' + $repositoryID}
