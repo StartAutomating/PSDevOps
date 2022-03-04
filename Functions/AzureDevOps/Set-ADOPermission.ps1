@@ -325,8 +325,7 @@
                 'RepositoryID|AllRepositories|ProjectRepository' {
                     $q.Enqueue(@{                        
                         NamespaceID = '2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87'
-                        SecurityToken = "repo$(
-if ($psCmdlet.ParameterSetName -eq 'AllRepositories') {'s'})V2$(
+                        SecurityToken = "repoV2$(
 if ($ProjectID) { '/' + $projectId}
 )$(
 if ($repositoryID) {'/' + $repositoryID}
