@@ -19,9 +19,15 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/testplan/test%20%20suites/get%20test%20suites%20for%20plan
     #>
-    [OutputType('PSDevOps.Project','PSDevOps.Property')]
+    [OutputType('PSDevOps.TestPlan','PSDevOps.TestRun', 'PSDevOps.TestSuite', 'PSDevOps.TestPoint','PSDevOps.TestCase')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("Test-ForParameterSetAmbiguity", "", Justification="Ambiguity Desired.")]
     param(
+    # The Organization
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Alias('Org')]
+    [string]
+    $Organization,
+
     # The project identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [string]
@@ -39,23 +45,7 @@
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
     [string]
     $TestRunID,
-
-    # If set, will return the test plans associated with a project.
-    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans')]
-    [Alias('TestPlans')]
-    [switch]
-    $TestPlan,
-
-    # If set, will return results related to a specific test plan.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/{TestPlanID}')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}/TestPoint')]
-    [string]
-    $TestPlanID,
-
+        
     # If set, will return the test variables associated with a project.
     [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/test/variables')]
     [Alias('TestVariables')]
@@ -67,34 +57,6 @@
     [Alias('TestConfigurations')]
     [switch]
     $TestConfiguration,
-
-    # If set, will list test suites related to a plan.
-    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites')]
-    [Alias('TestSuites')]
-    [switch]
-    $TestSuite,
-
-    # If set, will return results related to a particular test suite.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}')]
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,
-        ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}/TestPoint')]
-    [string]
-    $TestSuiteID,
-
-    # If set, will return test points within a suite.
-    [Parameter(Mandatory,
-        ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}/TestPoint')]
-    [Alias('TestPoints')]
-    [switch]
-    $TestPoint,
-
-    # If set, will return test results within a run.
-    [Parameter(Mandatory,
-        ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
-    [Alias('TestResults')]
-    [switch]
-    $TestResult,
 
     # If set, will return the first N results within a test run.
     [Parameter(ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/results')]
@@ -128,12 +90,6 @@
     [switch]
     $TestAttachment,
 
-    # The Organization
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
-    [Alias('Org')]
-    [string]
-    $Organization,
-
     # If set, will always retrieve fresh data.
     # By default, cached data will be returned.
     [switch]
@@ -152,18 +108,30 @@
     $ApiVersion = "5.1-preview"
     )
 
-    dynamicParam { . $GetInvokeParameters -DynamicParameter }
+    dynamicParam { . $GetInvokeParameters -CommandName $MyInvocation.MyCommand.Name -DynamicParameter }
     begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         #endregion Copy Invoke-ADORestAPI parameters
-        $q = [Collections.Queue]::new()
+        $q  = [Collections.Queue]::new()
+        $rq = [Collections.Queue]::new()
     }
     process {
-        $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$_} + $PSBoundParameters)
+        $in = $_
+        $paramCopy = [Ordered]@{} + $psBoundParameters
+        $myCommandName       = $MyInvocation.MyCommand.name
+        $extensionOutput     = Get-PSDevOpsExtension -Run -CommandName $myCommandName -Parameter $paramCopy -Stream
+        if ($extensionOutput) {
+            foreach ($extOut in $extensionOutput) {
+                $rq.Enqueue($extOut)
+            }
+        } else {
+            $q.Enqueue(@{PSParameterSet=$psCmdlet.ParameterSetName;InputObject=$in} + $paramCopy)
+        }        
     }
     end {
-        $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
+        $c, $t, $progId = 0, ($q.Count + $rq.Count), [Random]::new().Next()
+        . $flushRequestQueue -Invoker Invoke-ADORestAPI
         while ($q.Count) {
             . $dq $q
 
@@ -196,10 +164,7 @@
                 Project = $Project
                 Server = $Server
             }
-            if ($ProjectID)   { $additionalProperty.ProjectID = $ProjectID }
-            if ($TestPlanID)  {
-                $additionalProperty.TestPlanID = $TestPlanID
-            }
+            if ($ProjectID)   { $additionalProperty.ProjectID = $ProjectID }            
             if ($inputObject.TestPlanName) {
                 $additionalProperty['TestPlanName'] = $inputObject.TestPlanName
             }
@@ -233,12 +198,17 @@
                         $resultBatch
                     }
                 } while ($resultBatch -and ($count -lt $Total))
+                Write-Progress "Getting Results" " [$Count/$total] $uri" -Completed -ParentId $progId -Id $innerProgressId
             } else {
                 Invoke-ADORestAPI @invokeParams
             }
 
         }
-
-        Write-Progress "Getting" "[$c/$t]" -Completed -Id $progId
+        if ($c -gt 0) {
+            Write-Progress "$($MyInvocation.MyCommand)" "[$c/$t]" -Completed -Id $progId
+        }
+        
     }
 }
+
+
