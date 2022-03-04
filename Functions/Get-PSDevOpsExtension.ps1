@@ -1,4 +1,4 @@
-#region Piecemeal [ 0.1.6 ] : Easy Extensible Plugins for PowerShell
+#region Piecemeal [ 0.1.7 ] : Easy Extensible Plugins for PowerShell
 # (Install-Module Piecemeal; Install-Piecemeal -ExtensionModule 'PSDevOps' -ExtensionModuleAlias 'psdo' -ExtensionTypeName 'PSDevOps.Extension' -OutputPath '.\Get-PSDevOpsExtension.ps1' )
 function Get-PSDevOpsExtension
 {
@@ -243,7 +243,7 @@ function Get-PSDevOpsExtension
                     foreach ($attr in $this.ScriptBlock.Attributes) {
                         if ($attr -is [Management.Automation.ValidateSetAttribute]) {
                             if ($ValidateInput -notin $attr.ValidValues) {
-                                throw "'$ValidateInput' is not a valid value.  Valid values are '$(@($attr.ValueValues) -join "','")'"
+                                throw "'$ValidateInput' is not a valid value.  Valid values are '$(@($attr.ValidValues) -join "','")'"
                             }
                         }
                         if ($attr -is [Management.Automation.ValidatePatternAttribute]) {
@@ -319,7 +319,10 @@ function Get-PSDevOpsExtension
                                                 break
                                             }
                                         }
-                                    if ($defaultParamSetName) {
+                                    if ($attrCopy.ParameterSetName -ne '__AllParameterSets') {
+                                        $attrCopy.ParameterSetName
+                                    }
+                                    elseif ($defaultParamSetName) {
                                         $defaultParamSetName
                                     }
                                     elseif ($this -is [Management.Automation.FunctionInfo]) {
@@ -563,5 +566,5 @@ function Get-PSDevOpsExtension
         }
     }
 }
-#endregion Piecemeal [ 0.1.6 ] : Easy Extensible Plugins for PowerShell
+#endregion Piecemeal [ 0.1.7 ] : Easy Extensible Plugins for PowerShell
 
