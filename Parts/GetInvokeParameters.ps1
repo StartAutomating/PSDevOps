@@ -14,7 +14,11 @@ $InvokeParameter,
 [Parameter(Mandatory,ParameterSetName='GetDynamicParameters')]
 [Alias('DynamicParameters')]
 [switch]
-$DynamicParameter
+$DynamicParameter,
+
+[Parameter(ParameterSetName='GetDynamicParameters')]
+[string]
+$CommandName
 )
 
 begin {
@@ -47,8 +51,18 @@ process {
                      if ($attr.ValueFromPipelineByPropertyName) {$attr.ValueFromPipelineByPropertyName = $false}
                 }
             }
+        }        
+        if (-not $CommandName) {
+            return $script:InvokeADORestAPIParams
         }
-        return $script:InvokeADORestAPIParams
+        $extensionDynamicParameters = Get-PSDevOpsExtension -CommandName $CommandName -DynamicParameter
+        if (-not $extensionDynamicParameters.Count) { return $script:InvokeADORestAPIParams }
+        foreach ($dp in $script:InvokeADORestAPIParams.GetEnumerator()) {
+            if (-not $extensionDynamicParameters[$dp.Key]) {
+                $extensionDynamicParameters[$dp.Key] = $dp.value
+            }
+        }
+        return $extensionDynamicParameters
     }
     if ($PSCmdlet.ParameterSetName -eq 'GetParameterValues') {
         $invokeParams = [Ordered]@{} + $InvokeParameter # Then we copy our parameters
