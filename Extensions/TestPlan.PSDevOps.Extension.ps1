@@ -10,13 +10,6 @@
 [Management.Automation.Cmdlet("Set","ADOTest")]
 [Management.Automation.Cmdlet("Remove","ADOTest")]
 param(
-# If set, will return test results within a run.
-[Management.Automation.Cmdlet("Get","ADOTest")]
-[Parameter(Mandatory)]
-[Alias('TestPlans')]
-[switch]
-$TestPlan,
-
 # The test plan ID
 [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}',ValueFromPipelineByPropertyName)]
 [string]
