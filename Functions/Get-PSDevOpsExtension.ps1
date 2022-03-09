@@ -1,4 +1,4 @@
-#region Piecemeal [ 0.1.9 ] : Easy Extensible Plugins for PowerShell
+#region Piecemeal [ 0.1.10 ] : Easy Extensible Plugins for PowerShell
 # Install-Module Piecemeal -Scope CurrentUser 
 # Import-Module Piecemeal 
 # Install-Piecemeal -ExtensionModule 'PSDevOps' -ExtensionModuleAlias 'psdo' -ExtensionTypeName 'PSDevOps.Extension' -OutputPath '.\Get-PSDevOpsExtension.ps1'
@@ -62,7 +62,7 @@ function Get-PSDevOpsExtension
     [Alias('CanRun')]
     [switch]
     $CouldRun,
-
+    
     # If set, will run the extension.  If -Stream is passed, results will be directly returned.
     # By default, extension results are wrapped in a return object.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -99,6 +99,11 @@ function Get-PSDevOpsExtension
     [Parameter(ValueFromPipelineByPropertyName)]
     [PSObject]
     $ValidateInput,
+
+    # The name of the parameter set.  This is used by -CouldRun and -Run to enforce a single specific parameter set.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string]
+    $ParameterSetName,
 
     # The parameters to the extension.  Only used when determining if the extension -CouldRun.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -366,9 +371,10 @@ function Get-PSDevOpsExtension
             }))
 
             $extCmd.PSObject.Methods.Add([PSScriptMethod]::new('CouldRun', {
-                param([Collections.IDictionary]$params)
+                param([Collections.IDictionary]$params, [string]$ParameterSetName)
 
                 :nextParameterSet foreach ($paramSet in $this.ParameterSets) {
+                    if ($ParameterSetName -and $paramSet.Name -ne $ParameterSetName) { continue }
                     $mappedParams = [Ordered]@{} # Create a collection of mapped parameters
                     $mandatories  =  # Walk thru each parameter of this command                
                         @(foreach ($myParam in $paramSet.Parameters) {
@@ -447,7 +453,7 @@ function Get-PSDevOpsExtension
                 }
                 elseif ($CouldRun) {
                     if (-not $extCmd) { return }
-                    $couldRunExt = $extCmd.CouldRun($Parameter)
+                    $couldRunExt = $extCmd.CouldRun($Parameter, $ParameterSetName)
                     if (-not $couldRunExt) { return }
                     [PSCustomObject][Ordered]@{
                         ExtensionCommand = $extCmd
@@ -459,7 +465,7 @@ function Get-PSDevOpsExtension
                 }
                 elseif ($Run) {
                     if (-not $extCmd) { return }
-                    $couldRunExt = $extCmd.CouldRun($Parameter)
+                    $couldRunExt = $extCmd.CouldRun($Parameter, $ParameterSetName)
                     if (-not $couldRunExt) { return }
                     if ($extCmd.InheritanceLevel -eq 'InheritedReadOnly') { return }
                     if ($Stream) {
@@ -568,5 +574,5 @@ function Get-PSDevOpsExtension
         }
     }
 }
-#endregion Piecemeal [ 0.1.9 ] : Easy Extensible Plugins for PowerShell
+#endregion Piecemeal [ 0.1.10 ] : Easy Extensible Plugins for PowerShell
 
