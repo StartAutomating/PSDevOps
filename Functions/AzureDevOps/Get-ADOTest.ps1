@@ -39,6 +39,19 @@
     [switch]
     $TestRun,
 
+    
+    # If set, will return the test plans associated with a project.
+    [Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans')]
+    [Alias('TestPlans')]
+    [switch]
+    $TestPlan,
+
+    # If set, will return the test suites associated with a project and plan.
+    [Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites')]
+    [Alias('TestSuites')]
+    [switch]
+    $TestSuite,
+
     # If set, will return results related to a specific test run.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}')]
     [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='/{ProjectID}/_apis/test/runs/{TestRunID}/attachments')]
