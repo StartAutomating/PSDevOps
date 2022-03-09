@@ -63,7 +63,7 @@
     process {
         $in = $_
         $paramCopy = [Ordered]@{} + $psBoundParameters
-        $extensionOutput     = Get-PSDevOpsExtension -Run -CommandName $MyInvocation.MyCommand.Name -Parameter $paramCopy -Stream
+        $extensionOutput     = Get-PSDevOpsExtension -Run -CommandName $MyInvocation.MyCommand.Name -Parameter $paramCopy -Stream -ParameterSetName $psCmdlet.ParameterSetName
         if ($extensionOutput) {
             foreach ($extOut in $extensionOutput) {
                 $rq.Enqueue($extOut)
