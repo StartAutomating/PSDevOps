@@ -23,6 +23,16 @@
     [Alias('Org')]
     [string]
     $Organization,
+    
+    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans')]
+    [Alias('TestPlans')]
+    [switch]
+    $TestPlan,
+
+    [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites')]
+    [Alias('TestSuites')]
+    [switch]
+    $TestSuite,
 
     # The project identifier.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -52,7 +62,7 @@
     }
     process {
         $in = $_
-        $paramCopy = [Ordered]@{} + $psBoundParameters        
+        $paramCopy = [Ordered]@{} + $psBoundParameters
         $extensionOutput     = Get-PSDevOpsExtension -Run -CommandName $MyInvocation.MyCommand.Name -Parameter $paramCopy -Stream
         if ($extensionOutput) {
             foreach ($extOut in $extensionOutput) {
