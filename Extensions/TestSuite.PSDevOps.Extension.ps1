@@ -16,13 +16,6 @@ param(
 [string]
 $TestPlanID,
 
-# If set, will list test suites.
-[Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites')]
-[Alias('TestSuites')]
-[Management.Automation.Cmdlet("Get","ADOTest")]
-[switch]
-$TestSuite,
-
 # The test suite identifier.
 [Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}',ValueFromPipelineByPropertyName)]
 [Management.Automation.Cmdlet("Set","ADOTest")]
@@ -31,16 +24,16 @@ $TestSuite,
 $TestSuiteID,
 
 # The name of the test suite.
-[Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites',ValueFromPipelineByPropertyName)]
-[Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}',ValueFromPipelineByPropertyName)]
+[Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites',ValueFromPipelineByPropertyName)]
+[Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}',ValueFromPipelineByPropertyName)]
 [Management.Automation.Cmdlet("Add","ADOTest")]
 [Management.Automation.Cmdlet("Set","ADOTest")]
 [string]
 $TestSuiteName,
 
 # The parent test suite ID
-[Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites',ValueFromPipelineByPropertyName)]
-[Parameter(Mandatory,ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}',ValueFromPipelineByPropertyName)]
+[Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites',ValueFromPipelineByPropertyName)]
+[Parameter(ParameterSetName='/{ProjectID}/_apis/testplan/plans/{TestPlanID}/suites/{TestSuiteID}',ValueFromPipelineByPropertyName)]
 [Management.Automation.Cmdlet("Add","ADOTest")]
 [Management.Automation.Cmdlet("Set","ADOTest")]
 [string]
