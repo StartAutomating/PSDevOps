@@ -1,6 +1,6 @@
 #region Piecemeal [ 0.1.10 ] : Easy Extensible Plugins for PowerShell
 # Install-Module Piecemeal -Scope CurrentUser 
-# Import-Module Piecemeal 
+# Import-Module Piecemeal -Force 
 # Install-Piecemeal -ExtensionModule 'PSDevOps' -ExtensionModuleAlias 'psdo' -ExtensionTypeName 'PSDevOps.Extension' -OutputPath '.\Get-PSDevOpsExtension.ps1'
 function Get-PSDevOpsExtension
 {
