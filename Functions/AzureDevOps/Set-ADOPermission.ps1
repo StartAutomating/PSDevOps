@@ -4,7 +4,7 @@
     .Synopsis
         Sets Azure DevOps Permissions
     .Description
-        Gets Azure DevOps security permissions.
+        Sets Azure DevOps security permissions.
     .Example
         Set-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
     .Link
