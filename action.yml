@@ -1,0 +1,20 @@
+
+name: UsePSDevOps
+description: PowerShell Tools for DevOps (including a PowerShell wrapper for the GitHub REST API)
+branding: 
+  icon: github
+  color: blue
+outputs: 
+  
+    PSDevOpsScriptRuntime: 
+      description: The time it took the .PSDevOpsScript parameter to run
+      value: ${{steps.PSDevOpsAction.outputs.PSDevOpsScriptRuntime}}
+    PSDevOpsPS1Runtime: 
+      description: The time it took all .PSDevOps.ps1 files to run
+      value: ${{steps.PSDevOpsAction.outputs.PSDevOpsPS1Runtime}}
+    PSDevOpsPS1Files: 
+      description: The .PSDevOps.ps1 files that were run (separated by semicolons)
+      value: ${{steps.PSDevOpsAction.outputs.PSDevOpsPS1Files}}
+    PSDevOpsPS1Count: 
+      description: The number of .PSDevOps.ps1 files that were run
+      value: ${{steps.PSDevOpsAction.outputs.PSDevOpsPS1Count}}
