@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.5: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<?xml version="1.0" encoding="utf-16"?>
+<!-- Generated with EZOut 1.8.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <ViewDefinitions>
     <View>
@@ -111,31 +111,33 @@
               </ExpressionBinding>
               <ExpressionBinding>
                 <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if (-not $lm) { continue } 
-    if ($lm.FormatPartsLoaded) { break }
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
 
-} while ($false)
-
-. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.Succeeded'</ScriptBlock>
+            do {
+                $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+                if (-not $lm) { continue } 
+                if ($lm.FormatPartsLoaded) { break }
+                $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+                    foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+                        $ParentNode = $partNodeName.Node.ParentNode
+                        "$($ParentNode.Name)={
+            $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+                    }
+                }) -join [Environment]::NewLine
+                New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+                    Import-Module -Global
+                $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+                
+                if (-not $lm.OnRemove) {
+                    $lm.OnRemove = $onRemove
+                } else {
+                    $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+                }
+                $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+            
+            } while ($false)
+            
+        
+@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Succeeded' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -148,10 +150,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Succeeded' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.Failed'</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Failed' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -164,10 +166,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Failed' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.NotStarted'</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.NotStarted' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -180,10 +182,10 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.NotStarted' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_SetOutputStyle} -ForegroundColor 'PSDevOps.Build.InProgress'</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.InProgress' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ItemSelectionCondition>
@@ -200,7 +202,7 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
-                <ScriptBlock>. ${PSDevOps_ClearOutputStyle}</ScriptBlock>
+                <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.InProgress' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
                 <ScriptBlock>
@@ -389,41 +391,43 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
               <!-- {ConditionalColor:"&quot;Success&quot;"}-->
               <TableColumnItem>
                 <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if (-not $lm) { continue } 
-    if ($lm.FormatPartsLoaded) { break }
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
 
-} while ($false)
-
+            do {
+                $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+                if (-not $lm) { continue } 
+                if ($lm.FormatPartsLoaded) { break }
+                $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+                    foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+                        $ParentNode = $partNodeName.Node.ParentNode
+                        "$($ParentNode.Name)={
+            $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+                    }
+                }) -join [Environment]::NewLine
+                New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+                    Import-Module -Global
+                $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+                
+                if (-not $lm.OnRemove) {
+                    $lm.OnRemove = $onRemove
+                } else {
+                    $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+                }
+                $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+            
+            } while ($false)
+            
+        
 
                 $__ = $_
                 $ci = . {"Success"}
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'Name'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -436,12 +440,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
                 <ScriptBlock>        
         @(foreach ($kv in ([Management.Automation.CommandMetaData]$_).Parameters.GetEnumerator()) {
             @(
-            . ${PSDevOps_SetOutputStyle} -ForegroundColor Verbose 
+            . ${PSDevOps_setOutputStyle} -ForegroundColor Verbose 
             "[$($kv.Value.ParameterType)]"
-            . ${PSDevOps_ClearOutputStyle}
-            . ${PSDevOps_SetOutputStyle} -ForegroundColor Warning
+            . ${PSDevOps_clearOutputStyle}
+            . ${PSDevOps_setOutputStyle} -ForegroundColor Warning
             "`$$($kv.Key)"
-            . ${PSDevOps_ClearOutputStyle}
+            . ${PSDevOps_clearOutputStyle}
             ) -join ''
         }) -join [Environment]::NewLine
     </ScriptBlock>
@@ -509,30 +513,32 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
             <TableColumnItems>
               <TableColumnItem>
                 <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if (-not $lm) { continue } 
-    if ($lm.FormatPartsLoaded) { break }
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
 
-} while ($false)
-
+            do {
+                $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+                if (-not $lm) { continue } 
+                if ($lm.FormatPartsLoaded) { break }
+                $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+                    foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+                        $ParentNode = $partNodeName.Node.ParentNode
+                        "$($ParentNode.Name)={
+            $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+                    }
+                }) -join [Environment]::NewLine
+                New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+                    Import-Module -Global
+                $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+                
+                if (-not $lm.OnRemove) {
+                    $lm.OnRemove = $onRemove
+                } else {
+                    $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+                }
+                $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+            
+            } while ($false)
+            
+        
 
                 $__ = $_
                 $ci = . {
@@ -542,12 +548,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'Number'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -560,12 +566,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'State'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -578,12 +584,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'Title'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -1264,30 +1270,32 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
             <TableColumnItems>
               <TableColumnItem>
                 <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if (-not $lm) { continue } 
-    if ($lm.FormatPartsLoaded) { break }
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
 
-} while ($false)
-
+            do {
+                $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+                if (-not $lm) { continue } 
+                if ($lm.FormatPartsLoaded) { break }
+                $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+                    foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+                        $ParentNode = $partNodeName.Node.ParentNode
+                        "$($ParentNode.Name)={
+            $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+                    }
+                }) -join [Environment]::NewLine
+                New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+                    Import-Module -Global
+                $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+                
+                if (-not $lm.OnRemove) {
+                    $lm.OnRemove = $onRemove
+                } else {
+                    $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+                }
+                $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+            
+            } while ($false)
+            
+        
 
                 $__ = $_
                 $ci = . {
@@ -1303,12 +1311,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'Name'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -1327,12 +1335,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'IsAutomated'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -1351,12 +1359,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'TotalTests'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -1375,12 +1383,12 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
 }
                 $_ = $__
                 if ($ci -is [string]) {
-                    $ci = . ${PSDevOps_SetOutputStyle} $ci
-                } else {
-                    $ci = . ${PSDevOps_SetOutputStyle} @ci
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
+                } else {                    
+                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
                 }
                 $output = . {$_.'PassedTests'}
-                @($ci; $output; . ${PSDevOps_ClearOutputStyle}) -join ""
+                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -1594,30 +1602,32 @@ $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBindi
             <CustomItem>
               <ExpressionBinding>
                 <ScriptBlock>$moduleName = 'PSDevOps'
-do {
-    $lm = Get-Module -Name $moduleName -ErrorAction Ignore
-    if (-not $lm) { continue } 
-    if ($lm.FormatPartsLoaded) { break }
-    $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
-        foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
-            $ParentNode = $partNodeName.Node.ParentNode
-            "$($ParentNode.Name)={
-$($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
-        }
-    }) -join [Environment]::NewLine
-    New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
-        Import-Module -Global
-    $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
-    
-    if (-not $lm.OnRemove) {
-        $lm.OnRemove = $onRemove
-    } else {
-        $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
-    }
-    $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
 
-} while ($false)
-
+            do {
+                $lm = Get-Module -Name $moduleName -ErrorAction Ignore
+                if (-not $lm) { continue } 
+                if ($lm.FormatPartsLoaded) { break }
+                $wholeScript = @(foreach ($formatFilePath in $lm.exportedFormatFiles) {         
+                    foreach ($partNodeName in Select-Xml -LiteralPath $formatFilePath -XPath "/Configuration/Controls/Control/Name[starts-with(., '$')]") {
+                        $ParentNode = $partNodeName.Node.ParentNode
+                        "$($ParentNode.Name)={
+            $($ParentNode.CustomControl.CustomEntries.CustomEntry.CustomItem.ExpressionBinding.ScriptBlock)}"
+                    }
+                }) -join [Environment]::NewLine
+                New-Module -Name "${ModuleName}.format.ps1xml" -ScriptBlock ([ScriptBlock]::Create(($wholeScript + ';Export-ModuleMember -Variable *'))) |
+                    Import-Module -Global
+                $onRemove = [ScriptBlock]::Create("Remove-Module '${ModuleName}.format.ps1xml'")
+                
+                if (-not $lm.OnRemove) {
+                    $lm.OnRemove = $onRemove
+                } else {
+                    $lm.OnRemove = [ScriptBlock]::Create($onRemove.ToString() + ''  + [Environment]::NewLine + $lm.OnRemove)
+                }
+                $lm | Add-Member NoteProperty FormatPartsLoaded $true -Force
+            
+            } while ($false)
+            
+        
 
 $wi = $_
 $uiBuffer = $Host.UI.RawUI.BufferSize.Width - 1
@@ -1633,14 +1643,14 @@ $justify = {param($l, $r)
 @(
 . ${PSDevOps_HorizontalRule}
 #('-' * $uiBuffer)
-&amp; $justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
+&amp; justify "[$($wi.ID)] $($wi.'System.Title')" "$($wi.'System.State')"
 . ${PSDevOps_HorizontalRule}
 #('-' * $uiBuffer)
 if ($wi.'System.IterationPath') {
-    &amp; $justify "Iteration Path:" $wi.'System.IterationPath'
+    &amp; justify "Iteration Path:" $wi.'System.IterationPath'
 }
 if ($wi.'System.AssignedTo') {
-    &amp; $justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
+    &amp; justify "Assigned To:" $(if ($wi.'System.AssignedTo'.displayName) {
         $wi.'System.AssignedTo'.displayName
     } else {
         $wi.'System.AssignedTo'
@@ -1653,7 +1663,7 @@ $changedBy =
         $wi.'System.ChangedBy'
     }
 if ($changedBy) {
-    &amp; $justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
+    &amp; justify "Last Updated:" "$changedBy @ $($wi.'System.ChangedDate' -as [DateTime])"
 }
 $createdBy =
     if ($wi.'System.CreatedBy'.displayName) {
@@ -1662,7 +1672,7 @@ $createdBy =
         $wi.'System.CreatedBy'
     }
 if ($createdby) {
-    &amp; $justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
+    &amp; justify "Created:" "$createdBy @ $($wi.'System.CreatedDate' -as [DateTime])"
 }
 if ($wi.'System.Description') {
     "Description:"
@@ -1848,7 +1858,321 @@ if ($wi.'Microsoft.VSTS.TCM.ReproSteps') {
   </ViewDefinitions>
   <Controls>
     <Control>
-      <Name>${PSDevOps_SetOutputStyle}</Name>
+      <Name>${PSDevOps_Format-RichText}</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>
+    &lt;#
+    .Synopsis
+        Formats the text color of output
+    .Description
+        Formats the text color of output
+
+        * ForegroundColor
+        * BackgroundColor
+        * Bold
+        * Underline
+    .Notes
+        Stylized Output works in two contexts at present:
+        * Rich consoles (Windows Terminal, PowerShell.exe, Pwsh.exe) (when $host.UI.SupportsVirtualTerminal)
+        * Web pages (Based off the presence of a $Request variable, or when $host.UI.SupportsHTML (you must add this property to $host.UI))        
+    #&gt;
+    [Management.Automation.Cmdlet("Format","Object")]
+    [ValidateScript({
+        $canUseANSI     = $host.UI.SupportsVirtualTerminal
+        $canUseHTML     = $Request -or $host.UI.SupportsHTML -or $OutputMode -eq 'HTML'
+        if (-not ($canUseANSI -or $canUseHTML)) { return $false}
+        return $true
+    })]
+    param(
+    # The input object
+    [Parameter(ValueFromPipeline)]
+    [PSObject]
+    $InputObject,
+    # The foreground color
+    [string]$ForegroundColor,
+    # The background color
+    [string]$BackgroundColor,
+    # If set, will render as bold
+    [switch]$Bold,
+    # If set, will render as blinking (not supported in all terminals or HTML)
+    [switch]$Blink,
+    # If set, will render as strikethru
+    [switch]$Strikethru,
+    # If set, will underline text
+    [switch]$Underline,
+    # If set, will invert text
+    [switch]$Invert,
+    # If set, will not clear formatting
+    [switch]$NoClear
+    )    
+
+    begin {
+        $canUseANSI     = $host.UI.SupportsVirtualTerminal
+        $canUseHTML     = $Request -or $host.UI.SupportsHTML -or $OutputMode -eq 'HTML'
+        $knownStreams = @{
+            Output='';Error='BrightRed';Warning='BrightYellow';
+            Verbose='BrightCyan';Debug='Yellow';Progress='Cyan';
+            Success='BrightGreen';Failure='Red';Default=''}
+        $standardColors = 'Black', 'Red', 'Green', 'Yellow', 'Blue','Magenta', 'Cyan', 'White'
+        $brightColors   = 'BrightBlack', 'BrightRed', 'BrightGreen', 'BrightYellow', 'BrightBlue','BrightMagenta', 'BrightCyan', 'BrightWhite'
+
+        $n =0
+        $cssClasses = @()
+        $styleAttributes =
+            @(:nextColor foreach ($hc in $ForegroundColor,$BackgroundColor) {
+                $n++
+                if (-not $hc) { continue }
+                if ($hc[0] -eq [char]0x1b) {
+                    if ($canUseANSI) { 
+                        $hc; continue
+                    }
+                }
+        
+                $ansiStartPoint = if ($n -eq 1) { 30 } else { 40 } 
+                if ($knownStreams.ContainsKey($hc)) {
+                    $i = $brightColors.IndexOf($knownStreams[$hc])
+                    if ($canUseHTML) {
+                        $cssClasses += $hc
+                    } else {
+                        if ($i -ge 0 -and $canUseANSI) {
+                            '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                        } else {
+                            $i = $standardColors.IndexOf($knownStreams[$hc])
+                            if ($i -ge 0 -and $canUseANSI) {
+                                '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                            } elseif ($i -le 0 -and $canUseANSI) {                        
+                                '' + [char]0x1b + "[$($ansistartpoint + 8):5m"
+                            }
+                        }
+                    }
+                    continue nextColor
+                }
+                elseif ($standardColors -contains $hc) {
+                    for ($i = 0; $i -lt $standardColors.Count;$i++) {
+                        if ($standardColors[$i] -eq $hc) {
+                            if ($canUseANSI -and -not $canUseHTML) {
+                                '' + [char]0x1b + "[$($ansiStartPoint + $i)m"
+                            } else {
+                                $cssClasses += $standardColors[$i]
+                            }
+                            continue nextColor
+                        }
+                    }
+                } elseif ($brightColors -contains $hc) {
+                    for ($i = 0; $i -lt $brightColors.Count;$i++) {
+                        if ($brightColors[$i] -eq $hc) {
+                            if ($canUseANSI -and -not $canUseHTML) {
+                                '' + [char]0x1b + "[1;$($ansiStartPoint + $i)m"
+                            } else {
+                                $cssClasses += $standardColors[$i]
+                            }
+                            continue nextColor
+                        }
+                    }
+                }                
+                elseif ($psStyle -and $psStyle.Formatting.$hc -and 
+                    $psStyle.Formatting.$hc -match '^\e') {
+                    if ($canUseANSI -and -not $canUseHTML) {
+                        $psStyle.Formatting.$hc
+                    } else {
+                        $cssClasses += "formatting-$hc"
+                    }
+                }
+                elseif (-not $n -and $psStyle -and $psStyle.Foreground.$hc -and 
+                    $psStyle.Foreground.$hc -match '^\e' ) {
+                    if ($canUseANSI -and -not $canUseHTML) {
+                        $psStyle.Foreground.$hc
+                    } else {
+                        $cssClasses += "foreground-$hc"
+                    }                   
+                }
+                elseif ($n -and $psStyle -and $psStyle.Background.$hc -and
+                    $psStyle.Background.$hc -match '^\e') {
+                    if ($canUseANSI -and -not $canUseHTML) {
+                        $psStyle.Background.$hc
+                    } else {
+                        $cssClasses += "background-$hc"
+                    }                    
+                }
+
+        
+        
+                if ($hc -and $hc -notmatch '^[\#\e]') {
+                    $placesToLook=
+                        @(if ($hc.Contains('.')) {
+                            $module, $setting = $hc -split '\.', 2
+                            $theModule = Get-Module $module
+                            $theModule.PrivateData.Color,
+                                $theModule.PrivateData.Colors,
+                                $theModule.PrivateData.Colour,
+                                $theModule.PrivateData.Colours,
+                                $theModule.PrivateData.EZOut,
+                                $global:PSColors,
+                                $global:PSColours
+                        } else {
+                            $setting = $hc
+                            $moduleColorSetting = $theModule.PrivateData.PSColors.$setting
+                        })
+        
+                    foreach ($place in $placesToLook) {
+                        if (-not $place) { continue }
+                        foreach ($propName in $setting -split '\.') {
+                            $place = $place.$propName
+                            if (-not $place) { break }
+                        }
+                        if ($place -and "$place".StartsWith('#') -and 4,7 -contains "$place".Length) {
+                            $hc = $place
+                            continue
+                        }
+                    }
+                    if (-not $hc.StartsWith -or -not $hc.StartsWith('#')) {
+                        continue
+                    }
+                }
+                $r,$g,$b = if ($hc.Length -eq 7) {
+                    [int]::Parse($hc[1..2]-join'', 'HexNumber')
+                    [int]::Parse($hc[3..4]-join '', 'HexNumber')
+                    [int]::Parse($hc[5..6] -join'', 'HexNumber')
+                }elseif ($hc.Length -eq 4) {
+                    [int]::Parse($hc[1], 'HexNumber') * 16
+                    [int]::Parse($hc[2], 'HexNumber') * 16
+                    [int]::Parse($hc[3], 'HexNumber') * 16
+                }
+        
+                if ($canUseHTML) {
+                    if ($n -eq 1) { "color:$hc" }
+                    elseif ($n -eq 2) { "background-color:$hc"} 
+                }
+                elseif ($canUseANSI) {
+                    if ($n -eq 1) { [char]0x1b+"[38;2;$r;$g;${b}m" }
+                    elseif ($n -eq 2) { [char]0x1b+"[48;2;$r;$g;${b}m" }
+                }
+                
+            })
+        
+        
+        if ($Bold) {
+            $styleAttributes += 
+                if ($canUseHTML) {
+                    "font-weight:bold"
+                }
+                elseif ($canUseANSI) 
+                {
+                    '' + [char]0x1b + "[1m"
+                }
+        }
+        
+        if ($Underline) {
+            $styleAttributes += 
+                if ($canUseHTML) {
+                    "text-decoration:underline"
+                } elseif ($canUseANSI) {
+                    '' +[char]0x1b + "[4m"
+                }
+        }
+
+        if ($Strikethru) {
+            $styleAttributes += 
+                if ($canUseHTML) {
+                    "text-decoration: line-through"
+                } elseif ($canUseANSI) {
+                    '' +[char]0x1b + "[4m"
+                }
+        }
+
+        if ($Blink) {
+            $styleAttributes += 
+                if ($canUseHTML) {
+                    
+                } elseif ($canUseANSI) {
+                    '' +[char]0x1b + "[5m"
+                }
+        }
+        
+        if ($Strikethru) {
+            $styleAttributes += 
+                    if ($canUseHTML) {
+                        "text-decoration: line-through"
+                    } elseif ($canUseANSI) {
+                        [char]0x1b + "[9m"
+                    }
+        }
+        
+        if ($Invert) {
+            $styleAttributes += 
+                if ($canUseHTML) {
+                    "filter:invert(100%)"
+                } elseif ($canUseANSI) {
+                    [char]0x1b + "[7m"            
+                }
+        }
+        
+        $header =
+            if ($canUseHTML) {        
+                "&lt;span$(
+                    if ($styleAttributes) { " style='$($styleAttributes -join ';')'"}
+                )$(
+                    if ($cssClasses) { " class='$($cssClasses -join ' ')'"}
+                )&gt;"
+            } elseif ($canUseANSI) {
+                $styleAttributes -join ''
+            }
+    }
+
+    process {
+        if ($header) {
+            "$header" + "$(if ($inputObject) { $inputObject | Out-String})".Trim()
+        }
+        elseif ($inputObject) {
+            ($inputObject | Out-String).Trim()
+        }
+    }
+
+    end {
+        
+        if (-not $NoClear) {
+            if ($canUseHTML) {
+                "&lt;/span&gt;"
+            }
+            elseif ($canUseANSI) {
+                if ($Underline) {
+                    '' + [char]0x1b + "[24m"
+                }
+                if ($Strikethru) {
+                    '' + [char]0x1b + "[29m"
+                }
+                if ($Bold) {        
+                    '' + [char]0x1b + "[21m" + '' + [char]0x1b + "[22m"
+                }
+                if ($Invert) {
+                    '' + [char]0x1b + '[27m'
+                }
+                if ($ForegroundColor) {
+                    '' + [char]0x1b + '[39m'
+                }
+                if ($BackgroundColor) {
+                    '' + [char]0x1b + '[49m'
+                }
+            
+                if (-not ($Underline -or $Bold -or $Invert -or $ForegroundColor -or $BackgroundColor)) {
+                    '' + [char]0x1b + '[0m'
+                }
+            }
+        }
+    }
+</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <Control>
+      <Name>${PSDevOps_setOutputStyle}</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
@@ -2045,7 +2369,7 @@ if ($canUseHTML) {
       </CustomControl>
     </Control>
     <Control>
-      <Name>${PSDevOps_ClearOutputStyle}</Name>
+      <Name>${PSDevOps_clearOutputStyle}</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>

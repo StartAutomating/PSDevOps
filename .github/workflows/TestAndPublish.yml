@@ -1,4 +1,4 @@
-﻿
+
 name: Analyze, Test, Tag, and Publish
 on: 
   push: 
@@ -485,6 +485,25 @@ jobs:
               }
           }
           } @Parameters
+  HelpOut: 
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    steps: 
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: UseHelpOut
+        uses: StartAutomating/HelpOut@master
+  RunEZOut: 
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    steps: 
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: UseEZOut
+        uses: StartAutomating/EZOut@master
+      - name: Push Changes
+        shell: pwsh
+        run: git push; exit 0
 env: 
   SYSTEM_ACCESSTOKEN: ${{ secrets.AZUREDEVOPSPAT }}
   NoCoverage: true

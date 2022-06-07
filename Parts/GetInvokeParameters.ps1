@@ -14,7 +14,11 @@ $InvokeParameter,
 [Parameter(Mandatory,ParameterSetName='GetDynamicParameters')]
 [Alias('DynamicParameters')]
 [switch]
-$DynamicParameter
+$DynamicParameter,
+
+[Parameter(ParameterSetName='GetDynamicParameters')]
+[string]
+$CommandName
 )
 
 begin {
@@ -47,8 +51,10 @@ process {
                      if ($attr.ValueFromPipelineByPropertyName) {$attr.ValueFromPipelineByPropertyName = $false}
                 }
             }
+        }        
+        if (-not $CommandName) {
+            return $script:InvokeADORestAPIParams
         }
-        return $script:InvokeADORestAPIParams
     }
     if ($PSCmdlet.ParameterSetName -eq 'GetParameterValues') {
         $invokeParams = [Ordered]@{} + $InvokeParameter # Then we copy our parameters
