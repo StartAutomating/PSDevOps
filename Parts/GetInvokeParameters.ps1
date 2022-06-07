@@ -55,14 +55,6 @@ process {
         if (-not $CommandName) {
             return $script:InvokeADORestAPIParams
         }
-        $extensionDynamicParameters = Get-PSDevOpsExtension -CommandName $CommandName -DynamicParameter
-        if (-not $extensionDynamicParameters.Count) { return $script:InvokeADORestAPIParams }
-        foreach ($dp in $script:InvokeADORestAPIParams.GetEnumerator()) {
-            if (-not $extensionDynamicParameters[$dp.Key]) {
-                $extensionDynamicParameters[$dp.Key] = $dp.value
-            }
-        }
-        return $extensionDynamicParameters
     }
     if ($PSCmdlet.ParameterSetName -eq 'GetParameterValues') {
         $invokeParams = [Ordered]@{} + $InvokeParameter # Then we copy our parameters
