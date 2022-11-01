@@ -100,7 +100,11 @@
         # The color used for branding.  By default, blue.
         [ValidateSet('white', 'yellow', 'blue', 'green', 'orange', 'red', 'purple', 'gray-dark')]
         [string]
-        $Color = 'blue'
+        $Color = 'blue',
+
+        # If provided, will output to a given path and return a file.
+        [string]
+        $OutputPath
     )   
 
     begin {
@@ -223,7 +227,14 @@
 
         if ($PassThru) {
             $yamlToBe
-        } else {            
+        } 
+        elseif ($OutputPath) {
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine |
+                Set-Content -Path $OutputPath
+
+            Get-Item -Path $OutputPath
+        }
+        else {
             @($yamlToBe | & $toYaml -Indent -2) -join '' -replace 
                 "$([Environment]::NewLine * 2)", [Environment]::NewLine
         }
