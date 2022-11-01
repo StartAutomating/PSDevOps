@@ -1,4 +1,3 @@
-
 Remove-ADOBuild
 ---------------
 ### Synopsis
@@ -12,8 +11,17 @@ Removes builds and build definitions from Azure DevOps.
 ---
 ### Related Links
 * [Get-ADOBuild](Get-ADOBuild.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/delete?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/delete?view=azure-devops-rest-5.1)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/delete?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/delete?view=azure-devops-rest-5.1)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -31,9 +39,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -41,9 +56,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -51,9 +73,16 @@ The server.  By default https://feeds.dev.azure.com/.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -61,9 +90,16 @@ The api version.  By default, 5.1-preview.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildID**
 
@@ -71,9 +107,16 @@ The Build ID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefinitionID**
 
@@ -81,9 +124,16 @@ The Build Definition ID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -99,10 +149,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
 
-System.Collections.IDictionary
+* [Collections.IDictionary](https://learn.microsoft.com/en-us/dotnet/api/System.Collections.IDictionary)
+
+
 
 
 ---
@@ -114,5 +166,3 @@ Remove-ADOBuild -Organization <String> -Project <String> [-Server <Uri>] [-ApiVe
 Remove-ADOBuild -Organization <String> -Project <String> [-Server <Uri>] [-ApiVersion <String>] -DefinitionID <String> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

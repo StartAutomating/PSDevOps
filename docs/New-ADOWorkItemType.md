@@ -1,4 +1,3 @@
-
 New-ADOWorkItemType
 -------------------
 ### Synopsis
@@ -14,7 +13,13 @@ Also creates custom rules or states for a work item type.
 ---
 ### Related Links
 * [Get-ADOWorkItemType](Get-ADOWorkItemType.md)
+
+
+
 * [Remove-ADOWorkItemType](Remove-ADOWorkItemType.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -41,9 +46,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ProcessID**
 
@@ -51,9 +63,16 @@ The process identifier.  This can be piped in from Get-ADOWorkProcess.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -61,9 +80,16 @@ The name of the custom work item type, custom work item type state, custom work 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Icon**
 
@@ -72,9 +98,16 @@ To list available icons, use Get-ADOWorkItemType -Icon
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Color**
 
@@ -82,9 +115,16 @@ The color of the work item type or state.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Description**
 
@@ -92,9 +132,16 @@ The description for the custom work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **InheritsFrom**
 
@@ -102,9 +149,16 @@ The work item type the custom work item should inherit, or the backlog behavior 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IsDisabled**
 
@@ -112,9 +166,16 @@ If set, will create the work item type disabled.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BehaviorID**
 
@@ -122,9 +183,16 @@ If set, will associate a given work item type with a behavior (for instance, add
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IsDefault**
 
@@ -132,9 +200,16 @@ If set, will make the given work item type the default within a particular behav
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Behavior**
 
@@ -142,9 +217,16 @@ If set, will create a new state for a custom work item instead of a custom work 
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ReferenceName**
 
@@ -152,9 +234,16 @@ The Reference Name of a WorkItemType.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **State**
 
@@ -162,9 +251,16 @@ If set, will create a new state for a custom work item instead of a custom work 
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Order**
 
@@ -172,9 +268,16 @@ The order of the a custom state for a custom work item.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |named  |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **StateCategory**
 
@@ -189,9 +292,19 @@ Valid Values:
 * Resolved
 * Completed
 * Removed
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |named  |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **RuleConditionType**
 
@@ -211,9 +324,19 @@ Valid Values:
 * whenValueIsNotDefined
 * whenWas
 * whenWorkItemIsCreated
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|true    |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Field**
 
@@ -221,9 +344,16 @@ The field for a given rule condition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Value**
 
@@ -231,9 +361,16 @@ The value of a given rule condition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RuleActionType**
 
@@ -256,9 +393,19 @@ Valid Values:
 * setDefaultFromField
 * setDefaultValue
 * setValueToEmpty
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|true    |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TargetField**
 
@@ -266,9 +413,16 @@ The target field for a given rule action.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TargetValue**
 
@@ -276,9 +430,16 @@ The target value for a given rule action.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -287,9 +448,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -299,9 +467,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -317,16 +492,18 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.WorkItemType
+* PSDevOps.WorkItemType
 
 
-PSDevOps.Rule
+* PSDevOps.Rule
 
 
-PSDevOps.State
+* PSDevOps.State
 
 
-PSDevOps.Behavior
+* PSDevOps.Behavior
+
+
 
 
 ---
@@ -347,5 +524,3 @@ New-ADOWorkItemType -Organization <String> -ProcessID <String> [-Name] <String> 
 New-ADOWorkItemType -Organization <String> -ProcessID <String> [-Name] <String> -ReferenceName <String> -RuleConditionType <String[]> [-Field <String[]>] [-Value <String[]>] -RuleActionType <String[]> [-TargetField <String[]>] [-TargetValue <String[]>] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

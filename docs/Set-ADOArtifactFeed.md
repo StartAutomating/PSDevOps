@@ -1,4 +1,3 @@
-
 Set-ADOArtifactFeed
 -------------------
 ### Synopsis
@@ -12,8 +11,17 @@ Changes the settings, permissions, views, and retention policies of an Azure Dev
 ---
 ### Related Links
 * [Get-ADOArtifactFeed](Get-ADOArtifactFeed.md)
+
+
+
 * [New-ADOArtifactFeed](New-ADOArtifactFeed.md)
+
+
+
 * [Remove-ADOArtifactFeed](Remove-ADOArtifactFeed.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -34,9 +42,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -44,9 +59,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **FeedID**
 
@@ -54,9 +76,16 @@ The name or ID of the feed.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -65,9 +94,16 @@ The Feed Name or View Name
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ShowDeletedPackageVersions**
 
@@ -75,9 +111,16 @@ If set, the feed will not hide all deleted/unpublished versions
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AllowConflictUpstream**
 
@@ -85,9 +128,16 @@ If set, will allow package names to conflict with the names of packages upstream
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoBadge**
 
@@ -95,9 +145,16 @@ If set, this feed will not support the generation of package badges.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PublicUpstream**
 
@@ -113,9 +170,19 @@ Valid Values:
 * PyPi
 * Maven
 * PowerShellGallery
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UpstreamSource**
 
@@ -123,9 +190,16 @@ A property bag describing upstream sources
 
 
 
-|Type              |Requried|Postion|PipelineInput        |
-|------------------|--------|-------|---------------------|
-|```[PSObject[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[PSObject[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Description**
 
@@ -133,9 +207,16 @@ The feed description.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ViewID**
 
@@ -144,9 +225,16 @@ The ViewID.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ViewVisibility**
 
@@ -159,9 +247,19 @@ Valid Values:
 * Collection
 * Organization
 * Private
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Permission**
 
@@ -169,9 +267,16 @@ If set, will set artifact permissions.
 
 
 
-|Type              |Requried|Postion|PipelineInput        |
-|------------------|--------|-------|---------------------|
-|```[PSObject[]]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[PSObject[]]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RetentionPolicy**
 
@@ -179,9 +284,16 @@ If set, will set artifact retention policies
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **CountLimit**
 
@@ -189,9 +301,16 @@ Maximum versions to preserve per package and package type.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[UInt32]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[UInt32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DaysToKeep**
 
@@ -199,9 +318,16 @@ Number of days to preserve a package version after its latest download.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[UInt32]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[UInt32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -209,9 +335,16 @@ The server.  By default https://feeds.dev.azure.com/.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -219,9 +352,16 @@ The api version.  By default, 5.1-preview.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -237,13 +377,15 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.ArtifactFeed
+* PSDevOps.ArtifactFeed
 
 
-PSDevOps.ArtfiactFeed.RetentionPolicy
+* PSDevOps.ArtfiactFeed.RetentionPolicy
 
 
-PSDevOps.ArtfiactFeed.View
+* PSDevOps.ArtfiactFeed.View
+
+
 
 
 ---
@@ -264,5 +406,3 @@ Set-ADOArtifactFeed -Organization <String> [-Project <String>] -FeedID <String> 
 Set-ADOArtifactFeed -Organization <String> [-Project <String>] -FeedID <String> -RetentionPolicy [-CountLimit <UInt32>] [-DaysToKeep <UInt32>] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

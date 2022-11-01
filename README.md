@@ -1,8 +1,12 @@
-﻿PSDevOps
-========
+﻿<div align='center'>
+<img src='Assets/PSDevOps.svg' />
+</div>
+
 PowerShell Tools for DevOps
 ---------------------------
+[![Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSDevOps)](https://www.powershellgallery.com/packages/PSDevOps/)
 [![Build Status](https://dev.azure.com/StartAutomating/PSDevOps/_apis/build/status/StartAutomating.PSDevOps?branchName=master)](https://dev.azure.com/StartAutomating/PSDevOps/_build/latest?definitionId=5)
+[![Build Status](https://github.com/StartAutomating/Irregular/actions/workflows/IrregularTests.yml/badge.svg)](https://github.com/StartAutomating/PSDevOps/actions/workflows/TestAndPublish.yml)
 ---------------------------
 
 __PSDevOps helps you automate DevOps using PowerShell.__

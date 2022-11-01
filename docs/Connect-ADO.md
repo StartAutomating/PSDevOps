@@ -1,4 +1,3 @@
-
 Connect-ADO
 -----------
 ### Synopsis
@@ -16,6 +15,9 @@ PersonalAccessTokens will be cached separately to improve security.
 ---
 ### Related Links
 * [Disconnect-ADO](Disconnect-ADO.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -32,9 +34,16 @@ When connecting to TFS, this is the Project Collection.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PersonalAccessToken**
 
@@ -42,9 +51,16 @@ The Personal Access Token.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UseDefaultCredentials**
 
@@ -52,9 +68,16 @@ If set, will use default credentials when connecting.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Credential**
 
@@ -62,9 +85,16 @@ The credential used to connect.
 
 
 
-|Type                |Requried|Postion|PipelineInput        |
-|--------------------|--------|-------|---------------------|
-|```[PSCredential]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[PSCredential]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -72,19 +102,44 @@ The Server.  If this points to a TFS server, it should be the root TFS url, i.e.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
+---
+#### **NoCache**
+
+If set, will not cache teams and projects in order to create argument completers.
+If you are using a restricted Personal Access Token, this may prevent errors.
+
+
+
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Connection
+* PSDevOps.Connection
+
+
 
 
 ---
 ### Syntax
 ```PowerShell
-Connect-ADO [-Organization] <String> [[-PersonalAccessToken] <String>] [-UseDefaultCredentials] [[-Credential] <PSCredential>] [[-Server] <Uri>] [<CommonParameters>]
+Connect-ADO [-Organization] <String> [[-PersonalAccessToken] <String>] [-UseDefaultCredentials] [[-Credential] <PSCredential>] [[-Server] <Uri>] [-NoCache] [<CommonParameters>]
 ```
 ---
-
-

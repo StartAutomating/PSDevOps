@@ -1,4 +1,3 @@
-
 Get-ADOPicklist
 ---------------
 ### Synopsis
@@ -14,7 +13,13 @@ Picklists are lists of values that can be associated with a field, for example, 
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/list)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/get](https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/get)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -35,9 +40,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PickListID**
 
@@ -45,9 +57,16 @@ The Picklist Identifier.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PicklistName**
 
@@ -55,9 +74,16 @@ The name of the picklist
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Orphan**
 
@@ -65,9 +91,16 @@ If set, will return orphan picklists.  These picklists are not associated with a
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Server**
 
@@ -76,9 +109,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -88,15 +128,24 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Project
+* PSDevOps.Project
 
 
-PSDevOps.Property
+* PSDevOps.Property
+
+
 
 
 ---
@@ -111,5 +160,3 @@ Get-ADOPicklist -Organization <String> [-PicklistName <String>] -Orphan [-Server
 Get-ADOPicklist -Organization <String> -PickListID <String> [-PicklistName <String>] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-

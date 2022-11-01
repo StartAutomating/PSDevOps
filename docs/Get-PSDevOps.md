@@ -1,4 +1,3 @@
-
 Get-PSDevOps
 ------------
 ### Synopsis
@@ -43,9 +42,16 @@ The name of the script.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ScriptPath**
 
@@ -55,9 +61,16 @@ If the paths resolve to scripts or commands
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ModuleInfo**
 
@@ -66,9 +79,16 @@ Get-Module PSDevOps | Get-PSDevOps
 
 
 
-|Type                  |Requried|Postion|PipelineInput                 |
-|----------------------|--------|-------|------------------------------|
-|```[PSModuleInfo[]]```|false   |3      |true (ByValue, ByPropertyName)|
+> **Type**: ```[PSModuleInfo[]]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByValue, ByPropertyName)
+
+
+
 ---
 #### **Pattern**
 
@@ -83,9 +103,16 @@ By default:
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |4      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Recurse**
 
@@ -93,14 +120,19 @@ If set, will search directories recursively.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Syntax
 ```PowerShell
 Get-PSDevOps [[-Name] <String>] [[-ScriptPath] <String[]>] [[-ModuleInfo] <PSModuleInfo[]>] [[-Pattern] <String>] [-Recurse] [<CommonParameters>]
 ```
 ---
-
-

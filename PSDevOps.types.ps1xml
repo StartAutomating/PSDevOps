@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.8.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 1.9.7: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
     <Name>PSDevOps.Agent</Name>
@@ -833,6 +833,14 @@ param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psbou
 
                     </GetScriptBlock>
       </ScriptProperty>
+      <NoteProperty>
+        <Name>DefaultDisplay</Name>
+        <Value>Organization
+Project
+LastUpdateTime
+Description
+</Value>
+      </NoteProperty>
     </Members>
   </Type>
   <Type>
@@ -867,6 +875,14 @@ param($params) Invoke-GitRESTApi -Uri '$($property.Value)' -UrlParameter `$psbou
 
                     </GetScriptBlock>
       </ScriptProperty>
+      <NoteProperty>
+        <Name>DefaultDisplay</Name>
+        <Value>Organization
+Project
+LastUpdateTime
+Description
+</Value>
+      </NoteProperty>
     </Members>
   </Type>
   <Type>

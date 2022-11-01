@@ -17,7 +17,7 @@
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="Does not change state")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSPossibleIncorrectComparisonWithNull", "", Justification="Explicitly checking for null (0 is ok)")]
-    [OutputType([string],[PSObject])]
+    [OutputType([string],[PSObject], [IO.FileInfo])]
     param(
     # The InputObject
     [Parameter(ValueFromPipeline)]
@@ -81,7 +81,11 @@
 
     # If provided, will directly reference build steps beneath this directory.
     [string]
-    $RootDirectory
+    $RootDirectory,
+
+    # If provided, will output to a given path and return a file.
+    [string]
+    $OutputPath
     )
 
     dynamicParam {
@@ -160,6 +164,11 @@
 
         if ($PassThru) {
             $yamlToBe
+        } elseif ($OutputPath) {
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine |
+                Set-Content -Path $OutputPath
+
+            Get-Item -Path $OutputPath
         } else {
             @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
         }

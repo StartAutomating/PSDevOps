@@ -1,4 +1,3 @@
-
 Remove-ADOServiceEndpoint
 -------------------------
 ### Synopsis
@@ -13,7 +12,13 @@ Service Endpoints allow you to connect an Azure DevOps project with to one or mo
 ---
 ### Related Links
 * [Get-ADOServiceEndpoint](Get-ADOServiceEndpoint.md)
+
+
+
 * [New-ADOServiceEndpoint](New-ADOServiceEndpoint.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -30,9 +35,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -40,9 +52,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EndpointID**
 
@@ -50,9 +69,16 @@ The Endpoint ID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -61,9 +87,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -73,9 +106,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |5      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -91,10 +131,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
 
-System.Collections.Hashtable
+* [Collections.Hashtable](https://learn.microsoft.com/en-us/dotnet/api/System.Collections.Hashtable)
+
+
 
 
 ---
@@ -103,5 +145,3 @@ System.Collections.Hashtable
 Remove-ADOServiceEndpoint [-Organization] <String> [-Project] <String> [-EndpointID] <String> [[-Server] <Uri>] [[-ApiVersion] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

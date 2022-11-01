@@ -1,4 +1,3 @@
-
 Get-ADODashboard
 ----------------
 ### Synopsis
@@ -12,6 +11,9 @@ Gets Azure DevOps Team Dashboards and Widgets within a dashboard.
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/dashboard/dashboards/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/dashboard/dashboards/list)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +30,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -38,9 +47,16 @@ The Project.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Team**
 
@@ -48,9 +64,16 @@ The Team.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DashboardID**
 
@@ -58,9 +81,16 @@ The DashboardID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Widget**
 
@@ -68,9 +98,16 @@ If set, will widgets within a dashboard.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **WidgetID**
 
@@ -78,9 +115,16 @@ The WidgetID.  If provided, will get details about a given Azure DevOps Widget.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -89,9 +133,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -101,15 +152,24 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Dashboard
+* PSDevOps.Dashboard
 
 
-PSDevOps.Widget
+* PSDevOps.Widget
+
+
 
 
 ---
@@ -127,5 +187,3 @@ Get-ADODashboard -Organization <String> -Project <String> [-Team <String>] -Dash
 Get-ADODashboard -Organization <String> -Project <String> [-Team <String>] -DashboardID <String> [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-

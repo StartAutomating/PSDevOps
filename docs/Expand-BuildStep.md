@@ -1,4 +1,3 @@
-
 Expand-BuildStep
 ----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Component Files are .ps1 or datafiles within a directory that tells you what typ
 ---
 ### Related Links
 * [Convert-BuildStep](Convert-BuildStep.md)
+
+
+
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -30,9 +35,16 @@ Each value may contain the name of another Step or StepMap
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|true    |1      |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Parent**
 
@@ -40,9 +52,16 @@ The immediate parent object
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[PSObject]```|false   |2      |false        |
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Root**
 
@@ -50,9 +69,16 @@ The absolute root object
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[PSObject]```|false   |3      |false        |
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Singleton**
 
@@ -60,9 +86,16 @@ If set, the component will be expanded as a singleton (single object)
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **SingleItemName**
 
@@ -70,9 +103,16 @@ A list of item names that automatically become singletons
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |4      |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PluralItemName**
 
@@ -80,9 +120,16 @@ A list of item names that automatically become plurals
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |5      |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **DictionaryItemName**
 
@@ -90,9 +137,16 @@ A list of item names that automatically become dictionaries.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |6      |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildSystem**
 
@@ -106,9 +160,19 @@ Valid Values:
 * ADOExtension
 * GitHubWorkflow
 * GitHubAction
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |7      |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **VariableParameter**
 
@@ -117,9 +181,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |8      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **InputParameter**
 
@@ -128,9 +199,16 @@ Wildcards accepted.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |9      |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 9
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EnvironmentParameter**
 
@@ -139,9 +217,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |10     |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 10
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UniqueParameter**
 
@@ -151,9 +236,16 @@ The build parameter would be foo_bar.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |11     |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 11
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeParameter**
 
@@ -161,9 +253,16 @@ The name of parameters that should be excluded.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |12     |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 12
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefaultParameter**
 
@@ -171,9 +270,16 @@ A collection of default parameters.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |13     |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 13
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildOption**
 
@@ -181,12 +287,21 @@ Options for the build system.  The can contain any additional parameters passed 
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[PSObject]```|false   |14     |false        |
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 14
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.Management.Automation.PSObject
+* [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
+
+
 
 
 ---
@@ -195,5 +310,3 @@ System.Management.Automation.PSObject
 Expand-BuildStep [-StepMap] <IDictionary> [[-Parent] <PSObject>] [[-Root] <PSObject>] [-Singleton] [[-SingleItemName] <String[]>] [[-PluralItemName] <String[]>] [[-DictionaryItemName] <String[]>] [[-BuildSystem] <String>] [[-VariableParameter] <String[]>] [[-InputParameter] <IDictionary>] [[-EnvironmentParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [[-BuildOption] <PSObject>] [<CommonParameters>]
 ```
 ---
-
-

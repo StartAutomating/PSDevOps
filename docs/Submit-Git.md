@@ -1,4 +1,3 @@
-
 Submit-Git
 ----------
 ### Synopsis
@@ -25,9 +24,16 @@ The -m option is mutually exclusive with -c, -C, and -F
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **All**
 
@@ -36,9 +42,16 @@ but new files you have not told Git about are not affected.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Patch**
 
@@ -47,9 +60,16 @@ See git-add(1) for details.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Commit**
 
@@ -58,9 +78,16 @@ and the authorship information (including the timestamp) when creating the commi
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ReEditCommit**
 
@@ -68,9 +95,16 @@ Like -Commit, but with -c the editor is invoked, so that the user can further ed
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **FixupCommit**
 
@@ -80,9 +114,16 @@ See git-rebase(1) for details.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Squash**
 
@@ -93,9 +134,16 @@ See git-rebase(1) for details.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ResetAuthor**
 
@@ -106,9 +154,16 @@ This also renews the author timestamp.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Short**
 
@@ -117,9 +172,16 @@ See git-status(1) for details. Implies --dry-run.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Branch**
 
@@ -127,9 +189,16 @@ Show the branch and tracking info even in short-format.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Porcelain**
 
@@ -138,9 +207,16 @@ See git-status(1) for details. Implies --dry-run.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Long**
 
@@ -148,9 +224,16 @@ When doing a dry-run, give the output in the long-format. Implies --dry-run.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NullTerminatedOutput**
 
@@ -160,9 +243,16 @@ Without the -z option, filenames with "unusual" characters are quoted as explain
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **File**
 
@@ -171,9 +261,16 @@ Use - to read the message from the standard input.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Author**
 
@@ -185,9 +282,16 @@ the commit author is then copied from the first such commit found.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Date**
 
@@ -195,9 +299,16 @@ Override the author date used in the commit.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **SignOff**
 
@@ -209,9 +320,16 @@ under the same license and agrees to a Developer Certificate of Origin
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoVerify**
 
@@ -220,9 +338,16 @@ See also githooks(5).
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AllowEmpty**
 
@@ -233,9 +358,16 @@ is primarily for use by foreign SCM interface scripts.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AllowEmptyMessage**
 
@@ -246,9 +378,16 @@ git-commit-tree(1).
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Cleanup**
 
@@ -263,9 +402,19 @@ Valid Values:
 * verbatim
 * scissors
 * default
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Edit**
 
@@ -274,9 +423,16 @@ This option lets you further edit the message taken from these sources.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoEdit**
 
@@ -285,9 +441,16 @@ For example, git commit --amend --no-edit amends a commit without changing its c
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Amend**
 
@@ -322,9 +485,16 @@ FROM UPSTREAM REBASE" section in git-rebase(1).)
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoPostRewrite**
 
@@ -332,9 +502,16 @@ Bypass the post-rewrite hook.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Include**
 
@@ -344,9 +521,16 @@ This is usually not what you want unless you are concluding a conflicted merge.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Only**
 
@@ -363,9 +547,16 @@ If used together with --allow-empty paths are also not required, and an empty co
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UntrackedFile**
 
@@ -391,9 +582,19 @@ Valid Values:
 * No
 * Normal
 * All
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Quiet**
 
@@ -401,9 +602,16 @@ Suppress commit summary message.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DryRun**
 
@@ -413,9 +621,16 @@ uncommitted and paths that are untracked.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Status**
 
@@ -425,9 +640,16 @@ Defaults to on, but can be used to override configuration variable commit.status
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoStatus**
 
@@ -436,9 +658,16 @@ when using an editor to prepare the default commit message.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **GPGSign**
 
@@ -448,9 +677,16 @@ if specified, it must be stuck to the option without a space
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NoGPGSign**
 
@@ -458,9 +694,16 @@ Countermand commit.gpgSign configuration variable that is set to force each and 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -480,5 +723,3 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 Submit-Git [-Message <String[]>] [-All] [-Patch] [-Commit <String>] [-ReEditCommit <String>] [-FixupCommit <String>] [-Squash <String>] [-ResetAuthor] [-Short] [-Branch] [-Porcelain] [-Long] [-NullTerminatedOutput] [-File <String>] [-Author <String>] [-Date <String>] [-SignOff] [-NoVerify] [-AllowEmpty] [-AllowEmptyMessage] [-Cleanup <String>] [-Edit] [-NoEdit] [-Amend] [-NoPostRewrite] [-Include] [-Only] [-UntrackedFile <String>] [-Quiet] [-DryRun] [-Status] [-NoStatus] [-GPGSign <String>] [-NoGPGSign] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

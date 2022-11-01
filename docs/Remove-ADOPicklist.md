@@ -1,4 +1,3 @@
-
 Remove-ADOPicklist
 ------------------
 ### Synopsis
@@ -12,7 +11,13 @@ Removes Picklists from Azure DevOps, or Removes Widgets from a Picklist in Azure
 ---
 ### Related Links
 * [Get-ADOPicklist](Get-ADOPicklist.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/delete](https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/delete)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PicklistID**
 
@@ -38,9 +50,16 @@ The PicklistID.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Item**
 
@@ -50,9 +69,16 @@ If this parameter is not provided, the picklist will not be deleted.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |named  |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Server**
 
@@ -61,9 +87,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -73,9 +106,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -91,10 +131,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
 
-System.Collections.Hashtable
+* [Collections.Hashtable](https://learn.microsoft.com/en-us/dotnet/api/System.Collections.Hashtable)
+
+
 
 
 ---
@@ -103,5 +145,3 @@ System.Collections.Hashtable
 Remove-ADOPicklist -Organization <String> -PicklistID <String> [-Item <String[]>] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

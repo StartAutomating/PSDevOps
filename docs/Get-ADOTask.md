@@ -1,4 +1,3 @@
-
 Get-ADOTask
 -----------
 ### Synopsis
@@ -12,6 +11,9 @@ Gets Tasks and Task Groups from Azure DevOps
 ---
 ### Related Links
 * [Convert-ADOPipeline](Convert-ADOPipeline.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -32,9 +34,16 @@ The organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -42,9 +51,16 @@ The project.  Required to get task groups.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TaskGroup**
 
@@ -52,9 +68,16 @@ If set, will get task groups related to a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **YAMLSchema**
 
@@ -62,9 +85,16 @@ If set, will get the schema for YAML tasks within an organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -73,12 +103,21 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-PSDevOps.Task
+* PSDevOps.Task
+
+
 
 
 ---
@@ -93,5 +132,3 @@ Get-ADOTask -Organization <String> -Project <String> -TaskGroup [-Server <Uri>] 
 Get-ADOTask -Organization <String> -YAMLSchema [-Server <Uri>] [<CommonParameters>]
 ```
 ---
-
-

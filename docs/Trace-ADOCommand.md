@@ -1,4 +1,3 @@
-
 Trace-ADOCommand
 ----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Traces information a command line into the output of Azure DevOps.
 ---
 ### Related Links
 * [Write-ADOCommand](Write-ADOCommand.md)
+
+
+
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -33,9 +38,16 @@ The command line.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Parameter**
 
@@ -43,12 +55,21 @@ A dictionary of parameters to the command.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -57,5 +78,3 @@ System.String
 Trace-ADOCommand -Command <String> [-Parameter <IDictionary>] [<CommonParameters>]
 ```
 ---
-
-

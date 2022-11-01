@@ -1,4 +1,3 @@
-
 Write-ADOError
 --------------
 ### Synopsis
@@ -12,7 +11,13 @@ Writes an Azure DevOps Error
 ---
 ### Related Links
 * [Write-ADOWarning](Write-ADOWarning.md)
+
+
+
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The error message.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **SourcePath**
 
@@ -38,9 +50,16 @@ An optional source path.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **LineNumber**
 
@@ -48,9 +67,16 @@ An optional line number.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[UInt32]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[UInt32]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ColumnNumber**
 
@@ -58,9 +84,16 @@ An optional column number.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[UInt32]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[UInt32]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Code**
 
@@ -68,12 +101,21 @@ An optional error code.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -82,5 +124,3 @@ System.String
 Write-ADOError [-Message] <String> [[-SourcePath] <String>] [[-LineNumber] <UInt32>] [[-ColumnNumber] <UInt32>] [[-Code] <String>] [<CommonParameters>]
 ```
 ---
-
-

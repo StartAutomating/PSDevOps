@@ -1,4 +1,3 @@
-
 Add-ADOPicklist
 ---------------
 ### Synopsis
@@ -12,7 +11,13 @@ Creates Picklists in Azure DevOps.
 ---
 ### Related Links
 * [Get-ADOPicklist](Get-ADOPicklist.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/create](https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/create)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PicklistName**
 
@@ -38,9 +50,16 @@ The name of the picklist
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **DateType**
 
@@ -53,9 +72,19 @@ Valid Values:
 * Double
 * Integer
 * String
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **IsSuggested**
 
@@ -63,9 +92,16 @@ If set, will make the items in the picklist "suggested", and allow user input.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Item**
 
@@ -74,9 +110,16 @@ If a PicklistID is provided, or -PicklistName already exists, will add these ite
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PicklistID**
 
@@ -84,9 +127,16 @@ The PicklistID of an existing picklist.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -95,9 +145,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -107,9 +164,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -125,7 +189,9 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.Picklist.Detail
+* PSDevOps.Picklist.Detail
+
+
 
 
 ---
@@ -137,5 +203,3 @@ Add-ADOPicklist -Organization <String> -PicklistName <String> [-DateType <String
 Add-ADOPicklist -Organization <String> [-DateType <String>] [-IsSuggested] -Item <String[]> -PicklistID <String> [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

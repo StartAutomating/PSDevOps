@@ -1,4 +1,3 @@
-
 Get-ADOProject
 --------------
 ### Synopsis
@@ -12,7 +11,13 @@ Gets projects from Azure DevOps or TFS.
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/wiki/wikis/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/wiki/wikis/list)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -39,9 +44,16 @@ The project name.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ProjectID**
 
@@ -49,9 +61,16 @@ The project identifier.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Metadata**
 
@@ -59,9 +78,16 @@ If set, will get project metadta
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ProcessConfiguration**
 
@@ -69,9 +95,16 @@ If set, will return the process configuration of a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PolicyConfiguration**
 
@@ -79,9 +112,16 @@ If set, will return the policy configuration of a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PolicyType**
 
@@ -89,9 +129,16 @@ If set, will return the policy types available in a given project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Plan**
 
@@ -99,9 +146,16 @@ If set, will return the plans related to a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestRun**
 
@@ -109,9 +163,16 @@ If set, will return the test runs associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestPlan**
 
@@ -119,9 +180,16 @@ If set, will return the test plans associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestVariable**
 
@@ -129,9 +197,16 @@ If set, will return the test variables associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestConfiguration**
 
@@ -139,9 +214,16 @@ If set, will return the test variables associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PlanID**
 
@@ -149,9 +231,16 @@ If set, will a specific project plan.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **DeliveryTimeline**
 
@@ -159,9 +248,16 @@ If set, will return the project delivery timeline associated with a given planID
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Wiki**
 
@@ -169,9 +265,16 @@ If set, will return any wikis associated with the project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Board**
 
@@ -179,9 +282,16 @@ If set, will return any boards associated with the project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Release**
 
@@ -189,9 +299,16 @@ If set, will return releases associated with the project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PendingApproval**
 
@@ -199,9 +316,16 @@ If set, will return pending approvals associated with the project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Organization**
 
@@ -209,9 +333,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -220,9 +351,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -232,15 +370,24 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Project
+* PSDevOps.Project
 
 
-PSDevOps.Property
+* PSDevOps.Property
+
+
 
 
 ---
@@ -303,5 +450,3 @@ Get-ADOProject -ProjectID <String> -Organization <String> [-Server <Uri>] [-ApiV
 Get-ADOProject -PlanID <String> -DeliveryTimeline <String> -Organization <String> [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-

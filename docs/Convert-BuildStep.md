@@ -1,4 +1,3 @@
-
 Convert-BuildStep
 -----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Converts Build Steps defined in a PowerShell script into build steps in a build 
 ---
 ### Related Links
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 * [Expand-BuildStep](Expand-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The name of the build step
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ScriptBlock**
 
@@ -38,9 +50,16 @@ The Script Block that will be converted into a build step
 
 
 
-|Type               |Requried|Postion|PipelineInput                 |
-|-------------------|--------|-------|------------------------------|
-|```[ScriptBlock]```|false   |named  |true (ByValue, ByPropertyName)|
+> **Type**: ```[ScriptBlock]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByValue, ByPropertyName)
+
+
+
 ---
 #### **Module**
 
@@ -48,9 +67,16 @@ The module that -ScriptBlock is declared in.  If piping in a command, this will 
 
 
 
-|Type                |Requried|Postion|PipelineInput        |
-|--------------------|--------|-------|---------------------|
-|```[PSModuleInfo]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[PSModuleInfo]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Path**
 
@@ -58,9 +84,16 @@ The path to the file
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Extension**
 
@@ -68,9 +101,16 @@ The extension of the file
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **InputParameter**
 
@@ -79,9 +119,16 @@ Wildcards accepted.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **VariableParameter**
 
@@ -90,9 +137,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EnvironmentParameter**
 
@@ -101,9 +155,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UniqueParameter**
 
@@ -113,9 +174,16 @@ The build parameter would be foo_bar.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeParameter**
 
@@ -123,9 +191,16 @@ The name of parameters that should be excluded.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefaultParameter**
 
@@ -133,9 +208,16 @@ Default parameters for a build step
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildSystem**
 
@@ -149,9 +231,19 @@ Valid Values:
 * ADOExtension
 * GitHubWorkflow
 * GitHubAction
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildOption**
 
@@ -159,12 +251,21 @@ Options for the build system.  The can contain any additional parameters passed 
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[PSObject]```|false   |named  |false        |
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.Collections.IDictionary
+* [Collections.IDictionary](https://learn.microsoft.com/en-us/dotnet/api/System.Collections.IDictionary)
+
+
 
 
 ---
@@ -176,5 +277,3 @@ Convert-BuildStep -Name <String> [-ScriptBlock <ScriptBlock>] [-Module <PSModule
 Convert-BuildStep -Name <String> -Path <String> -Extension <String> [-InputParameter <IDictionary>] [-VariableParameter <String[]>] [-EnvironmentParameter <String[]>] [-UniqueParameter <String[]>] [-ExcludeParameter <String[]>] [-DefaultParameter <IDictionary>] [-BuildSystem <String>] [-BuildOption <PSObject>] [<CommonParameters>]
 ```
 ---
-
-

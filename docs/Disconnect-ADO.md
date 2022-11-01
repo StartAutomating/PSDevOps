@@ -1,4 +1,3 @@
-
 Disconnect-ADO
 --------------
 ### Synopsis
@@ -12,6 +11,9 @@ Disconnects from Azure DevOps, clearing parameter value defaults and cached acce
 ---
 ### Related Links
 * [Connect-ADO](Connect-ADO.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -35,10 +37,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
 
-System.Management.Automation.PSObject
+* [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
+
+
 
 
 ---
@@ -47,5 +51,3 @@ System.Management.Automation.PSObject
 Disconnect-ADO [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

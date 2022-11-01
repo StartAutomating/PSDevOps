@@ -73,9 +73,14 @@ function New-GitHubWorkflow {
         [string[]]
         $BuildScript,
 
+        # If provided, will directly reference build steps beneath this directory.
         [string]
-        $RootDirectory
-    )
+        $RootDirectory,
+
+        # If provided, will output to a given path and return a file.
+        [string]
+        $OutputPath
+        )
 
     dynamicParam {
         $DynamicParameters = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
@@ -169,6 +174,11 @@ function New-GitHubWorkflow {
 
         if ($PassThru) {
             $yamlToBe
+        } elseif ($OutputPath) {
+            @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine |
+                Set-Content -Path $OutputPath
+
+            Get-Item -Path $OutputPath
         } else {
             @($yamlToBe | & $toYaml -Indent -2) -join '' -replace "$([Environment]::NewLine * 2)", [Environment]::NewLine
         }

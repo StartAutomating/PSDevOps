@@ -1,4 +1,3 @@
-
 New-ADOServiceEndpoint
 ----------------------
 ### Synopsis
@@ -16,6 +15,9 @@ To see the types of service endpoints, use Get-ADOServiceEndpoint -GetEndpointTy
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/create?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/create?view=azure-devops-rest-5.1)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -36,9 +38,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -46,9 +55,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -56,9 +72,16 @@ The name of the endpoint
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AdministratorsGroup**
 
@@ -66,9 +89,16 @@ Initial administrators of the endpoint
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Authorization**
 
@@ -76,9 +106,16 @@ Endpoint authorization data
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Data**
 
@@ -86,9 +123,16 @@ General endpoint data
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ReadersGroup**
 
@@ -96,9 +140,16 @@ Initial readers of the endpoint
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Type**
 
@@ -106,9 +157,16 @@ The endpoint type.  To see available endpoint types, use Get-ADOServiceEndpoint 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |8      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Description**
 
@@ -116,9 +174,16 @@ The endpoint description.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |9      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 9
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Url**
 
@@ -126,9 +191,16 @@ The endpoint service URL.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |10     |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 10
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IsShared**
 
@@ -136,9 +208,16 @@ If set, the endpoint will be shared across projects
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -147,9 +226,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |11     |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 11
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -159,9 +245,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |12     |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 12
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -177,10 +270,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.ServiceEndpoint
+* PSDevOps.ServiceEndpoint
 
 
-hashtable
+* [Collections.Hashtable](https://learn.microsoft.com/en-us/dotnet/api/System.Collections.Hashtable)
+
+
 
 
 ---
@@ -189,5 +284,3 @@ hashtable
 New-ADOServiceEndpoint [-Organization] <String> [-Project] <String> [-Name] <String> [[-AdministratorsGroup] <PSObject>] [[-Authorization] <PSObject>] [[-Data] <PSObject>] [[-ReadersGroup] <PSObject>] [[-Type] <String>] [[-Description] <String>] [[-Url] <Uri>] [-IsShared] [[-Server] <Uri>] [[-ApiVersion] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

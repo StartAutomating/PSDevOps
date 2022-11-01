@@ -1,4 +1,3 @@
-
 Set-ADOWorkItem
 ---------------
 ### Synopsis
@@ -12,8 +11,17 @@ Sets work item from Azure DevOps or Team Foundation Server.
 ---
 ### Related Links
 * [Invoke-ADORestAPI](Invoke-ADORestAPI.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/update](https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work%20items/update)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20wiql?view=azure-devops-rest-5.1)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -44,9 +52,16 @@ The InputObject
 
 
 
-|Type            |Requried|Postion|PipelineInput                 |
-|----------------|--------|-------|------------------------------|
-|```[PSObject]```|false   |named  |true (ByValue, ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByValue, ByPropertyName)
+
+
+
 ---
 #### **Organization**
 
@@ -54,9 +69,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -64,9 +86,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ID**
 
@@ -74,9 +103,16 @@ The Work Item ID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Query**
 
@@ -84,9 +120,16 @@ A query
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ParentID**
 
@@ -94,9 +137,16 @@ The work item ParentID
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Relationship**
 
@@ -104,9 +154,16 @@ A collection of relationships for the work item.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Comment**
 
@@ -114,9 +171,16 @@ A list of comments to be added to the work item.
 
 
 
-|Type              |Requried|Postion|PipelineInput        |
-|------------------|--------|-------|---------------------|
-|```[PSObject[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[PSObject[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Tag**
 
@@ -124,9 +188,16 @@ A list of tags to assign to the work item.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BypassRule**
 
@@ -134,9 +205,16 @@ If set, will not validate rules.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ValidateOnly**
 
@@ -144,9 +222,16 @@ If set, will only validate rules, but will not update the work item.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **SupressNotification**
 
@@ -154,9 +239,16 @@ If set, will only validate rules, but will not update the work item.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -165,9 +257,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -177,9 +276,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -195,7 +301,9 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.WorkItem
+* PSDevOps.WorkItem
+
+
 
 
 ---
@@ -207,5 +315,3 @@ Set-ADOWorkItem [-InputObject <PSObject>] -Organization <String> -Project <Strin
 Set-ADOWorkItem [-InputObject <PSObject>] -Organization <String> -Project <String> -Query <String> [-ParentID <String>] [-Relationship <IDictionary>] [-Comment <PSObject[]>] [-Tag <String[]>] [-BypassRule] [-ValidateOnly] [-SupressNotification] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

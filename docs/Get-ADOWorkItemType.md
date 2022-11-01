@@ -1,4 +1,3 @@
-
 Get-ADOWorkItemType
 -------------------
 ### Synopsis
@@ -12,6 +11,9 @@ Gets work item types from Azure DevOps
 ---
 ### Related Links
 * [Get-ADOWorkProcess](Get-ADOWorkProcess.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -38,9 +40,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ProcessID**
 
@@ -48,9 +57,16 @@ The ProcessID.  This is returned from Get-ADOWorkProcess.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ReferenceName**
 
@@ -58,9 +74,16 @@ The Reference Name of the Work Item Type.  This can be provided by piping Get-AD
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Layout**
 
@@ -68,9 +91,16 @@ If set, will get the layout associated with a given work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Page**
 
@@ -78,9 +108,16 @@ If set, will get the pages within a given work item type layout.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **State**
 
@@ -88,9 +125,16 @@ If set, will get the states associated with a given work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Rule**
 
@@ -98,9 +142,16 @@ If set, will get the rules associated with a given work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Behavior**
 
@@ -108,9 +159,16 @@ If set, will get the behaviors associated with a given work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Field**
 
@@ -118,9 +176,16 @@ If set,  will get the fields associated with a given work item type.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Project**
 
@@ -128,9 +193,16 @@ The name of the project.  If provided, will get work item type information relat
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Icon**
 
@@ -138,9 +210,16 @@ If set, will get work item icons available to the organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Server**
 
@@ -149,9 +228,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -161,27 +247,36 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.WorkItemType
+* PSDevOps.WorkItemType
 
 
-PSDevOps.State
+* PSDevOps.State
 
 
-PSDevOps.Rule
+* PSDevOps.Rule
 
 
-PSDevOps.Behavior
+* PSDevOps.Behavior
 
 
-PSDevOps.Layout
+* PSDevOps.Layout
 
 
-PSDevOps.ProcessField
+* PSDevOps.ProcessField
+
+
 
 
 ---
@@ -214,5 +309,3 @@ Get-ADOWorkItemType -Organization <String> -Project <String> [-Server <Uri>] [-A
 Get-ADOWorkItemType -Organization <String> -Icon [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-

@@ -4,6 +4,7 @@ param()
 #region Import Functions
 $functionsRoot = Join-Path $psScriptRoot Functions
 foreach ($file in Get-ChildItem -Path "$functionsRoot" -Filter *-*.ps1 -Recurse) {
+    if ($file.Name -match '\.[^\.]+\.ps1') { continue }
     . $file.FullName
 }
 #endregion Import Functions

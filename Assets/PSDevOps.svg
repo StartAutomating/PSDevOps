@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 200 100" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="psChevron" viewBox="0 0 100 100">
+    <polygon points="40,20 45,20 60,50 35,80 32.5,80 55,50" />
+  </symbol>
+  <use href="#psChevron" x="-32.5%" y="30%" height="40%" opacity=".9" stroke="black" fill="#4488FF" stroke-width="0.05">
+    <animate repeatDur="indefinite" values=".9;.8;.9" attributeName="opacity" dur="2s" />
+  </use>
+  <text x="50%" y="50%" font-size="24" dominant-baseline="middle" text-anchor="middle" fill="#4488ff" font-family="sans-serif">PSDevOps</text>
+  <text x="62.5%" y="48%" dominant-baseline="middle" text-anchor="middle" fill="#4488ff" font-family="sans-serif" opacity=".5" font-weight="lighter">
+    <tspan font-size="12">∞</tspan>
+    <animate repeatDur="indefinite" values=".5;.4;.5" attributeName="opacity" dur="2s" />
+  </text>
+</svg>

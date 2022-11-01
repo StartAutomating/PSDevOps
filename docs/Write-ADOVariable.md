@@ -1,4 +1,3 @@
-
 Write-ADOVariable
 -----------------
 ### Synopsis
@@ -12,6 +11,9 @@ Writes a Azure DevOps Variable.
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -27,9 +29,16 @@ The variable name.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Value**
 
@@ -37,9 +46,16 @@ The variable value.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IsSecret**
 
@@ -47,9 +63,16 @@ If set, the variable will be a secret.  Secret variables will not echo in logs.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **IsReadOnly**
 
@@ -57,9 +80,16 @@ If set, the variable will be marked as read only.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **IsOutput**
 
@@ -67,12 +97,21 @@ If set, the variable will be marked as output.  Output variables may be referenc
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -81,5 +120,3 @@ System.String
 Write-ADOVariable [-Name] <String> [[-Value] <PSObject>] [-IsSecret] [-IsReadOnly] [-IsOutput] [<CommonParameters>]
 ```
 ---
-
-

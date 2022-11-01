@@ -1,4 +1,3 @@
-
 New-ADOBuild
 ------------
 ### Synopsis
@@ -12,6 +11,9 @@ Creates Build Definitions in Azure DevOps.
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/create](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/create)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -36,9 +38,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -46,9 +55,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -56,9 +72,16 @@ The name of the build.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Path**
 
@@ -66,9 +89,16 @@ The folder path of the definition.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **YAMLFileName**
 
@@ -76,9 +106,16 @@ The path to a YAML file containing the build definition
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Comment**
 
@@ -86,9 +123,16 @@ A comment about the build defintion revision.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Description**
 
@@ -96,9 +140,16 @@ A description of the build definition.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DropLocation**
 
@@ -106,9 +157,16 @@ The drop location for the build
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |8      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildNumberFormat**
 
@@ -116,9 +174,16 @@ The build number format
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |9      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 9
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Repository**
 
@@ -126,9 +191,16 @@ The repository used by the build definition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|true    |10     |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: true
+
+> **Position**: 10
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Queue**
 
@@ -136,9 +208,16 @@ The queue used by the build definition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |11     |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 11
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Demand**
 
@@ -146,9 +225,16 @@ A collection of demands for the build definition.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |12     |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 12
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Variable**
 
@@ -156,9 +242,16 @@ A collection of variables for the build definition.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |13     |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 13
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Secret**
 
@@ -166,9 +259,16 @@ A collection of secrets for the build definition.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |14     |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 14
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Tag**
 
@@ -176,9 +276,16 @@ A list of tags for the build definition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |15     |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 15
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -187,9 +294,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |16     |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 16
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -199,9 +313,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |17     |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 17
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -217,7 +338,9 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.Build.Definition
+* PSDevOps.Build.Definition
+
+
 
 
 ---
@@ -226,5 +349,3 @@ PSDevOps.Build.Definition
 New-ADOBuild [-Organization] <String> [-Project] <String> [-Name] <String> [[-Path] <String>] [[-YAMLFileName] <String>] [[-Comment] <String>] [[-Description] <String>] [[-DropLocation] <String>] [[-BuildNumberFormat] <String>] [-Repository] <PSObject> [[-Queue] <PSObject>] [[-Demand] <IDictionary>] [[-Variable] <IDictionary>] [[-Secret] <IDictionary>] [[-Tag] <String[]>] [[-Server] <Uri>] [[-ApiVersion] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-

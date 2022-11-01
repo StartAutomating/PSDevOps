@@ -8,6 +8,5 @@ if ($PSDevOpsLoaded) {
     "::error:: PSDevOps not loaded" |Out-Host
 }
 if ($PSDevOpsLoaded) {
-    Save-MarkdownHelp -Module $PSDevOpsLoaded.Name -PassThru |
-        Add-Member ScriptProperty CommitMessage {"Updating $($this.Name)" } -Force -PassThru
+    Save-MarkdownHelp -Module $PSDevOpsLoaded.Name -PassThru
 }

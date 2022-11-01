@@ -1,4 +1,3 @@
-
 Get-ADOIdentity
 ---------------
 ### Synopsis
@@ -12,8 +11,17 @@ Gets Identities from Azure Devops.  Identities can be either users or groups.
 ---
 ### Related Links
 * [Get-ADOUser](Get-ADOUser.md)
+
+
+
 * [Get-ADOTeam](Get-ADOTeam.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/ims/identities/read%20identities](https://docs.microsoft.com/en-us/rest/api/azure/devops/ims/identities/read%20identities)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,9 +37,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AceDictionary**
 
@@ -39,9 +54,16 @@ A dictionary of Access Control Entries
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Descriptors**
 
@@ -49,9 +71,16 @@ A list of descriptors
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DescriptorBatchSize**
 
@@ -59,9 +88,16 @@ The maximum number of specific descriptors to request in one batch.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |4      |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Membership**
 
@@ -69,9 +105,16 @@ If set, will get membership information.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Recurse**
 
@@ -79,9 +122,16 @@ If set, will recursively expand any group memberships discovered.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Filter**
 
@@ -89,9 +139,16 @@ The filter used for a query
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |5      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **SearchType**
 
@@ -106,9 +163,19 @@ Valid Values:
 * MailAddress
 * General
 * LocalGroupName
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |6      |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ApiVersion**
 
@@ -117,15 +184,24 @@ This API does not exist in TFS.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |7      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Team
+* PSDevOps.Team
 
 
-PSDevOps.TeamMember
+* PSDevOps.TeamMember
+
+
 
 
 ---
@@ -134,5 +210,3 @@ PSDevOps.TeamMember
 Get-ADOIdentity [-Organization] <String> [[-AceDictionary] <PSObject>] [[-Descriptors] <String[]>] [[-DescriptorBatchSize] <Int32>] [-Membership] [-Recurse] [[-Filter] <String>] [[-SearchType] <String>] [[-ApiVersion] <String>] [<CommonParameters>]
 ```
 ---
-
-

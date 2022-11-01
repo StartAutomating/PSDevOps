@@ -1,4 +1,3 @@
-
 Register-ADOArtifactFeed
 ------------------------
 ### Synopsis
@@ -13,11 +12,29 @@ thThis allows Install-Module, Publish-Module, and Save-Module to work against an
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/azure/devops/artifacts/tutorials/private-powershell-library?view=azure-devops](https://docs.microsoft.com/en-us/azure/devops/artifacts/tutorials/private-powershell-library?view=azure-devops)
+
+
+
 * [Get-ADOArtifactFeed](Get-ADOArtifactFeed.md)
+
+
+
 * [Unregister-ADOArtifactFeed](Unregister-ADOArtifactFeed.md)
+
+
+
 * [Get-PSRepository](Get-PSRepository.md)
+
+
+
 * [Register-PSRepository](Register-PSRepository.md)
+
+
+
 * [Unregister-PSRepository](Unregister-PSRepository.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -33,9 +50,16 @@ The name of the organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -43,9 +67,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -53,9 +84,16 @@ The name or ID of the feed.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PersonalAccessToken**
 
@@ -63,9 +101,16 @@ The personal access token used to connect to the feed.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EmailAddress**
 
@@ -73,9 +118,16 @@ The email address used to connect
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RepositoryName**
 
@@ -84,9 +136,16 @@ By default, the RepositoryName will be $Organization-$Project-$Name
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RepositoryUrl**
 
@@ -95,9 +154,16 @@ By default, the RepositoryURL is predicted using -Organization, -Project, and -N
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Force**
 
@@ -105,12 +171,21 @@ If set, will remove the connection to an existing feed and then create a new one
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-Microsoft.PowerShell.Commands.PSRepository
+* Microsoft.PowerShell.Commands.PSRepository
+
+
 
 
 ---
@@ -119,5 +194,3 @@ Microsoft.PowerShell.Commands.PSRepository
 Register-ADOArtifactFeed [-Organization] <String> [[-Project] <String>] [-Name] <String> [[-PersonalAccessToken] <String>] [[-EmailAddress] <String>] [[-RepositoryName] <String>] [[-RepositoryUrl] <String>] [-Force] [<CommonParameters>]
 ```
 ---
-
-

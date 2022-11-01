@@ -1,4 +1,3 @@
-
 Get-BuildStep
 -------------
 ### Synopsis
@@ -14,6 +13,9 @@ Build Steps are scripts or data fragments used to compose a build.
 ---
 ### Related Links
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,9 +31,16 @@ If provided, only return build steps that are like this name.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Extension**
 
@@ -39,9 +48,16 @@ If provided, only return build steps matching this extension.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Type**
 
@@ -49,9 +65,16 @@ If provided, only return build steps of a given type.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildSystem**
 
@@ -59,12 +82,21 @@ If provided, only return build steps for a given build system.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-PSDevOps.BuildStep
+* PSDevOps.BuildStep
+
+
 
 
 ---
@@ -73,5 +105,3 @@ PSDevOps.BuildStep
 Get-BuildStep [[-Name] <String>] [[-Extension] <String>] [[-Type] <String>] [[-BuildSystem] <String>] [<CommonParameters>]
 ```
 ---
-
-

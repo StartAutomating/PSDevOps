@@ -1,4 +1,3 @@
-
 Set-ADOBuild
 ------------
 ### Synopsis
@@ -12,6 +11,9 @@ Sets the Azure DevOps Build information
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -42,9 +44,16 @@ A new build number (or identifier)
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Tag**
 
@@ -52,9 +61,16 @@ One or more tags for this build
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ReleaseName**
 
@@ -62,9 +78,16 @@ The name of the release
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EnvironmentPath**
 
@@ -72,12 +95,21 @@ Adds a location to the environment path
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -86,5 +118,3 @@ System.String
 Set-ADOBuild [-BuildNumber <String>] [-Tag <String[]>] [-ReleaseName <String>] [-EnvironmentPath <String>] [<CommonParameters>]
 ```
 ---
-
-

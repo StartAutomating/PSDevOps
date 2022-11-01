@@ -27,6 +27,23 @@
     [string]
     $SourcePath,
 
+    # The source path to a single item.
+    [Parameter(Mandatory,ParameterSetName="SourceFile",ValueFromPipelineByPropertyName)]
+    [Alias('ScriptFile','ScriptPath','Source')]
+    [string]
+    $SourceFile,
+
+    # The type the source file will be in a given build system.  By default, step.
+    [Parameter(ParameterSetName="SourceFile",ValueFromPipelineByPropertyName)]
+    [string]
+    $BuildStepType = "step",
+
+    # An optional name for the build step.  If none is provided, the filename will be used 
+    [Parameter(ParameterSetName="SourceFile",ValueFromPipelineByPropertyName)]
+    [string]
+    $BuildStepName,
+
+
     # A list of commands to include.
     [Parameter(ParameterSetName='Module',ValueFromPipelineByPropertyName)]
     [string[]]
@@ -191,7 +208,7 @@
                 }
             }
             #endregion Import Module Commands
-        }
+        }        
         elseif ($PSCmdlet.ParameterSetName -eq 'SourcePath') {
             
 
@@ -263,13 +280,35 @@
                         Path        = $f.FullName
                         BuildSystem = $bs
                     }
-                    
-                    $stepData.pstypenames.add("PSDevOps.$bs.BuildStep")
                     $ThingData["$($t).$($n)"] = $stepData
                 }
                 #endregion Import Files for a BuildSystem
             }
         }
+        elseif ($PSCmdlet.ParameterSetName -eq 'SourceFile') {
+            $resolvedSourceFile = $executionContext.SessionState.Path.GetResolvedPSPathFromPSPath($SourceFile)
+            if (-not $resolvedSourceFile) { return }
+            $fileItem = Get-Item -LiteralPath $resolvedSourceFile
+            foreach ($bs in $BuildSystem) {
+                $stepData = [PSCustomObject][Ordered]@{
+                    PSTypeName  = "PSDevOps.BuildStep"
+                    Name        = $fileItem.Name -replace '\.[^\.]+$'
+                    Type        = $BuildStepType
+                    Extension   = $fileItem.Extension
+                    Path        = $fileItem.FullName
+                    BuildSystem = $bs
+                }
 
+                $t, $n = $stepData.Type, $stepData.Name
+                
+                $ThingNames = $script:ComponentNames[   $bs]
+                $ThingData  = $script:ComponentMetaData[$bs]
+
+                $stepData.pstypenames.add("PSDevOps.$bs.BuildStep")
+                $ThingNames[$t].add($stepData.Name)
+                $ThingData["$($t).$($n)"] = $stepData
+            }
+
+        }
     }
 }
