@@ -27,7 +27,7 @@ $types = @(
     # or declare them in the 'Types' directory
     Join-Path $myRoot Types |
         Get-Item -ea ignore |
-        Import-TypeView
+        Import-TypeView -Deserialized
 
 )
 
