@@ -113,6 +113,24 @@ The Server.  If this points to a TFS server, it should be the root TFS url, i.e.
 
 
 ---
+#### **NoCache**
+
+If set, will not cache teams and projects in order to create argument completers.
+If you are using a restricted Personal Access Token, this may prevent errors.
+
+
+
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
+---
 ### Outputs
 * PSDevOps.Connection
 
@@ -122,6 +140,6 @@ The Server.  If this points to a TFS server, it should be the root TFS url, i.e.
 ---
 ### Syntax
 ```PowerShell
-Connect-ADO [-Organization] <String> [[-PersonalAccessToken] <String>] [-UseDefaultCredentials] [[-Credential] <PSCredential>] [[-Server] <Uri>] [<CommonParameters>]
+Connect-ADO [-Organization] <String> [[-PersonalAccessToken] <String>] [-UseDefaultCredentials] [[-Credential] <PSCredential>] [[-Server] <Uri>] [-NoCache] [<CommonParameters>]
 ```
 ---
