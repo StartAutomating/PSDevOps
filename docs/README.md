@@ -268,5 +268,3 @@ PSDevOps also includes commands to make logging within a GitHub workflow easier.
 * Write-GitHubError
 * Write-GitHubOutput
 * Write-GitHubWarning
-
-
