@@ -1,4 +1,3 @@
-
 Write-ADODebug
 --------------
 ### Synopsis
@@ -12,8 +11,17 @@ Writes an Azure DevOps Debug
 ---
 ### Related Links
 * [Write-ADOError](Write-ADOError.md)
+
+
+
 * [Write-ADOWarning](Write-ADOWarning.md)
+
+
+
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,12 +37,21 @@ The Debug message.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -43,5 +60,3 @@ System.String
 Write-ADODebug [-Message] <String> [<CommonParameters>]
 ```
 ---
-
-
