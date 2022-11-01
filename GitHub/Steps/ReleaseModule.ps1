@@ -17,7 +17,11 @@ $TagVersionFormat = 'v$($imported.Version)',
 
 # The release name format (default value: '$($imported.Name) $($imported.Version)')
 [string]
-$ReleaseNameFormat = '$($imported.Name) $($imported.Version)'
+$ReleaseNameFormat = '$($imported.Name) $($imported.Version)',
+
+# Any assets to attach to the release.  Can be a wildcard or file name.
+[string[]]
+$ReleaseAsset
 )
 
 
@@ -63,29 +67,77 @@ $releaseExists = $listOfReleases | Where-Object tag_name -eq $targetVersion
 
 if ($releaseExists) {
     "::warning::Release '$($releaseExists.Name )' Already Exists" | Out-Host
-    return
+    $releasedIt = $releaseExists
+} else {
+    $releasedIt = Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
+        [Ordered]@{
+            owner = '${{github.owner}}'
+            repo  = '${{github.repository}}'
+            tag_name = $targetVersion
+            name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
+            body = 
+                if ($env:RELEASENOTES) {
+                    $env:RELEASENOTES
+                } elseif ($imported.PrivateData.PSData.ReleaseNotes) {
+                    $imported.PrivateData.PSData.ReleaseNotes
+                } else {
+                    "$($imported.Name) $targetVersion"
+                }
+            draft = if ($env:RELEASEISDRAFT) { [bool]::Parse($env:RELEASEISDRAFT) } else { $false }
+            prerelease = if ($env:PRERELEASE) { [bool]::Parse($env:PRERELEASE) } else { $false }
+        } | ConvertTo-Json
+    ) -Headers @{
+        "Accept" = "application/vnd.github.v3+json"
+        "Content-type" = "application/json"
+        "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+    }
 }
 
 
-Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
-    [Ordered]@{
-        owner = '${{github.owner}}'
-        repo  = '${{github.repository}}'
-        tag_name = $targetVersion
-        name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
-        body = 
-            if ($env:RELEASENOTES) {
-                $env:RELEASENOTES
-            } elseif ($imported.PrivateData.PSData.ReleaseNotes) {
-                $imported.PrivateData.PSData.ReleaseNotes
-            } else {
-                "$($imported.Name) $targetVersion"
+
+
+
+if (-not $releasedIt) {
+    throw "Release failed"
+} else {
+    $releasedIt | Out-Host
+}
+
+$releaseUploadUrl = $releasedIt.upload_url -replace '\{.+$'
+
+if ($ReleaseAsset) {
+    $fileList = Get-ChildItem -Recurse
+    $filesToRelease = 
+        @(:nextFile foreach ($file in $fileList) {
+            foreach ($relAsset in $ReleaseAsset) {
+                if ($relAsset -match '[\*\?]') {
+                    if ($file.Name -like $relAsset) {
+                        $file; continue nextFile
+                    }
+                } elseif ($file.Name -eq $relAsset -or $file.FullName -eq $relAsset) {
+                    $file; continue nextFile
+                }
             }
-        draft = if ($env:RELEASEISDRAFT) { [bool]::Parse($env:RELEASEISDRAFT) } else { $false }
-        prerelease = if ($env:PRERELEASE) { [bool]::Parse($env:PRERELEASE) } else { $false }
-    } | ConvertTo-Json
-) -Headers @{
-    "Accept" = "application/vnd.github.v3+json"
-    "Content-type" = "application/json"
-    "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+        })
+
+    $releasedFiles = @{}
+    foreach ($file in $filesToRelease) {
+        if ($releasedFiles[$file.Name]) {
+            Write-Warning "Already attached file $($file.Name)"
+            continue
+        } else {
+            $fileBytes = [IO.File]::ReadAllBytes($file.FullName)
+            $releasedFiles[$file.Name] =
+                Invoke-RestMethod -Uri "${releaseUploadUrl}?name=$($file.Name)" -Headers @{
+                    "Accept"        = "application/vnd.github+json"                    
+                    "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+                } -Body $fileBytes -ContentType Application/octet-stream
+            $releasedFiles[$file.Name]
+        }
+    }
+
+    "Attached $($releasedFiles.Count) file(s) to release" | Out-Host
 }
+
+
+
