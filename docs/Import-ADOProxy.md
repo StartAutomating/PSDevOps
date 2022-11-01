@@ -1,4 +1,3 @@
-
 Import-ADOProxy
 ---------------
 ### Synopsis
@@ -14,7 +13,13 @@ A Proxy module will wrap all commands, but will always provide one or more defau
 ---
 ### Related Links
 * [Connect-ADO](Connect-ADO.md)
+
+
+
 * [Disconnect-ADO](Disconnect-ADO.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -40,9 +45,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -50,9 +62,16 @@ The project.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -60,9 +79,16 @@ The server.  This can be used to provide a TFS instance
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Prefix**
 
@@ -71,9 +97,16 @@ If not provided, this will be the -Server + -Organization + -Project.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IncludeCommand**
 
@@ -81,9 +114,16 @@ A list of command wildcards to include.  By default, all applicable commands.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeCommand**
 
@@ -91,9 +131,16 @@ A list of commands to exclude.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PassThru**
 
@@ -101,9 +148,16 @@ If set, will return the imported module.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Force**
 
@@ -111,15 +165,24 @@ If set, will unload a previously loaded copy of the module.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
 
-System.Management.Automation.PSModuleInfo
+* [Management.Automation.PSModuleInfo](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSModuleInfo)
+
+
 
 
 ---
@@ -128,5 +191,3 @@ System.Management.Automation.PSModuleInfo
 Import-ADOProxy [-Organization] <String> [[-Project] <String>] [[-Server] <Uri>] [[-Prefix] <String>] [[-IncludeCommand] <String[]>] [[-ExcludeCommand] <String[]>] [-PassThru] [-Force] [<CommonParameters>]
 ```
 ---
-
-
