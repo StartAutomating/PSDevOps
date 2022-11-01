@@ -1,4 +1,3 @@
-
 Import-BuildStep
 ----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Imports Build Steps defined in a module.
 ---
 ### Related Links
 * [Convert-BuildStep](Convert-BuildStep.md)
+
+
+
 * [Expand-BuildStep](Expand-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The name of the module containing build steps.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **SourcePath**
 
@@ -38,9 +50,16 @@ The source path.  This path contains definitions for a given single build system
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IncludeCommand**
 
@@ -48,9 +67,16 @@ A list of commands to include.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeCommand**
 
@@ -58,9 +84,16 @@ A list of commands to exclude
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildSystem**
 
@@ -75,9 +108,19 @@ Valid Values:
 * ADOExtension
 * GitHubAction
 * GitHubWorkflow
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |named  |false        |
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildSystemAlias**
 
@@ -87,24 +130,47 @@ By default, GitHubWorkflows can exist within a directory named GitHubWorkflow, G
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |named  |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildSystemInclude**
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |named  |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildCommandType**
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |named  |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.Nullable
+* [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
+
+
 
 
 ---
@@ -116,5 +182,3 @@ Import-BuildStep -ModuleName <String> [-IncludeCommand <String[]>] [-ExcludeComm
 Import-BuildStep -SourcePath <String> [-BuildSystem <String[]>] [-BuildSystemAlias <IDictionary>] [-BuildSystemInclude <IDictionary>] [-BuildCommandType <IDictionary>] [<CommonParameters>]
 ```
 ---
-
-
