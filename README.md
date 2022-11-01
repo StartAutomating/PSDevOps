@@ -1,5 +1,7 @@
-﻿PSDevOps
-========
+﻿<div align='center'>
+<img src='Assets/PSDevOps.svg' />
+</div>
+
 PowerShell Tools for DevOps
 ---------------------------
 [![Build Status](https://dev.azure.com/StartAutomating/PSDevOps/_apis/build/status/StartAutomating.PSDevOps?branchName=master)](https://dev.azure.com/StartAutomating/PSDevOps/_build/latest?definitionId=5)
