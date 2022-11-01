@@ -1,4 +1,3 @@
-
 Set-ADOEndpoint
 ---------------
 ### Synopsis
@@ -12,6 +11,9 @@ Sets a Azure DevOps Endpoint
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,9 +31,16 @@ The identifier.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Url**
 
@@ -39,9 +48,16 @@ The endpoint URL.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AccessToken**
 
@@ -49,9 +65,16 @@ The access token
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -59,9 +82,16 @@ The name of the setting.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Value**
 
@@ -69,12 +99,21 @@ The value of the setting.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -89,5 +128,3 @@ Set-ADOEndpoint -ID <String> -Name <String> -Value <String> [<CommonParameters>]
 Set-ADOEndpoint -ID <String> -AccessToken <String> [-Name <String>] [<CommonParameters>]
 ```
 ---
-
-
