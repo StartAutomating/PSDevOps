@@ -1,4 +1,3 @@
-
 Wait-ADOBuild
 -------------
 ### Synopsis
@@ -12,7 +11,13 @@ Waits for Azure DevOps or TFS Builds to complete, fail, get cancelled, or be pos
 ---
 ### Related Links
 * [Get-ADOBuild](Get-ADOBuild.md)
+
+
+
 * [Start-ADOBuild](Start-ADOBuild.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,9 +34,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -39,9 +51,16 @@ The Project
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildID**
 
@@ -49,9 +68,16 @@ One or more build IDs.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -59,9 +85,16 @@ The server.  By default https://dev.azure.com/.
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -69,9 +102,16 @@ The api version.  By default, 5.1.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |5      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PollingInterval**
 
@@ -79,9 +119,16 @@ The time to wait before each retry.  By default, 3 1/3 seconds.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[TimeSpan]```|false   |6      |false        |
+> **Type**: ```[TimeSpan]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Timeout**
 
@@ -89,12 +136,21 @@ The timeout.  If provided, the function will wait no longer than the timeout.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[TimeSpan]```|false   |7      |false        |
+> **Type**: ```[TimeSpan]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Build
+* PSDevOps.Build
+
+
 
 
 ---
@@ -103,5 +159,3 @@ PSDevOps.Build
 Wait-ADOBuild [-Organization] <String> [-Project] <String> [-BuildID] <String[]> [[-Server] <Uri>] [[-ApiVersion] <String>] [[-PollingInterval] <TimeSpan>] [[-Timeout] <TimeSpan>] [<CommonParameters>]
 ```
 ---
-
-
