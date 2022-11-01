@@ -386,9 +386,9 @@
                         "`$Parameters.$ParameterName = `$parameters.$ParameterName -match 'true';"
                     }
                     if ([psobject], [object],[PSObject[]] -contains $paramType) {
-                        "`$Parameters.$ParameterName = ConvertFrom-JSON @'" + 
+                        "`$Parameters.$ParameterName = ConvertFrom-JSON @`"" + 
                             [Environment]::NewLine + 
-                            '${{parameters.$ParameterName}}' + [Environment]::NewLine + "'@"
+                            "`$(`$Parameters.$ParameterName)" + [Environment]::NewLine + '"@'
                     }
                     # If the parameter type was a scriptblock
                     if ([ScriptBlock], [ScriptBlock[]] -contains $paramType) {
