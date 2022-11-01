@@ -6,8 +6,6 @@ function Get-ADOServiceHealth {
         Gets the Service Health of Azure DevOps.
     .EXAMPLE
         Get-ADOServiceHealth
-    .EXAMPLE
-        Get-ADOServiceHealth
     .LINK
         https://docs.microsoft.com/en-us/rest/api/azure/devops/status/health/get        
     #>
