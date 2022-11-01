@@ -1,4 +1,3 @@
-
 Add-ADOWiki
 -----------
 ### Synopsis
@@ -12,7 +11,13 @@ Creates Wikis in Azure DevOps.
 ---
 ### Related Links
 * [Get-ADOWiki](Get-ADOWiki.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/wiki/wikis/create](https://docs.microsoft.com/en-us/rest/api/azure/devops/wiki/wikis/create)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -34,9 +39,16 @@ The Organization.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -44,9 +56,16 @@ The Project.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Name**
 
@@ -54,9 +73,16 @@ The name of the wiki.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RepositoryID**
 
@@ -64,9 +90,16 @@ The ID of the repository used for the wiki.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **WikiType**
 
@@ -79,9 +112,19 @@ Valid Values:
 
 * ProjectWiki
 * CodeWiki
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |5      |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RootPath**
 
@@ -89,9 +132,16 @@ The root path of the wiki within the repository.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -100,9 +150,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -112,9 +169,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |8      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
@@ -130,7 +194,9 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 
 ---
 ### Outputs
-PSDevOps.Wiki
+* PSDevOps.Wiki
+
+
 
 
 ---
@@ -139,5 +205,3 @@ PSDevOps.Wiki
 Add-ADOWiki [-Organization] <String> [-Project] <String> [-Name] <String> [[-RepositoryID] <String>] [[-WikiType] <String>] [[-RootPath] <String>] [[-Server] <Uri>] [[-ApiVersion] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---
-
-
