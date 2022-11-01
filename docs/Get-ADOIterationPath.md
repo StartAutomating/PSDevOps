@@ -1,4 +1,3 @@
-
 Get-ADOIterationPath
 --------------------
 ### Synopsis
@@ -12,7 +11,13 @@ Get iteration paths from Azure DevOps
 ---
 ### Related Links
 * [Get-ADOAreaPath](Get-ADOAreaPath.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/Classification%20Nodes/Get%20Classification%20Nodes?view=azure-devops-rest-5.1#get-the-root-area-tree](https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/Classification%20Nodes/Get%20Classification%20Nodes?view=azure-devops-rest-5.1#get-the-root-area-tree)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Project**
 
@@ -38,9 +50,16 @@ The project name or identifier.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |2      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **IterationPath**
 
@@ -48,9 +67,16 @@ The IterationPath
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -59,9 +85,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -71,9 +104,16 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |5      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Depth**
 
@@ -81,12 +121,21 @@ The depth of items to get.  By default, one.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |6      |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.IterationPath
+* PSDevOps.IterationPath
+
+
 
 
 ---
@@ -95,5 +144,3 @@ PSDevOps.IterationPath
 Get-ADOIterationPath [-Organization] <String> [-Project] <String> [[-IterationPath] <String>] [[-Server] <Uri>] [[-ApiVersion] <String>] [[-Depth] <Int32>] [<CommonParameters>]
 ```
 ---
-
-
