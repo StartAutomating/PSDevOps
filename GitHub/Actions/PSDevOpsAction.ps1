@@ -47,23 +47,134 @@ $UserEmail,
 $UserName
 )
 
+#region Initial Logging
+
+# Output the parameters passed to this script (for debugging)
 "::group::Parameters" | Out-Host
 [PSCustomObject]$PSBoundParameters | Format-List | Out-Host
 "::endgroup::" | Out-Host
 
-if ($env:GITHUB_ACTION_PATH) {
-    $PSDevOpsModulePath = Join-Path $env:GITHUB_ACTION_PATH 'PSDevOps.psd1'
-    if (Test-path $PSDevOpsModulePath) {
-        Import-Module $PSDevOpsModulePath -Force -PassThru | Out-String
-    } else {
-        throw "PSDevOps not found"
-    }
-} elseif (-not (Get-Module PSDevOps)) {    
-    throw "Action Path not found"
+# Get the GitHub Event
+$gitHubEvent = 
+    if ($env:GITHUB_EVENT_PATH) {
+        [IO.File]::ReadAllText($env:GITHUB_EVENT_PATH) | ConvertFrom-Json
+    } else { $null }
+
+# Log the GitHub Event
+@"
+::group::GitHubEvent
+$($gitHubEvent | ConvertTo-Json -Depth 100)
+::endgroup::
+"@ | Out-Host
+
+# Check that there is a workspace (and throw if there is not)
+if (-not $env:GITHUB_WORKSPACE) { throw "No GitHub workspace" }
+
+#endregion Initial Logging
+
+# Check to ensure we are on a branch
+$branchName = git rev-parse --abrev-ref HEAD
+# If we were not, return.
+if (-not $branchName) {
+    "::warning::Not on a branch" | Out-Host
+    return
 }
 
-"::notice title=ModuleLoaded::PSDevOps Loaded from Path - $($PSDevOpsModulePath)" | Out-Host
+#region Configure UserName and Email
+if (-not $UserName)  {
+    $UserName =  
+        if ($env:GITHUB_TOKEN) {
+            Invoke-RestMethod -uri "https://api.github.com/user" -Headers @{
+                Authorization = "token $env:GITHUB_TOKEN"
+            } |
+                Select-Object -First 1 -ExpandProperty name
+        } else {
+            $env:GITHUB_ACTOR
+        }
+}
 
+if (-not $UserEmail) { 
+    $GitHubUserEmail = 
+        if ($env:GITHUB_TOKEN) {
+            Invoke-RestMethod -uri "https://api.github.com/user/emails" -Headers @{
+                Authorization = "token $env:GITHUB_TOKEN"
+            } |
+                Select-Object -First 1 -ExpandProperty email
+        } else {''}
+    $UserEmail = 
+        if ($GitHubUserEmail) {
+            $GitHubUserEmail
+        } else {
+            "$UserName@github.com"
+        }    
+}
+git config --global user.email $UserEmail
+git config --global user.name  $UserName
+#endregion Configure UserName and Email
+
+git pull | Out-Host
+
+
+#region Load Action Module
+$ActionModuleName     = "EZOut"
+$ActionModuleFileName = "$ActionModuleName.psd1"
+
+# Try to find a local copy of the action's module.
+# This allows the action to use the current branch's code instead of the action's implementation.
+$PSD1Found = Get-ChildItem -Recurse -Filter "*.psd1" |
+    Where-Object Name -eq $ActionModuleFileName | 
+    Select-Object -First 1
+
+$ActionModulePath, $ActionModule = 
+    # If there was a .PSD1 found
+    if ($PSD1Found) {
+        $PSD1Found.FullName # import from there.
+        Import-Module $PSD1Found.FullName -Force -PassThru
+    } 
+    # Otherwise, if we have a GITHUB_ACTION_PATH
+    elseif ($env:GITHUB_ACTION_PATH) 
+    {
+        $actionModulePath = Join-Path $env:GITHUB_ACTION_PATH $ActionModuleFileName
+        if (Test-path $actionModulePath) {
+            $actionModulePath
+            Import-Module $actionModulePath -Force -PassThru
+        } else {
+            throw "$actionModuleName not found"
+        }
+    } 
+    elseif (-not (Get-Module $ActionModuleName)) {
+        throw "$actionModulePath could not be loaded."
+    }
+
+"::notice title=ModuleLoaded::$actionModuleName Loaded from Path - $($actionModulePath)" | Out-Host
+#endregion Load Action Module
+
+
+$anyFilesChanged = $false
+filter ProcessScriptOutput {
+    $out = $_
+    $outItem = Get-Item -Path $out -ErrorAction SilentlyContinue
+    $fullName, $shouldCommit = 
+        if ($out -is [IO.FileInfo]) {
+            $out.FullName, (git status $out.Fullname -s)
+        } elseif ($outItem) {
+            $outItem.FullName, (git status $outItem.Fullname -s)
+        }
+    if ($shouldCommit) {
+        git add $fullName
+        if ($out.Message) {
+            git commit -m "$($out.Message)"
+        } elseif ($out.CommitMessage) {
+            git commit -m "$($out.CommitMessage)"
+        } elseif ($gitHubEvent.head_commit.message) {
+            git commit -m "$($gitHubEvent.head_commit.message)"
+        }
+        $anyFilesChanged = $true
+    }
+    $out
+}
+
+#endregion Declare Functions and Variables
 
 $ght = 
     if ($GitHubToken) {
@@ -82,28 +193,6 @@ Connect-GitHub -PersonalAccessToken $GitHubToken -PassThru |
     Out-Host
 "::endgroup::" | Out-Host
 
-$anyFilesChanged = $false
-$processScriptOutput = { process { 
-    $out = $_
-    $outItem = Get-Item -Path $out -ErrorAction SilentlyContinue
-    $fullName, $shouldCommit = 
-        if ($out -is [IO.FileInfo]) {
-            $out.FullName, (git status $out.Fullname -s)
-        } elseif ($outItem) {
-            $outItem.FullName, (git status $outItem.Fullname -s)
-        }
-    if ($shouldCommit) {
-        git add $fullName
-        if ($out.Message) {
-            git commit -m "$($out.Message)"
-        } elseif ($out.CommitMessage) {
-            git commit -m "$($out.CommitMessage)"
-        }
-        $anyFilesChanged = $true
-    }
-    $out
-} }
-
 
 if (-not $UserName) { $UserName = $env:GITHUB_ACTOR }
 if (-not $UserEmail) { $UserEmail = "$UserName@github.com" }
@@ -117,11 +206,11 @@ git pull | Out-Host
 $PSDevOpsScriptStart = [DateTime]::Now
 if ($PSDevOpsScript) {
     Invoke-Expression -Command $PSDevOpsScript |
-        . $processScriptOutput |
+        ProcessScriptOutput |
         Out-Host
 }
 $PSDevOpsScriptTook = [Datetime]::Now - $PSDevOpsScriptStart
-"::set-output name=PSDevOpsScriptRuntime::$($PSDevOpsScriptTook.TotalMilliseconds)"   | Out-Host
+# "::set-output name=PSDevOpsScriptRuntime::$($PSDevOpsScriptTook.TotalMilliseconds)"   | Out-Host
 
 $PSDevOpsPS1Start = [DateTime]::Now
 $PSDevOpsPS1List  = @()
@@ -134,15 +223,15 @@ if (-not $SkipPSDevOpsPS1) {
             $PSDevOpsPS1Count++
             "::notice title=Running::$($_.Fullname)" | Out-Host
             . $_.FullName |            
-                . $processScriptOutput  | 
+                ProcessScriptOutput  | 
                 Out-Host
         }
 }
 $PSDevOpsPS1EndStart = [DateTime]::Now
 $PSDevOpsPS1Took = [Datetime]::Now - $PSDevOpsPS1Start
-"::set-output name=PSDevOpsPS1Count::$($PSDevOpsPS1List.Length)"   | Out-Host
-"::set-output name=PSDevOpsPS1Files::$($PSDevOpsPS1List -join ';')"   | Out-Host
-"::set-output name=PSDevOpsPS1Runtime::$($PSDevOpsPS1Took.TotalMilliseconds)"   | Out-Host
+# "::set-output name=PSDevOpsPS1Count::$($PSDevOpsPS1List.Length)"   | Out-Host
+# "::set-output name=PSDevOpsPS1Files::$($PSDevOpsPS1List -join ';')"   | Out-Host
+# "::set-output name=PSDevOpsPS1Runtime::$($PSDevOpsPS1Took.TotalMilliseconds)"   | Out-Host
 if ($CommitMessage -or $anyFilesChanged) {
     if ($CommitMessage) {
         dir $env:GITHUB_WORKSPACE -Recurse |
@@ -155,10 +244,7 @@ if ($CommitMessage -or $anyFilesChanged) {
 
         git commit -m $ExecutionContext.SessionState.InvokeCommand.ExpandString($CommitMessage)
     }
-
-    
-    
-
+        
     $checkDetached = git symbolic-ref -q HEAD
     if (-not $LASTEXITCODE) {
         "::notice::Pushing Changes" | Out-Host
