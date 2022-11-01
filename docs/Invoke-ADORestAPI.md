@@ -1,4 +1,3 @@
-
 Invoke-ADORestAPI
 -----------------
 ### Synopsis
@@ -12,6 +11,9 @@ Invokes the Azure DevOps REST API
 ---
 ### Related Links
 * [Invoke-RestMethod](https://docs.microsoft.com/powershell/module/Microsoft.PowerShell.Utility/Invoke-RestMethod)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -30,9 +32,16 @@ The REST API Url
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Method**
 
@@ -61,9 +70,19 @@ Valid Values:
 * POST
 * PUT
 * TRACE
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Body**
 
@@ -73,9 +92,16 @@ Otherwise, this value will be converted into JSON.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Object]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Object]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UrlParameter**
 
@@ -83,9 +109,16 @@ Parameters provided as part of the URL (in segments or a query string).
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **QueryParameter**
 
@@ -93,9 +126,16 @@ Additional parameters provided after the URL.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ContentType**
 
@@ -104,9 +144,16 @@ If this parameter is omitted and the request method is POST, Invoke-RestMethod s
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Headers**
 
@@ -114,9 +161,16 @@ Specifies the headers of the web request. Enter a hash table or dictionary.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PersonalAccessToken**
 
@@ -124,9 +178,16 @@ A Personal Access Token
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Credential**
 
@@ -135,9 +196,16 @@ Type a user name, such as User01 or Domain01\User01, or enter a PSCredential obj
 
 
 
-|Type                |Requried|Postion|PipelineInput|
-|--------------------|--------|-------|-------------|
-|```[PSCredential]```|false   |named  |false        |
+> **Type**: ```[PSCredential]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **UseDefaultCredentials**
 
@@ -145,9 +213,16 @@ Indicates that the cmdlet uses the credentials of the current user to send the w
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ContinuationToken**
 
@@ -156,9 +231,16 @@ Invoke-ADORestAPI will call recursively invoke itself until a response does not 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PSTypeName**
 
@@ -166,9 +248,16 @@ The typename of the results.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Property**
 
@@ -176,9 +265,16 @@ A set of additional properties to add to an object
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **RemoveProperty**
 
@@ -186,9 +282,16 @@ A list of property names to remove from an object
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExpandProperty**
 
@@ -196,9 +299,16 @@ If provided, will expand a given property returned from the REST api.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DecorateProperty**
 
@@ -207,9 +317,16 @@ This allows nested REST properties to work with the PowerShell Extended Type Sys
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Cache**
 
@@ -217,9 +334,16 @@ If set, will cache results from a request.  Only HTTP GET results will be cached
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **AsByte**
 
@@ -227,9 +351,16 @@ If set, will return results as a byte array.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **AsJob**
 
@@ -239,9 +370,16 @@ This parameter will also be ignore when calling with -DynamicParameter or -MapPa
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **DynamicParameter**
 
@@ -249,9 +387,16 @@ If set, will get the dynamic parameters that should be provided to any function 
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **MapParameter**
 
@@ -260,12 +405,21 @@ Unmapped parameters will be added as a noteproperty of the returned dictionary.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.Management.Automation.PSObject
+* [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
+
+
 
 
 ---
@@ -280,5 +434,3 @@ Invoke-ADORestAPI [-PersonalAccessToken <String>] [-Credential <PSCredential>] [
 Invoke-ADORestAPI [-PersonalAccessToken <String>] [-Credential <PSCredential>] [-UseDefaultCredentials] [-Cache] [-AsByte] [-AsJob] -MapParameter <IDictionary> [<CommonParameters>]
 ```
 ---
-
-
