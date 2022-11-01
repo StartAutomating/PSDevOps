@@ -1,4 +1,3 @@
-
 Convert-ADOPipeline
 -------------------
 ### Synopsis
@@ -12,7 +11,13 @@ Converts builds TFS or "Classic" builds to Azure DevOps YAML Pipelines.
 ---
 ### Related Links
 * [New-ADOPipeline](New-ADOPipeline.md)
+
+
+
 * [Get-ADOTask](Get-ADOTask.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -31,9 +36,16 @@ This will be automatically populated when piping in a TFS Build definition.
 
 
 
-|Type              |Requried|Postion|PipelineInput        |
-|------------------|--------|-------|---------------------|
-|```[PSObject[]]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[PSObject[]]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildVariable**
 
@@ -42,9 +54,16 @@ This will be automatically populated when piping in a TFS build definition.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[PSObject]```|false   |2      |true (ByPropertyName)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TaskList**
 
@@ -52,9 +71,16 @@ A list of task definitions.  This will normally be the output from Get-ADOTask.
 
 
 
-|Type              |Requried|Postion|PipelineInput|
-|------------------|--------|-------|-------------|
-|```[PSObject[]]```|true    |3      |false        |
+> **Type**: ```[PSObject[]]```
+
+> **Required**: true
+
+> **Position**: 3
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WhereFore**
 
@@ -62,9 +88,16 @@ A dictionary of conditional transformations.
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |4      |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Passthru**
 
@@ -73,15 +106,24 @@ If not set, will output the pipeline YAML.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
 
-System.Management.Automation.PSObject
+* [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
+
+
 
 
 ---
@@ -90,5 +132,3 @@ System.Management.Automation.PSObject
 Convert-ADOPipeline [-BuildStep] <PSObject[]> [[-BuildVariable] <PSObject>] [-TaskList] <PSObject[]> [[-WhereFore] <IDictionary>] [-Passthru] [<CommonParameters>]
 ```
 ---
-
-
