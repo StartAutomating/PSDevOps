@@ -42,7 +42,12 @@
     # The Server.  If this points to a TFS server, it should be the root TFS url, i.e. http://localhost:8080/tfs
     [Parameter(ValueFromPipelineByPropertyName)]
     [uri]
-    $Server
+    $Server,
+
+    # If set, will not cache teams and projects in order to create argument completers.
+    # If you are using a restricted Personal Access Token, this may prevent errors.
+    [switch]
+    $NoCache
     )
 
     begin {
@@ -87,14 +92,14 @@
         #region Cache PersonalAccessToken
         if ($PersonalAccessToken) {
             $Script:CachedPersonalAccessToken = $PersonalAccessToken
-            $getProjects = @(Get-ADOProject @PSBoundParameters)
-            $getMyTeams  = @(Get-ADOTeam @PSBoundParameters -Mine)
-            if (-not ($getMyTeams -or $getProjects)) {
-                Disconnect-ADO
-                return
-            }
-
-
+            if (-not $NoCache) {
+                $getProjects = @(Get-ADOProject @PSBoundParameters)
+                $getMyTeams  = @(Get-ADOTeam @PSBoundParameters -Mine)
+                if (-not ($getMyTeams -or $getProjects)) {
+                    Disconnect-ADO
+                    return
+                }
+            }            
         }
         #endregion Cache PersonalAccessToken
 
@@ -106,6 +111,8 @@
         $output.pstypenames.add('PSDevOps.Connection')
         $output
         #endregion Cache and Output Connection
+
+        if ($NoCache)  { return }
 
         $registerArgumentCompleter =
                 $ExecutionContext.SessionState.InvokeCommand.GetCommand('Register-ArgumentCompleter','Cmdlet')
