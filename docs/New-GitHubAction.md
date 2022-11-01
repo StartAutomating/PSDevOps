@@ -305,6 +305,23 @@ Valid Values:
 
 
 ---
+#### **OutputPath**
+
+If provided, will output to a given path and return a file.
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
+---
 ### Outputs
 * [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
@@ -314,6 +331,6 @@ Valid Values:
 ---
 ### Syntax
 ```PowerShell
-New-GitHubAction [-Name] <String> [-Description] <String> [-Action <PSObject[]>] [-DockerImage <String>] [-NodeJSScript <String>] [-ActionInput <IDictionary>] [-ActionOutput <IDictionary>] [-Option <IDictionary>] [-ExcludeParameter <String[]>] [-UniqueParameter <String[]>] [-DefaultParameter <IDictionary>] [-PassThru] [-BuildScript <String[]>] [-Icon <String>] [-Color <String>] [<CommonParameters>]
+New-GitHubAction [-Name] <String> [-Description] <String> [-Action <PSObject[]>] [-DockerImage <String>] [-NodeJSScript <String>] [-ActionInput <IDictionary>] [-ActionOutput <IDictionary>] [-Option <IDictionary>] [-ExcludeParameter <String[]>] [-UniqueParameter <String[]>] [-DefaultParameter <IDictionary>] [-PassThru] [-BuildScript <String[]>] [-Icon <String>] [-Color <String>] [-OutputPath <String>] [<CommonParameters>]
 ```
 ---
