@@ -1,4 +1,3 @@
-
 Write-ADOProgress
 -----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Writes a progress record to the Azure DevOps pipeline.
 ---
 ### Related Links
 * [Write-ADOError](Write-ADOError.md)
+
+
+
 * [Write-ADOWarning](Write-ADOWarning.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -28,9 +33,16 @@ This text describes the activity whose progress is being reported.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |1      |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Status**
 
@@ -38,9 +50,16 @@ This text describes current state of the activity.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |2      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Id**
 
@@ -49,9 +68,16 @@ If the progress bars do not have different IDs, they are superimposed instead of
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |3      |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PercentComplete**
 
@@ -60,9 +86,16 @@ Use the value -1 if the percentage complete is unknown or not applicable.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |named  |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **SecondsRemaining**
 
@@ -70,9 +103,16 @@ Specifies the projected number of seconds remaining until the activity is comple
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |named  |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **CurrentOperation**
 
@@ -80,9 +120,16 @@ This text describes the operation that is currently taking place.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ParentId**
 
@@ -90,9 +137,16 @@ Specifies the parent activity of the current activity.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |named  |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Completed**
 
@@ -100,12 +154,21 @@ Indicates the progress timeline operation is completed.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -114,5 +177,3 @@ System.String
 Write-ADOProgress [-Activity] <String> [[-Status] <String>] [[-Id] <Int32>] [-PercentComplete <Int32>] [-SecondsRemaining <Int32>] [-CurrentOperation <String>] [-ParentId <Int32>] [-Completed] [<CommonParameters>]
 ```
 ---
-
-
