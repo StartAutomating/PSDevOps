@@ -1,4 +1,3 @@
-
 Trace-GitHubCommand
 -------------------
 ### Synopsis
@@ -12,6 +11,9 @@ Traces information about a command as a debug message in a GitHub workflow.
 ---
 ### Related Links
 * [Write-GitDebug](Write-GitDebug.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -32,9 +34,16 @@ The command line.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Parameter**
 
@@ -42,12 +51,21 @@ A dictionary of parameters to the command.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -56,5 +74,3 @@ System.String
 Trace-GitHubCommand -Command <String> [-Parameter <IDictionary>] [<CommonParameters>]
 ```
 ---
-
-
