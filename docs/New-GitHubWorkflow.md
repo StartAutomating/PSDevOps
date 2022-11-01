@@ -1,4 +1,3 @@
-
 New-GitHubWorkflow
 ------------------
 ### Synopsis
@@ -9,6 +8,9 @@ Creates a new GitHub Workflow
 ---
 ### Related Links
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -24,9 +26,16 @@ The input object.
 
 
 
-|Type            |Requried|Postion|PipelineInput |
-|----------------|--------|-------|--------------|
-|```[PSObject]```|false   |1      |true (ByValue)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByValue)
+
+
+
 ---
 #### **Name**
 
@@ -34,9 +43,16 @@ The name of the workflow.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |2      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Option**
 
@@ -46,9 +62,16 @@ For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessTok
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |3      |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Environment**
 
@@ -56,9 +79,16 @@ A collection of environment variables used throughout the build.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **InputParameter**
 
@@ -67,9 +97,16 @@ Wildcards accepted.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **VariableParameter**
 
@@ -78,9 +115,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeParameter**
 
@@ -88,9 +132,16 @@ The name of parameters that should be excluded.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UniqueParameter**
 
@@ -100,9 +151,16 @@ The build parameter would be foo_bar.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |8      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefaultParameter**
 
@@ -110,9 +168,16 @@ A collection of default parameters.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |9      |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 9
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PassThru**
 
@@ -120,9 +185,16 @@ If set, will output the created objects instead of creating YAML.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildScript**
 
@@ -130,18 +202,34 @@ A list of build scripts.  Each build script will run as a step in the same job.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |10     |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 10
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **RootDirectory**
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |11     |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 11
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -150,5 +238,3 @@ System.String
 New-GitHubWorkflow [[-InputObject] <PSObject>] [[-Name] <String>] [[-Option] <IDictionary>] [[-Environment] <IDictionary>] [[-InputParameter] <IDictionary>] [[-VariableParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [-PassThru] [[-BuildScript] <String[]>] [[-RootDirectory] <String>] [<CommonParameters>]
 ```
 ---
-
-
