@@ -1,4 +1,3 @@
-
 Write-GitHubOutput
 ------------------
 ### Synopsis
@@ -14,6 +13,9 @@ This output can be referenced in subsequent steps.
 ---
 ### Related Links
 * [Write-GitHubError](Write-GitHubError.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -36,9 +38,16 @@ The InputObject.  Values will be converted to a JSON array.
 
 
 
-|Type            |Requried|Postion|PipelineInput |
-|----------------|--------|-------|--------------|
-|```[PSObject]```|true    |1      |true (ByValue)|
+> **Type**: ```[PSObject]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByValue)
+
+
+
 ---
 #### **Name**
 
@@ -46,9 +55,16 @@ The Name of the Output.  By default, 'Output'.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |2      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Depth**
 
@@ -56,12 +72,21 @@ The JSON serialization depth.  By default, 10 levels.
 
 
 
-|Type         |Requried|Postion|PipelineInput|
-|-------------|--------|-------|-------------|
-|```[Int32]```|false   |3      |false        |
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -70,5 +95,3 @@ System.String
 Write-GitHubOutput [-InputObject] <PSObject> [[-Name] <String>] [[-Depth] <Int32>] [<CommonParameters>]
 ```
 ---
-
-
