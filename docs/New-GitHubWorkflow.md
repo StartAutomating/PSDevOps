@@ -215,11 +215,32 @@ A list of build scripts.  Each build script will run as a step in the same job.
 ---
 #### **RootDirectory**
 
+If provided, will directly reference build steps beneath this directory.
+
+
+
 > **Type**: ```[String]```
 
 > **Required**: false
 
 > **Position**: 11
+
+> **PipelineInput**:false
+
+
+
+---
+#### **OutputPath**
+
+If provided, will output to a given path and return a file.
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 12
 
 > **PipelineInput**:false
 
@@ -235,6 +256,6 @@ A list of build scripts.  Each build script will run as a step in the same job.
 ---
 ### Syntax
 ```PowerShell
-New-GitHubWorkflow [[-InputObject] <PSObject>] [[-Name] <String>] [[-Option] <IDictionary>] [[-Environment] <IDictionary>] [[-InputParameter] <IDictionary>] [[-VariableParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [-PassThru] [[-BuildScript] <String[]>] [[-RootDirectory] <String>] [<CommonParameters>]
+New-GitHubWorkflow [[-InputObject] <PSObject>] [[-Name] <String>] [[-Option] <IDictionary>] [[-Environment] <IDictionary>] [[-InputParameter] <IDictionary>] [[-VariableParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [-PassThru] [[-BuildScript] <String[]>] [[-RootDirectory] <String>] [[-OutputPath] <String>] [<CommonParameters>]
 ```
 ---
