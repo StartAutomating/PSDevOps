@@ -1,4 +1,3 @@
-
 Disconnect-GitHub
 -----------------
 ### Synopsis
@@ -14,6 +13,9 @@ This unloads any dynamically imported commands and clears the cached PersonalAcc
 ---
 ### Related Links
 * [Connect-GitHub](Connect-GitHub.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -27,5 +29,3 @@ Disconnect-GitHub
 Disconnect-GitHub [<CommonParameters>]
 ```
 ---
-
-
