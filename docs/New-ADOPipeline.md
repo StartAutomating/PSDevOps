@@ -1,4 +1,3 @@
-
 New-ADOPipeline
 ---------------
 ### Synopsis
@@ -12,7 +11,13 @@ Create a new Azure DevOps Pipeline.
 ---
 ### Related Links
 * [Convert-BuildStep](Convert-BuildStep.md)
+
+
+
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -33,9 +38,16 @@ The InputObject
 
 
 
-|Type            |Requried|Postion|PipelineInput |
-|----------------|--------|-------|--------------|
-|```[PSObject]```|false   |1      |true (ByValue)|
+> **Type**: ```[PSObject]```
+
+> **Required**: false
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByValue)
+
+
+
 ---
 #### **UseSystemAccessToken**
 
@@ -43,9 +55,16 @@ If set, will use map the system access token to an environment variable in each 
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Option**
 
@@ -55,9 +74,16 @@ For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessTok
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |2      |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 2
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **VariableParameter**
 
@@ -66,9 +92,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |3      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 3
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EnvironmentParameter**
 
@@ -77,9 +110,16 @@ Wildcards accepted.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |4      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 4
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ExcludeParameter**
 
@@ -87,9 +127,16 @@ The name of parameters that should be excluded.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |5      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 5
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UniqueParameter**
 
@@ -99,9 +146,16 @@ The build parameter would be foo_bar.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |6      |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 6
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefaultParameter**
 
@@ -109,9 +163,16 @@ A collection of default parameters.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |7      |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: 7
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **BuildScript**
 
@@ -119,9 +180,16 @@ A list of build scripts.  Each build script will run as a step in the same job.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |8      |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: 8
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PassThru**
 
@@ -129,9 +197,16 @@ If set, will output the created objects instead of creating YAML.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **PowerShellCore**
 
@@ -139,9 +214,16 @@ If set, will run scripts using PowerShell core, even if on Windows.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **WindowsPowerShell**
 
@@ -149,9 +231,16 @@ If set will run script using WindowsPowerShell if available.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **RootDirectory**
 
@@ -159,15 +248,24 @@ If provided, will directly reference build steps beneath this directory.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |9      |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 9
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
 
-System.Management.Automation.PSObject
+* [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
+
+
 
 
 ---
@@ -176,5 +274,3 @@ System.Management.Automation.PSObject
 New-ADOPipeline [[-InputObject] <PSObject>] [-UseSystemAccessToken] [[-Option] <IDictionary>] [[-VariableParameter] <String[]>] [[-EnvironmentParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [[-BuildScript] <String[]>] [-PassThru] [-PowerShellCore] [-WindowsPowerShell] [[-RootDirectory] <String>] [<CommonParameters>]
 ```
 ---
-
-
