@@ -1,4 +1,3 @@
-
 Hide-GitHubOutput
 -----------------
 ### Synopsis
@@ -12,7 +11,13 @@ Prevents a message from being printed in a GitHub Workflow log.
 ---
 ### Related Links
 * [Write-GitHubOutput](Write-GitHubOutput.md)
+
+
+
 * [https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions](https://docs.github.com/en/actions/reference/workflow-commands-for-GitHubhub-actions)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -29,12 +34,21 @@ The message to hide.  Any time this string would appear in logs, it will be repl
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |1      |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -43,5 +57,3 @@ System.String
 Hide-GitHubOutput [-Message] <String> [<CommonParameters>]
 ```
 ---
-
-
