@@ -259,6 +259,23 @@ If provided, will directly reference build steps beneath this directory.
 
 
 ---
+#### **OutputPath**
+
+If provided, will output to a given path and return a file.
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: 10
+
+> **PipelineInput**:false
+
+
+
+---
 ### Outputs
 * [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
@@ -266,11 +283,14 @@ If provided, will directly reference build steps beneath this directory.
 * [Management.Automation.PSObject](https://learn.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject)
 
 
+* [IO.FileInfo](https://learn.microsoft.com/en-us/dotnet/api/System.IO.FileInfo)
+
+
 
 
 ---
 ### Syntax
 ```PowerShell
-New-ADOPipeline [[-InputObject] <PSObject>] [-UseSystemAccessToken] [[-Option] <IDictionary>] [[-VariableParameter] <String[]>] [[-EnvironmentParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [[-BuildScript] <String[]>] [-PassThru] [-PowerShellCore] [-WindowsPowerShell] [[-RootDirectory] <String>] [<CommonParameters>]
+New-ADOPipeline [[-InputObject] <PSObject>] [-UseSystemAccessToken] [[-Option] <IDictionary>] [[-VariableParameter] <String[]>] [[-EnvironmentParameter] <String[]>] [[-ExcludeParameter] <String[]>] [[-UniqueParameter] <String[]>] [[-DefaultParameter] <IDictionary>] [[-BuildScript] <String[]>] [-PassThru] [-PowerShellCore] [-WindowsPowerShell] [[-RootDirectory] <String>] [[-OutputPath] <String>] [<CommonParameters>]
 ```
 ---
