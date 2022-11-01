@@ -61,6 +61,57 @@ The source path.  This path contains definitions for a given single build system
 
 
 ---
+#### **SourceFile**
+
+The source path to a single item.
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
+---
+#### **BuildStepType**
+
+The type the source file will be in a given build system.  By default, step.
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
+---
+#### **BuildStepName**
+
+An optional name for the build step.  If none is provided, the filename will be used
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
+---
 #### **IncludeCommand**
 
 A list of commands to include.
@@ -180,5 +231,8 @@ Import-BuildStep -ModuleName <String> [-IncludeCommand <String[]>] [-ExcludeComm
 ```
 ```PowerShell
 Import-BuildStep -SourcePath <String> [-BuildSystem <String[]>] [-BuildSystemAlias <IDictionary>] [-BuildSystemInclude <IDictionary>] [-BuildCommandType <IDictionary>] [<CommonParameters>]
+```
+```PowerShell
+Import-BuildStep -SourceFile <String> [-BuildStepType <String>] [-BuildStepName <String>] [-BuildSystem <String[]>] [-BuildSystemAlias <IDictionary>] [-BuildSystemInclude <IDictionary>] [-BuildCommandType <IDictionary>] [<CommonParameters>]
 ```
 ---
