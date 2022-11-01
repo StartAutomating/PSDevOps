@@ -306,6 +306,8 @@ jobs:
           $Parameters.UserName = ${env:UserName}
           $Parameters.TagVersionFormat = ${env:TagVersionFormat}
           $Parameters.ReleaseNameFormat = ${env:ReleaseNameFormat}
+          $Parameters.ReleaseAsset = ${env:ReleaseAsset}
+          $Parameters.ReleaseAsset = $parameters.ReleaseAsset -split ';' -replace '^[''"]' -replace  '[''"]$'
           foreach ($k in @($parameters.Keys)) {
               if ([String]::IsNullOrEmpty($parameters[$k])) {
                   $parameters.Remove($k)
@@ -331,7 +333,11 @@ jobs:
           
           # The release name format (default value: '$($imported.Name) $($imported.Version)')
           [string]
-          $ReleaseNameFormat = '$($imported.Name) $($imported.Version)'
+          $ReleaseNameFormat = '$($imported.Name) $($imported.Version)',
+          
+          # Any assets to attach to the release.  Can be a wildcard or file name.
+          [string[]]
+          $ReleaseAsset
           )
           
           
@@ -377,32 +383,80 @@ jobs:
           
           if ($releaseExists) {
               "::warning::Release '$($releaseExists.Name )' Already Exists" | Out-Host
-              return
+              $releasedIt = $releaseExists
+          } else {
+              $releasedIt = Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
+                  [Ordered]@{
+                      owner = '${{github.owner}}'
+                      repo  = '${{github.repository}}'
+                      tag_name = $targetVersion
+                      name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
+                      body = 
+                          if ($env:RELEASENOTES) {
+                              $env:RELEASENOTES
+                          } elseif ($imported.PrivateData.PSData.ReleaseNotes) {
+                              $imported.PrivateData.PSData.ReleaseNotes
+                          } else {
+                              "$($imported.Name) $targetVersion"
+                          }
+                      draft = if ($env:RELEASEISDRAFT) { [bool]::Parse($env:RELEASEISDRAFT) } else { $false }
+                      prerelease = if ($env:PRERELEASE) { [bool]::Parse($env:PRERELEASE) } else { $false }
+                  } | ConvertTo-Json
+              ) -Headers @{
+                  "Accept" = "application/vnd.github.v3+json"
+                  "Content-type" = "application/json"
+                  "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+              }
           }
           
           
-          Invoke-RestMethod -Uri $releasesURL -Method Post -Body (
-              [Ordered]@{
-                  owner = '${{github.owner}}'
-                  repo  = '${{github.repository}}'
-                  tag_name = $targetVersion
-                  name = $ExecutionContext.InvokeCommand.ExpandString($ReleaseNameFormat)
-                  body = 
-                      if ($env:RELEASENOTES) {
-                          $env:RELEASENOTES
-                      } elseif ($imported.PrivateData.PSData.ReleaseNotes) {
-                          $imported.PrivateData.PSData.ReleaseNotes
-                      } else {
-                          "$($imported.Name) $targetVersion"
+          
+          
+          
+          if (-not $releasedIt) {
+              throw "Release failed"
+          } else {
+              $releasedIt | Out-Host
+          }
+          
+          $releaseUploadUrl = $releasedIt.upload_url -replace '\{.+$'
+          
+          if ($ReleaseAsset) {
+              $fileList = Get-ChildItem -Recurse
+              $filesToRelease = 
+                  @(:nextFile foreach ($file in $fileList) {
+                      foreach ($relAsset in $ReleaseAsset) {
+                          if ($relAsset -match '[\*\?]') {
+                              if ($file.Name -like $relAsset) {
+                                  $file; continue nextFile
+                              }
+                          } elseif ($file.Name -eq $relAsset -or $file.FullName -eq $relAsset) {
+                              $file; continue nextFile
+                          }
                       }
-                  draft = if ($env:RELEASEISDRAFT) { [bool]::Parse($env:RELEASEISDRAFT) } else { $false }
-                  prerelease = if ($env:PRERELEASE) { [bool]::Parse($env:PRERELEASE) } else { $false }
-              } | ConvertTo-Json
-          ) -Headers @{
-              "Accept" = "application/vnd.github.v3+json"
-              "Content-type" = "application/json"
-              "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+                  })
+          
+              $releasedFiles = @{}
+              foreach ($file in $filesToRelease) {
+                  if ($releasedFiles[$file.Name]) {
+                      Write-Warning "Already attached file $($file.Name)"
+                      continue
+                  } else {
+                      $fileBytes = [IO.File]::ReadAllBytes($file.FullName)
+                      $releasedFiles[$file.Name] =
+                          Invoke-RestMethod -Uri "${releaseUploadUrl}?name=$($file.Name)" -Headers @{
+                              "Accept"        = "application/vnd.github+json"                    
+                              "Authorization" = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
+                          } -Body $fileBytes -ContentType Application/octet-stream
+                      $releasedFiles[$file.Name]
+                  }
+              }
+          
+              "Attached $($releasedFiles.Count) file(s) to release" | Out-Host
           }
+          
+          
+          
           } @Parameters
       - name: PublishPowerShellGallery
         id: PublishPowerShellGallery
@@ -410,6 +464,8 @@ jobs:
         run: |
           $Parameters = @{}
           $Parameters.ModulePath = ${env:ModulePath}
+          $Parameters.Exclude = ${env:Exclude}
+          $Parameters.Exclude = $parameters.Exclude -split ';' -replace '^[''"]' -replace  '[''"]$'
           foreach ($k in @($parameters.Keys)) {
               if ([String]::IsNullOrEmpty($parameters[$k])) {
                   $parameters.Remove($k)
@@ -418,16 +474,30 @@ jobs:
           Write-Host "::debug:: PublishPowerShellGallery $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
           & {param(
           [string]
-          $ModulePath
+          $ModulePath,
+          
+          [string[]]
+          $Exclude = @('*.png', '*.mp4', '*.jpg','*.jpeg', '*.gif', 'docs[/\]*')
           )
+          
           $gitHubEvent = if ($env:GITHUB_EVENT_PATH) {
               [IO.File]::ReadAllText($env:GITHUB_EVENT_PATH) | ConvertFrom-Json
           } else { $null }
+          
+          if (-not $Exclude) {
+              $Exclude = @('*.png', '*.mp4', '*.jpg','*.jpeg', '*.gif','docs[/\]*')
+          }
           
           
           @"
           ::group::GitHubEvent
           $($gitHubEvent | ConvertTo-Json -Depth 100)
+          ::endgroup::
+          "@ | Out-Host
+          
+          @"
+          ::group::PSBoundParameters
+          $($PSBoundParameters | ConvertTo-Json -Depth 100)
           ::endgroup::
           "@ | Out-Host
           
@@ -448,9 +518,9 @@ jobs:
           
           if (-not $imported) { return } 
           
-          $foundModule = try { Find-Module -Name $imported.Name -ErrorAction SilentlyContinue } catch {}
+          $foundModule = try { Find-Module -Name $imported.Name -ErrorAction SilentlyContinue} catch {}
           
-          if ($foundModule -and $foundModule.Version -ge $imported.Version) {
+          if ($foundModule -and (([Version]$foundModule.Version) -ge ([Version]$imported.Version))) {
               "::warning::Gallery Version of $moduleName is more recent ($($foundModule.Version) >= $($imported.Version))" | Out-Host        
           } else {
               
@@ -473,9 +543,24 @@ jobs:
               if (Test-Path $moduleGitPath) {
                   Remove-Item -Recurse -Force $moduleGitPath
               }
+          
+              if ($Exclude) {
+                  "::notice::Attempting to Exlcude $exclude" | Out-Host
+                  Get-ChildItem $moduleTempPath -Recurse |
+                      Where-Object {                
+                          foreach ($ex in $exclude) {
+                              if ($_.FullName -like $ex) {
+                                  "::notice::Excluding $($_.FullName)" | Out-Host
+                                  return $true
+                              }
+                          }
+                      } | 
+                      Remove-Item
+              }
+          
               Write-Host "Module Files:"
               Get-ChildItem $moduleTempPath -Recurse
-              Write-Host "Publishing $moduleName [$($imported.Version)] to Gallery"
+              Write-Host "Publishing $moduleName [$($imported.Version)] to Gallery"    
               Publish-Module -Path $moduleTempPath -NuGetApiKey $gk
               if ($?) {
                   Write-Host "Published to Gallery"
@@ -485,25 +570,21 @@ jobs:
               }
           }
           } @Parameters
-  HelpOut: 
+  BuildPSDevOps: 
     runs-on: ubuntu-latest
     if: ${{ success() }}
     steps: 
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: UseHelpOut
-        uses: StartAutomating/HelpOut@master
-  RunEZOut: 
-    runs-on: ubuntu-latest
-    if: ${{ success() }}
-    steps: 
-      - name: Check out repository
-        uses: actions/checkout@v2
+      - name: Use PSSVG Action
+        uses: StartAutomating/PSSVG@main
+        id: PSSVG
+      - name: BuildPipeScript
+        uses: StartAutomating/PipeScript@main
       - name: UseEZOut
         uses: StartAutomating/EZOut@master
-      - name: Push Changes
-        shell: pwsh
-        run: git push; exit 0
+      - name: UseHelpOut
+        uses: StartAutomating/HelpOut@master
 env: 
-  SYSTEM_ACCESSTOKEN: ${{ secrets.AZUREDEVOPSPAT }}
   NoCoverage: true
+  SYSTEM_ACCESSTOKEN: ${{ secrets.AZUREDEVOPSPAT }}
