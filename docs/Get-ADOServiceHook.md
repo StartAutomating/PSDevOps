@@ -1,4 +1,3 @@
-
 Get-ADOServiceHook
 ------------------
 ### Synopsis
@@ -14,10 +13,25 @@ A subscription maps a publisher of events to a consumer of events.
 ---
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/subscriptions/list?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/subscriptions/list?view=azure-devops-rest-5.1)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list?view=azure-devops-rest-5.1)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list%20consumer%20actions?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/consumers/list%20consumer%20actions?view=azure-devops-rest-5.1)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/publishers/list?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/publishers/list?view=azure-devops-rest-5.1)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/publishers/list%20event%20types?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/publishers/list%20event%20types?view=azure-devops-rest-5.1)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -60,9 +74,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Consumer**
 
@@ -70,9 +91,16 @@ If set, will list consumers.  Consumers can receive events from a publisher.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ConsumerID**
 
@@ -80,9 +108,16 @@ The Consumer ID.  This can be provided to get details of an event consumer, or t
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Action**
 
@@ -90,9 +125,16 @@ If set, will list actions available in a given event consumer.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Publisher**
 
@@ -100,9 +142,16 @@ If set, will list publishers.  Publishers can provide events to a consumer.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PublisherID**
 
@@ -110,9 +159,16 @@ The Publisher ID.  This can be provided to get details of an event publisher, or
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **EventType**
 
@@ -120,9 +176,16 @@ If set, will list event types available from a given event publisher.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[Switch]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Server**
 
@@ -131,9 +194,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -143,24 +213,33 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevops.Subscription
+* PSDevops.Subscription
 
 
-PSDevops.Consumer
+* PSDevops.Consumer
 
 
-PSDevops.Publisher
+* PSDevops.Publisher
 
 
-PSDevops.EventType
+* PSDevops.EventType
 
 
-PSDevops.Action
+* PSDevops.Action
+
+
 
 
 ---
@@ -187,5 +266,3 @@ Get-ADOServiceHook -Organization <String> -PublisherID <String> -EventType [-Ser
 Get-ADOServiceHook -Organization <String> -PublisherID <String> [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-
