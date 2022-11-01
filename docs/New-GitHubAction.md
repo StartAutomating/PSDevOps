@@ -1,4 +1,3 @@
-
 New-GitHubAction
 ----------------
 ### Synopsis
@@ -9,9 +8,21 @@ Creates a new GitHub action
 ---
 ### Related Links
 * [New-GitHubWorkflow](New-GitHubWorkflow.md)
+
+
+
 * [Import-BuildStep](Import-BuildStep.md)
+
+
+
 * [Convert-BuildStep](Convert-BuildStep.md)
+
+
+
 * [Expand-BuildStep](Expand-BuildStep.md)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -27,9 +38,16 @@ The name of the action.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |1      |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Description**
 
@@ -37,9 +55,16 @@ A description of the action.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|true    |1      |false        |
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: 1
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Action**
 
@@ -48,9 +73,16 @@ While we don't want to restrict the steps here, we _do_ want to be able to sugge
 
 
 
-|Type              |Requried|Postion|PipelineInput        |
-|------------------|--------|-------|---------------------|
-|```[PSObject[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[PSObject[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DockerImage**
 
@@ -58,9 +90,16 @@ The DockerImage used for a GitHub Action.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **NodeJSScript**
 
@@ -68,9 +107,16 @@ The NodeJS main script used for a GitHub Action.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ActionInput**
 
@@ -78,9 +124,16 @@ The git hub action inputs.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ActionOutput**
 
@@ -88,9 +141,16 @@ The git hub action outputs.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Option**
 
@@ -100,9 +160,16 @@ For example -Option @{RunPester=@{env=@{"SYSTEM_ACCESSTOKEN"='$(System.AccessTok
 
 
 
-|Type               |Requried|Postion|PipelineInput|
-|-------------------|--------|-------|-------------|
-|```[IDictionary]```|false   |named  |false        |
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **ExcludeParameter**
 
@@ -110,9 +177,16 @@ The name of parameters that should be excluded.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **UniqueParameter**
 
@@ -122,9 +196,16 @@ The build parameter would be foo_bar.
 
 
 
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **DefaultParameter**
 
@@ -132,9 +213,16 @@ A collection of default parameters.
 
 
 
-|Type               |Requried|Postion|PipelineInput        |
-|-------------------|--------|-------|---------------------|
-|```[IDictionary]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[IDictionary]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **PassThru**
 
@@ -142,9 +230,16 @@ If set, will output the created objects instead of creating YAML.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **BuildScript**
 
@@ -152,9 +247,16 @@ A list of build scripts.  Each build script will run as a step in the action.
 
 
 
-|Type            |Requried|Postion|PipelineInput|
-|----------------|--------|-------|-------------|
-|```[String[]]```|false   |named  |false        |
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Icon**
 
@@ -162,9 +264,16 @@ The icon used for branding.  By default, a terminal icon.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Color**
 
@@ -182,12 +291,24 @@ Valid Values:
 * red
 * purple
 * gray-dark
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+
+
+
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-System.String
+* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
+
+
 
 
 ---
@@ -196,5 +317,3 @@ System.String
 New-GitHubAction [-Name] <String> [-Description] <String> [-Action <PSObject[]>] [-DockerImage <String>] [-NodeJSScript <String>] [-ActionInput <IDictionary>] [-ActionOutput <IDictionary>] [-Option <IDictionary>] [-ExcludeParameter <String[]>] [-UniqueParameter <String[]>] [-DefaultParameter <IDictionary>] [-PassThru] [-BuildScript <String[]>] [-Icon <String>] [-Color <String>] [<CommonParameters>]
 ```
 ---
-
-
