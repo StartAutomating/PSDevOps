@@ -1,4 +1,3 @@
-
 Get-ADOTest
 -----------
 ### Synopsis
@@ -12,10 +11,25 @@ Gets test plans, suites, points, and results from Azure DevOps or TFS.
 ---
 ### Related Links
 * [Get-ADOProject](Get-ADOProject.md)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/test/runs/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/test/runs/list)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/test/results/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/test/results/list)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/test/test%20%20suites/list](https://docs.microsoft.com/en-us/rest/api/azure/devops/test/test%20%20suites/list)
+
+
+
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/testplan/test%20%20suites/get%20test%20suites%20for%20plan](https://docs.microsoft.com/en-us/rest/api/azure/devops/testplan/test%20%20suites/get%20test%20suites%20for%20plan)
+
+
+
 ---
 ### Examples
 #### EXAMPLE 1
@@ -32,9 +46,16 @@ The project identifier.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TestRun**
 
@@ -42,9 +63,16 @@ If set, will return the test runs associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestRunID**
 
@@ -52,9 +80,16 @@ If set, will return results related to a specific test run.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TestPlan**
 
@@ -62,9 +97,16 @@ If set, will return the test plans associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestPlanID**
 
@@ -72,9 +114,16 @@ If set, will return results related to a specific test plan.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TestVariable**
 
@@ -82,9 +131,16 @@ If set, will return the test variables associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestConfiguration**
 
@@ -92,9 +148,16 @@ If set, will return the test variables associated with a project.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestSuite**
 
@@ -102,9 +165,16 @@ If set, will list test suites related to a plan.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestSuiteID**
 
@@ -112,9 +182,16 @@ If set, will return results related to a particular test suite.
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TestPoint**
 
@@ -122,9 +199,16 @@ If set, will return test points within a suite.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **TestResult**
 
@@ -132,9 +216,16 @@ If set, will return test results within a run.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **First**
 
@@ -142,9 +233,16 @@ If set, will return the first N results within a test run.
 
 
 
-|Type         |Requried|Postion|PipelineInput        |
-|-------------|--------|-------|---------------------|
-|```[Int32]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Total**
 
@@ -152,9 +250,16 @@ If provided, will return the continue to return results of the maximum batch siz
 
 
 
-|Type         |Requried|Postion|PipelineInput        |
-|-------------|--------|-------|---------------------|
-|```[Int32]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Skip**
 
@@ -162,9 +267,16 @@ If set, will return the skip N results within a test run.
 
 
 
-|Type         |Requried|Postion|PipelineInput        |
-|-------------|--------|-------|---------------------|
-|```[Int32]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Int32]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Outcome**
 
@@ -189,9 +301,19 @@ Valid Values:
 * Passed
 * InProgress
 * NotImpacted
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ResultDetail**
 
@@ -204,9 +326,19 @@ Valid Values:
 * None
 * Iterations
 * WorkItems
-|Type            |Requried|Postion|PipelineInput        |
-|----------------|--------|-------|---------------------|
-|```[String[]]```|false   |named  |true (ByPropertyName)|
+
+
+
+> **Type**: ```[String[]]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **TestAttachment**
 
@@ -214,9 +346,16 @@ If set, will return test attachments to a run.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|true    |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Organization**
 
@@ -224,9 +363,16 @@ The Organization
 
 
 
-|Type          |Requried|Postion|PipelineInput        |
-|--------------|--------|-------|---------------------|
-|```[String]```|true    |named  |true (ByPropertyName)|
+> **Type**: ```[String]```
+
+> **Required**: true
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **Force**
 
@@ -235,9 +381,16 @@ By default, cached data will be returned.
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[Switch]```|false   |named  |false        |
+> **Type**: ```[Switch]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 #### **Server**
 
@@ -246,9 +399,16 @@ To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
 
 
-|Type       |Requried|Postion|PipelineInput        |
-|-----------|--------|-------|---------------------|
-|```[Uri]```|false   |named  |true (ByPropertyName)|
+> **Type**: ```[Uri]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:true (ByPropertyName)
+
+
+
 ---
 #### **ApiVersion**
 
@@ -258,15 +418,24 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 
-|Type          |Requried|Postion|PipelineInput|
-|--------------|--------|-------|-------------|
-|```[String]```|false   |named  |false        |
+> **Type**: ```[String]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
 ---
 ### Outputs
-PSDevOps.Project
+* PSDevOps.Project
 
 
-PSDevOps.Property
+* PSDevOps.Property
+
+
 
 
 ---
@@ -305,5 +474,3 @@ Get-ADOTest -ProjectID <String> -TestConfiguration -Organization <String> [-Forc
 Get-ADOTest -ProjectID <String> -TestSuiteID <String> -Organization <String> [-Force] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
 ---
-
-
