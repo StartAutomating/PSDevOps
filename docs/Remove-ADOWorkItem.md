@@ -27,7 +27,7 @@ Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 10
 
 #### EXAMPLE 2
 ```PowerShell
-Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -PersonalAccessToken $pat -Confirm:$false
+Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -PersonalAccessToken $pat -Confirm:$false -Destroy
 ```
 
 ---
@@ -154,6 +154,23 @@ See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-v
 
 
 ---
+#### **Destroy**
+
+If set, the work item is deleted permanently. Please note: the destroy action is PERMANENT and cannot be undone.
+
+
+
+> **Type**: ```[SwitchParameter]```
+
+> **Required**: false
+
+> **Position**: named
+
+> **PipelineInput**:false
+
+
+
+---
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
 -WhatIf is used to see what would happen, or return operations without executing them
@@ -179,12 +196,12 @@ If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$co
 ---
 ### Syntax
 ```PowerShell
-Remove-ADOWorkItem -Organization <String> -Project <String> -ID <String> [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Remove-ADOWorkItem -Organization <String> -Project <String> -ID <String> [-Server <Uri>] [-ApiVersion <String>] [-Destroy] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ```PowerShell
-Remove-ADOWorkItem -Organization <String> -Project <String> -Query <String> [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Remove-ADOWorkItem -Organization <String> -Project <String> -Query <String> [-Server <Uri>] [-ApiVersion <String>] [-Destroy] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ```PowerShell
-Remove-ADOWorkItem -Organization <String> -Project <String> -QueryID <String> [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Remove-ADOWorkItem -Organization <String> -Project <String> -QueryID <String> [-Server <Uri>] [-ApiVersion <String>] [-Destroy] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 ---

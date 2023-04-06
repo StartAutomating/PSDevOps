@@ -8,7 +8,7 @@
     .Example
         Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -ID 10
     .Example
-        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -PersonalAccessToken $pat -Confirm:$false
+        Remove-ADOWorkItem -Organization StartAutomating -Project PSDevOps -Query "Select [System.ID] from WorkItems Where [System.Title] = 'Test-WorkItem'" -PersonalAccessToken $pat -Confirm:$false -Destroy
     .Link
         Invoke-ADORestAPI
     .Link
@@ -54,7 +54,11 @@
     # If targeting TFS, this will need to change to match your server version.
     # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
     [string]
-    $ApiVersion = "5.1")
+    $ApiVersion = "5.1",
+    
+    # If set, the work item is deleted permanently. Please note: the destroy action is PERMANENT and cannot be undone.
+    [switch]
+    $Destroy)
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
     begin {
@@ -80,6 +84,10 @@
             $uri +=
                 if ($ApiVersion) {
                     "api-version=$ApiVersion"
+                }
+            $uri +=
+                if ($Destroy) {
+                    "&destroy=true"
                 }
 
             $invokeParams.Uri = $uri
