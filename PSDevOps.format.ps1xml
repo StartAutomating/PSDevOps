@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-16"?>
-<!-- Generated with EZOut 1.9.7: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<!-- Generated with EZOut 2.0.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Configuration>
   <Controls>
     <Control>
@@ -9,6 +9,9 @@
           <CustomEntry>
             <CustomItem>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> -not @($_.geographies.Health -ne 'Healthy') </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>$moduleName = 'PSDevOps'
 
             do {
@@ -47,9 +50,15 @@
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> -not @($_.geographies.Health -ne 'Healthy') </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Success' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> @($_.geographies.Health -ne 'Healthy')</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -61,6 +70,9 @@
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> @($_.geographies.Health -ne 'Healthy')</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <NewLine />
@@ -84,6 +96,9 @@
           <CustomEntry>
             <CustomItem>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Health -eq 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>$moduleName = 'PSDevOps'
 
             do {
@@ -122,9 +137,15 @@
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Health -eq 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Success' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Health -ne 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -136,6 +157,9 @@
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Health -ne 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <NewLine />
@@ -165,7 +189,7 @@
     .Notes
         Stylized Output works in two contexts at present:
         * Rich consoles (Windows Terminal, PowerShell.exe, Pwsh.exe) (when $host.UI.SupportsVirtualTerminal)
-        * Web pages (Based off the presence of a $Request variable, or when $host.UI.SupportsHTML (you must add this property to $host.UI))        
+        * Web pages (Based off the presence of a $Request variable, or when $host.UI.SupportsHTML (you must add this property to $host.UI))
     #&gt;
     [Management.Automation.Cmdlet("Format","Object")]
     [ValidateScript({
@@ -174,12 +198,13 @@
         if (-not ($canUseANSI -or $canUseHTML)) { return $false}
         return $true
     })]
+    [OutputType([string])]
     param(
     # The input object
     [Parameter(ValueFromPipeline)]
     [PSObject]
     $InputObject,
-
+    
     # The foreground color
     [string]$ForegroundColor,
 
@@ -214,8 +239,23 @@
 
     # If set, will invert text
     [switch]$Invert,
+
+    # If provided, will create a hyperlink to a given uri
+    [Alias('Hyperlink', 'Href')]
+    [uri]
+    $Link,
+
     # If set, will not clear formatting
-    [switch]$NoClear
+    [switch]$NoClear,
+
+    # The alignment.  Defaulting to Left.
+    # Setting an alignment will pad the remaining space on each line.
+    [ValidateSet('Left','Right','Center')]
+    [string]
+    $Alignment,
+
+    # The length of a line.  By default, the buffer width
+    [int]$LineLength = $($host.UI.RawUI.BufferSize.Width)
     )    
 
     begin {
@@ -225,12 +265,27 @@
             Output='';Error='BrightRed';Warning='BrightYellow';
             Verbose='BrightCyan';Debug='Yellow';Progress='Cyan';
             Success='BrightGreen';Failure='Red';Default=''}
+
+        $ansiCode = [Regex]::new(@'
+        (?&lt;ANSI_Code&gt;
+        (?-i)\e                                                                                   # An Escape
+        \[                                                                                        # Followed by a bracket
+        (?&lt;ParameterBytes&gt;[\d\:\;\&lt;\=\&gt;\?]{0,})                                                   # Followed by zero or more parameter  
+        bytes
+        (?&lt;IntermediateBytes&gt;[\s\!\"\#\$\%\&amp;\'\(\)\*\+\,\-\.\/]{0,})                              # Followed by zero or more 
+        intermediate bytes
+        (?&lt;FinalByte&gt;[\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_\`abcdefghijklmnopqrstuvwxyz\{\|\}\~]) # Followed by a final byte
+        
+        )                
+'@)
         $esc = [char]0x1b
         $standardColors = 'Black', 'Red', 'Green', 'Yellow', 'Blue','Magenta', 'Cyan', 'White'
         $brightColors   = 'BrightBlack', 'BrightRed', 'BrightGreen', 'BrightYellow', 'BrightBlue','BrightMagenta', 'BrightCyan', 'BrightWhite'
 
+        $allOutput      = @()
+
         $n =0
-        $cssClasses = @()
+        $cssClasses = @()        
         $colorAttributes =         
             @(:nextColor foreach ($hc in $ForegroundColor,$BackgroundColor) {
                 $n++
@@ -407,6 +462,21 @@
                 if ($canUseHTML) { "border-bottom: 3px double;"}
                 elseif ($canUseANSI) {'' +$esc + "[21m" }
             }
+
+            if ($Alignment -and $canUseHTML) {
+                "display:block;text-align:$($Alignment.ToLower())"
+            }
+
+            if ($Link) {
+                if ($canUseHTML) { 
+                    # Hyperlinks need to be a nested element
+                    # so we will not add it to style attributes for HTML
+                }
+                elseif ($canUseANSI) {
+                    # For ANSI,
+                    '' + $esc + ']8;;' + $Link + $esc + '\'   
+                }
+            }
             
         )
         
@@ -416,61 +486,102 @@
                     if ($styleAttributes) { " style='$($styleAttributes -join ';')'"}
                 )$(
                     if ($cssClasses) { " class='$($cssClasses -join ' ')'"}
-                )&gt;"
+                )&gt;" + $(
+                    if ($Link) {
+                        "&lt;a href='$link'&gt;"
+                    }
+                )
             } elseif ($canUseANSI) {
                 $styleAttributes -join ''
             }
     }
 
     process {
-        if ($header) {
-            "$header" + "$(if ($inputObject) { $inputObject | Out-String})".Trim()
-        }
-        elseif ($inputObject) {
-            ($inputObject | Out-String).Trim()
-        }        
+        $inputObjectAsString =
+            "$(if ($inputObject) { $inputObject | Out-String})".Trim()
+
+        $inputObjectAsString = 
+            if ($Alignment -and -not $canUseHTML) {
+                (@(foreach ($inputObjectLine in ($inputObjectAsString -split '(?&gt;\r\n|\n)')) {
+                    $inputObjectLength = $ansiCode.Replace($inputObjectLine, '').Length
+                    if ($inputObjectLength -lt $LineLength) {
+                        if ($Alignment -eq 'Left') {
+                            $inputObjectLine
+                        } elseif ($Alignment -eq 'Right') {
+                            (' ' * ($LineLength - $inputObjectLength)) + $inputObjectLine                            
+                        } else {
+                            $half = ($LineLength - $inputObjectLength)/2
+                            (' ' * [Math]::Floor($half)) + $inputObjectLine +
+                            (' ' * [Math]::Ceiling($half))
+                        }
+                    }
+                    else {
+                        $inputObjectLine
+                    }
+                }) -join [Environment]::NewLine) + [Environment]::newline
+            } else {
+                $inputObjectAsString
+            }
+
+        $allOutput +=
+            if ($header) {
+                "$header" + $inputObjectAsString
+            }
+            elseif ($inputObject) {
+                $inputObjectAsString
+            }
     }
 
     end {
         
         if (-not $NoClear) {
-            if ($canUseHTML) {
-                "&lt;/span&gt;"
-            }
-            elseif ($canUseANSI) {
-                if ($Bold -or $Faint -or $colorAttributes -match '\[1;') {
-                    "$esc[22m"
+            $allOutput += 
+                if ($canUseHTML) {
+                    if ($Link) {
+                        "&lt;/a&gt;"
+                    }
+                    "&lt;/span&gt;"
                 }
-                if ($Italic) {
-                    "$esc[23m"
+                elseif ($canUseANSI) {
+                    if ($Bold -or $Faint -or $colorAttributes -match '\[1;') {
+                        "$esc[22m"
+                    }
+                    if ($Italic) {
+                        "$esc[23m"
+                    }
+                    if ($Underline -or $doubleUnderline) {
+                        "$esc[24m"
+                    }
+                    if ($Blink) {
+                        "$esc[25m"
+                    }                
+                    if ($Invert) {
+                        "$esc[27m"
+                    }
+                    if ($hide) {
+                        "$esc[28m"
+                    }
+                    if ($Strikethru) {
+                        "$esc[29m"
+                    }
+                    if ($ForegroundColor) {
+                        "$esc[39m"
+                    }
+                    if ($BackgroundColor) {
+                        "$esc[49m"
+                    }
+
+                    if ($Link) {
+                        "$esc]8;;$esc\"
+                    }
+                
+                    if (-not ($Underline -or $Bold -or $Invert -or $ForegroundColor -or $BackgroundColor)) {
+                        '' + $esc + '[0m'
+                    }
                 }
-                if ($Underline -or $doubleUnderline) {
-                    "$esc[24m"
-                }
-                if ($Blink) {
-                    "$esc[25m"
-                }                
-                if ($Invert) {
-                    "$esc[27m"
-                }
-                if ($hide) {
-                    "$esc[28m"
-                }
-                if ($Strikethru) {
-                    "$esc[29m"
-                }
-                if ($ForegroundColor) {
-                    "$esc[39m"
-                }
-                if ($BackgroundColor) {
-                    "$esc[49m"
-                }
-            
-                if (-not ($Underline -or $Bold -or $Invert -or $ForegroundColor -or $BackgroundColor)) {
-                    '' + $esc + '[0m'
-                }
-            }
         }
+
+        $allOutput -join ''
     }
 </ScriptBlock>
               </ExpressionBinding>
@@ -799,6 +910,9 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
           <CustomEntry>
             <CustomItem>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Status.Health -eq 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>$moduleName = 'PSDevOps'
 
             do {
@@ -837,9 +951,15 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Status.Health -eq 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Success' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Status.Health -ne 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -851,6 +971,9 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.Status.Health -ne 'Healthy'</ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'Warning' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <NewLine />
@@ -975,6 +1098,11 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
                 <ScriptBlock> $_.Definition.Name + ' ' + $_.BuildNumber + ' [' </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Succeeded'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>$moduleName = 'PSDevOps'
 
             do {
@@ -1015,9 +1143,19 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Succeeded'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Succeeded' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Failed'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Failed' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -1031,9 +1169,19 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Result -eq 'Failed'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.Failed' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'notStarted'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.NotStarted' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -1047,9 +1195,19 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'notStarted'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.NotStarted' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'inProgress'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.InProgress' -NoClear) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -1067,6 +1225,11 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     </ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock>
+        $_.Status -eq 'inProgress'
+    </ScriptBlock>
+                </ItemSelectionCondition>
                 <ScriptBlock>@(&amp; ${PSDevOps_Format-RichText} -ForegroundColor 'PSDevOps.Build.InProgress' ) -join ''</ScriptBlock>
               </ExpressionBinding>
               <ExpressionBinding>
@@ -1282,18 +1445,18 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
             } while ($false)
             
         
-
-                $__ = $_
-                $ci = . {"Success"}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'Name'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                        
+                        $CellColorValue = $($Script:_LastCellStyle = $($__ = $_;. {"Success"};$_ = $__);$Script:_LastCellStyle)
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'Name'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>ScriptType</PropertyName>
@@ -1404,58 +1567,50 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
             } while ($false)
             
         
-
-                $__ = $_
-                $ci = . {
+                        
+                        $CellColorValue = $($Script:_LastCellStyle = $($__ = $_;. {
     if ($_.labels.count -eq 1) { # If there's only one label
         '#' + $_.labels[0].color # use that color code.
     }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'Number'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+};$_ = $__);$Script:_LastCellStyle)
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'Number'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.labels.count -eq 1) { # If there's only one label
-        '#' + $_.labels[0].color # use that color code.
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'State'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                <ScriptBlock>                        
+                        $CellColorValue = $Script:_LastCellStyle
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'State'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.labels.count -eq 1) { # If there's only one label
-        '#' + $_.labels[0].color # use that color code.
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'Title'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                <ScriptBlock>                        
+                        $CellColorValue = $Script:_LastCellStyle
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'Title'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -2161,9 +2316,8 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
             } while ($false)
             
         
-
-                $__ = $_
-                $ci = . {
+                        
+                        $CellColorValue = $($Script:_LastCellStyle = $($__ = $_;. {
     if ($_.PassedTests -lt $_.TotalTests) {
         if ($_.PassedTests -lt ($_.TotalTests / 2)) {
             'Red'
@@ -2173,88 +2327,59 @@ return (([string]$Character) * ($Host.UI.RawUI.BufferSize.Width - 1))
     } else {
         'Green'
     }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'Name'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+};$_ = $__);$Script:_LastCellStyle)
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'Name'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.PassedTests -lt $_.TotalTests) {
-        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
-            'Red'
-        } else {
-            'Yellow'
-        }
-    } else {
-        'Green'
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'IsAutomated'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                <ScriptBlock>                        
+                        $CellColorValue = $Script:_LastCellStyle
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'IsAutomated'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.PassedTests -lt $_.TotalTests) {
-        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
-            'Red'
-        } else {
-            'Yellow'
-        }
-    } else {
-        'Green'
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'TotalTests'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                <ScriptBlock>                        
+                        $CellColorValue = $Script:_LastCellStyle
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'TotalTests'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                $__ = $_
-                $ci = . {
-    if ($_.PassedTests -lt $_.TotalTests) {
-        if ($_.PassedTests -lt ($_.TotalTests / 2)) {
-            'Red'
-        } else {
-            'Yellow'
-        }
-    } else {
-        'Green'
-    }
-}
-                $_ = $__
-                if ($ci -is [string]) {
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $ci
-                } else {                    
-                    $ci = &amp; ${PSDevOps_Format-RichText} -NoClear @ci
-                }
-                $output = . {$_.'PassedTests'}
-                @($ci; $output; &amp; ${PSDevOps_Format-RichText}) -join ""
-                </ScriptBlock>
+                <ScriptBlock>                        
+                        $CellColorValue = $Script:_LastCellStyle
+                        
+                            if ($CellColorValue -and $CellColorValue -is [string]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear -ForegroundColor $CellColorValue
+                            } elseif (`$CellColorValue -is [Collections.IDictionary]) {
+                                $CellColorValue = &amp; ${PSDevOps_Format-RichText} -NoClear @CellColorValue
+                            }
+                                                    
+                        $output = . {$_.'PassedTests'}
+                        @($CellColorValue; $output; &amp; ${PSDevOps_Format-RichText}) -join ''
+                        </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
