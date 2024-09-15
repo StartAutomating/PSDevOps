@@ -1,9 +1,11 @@
 Get-ADOBuild
 ------------
+
 ### Synopsis
 Gets Azure DevOps Builds, Definitions, and associated information.
 
 ---
+
 ### Description
 
 Gets Azure DevOps Builds or Definitions and associated information.
@@ -31,501 +33,225 @@ Given a -Definition ID, we can get associated information:
 |-DefinitionMetadata| Gets metadata about a build definition  |
 
 ---
+
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get?view=azure-devops-rest-5.1)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/artifacts/list?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/artifacts/list?view=azure-devops-rest-5.1)
-
-
 
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get%20build%20logs?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/builds/get%20build%20logs?view=azure-devops-rest-5.1)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get?view=azure-devops-rest-5.1)
-
-
 
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20build%20properties?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20build%20properties?view=azure-devops-rest-5.1)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/get?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/definitions/get?view=azure-devops-rest-5.1)
-
-
 
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20definition%20properties?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/properties/get%20definition%20properties?view=azure-devops-rest-5.1)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/build/metrics/get%20definition%20metrics?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/build/metrics/get%20definition%20metrics?view=azure-devops-rest-5.1)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Get-ADOBuild -Organization StartAutomating -Project PSDevOps
 ```
+> EXAMPLE 2
 
-#### EXAMPLE 2
 ```PowerShell
 Get-ADOBuild -Organization StartAutomating -Project PSDevOps -Definition
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The Organization
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Project**
-
 The Project
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Server**
-
 The server.  By default https://feeds.dev.azure.com/.
 
+|Type   |Required|Position|PipelineInput        |
+|-------|--------|--------|---------------------|
+|`[Uri]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ApiVersion**
-
 The api version.  By default, 5.1-preview.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildID**
-
 Build ID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Detail**
-
 If set
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[Switch]`|false   |named   |false        |Details|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildMetadata**
-
 If set, returns system metadata about the -BuildID.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Artifact**
-
 If set, will get artifacts from -BuildID.
 
+|Type      |Required|Position|PipelineInput        |Aliases  |
+|----------|--------|--------|---------------------|---------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Artifacts|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Log**
-
 If set, will get a list of logs associated with -BuildID
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[Switch]`|true    |named   |false        |Logs   |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **LogID**
-
 If provided, will retreive the specific log content of -BuildID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ChangeSet**
-
 If set, will return the changeset associated with the build -BuildID.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Report**
-
 If set, will return the build report associated with -BuildID.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Timeline**
-
 If set, will return the timeline for build -BuildID
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **CodeCoverage**
-
 If set, will return the code coverage associated with -BuildID
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Definition**
-
 If set, will get build definitions.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **DefinitionID**
-
 If set, will get a specific build by definition ID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Status**
-
 If set, will get the status of a defined build.
 
+|Type      |Required|Position|PipelineInput|Aliases         |
+|----------|--------|--------|-------------|----------------|
+|`[Switch]`|true    |named   |false        |DefinitionStatus|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **DefinitionMetadata**
-
 If set, will get definition properties
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Revision**
-
 If set, will get revisions to a build definition.
 
+|Type      |Required|Position|PipelineInput|Aliases                                                 |
+|----------|--------|--------|-------------|--------------------------------------------------------|
+|`[Switch]`|true    |named   |false        |DefinitionRevisions<br/>DefinitionRevision<br/>Revisions|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Resource**
-
 If set, will get authorized resources for a build definition.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|true    |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Metric**
-
 If set, will get metrics about a build definition.
 
+|Type      |Required|Position|PipelineInput|Aliases                                           |
+|----------|--------|--------|-------------|--------------------------------------------------|
+|`[Switch]`|true    |named   |false        |DefinitionMetric<br/>DefinitionMetrics<br/>Metrics|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **First**
-
 If provided, will get the first N builds or build definitions
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[UInt32]`|false   |named   |false        |Top    |
 
-
-> **Type**: ```[UInt32]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BranchName**
-
 If provided, will only return builds for a given branch.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Tag**
-
 If provided, will only return builds one of these tags.
 
+|Type        |Required|Position|PipelineInput|
+|------------|--------|--------|-------------|
+|`[String[]]`|false   |named   |false        |
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **After**
-
 If provided, will only return builds queued after this point in time.
 
+|Type        |Required|Position|PipelineInput|Aliases|
+|------------|--------|--------|-------------|-------|
+|`[DateTime]`|false   |named   |false        |MinTime|
 
-
-> **Type**: ```[DateTime]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Before**
-
 If provided, will only return builds queued before this point in time.
 
+|Type        |Required|Position|PipelineInput|Aliases|
+|------------|--------|--------|-------------|-------|
+|`[DateTime]`|false   |named   |false        |MaxTime|
 
-
-> **Type**: ```[DateTime]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildResult**
-
 If provided, will only return builds with this result.
-
-
-
 Valid Values:
 
 * Canceled
@@ -534,146 +260,71 @@ Valid Values:
 * Succeeded
 * PartiallySucceeded
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **DefinitionName**
-
 Will only return build definitions with the specified name.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuiltAfter**
-
 If provided, will only return build definitions that have been built after this date.
 
+|Type        |Required|Position|PipelineInput|
+|------------|--------|--------|-------------|
+|`[DateTime]`|false   |named   |false        |
 
-
-> **Type**: ```[DateTime]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **NotBuiltSince**
-
 If provided, will only return build definitions that have not been built since this date.
 
+|Type        |Required|Position|PipelineInput|Aliases      |
+|------------|--------|--------|-------------|-------------|
+|`[DateTime]`|false   |named   |false        |NotBuiltAfter|
 
-
-> **Type**: ```[DateTime]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **IncludeAllProperty**
-
 If set, will return extended properities of a build definition.
 
+|Type      |Required|Position|PipelineInput|Aliases             |
+|----------|--------|--------|-------------|--------------------|
+|`[Switch]`|false   |named   |false        |IncludeAllProperties|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **IncludeLatestBuild**
-
 If set, will include the latest build and latest completed build in a given build definition.
 
+|Type      |Required|Position|PipelineInput|Aliases            |
+|----------|--------|--------|-------------|-------------------|
+|`[Switch]`|false   |named   |false        |IncludeLatestBuilds|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **DefinitionYAML**
-
 If provided, will return build definition YAML.  No other information will be returned.
 
-
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|false   |named   |false        |
 
 ---
+
 ### Outputs
 * PSDevOps.Build
 
-
 * PSDevOps.Build.Definition
-
 
 * PSDevOps.Build.Timeline
 
-
 * PSDevOps.Build.Change
-
 
 * PSDevOps.Build.Report
 
-
 * PSDevOps.Build.Artifact
-
 
 * PSDevOps.Build.CodeCoverage
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Get-ADOBuild -Organization <String> -Project <String> [-Server <Uri>] [-ApiVersion <String>] [-First <UInt32>] [-BranchName <String>] [-Tag <String[]>] [-After <DateTime>] [-Before <DateTime>] [-BuildResult <String>] [<CommonParameters>]
@@ -726,4 +377,3 @@ Get-ADOBuild -Organization <String> -Project <String> [-Server <Uri>] [-ApiVersi
 ```PowerShell
 Get-ADOBuild -Organization <String> -Project <String> [-Server <Uri>] [-ApiVersion <String>] -DefinitionID <String> [-DefinitionYAML] [<CommonParameters>]
 ```
----
