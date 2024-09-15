@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated with PSSVG 0.2.10 <https://github.com/StartAutomating/PSSVG> -->
 <svg viewBox="0 0 200 100" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <symbol id="psChevron" viewBox="0 0 100 100">
     <polygon points="40,20 45,20 60,50 35,80 32.5,80 55,50" />
   </symbol>
-  <use href="#psChevron" x="-32.5%" y="30%" height="40%" opacity=".9" fill="#4488FF" stroke="black" stroke-width="0.05">
+  <use href="#psChevron" x="-32.5%" y="30%" height="40%" opacity=".9" stroke-width="0.05" stroke="black" fill="#4488FF">
     <animate repeatDur="indefinite" values=".9;.8;.9" attributeName="opacity" dur="2s" />
   </use>
   <text x="50%" y="50%" font-size="24" dominant-baseline="middle" text-anchor="middle" fill="#4488ff" font-family="sans-serif">PSDevOps</text>
