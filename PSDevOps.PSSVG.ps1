@@ -6,7 +6,7 @@ if (-not (Test-path $assetsPath)) {
     $null = New-Item -ItemType Directory -Path $assetsPath -Force
 }
 =<svg> -ViewBox 200, 100 -OutputPath (Join-Path $assetsPath "PSDevOps.svg") -Content @(
-    $commonParameters = @{
+    $commonParameters = [Ordered]@{
         Fill        = '#4488FF'
         Stroke      = 'black'
         StrokeWidth = '0.05'
