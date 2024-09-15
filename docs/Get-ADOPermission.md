@@ -1,35 +1,34 @@
 Get-ADOPermission
 -----------------
+
 ### Synopsis
 Gets Azure DevOps Permissions
 
 ---
+
 ### Description
 
 Gets Azure DevOps security permissions.
 
 ---
+
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20lists/query](https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20lists/query)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query](https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query)
-
-
 
 * [https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference](https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Get-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
 ```
+> EXAMPLE 2
 
-#### EXAMPLE 2
 ```PowerShell
 Get-ADOProject -Organization MyOrganization -Project MyProject | # Get the project
     Get-ADOTeam | # get the teams within the project
@@ -37,148 +36,68 @@ Get-ADOProject -Organization MyOrganization -Project MyProject | # Get the proje
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The Organization.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PermissionType**
-
 If set, will list the type of permisssions.
 
+|Type      |Required|Position|PipelineInput|Aliases                                                           |
+|----------|--------|--------|-------------|------------------------------------------------------------------|
+|`[Switch]`|false   |named   |false        |SecurityNamespace<br/>ListPermissionType<br/>ListSecurityNamespace|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **NamespaceID**
-
 The Security Namespace ID.
 For details about each namespace, see:
 https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **SecurityToken**
-
 The Security Token.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ProjectID**
-
 The Project ID.
 If this is provided without anything else, will get permissions for the projectID
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Project|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **TeamID**
-
 If provided, will get permissions related to a given teamID. ( see Get-ADOTeam)
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **AreaPath**
-
 If provided, will get permissions related to an Area Path. ( see Get-ADOAreaPath )
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IterationPath**
-
 If provided, will get permissions related to an Iteration Path. ( see Get-ADOIterationPath )
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Overview**
-
 If set, will get common permissions related to a project.
 These are:
 * Builds
@@ -190,372 +109,162 @@ These are:
 * Service Endpoints
 * ServiceHooks
 
+|Type      |Required|Position|PipelineInput        |Aliases        |
+|----------|--------|--------|---------------------|---------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ProjectOverview|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Tagging**
-
 If set, will get permissions for tagging related to the current project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Analytics**
-
 If set, will get permissions for analytics related to the current project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ManageTFVC**
-
 If set, will get permissions for Team Foundation Version Control related to the current project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Plan**
-
 If set, will get permissions for Delivery Plans.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Dashboard**
-
 If set, will get dashboard permissions related to the current project.
 
+|Type      |Required|Position|PipelineInput        |Aliases   |
+|----------|--------|--------|---------------------|----------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Dashboards|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ServiceEndpoint**
-
 If set, will get all service endpoints permissions.
 
+|Type      |Required|Position|PipelineInput        |Aliases         |
+|----------|--------|--------|---------------------|----------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ServiceEndpoints|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **EndpointID**
-
 If set, will get endpoint permissions related to a particular endpoint.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **DefinitionID**
-
 The Build Definition ID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildPath**
-
 The path to the build.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildPermission**
-
 If set, will get build and release permissions for a given project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **RepositoryID**
-
 If provided, will get build and release permissions for a given project's repositoryID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BranchName**
-
 If provided, will get permissions for a given branch within a repository
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ProjectRepository**
-
 If set, will get permissions for repositories within a project
 
+|Type      |Required|Position|PipelineInput        |Aliases            |
+|----------|--------|--------|---------------------|-------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ProjectRepositories|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **AllRepository**
-
 If set, will get permissions for repositories within a project
 
+|Type      |Required|Position|PipelineInput        |Aliases        |
+|----------|--------|--------|---------------------|---------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|AllRepositories|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Descriptor**
-
 The Descriptor
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Recurse**
-
 If set and this is a hierarchical namespace, return child ACLs of the specified token.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IncludeExtendedInfo**
-
 If set, populate the extended information properties for the access control entries in the returned lists.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ExpandACL**
-
 If set, will expand the ACE dictionary returned
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[Switch]`|false   |named   |false        |ACL    |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Server**
-
 The server.  By default https://dev.azure.com/.
 To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
+|Type   |Required|Position|PipelineInput        |
+|-------|--------|--------|---------------------|
+|`[Uri]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ApiVersion**
-
 The api version.  By default, 5.1-preview.
 If targeting TFS, this will need to change to match your server version.
 See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
 
-
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
 ---
+
 ### Outputs
 * PSDevOps.SecurityNamespace
 
-
 * PSDevOps.AccessControlList
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Get-ADOPermission -Organization <String> [-PermissionType] [-Descriptor <String[]>] [-Recurse] [-IncludeExtendedInfo] [-ExpandACL] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
@@ -611,4 +320,3 @@ Get-ADOPermission -Organization <String> -ServiceEndpoint [-Descriptor <String[]
 ```PowerShell
 Get-ADOPermission -Organization <String> [-BranchName <String>] -AllRepository [-Descriptor <String[]>] [-Recurse] [-IncludeExtendedInfo] [-ExpandACL] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
----
