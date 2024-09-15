@@ -1,48 +1,56 @@
 function Get-ADOAuditLog {
-<#
-    .SYNOPSIS
-        Gets the Azure DevOps Audit Log
-    .DESCRIPTION
-        Gets the Azure DevOps Audit Log for a Given Organization
-    .EXAMPLE
-        Get-ADOAuditLog
-    .LINK
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/audit/audit-log/query
+    <#
     
-#>
+    .SYNOPSIS    
+        Gets the Azure DevOps Audit Log    
+    .DESCRIPTION    
+        Gets the Azure DevOps Audit Log for a Given Organization    
+    .EXAMPLE    
+        Get-ADOAuditLog    
+    .LINK    
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/audit/audit-log/query    
     
+    #>
+            
+    
+
     param(
-# The Organization
+    # The Organization    
 [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName='https://auditservice.dev.azure.com/{Organization}/_apis/audit/auditlog')]
 [string]
 $Organization,
-# The size of the batch of audit log entries.
+
+    # The size of the batch of audit log entries.        
     [Parameter(ValueFromPipelineByPropertyName)]
     [int]
     $BatchSize,
-# The start time.
+
+    # The start time.        
     [Parameter(ValueFromPipelineByPropertyName)]
     [DateTime]
     $StartTime,
-# The end time.
+
+    # The end time.        
     [Parameter(ValueFromPipelineByPropertyName)]
     [DateTime]
     $EndTime,
-# The api-version.  By default, 7.1-preview.1
+
+    # The api-version.  By default, 7.1-preview.1        
     [Parameter(ValueFromPipelineByPropertyName)]    
     [ComponentModel.DefaultBindingProperty("api-version")]
     [string]
     $ApiVersion = '7.1-preview.1'
     )
-    dynamicParam { . $GetInvokeParameters -DynamicParameter 
-}
-    begin {
+        dynamicParam { . $GetInvokeParameters -DynamicParameter 
+    }
+        begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         $invokeParams.ExpandProperty = 'decoratedAuditLogEntries'
         $invokeParams.PSTypeName    = "ADO.AuditLog.Entry"
         #endregion Copy Invoke-ADORestAPI parameters
     
+
     # Declare a Regular Expression to match URL variables. 
     $RestVariable = [Regex]::new(@'
 # Matches URL segments and query strings containing variables.
@@ -74,10 +82,12 @@ $Organization,
     )
 )
 '@, 'IgnoreCase,IgnorePatternWhitespace')
+
     
     # Next declare a script block that will replace the rest variable.
     $ReplaceRestVariable = {
         param($match)
+
         if ($uriParameter -and $uriParameter[$match.Groups["Variable"].Value]) {
             return $match.Groups["Start"].Value + $(
                     if ($match.Groups["Query"].Success) { $match.Groups["Query"].Value + '=' }
@@ -89,8 +99,11 @@ $Organization,
             return ''
         }
     }
+
+
         $myCmd = $MyInvocation.MyCommand
         function ConvertRestInput {
+        
                     param([Collections.IDictionary]$RestInput = @{}, [switch]$ToQueryString)
                     foreach ($ri in @($RestInput.GetEnumerator())) {
                         $RestParameterAttributes = @($myCmd.Parameters[$ri.Key].Attributes)
@@ -140,8 +153,8 @@ $Organization,
                 
         }
     
-}
-process {
+    }
+    process {
     $InvokeCommand       = 'Invoke-ADORestAPI'
     $invokerCommandinfo  = 
         $ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'All')
@@ -158,12 +171,16 @@ process {
     if ($ForEachOutput -match '^\s{0,}$') {
         $ForEachOutput = $null
     }    
+
+
     if (-not $invokerCommandinfo) {
         Write-Error "Unable to find invoker '$InvokeCommand'"
         return        
     }
     if (-not $psParameterSet) { $psParameterSet = $psCmdlet.ParameterSetName}
     if ($psParameterSet -eq '__AllParameterSets') { $psParameterSet = $endpoints[0]}    
+
+
     $originalUri = "$psParameterSet"
     if (-not $PSBoundParameters.ContainsKey('UriParameter')) {
         $uriParameter = [Ordered]@{}
@@ -173,7 +190,10 @@ process {
             $uriParameter[$uriParameterName] = $psBoundParameters[$uriParameterName]
         }
     }
+
     $uri = $RestVariable.Replace($originalUri, $ReplaceRestVariable)
+
+
     $invokeSplat = @{}
     $invokeSplat.Uri = $uri
     if ($method) {
@@ -182,9 +202,13 @@ process {
     if ($ContentType -and $invokerCommandInfo.Parameters.ContentType) {        
         $invokeSplat.ContentType = $ContentType
     }
+
+
     if ($InvokeParams -and $InvokeParams -is [Collections.IDictionary]) {
         $invokeSplat += $InvokeParams
     }
+
+
     $QueryParams = [Ordered]@{}
     foreach ($QueryParameterName in $QueryParameterNames) {
         if ($PSBoundParameters.ContainsKey($QueryParameterName)) {
@@ -196,7 +220,10 @@ process {
             }
         }
     }
+
+
     $queryParams = ConvertRestInput $queryParams -ToQueryString
+
     if ($invokerCommandinfo.Parameters['QueryParameter'] -and 
         $invokerCommandinfo.Parameters['QueryParameter'].ParameterType -eq [Collections.IDictionary]) {
         $invokeSplat.QueryParameter = $QueryParams
@@ -218,6 +245,8 @@ process {
             $invokeSplat.Uri = "$($invokeSplat.Uri)" + '?' + $queryParamStr
         }
     }
+
+
     Write-Verbose "$($invokeSplat.Uri)"
     if ($ForEachOutput) {
         if ($ForEachOutput.Ast.ProcessBlock) {
@@ -228,6 +257,7 @@ process {
     } else {
         & $invokerCommandinfo @invokeSplat
     }
-}
+
+    }
 }
 
