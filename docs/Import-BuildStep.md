@@ -1,158 +1,86 @@
 Import-BuildStep
 ----------------
+
 ### Synopsis
 Imports Build Steps
 
 ---
+
 ### Description
 
 Imports Build Steps defined in a module.
 
 ---
+
 ### Related Links
 * [Convert-BuildStep](Convert-BuildStep.md)
 
-
-
 * [Expand-BuildStep](Expand-BuildStep.md)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Import-BuildStep -ModuleName PSDevOps
 ```
 
 ---
+
 ### Parameters
 #### **ModuleName**
-
 The name of the module containing build steps.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Name   |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **SourcePath**
-
 The source path.  This path contains definitions for a given single build system.
 
+|Type      |Required|Position|PipelineInput        |Aliases |
+|----------|--------|--------|---------------------|--------|
+|`[String]`|true    |named   |true (ByPropertyName)|Fullname|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **SourceFile**
-
 The source path to a single item.
 
+|Type      |Required|Position|PipelineInput        |Aliases                             |
+|----------|--------|--------|---------------------|------------------------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|ScriptFile<br/>ScriptPath<br/>Source|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildStepType**
-
 The type the source file will be in a given build system.  By default, step.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildStepName**
-
 An optional name for the build step.  If none is provided, the filename will be used
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IncludeCommand**
-
 A list of commands to include.
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ExcludeCommand**
-
 A list of commands to exclude
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildSystem**
-
 The different build systems supported.
 Each buildsystem is the name of a subdirectory that can contain steps or other components.
-
-
-
 Valid Values:
 
 * ADOPipeline
@@ -160,71 +88,38 @@ Valid Values:
 * GitHubAction
 * GitHubWorkflow
 
+|Type        |Required|Position|PipelineInput|
+|------------|--------|--------|-------------|
+|`[String[]]`|false   |named   |false        |
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildSystemAlias**
-
 A list of valid directory aliases for a given build system.
 By default, ADOPipelines can exist within a directory named ADOPipeline, ADO, AzDO, or AzureDevOps.
 By default, GitHubWorkflows can exist within a directory named GitHubWorkflow, GitHubWorkflows, or GitHub.
 
+|Type           |Required|Position|PipelineInput|Aliases           |
+|---------------|--------|--------|-------------|------------------|
+|`[IDictionary]`|false   |named   |false        |BuildSystemAliases|
 
-
-> **Type**: ```[IDictionary]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildSystemInclude**
 
-> **Type**: ```[IDictionary]```
+|Type           |Required|Position|PipelineInput|Aliases            |
+|---------------|--------|--------|-------------|-------------------|
+|`[IDictionary]`|false   |named   |false        |BuildSystemIncludes|
 
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **BuildCommandType**
 
-> **Type**: ```[IDictionary]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
+|Type           |Required|Position|PipelineInput|Aliases          |
+|---------------|--------|--------|-------------|-----------------|
+|`[IDictionary]`|false   |named   |false        |BuildCommandTypes|
 
 ---
+
 ### Outputs
 * [Nullable](https://learn.microsoft.com/en-us/dotnet/api/System.Nullable)
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Import-BuildStep -ModuleName <String> [-IncludeCommand <String[]>] [-ExcludeCommand <String[]>] [-BuildSystem <String[]>] [-BuildSystemAlias <IDictionary>] [-BuildSystemInclude <IDictionary>] [-BuildCommandType <IDictionary>] [<CommonParameters>]
@@ -235,4 +130,3 @@ Import-BuildStep -SourcePath <String> [-BuildSystem <String[]>] [-BuildSystemAli
 ```PowerShell
 Import-BuildStep -SourceFile <String> [-BuildStepType <String>] [-BuildStepName <String>] [-BuildSystem <String[]>] [-BuildSystemAlias <IDictionary>] [-BuildSystemInclude <IDictionary>] [-BuildCommandType <IDictionary>] [<CommonParameters>]
 ```
----
