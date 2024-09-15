@@ -39,9 +39,6 @@ if ($NoCoverage) {
 $result = 
     Invoke-Pester -PassThru -Verbose -OutputFile ".\$moduleName.TestResults.xml" -OutputFormat NUnitXml @codeCoverageParameters
 
-"::set-output name=TotalCount::$($result.TotalCount)",
-"::set-output name=PassedCount::$($result.PassedCount)",
-"::set-output name=FailedCount::$($result.FailedCount)" | Out-Host
 if ($result.FailedCount -gt 0) {
     "::debug:: $($result.FailedCount) tests failed"
     foreach ($r in $result.TestResult) {
