@@ -1,126 +1,80 @@
 Get-ADOTask
 -----------
+
 ### Synopsis
 Gets Azure DevOps Tasks
 
 ---
+
 ### Description
 
 Gets Tasks and Task Groups from Azure DevOps
 
 ---
+
 ### Related Links
 * [Convert-ADOPipeline](Convert-ADOPipeline.md)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Get-ADOTask -Organization StartAutomating
 ```
+> EXAMPLE 2
 
-#### EXAMPLE 2
 ```PowerShell
 Get-ADOTask -Organization StartAutomating -YAMLSchema
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The organization
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Project**
-
 The project.  Required to get task groups.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **TaskGroup**
-
 If set, will get task groups related to a project.
 
+|Type      |Required|Position|PipelineInput        |Aliases          |
+|----------|--------|--------|---------------------|-----------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|TaskGroups<br/>TG|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **YAMLSchema**
-
 If set, will get the schema for YAML tasks within an organization.
 
+|Type      |Required|Position|PipelineInput        |Aliases      |
+|----------|--------|--------|---------------------|-------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Schema<br/>YS|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Server**
-
 The server.  By default https://dev.azure.com/.
 To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
-
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
+|Type   |Required|Position|PipelineInput        |
+|-------|--------|--------|---------------------|
+|`[Uri]`|false   |named   |true (ByPropertyName)|
 
 ---
+
 ### Outputs
 * PSDevOps.Task
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Get-ADOTask -Organization <String> [-Server <Uri>] [<CommonParameters>]
@@ -131,4 +85,3 @@ Get-ADOTask -Organization <String> -Project <String> -TaskGroup [-Server <Uri>] 
 ```PowerShell
 Get-ADOTask -Organization <String> -YAMLSchema [-Server <Uri>] [<CommonParameters>]
 ```
----
