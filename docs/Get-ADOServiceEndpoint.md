@@ -1,9 +1,11 @@
 Get-ADOServiceEndpoint
 ----------------------
+
 ### Synopsis
 Gets Azure DevOps Service Endpoints
 
 ---
+
 ### Description
 
 Gets Service Endpoints from Azure DevOps.
@@ -13,164 +15,92 @@ Service Endpoints are used to connect an Azure DevOps project to one or more web
 To see the types of service endpoints, use Get-ADOServiceEndpoint -GetEndpointType
 
 ---
+
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get%20service%20endpoints?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get%20service%20endpoints?view=azure-devops-rest-5.1)
 
-
-
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints/get?view=azure-devops-rest-5.1)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Get-ADOServiceEndpoint -Organization MyOrg -Project MyProject -PersonalAccessToken $myPersonalAccessToken
 ```
+> EXAMPLE 2
 
-#### EXAMPLE 2
 ```PowerShell
 Get-ADOServiceEndpoint -Organization MyOrg -GetEndpointType -PersonalAccessToken $myPersonalAccessToken
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The Organization
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Project**
-
 The Project
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **EndpointID**
-
 The Endpoint ID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **History**
-
 If set, will get the execution history of the endpoint.
 
+|Type      |Required|Position|PipelineInput        |Aliases         |
+|----------|--------|--------|---------------------|----------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ExecutionHistory|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **GetEndpointType**
-
 If set, will get the types of endpoints.
 
+|Type      |Required|Position|PipelineInput        |Aliases         |
+|----------|--------|--------|---------------------|----------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|GetEndpointTypes|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Server**
-
 The server.  By default https://dev.azure.com/.
 To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
+|Type   |Required|Position|PipelineInput        |
+|-------|--------|--------|---------------------|
+|`[Uri]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ApiVersion**
-
 The api version.  By default, 5.1-preview.
 If targeting TFS, this will need to change to match your server version.
 See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
 
-
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
 ---
+
 ### Outputs
 * PSDevOps.ServiceEndpoint
 
-
 * StartAutomating.PSDevOps.ServiceEndpoint.History
-
 
 * StartAutomating.PSDevOps.ServiceEndpoint.Type
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Get-ADOServiceEndpoint -Organization <String> -Project <String> [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
@@ -184,4 +114,3 @@ Get-ADOServiceEndpoint -Organization <String> -Project <String> -EndpointID <Str
 ```PowerShell
 Get-ADOServiceEndpoint -Organization <String> -Project <String> -EndpointID <String> [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
----
