@@ -1,537 +1,256 @@
 Set-ADOPermission
 -----------------
+
 ### Synopsis
 Sets Azure DevOps Permissions
 
 ---
+
 ### Description
 
 Sets Azure DevOps security permissions.
 
 ---
+
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20entries/set%20access%20control%20entries](https://docs.microsoft.com/en-us/rest/api/azure/devops/security/access%20control%20entries/set%20access%20control%20entries)
 
-
-
 * [https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference](https://docs.microsoft.com/en-us/azure/devops/organizations/security/namespace-reference)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Set-ADOPermission -Organization MyOrganization -Project MyProject -PersonalAccessToken $pat
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The Organization.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ProjectID**
-
 The Project ID.
 If this is provided without anything else, will get permissions for the projectID
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Project|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **TeamID**
-
 If provided, will set permissions related to a given teamID. ( see Get-ADOTeam)
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **AreaPath**
-
 If provided, will set permissions related to an Area Path. ( see Get-ADOAreaPath )
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IterationPath**
-
 If provided, will set permissions related to an Iteration Path. ( see Get-ADOIterationPath )
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **DefinitionID**
-
 The Build Definition ID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildPath**
-
 The path to the build.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BuildPermission**
-
 If set, will set build and release permissions for a given project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ProjectRepository**
-
 If set, will set permissions for repositories within a project
 
+|Type      |Required|Position|PipelineInput        |Aliases            |
+|----------|--------|--------|---------------------|-------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ProjectRepositories|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **RepositoryID**
-
 If provided, will set permissions for a given repositoryID
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **BranchName**
-
 If provided, will set permissions for a given branch within a repository
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **AllRepository**
-
 If set, will set permissions for all repositories within a project
 
+|Type      |Required|Position|PipelineInput        |Aliases        |
+|----------|--------|--------|---------------------|---------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|AllRepositories|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Tagging**
-
 If set, will set permissions for tagging related to the current project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ManageTFVC**
-
 If set, will set permissions for Team Foundation Version Control related to the current project.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Plan**
-
 If set, will set permissions for Delivery Plans.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Dashboard**
-
 If set, will set dashboard permissions related to the current project.
 
+|Type      |Required|Position|PipelineInput        |Aliases   |
+|----------|--------|--------|---------------------|----------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Dashboards|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **EndpointID**
-
 If set, will set endpoint permissions related to a particular endpoint.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PermissionType**
-
 If set, will list the type of permisssions.
 
+|Type      |Required|Position|PipelineInput|Aliases                                                           |
+|----------|--------|--------|-------------|------------------------------------------------------------------|
+|`[Switch]`|false   |named   |false        |SecurityNamespace<br/>ListPermissionType<br/>ListSecurityNamespace|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **NamespaceID**
-
 The Security Namespace ID.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **SecurityToken**
-
 The Security Token.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Descriptor**
-
 One or more descriptors
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Identity**
-
 One or more identities.  Identities will be converted into descriptors.
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Allow**
-
 One or more allow permissions.
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Deny**
-
 One or more deny permissions.
 
+|Type        |Required|Position|PipelineInput        |
+|------------|--------|--------|---------------------|
+|`[String[]]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Overwrite**
-
 If set, will overwrite this entry with existing entries.
 By default, will merge permissions for the specified token.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|NoMerge|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Inherit**
-
 If set, will inherit this permissions.
 By permissions will not be inherited.
 
+|Type      |Required|Position|PipelineInput        |Aliases                                 |
+|----------|--------|--------|---------------------|----------------------------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|InheritPermission<br/>InheritPermissions|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Server**
-
 The server.  By default https://dev.azure.com/.
 To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
 
+|Type   |Required|Position|PipelineInput        |
+|-------|--------|--------|---------------------|
+|`[Uri]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ApiVersion**
-
 The api version.  By default, 5.1-preview.
 If targeting TFS, this will need to change to match your server version.
 See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **WhatIf**
 -WhatIf is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
 -WhatIf is used to see what would happen, or return operations without executing them
 #### **Confirm**
 -Confirm is an automatic variable that is created when a command has ```[CmdletBinding(SupportsShouldProcess)]```.
 -Confirm is used to -Confirm each operation.
-    
+
 If you pass ```-Confirm:$false``` you will not be prompted.
-    
-    
+
 If the command sets a ```[ConfirmImpact("Medium")]``` which is lower than ```$confirmImpactPreference```, you will not be prompted unless -Confirm is passed.
 
 ---
+
 ### Outputs
 * PSDevOps.SecurityNamespace
 
-
 * PSDevOps.AccessControlList
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Set-ADOPermission -Organization <String> -ProjectID <String> -ProjectRepository [-Identity <String[]>] [-Allow <String[]>] [-Deny <String[]>] [-Overwrite] [-Inherit] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
@@ -581,4 +300,3 @@ Set-ADOPermission -Organization <String> [-PermissionType] [-Identity <String[]>
 ```PowerShell
 Set-ADOPermission -Organization <String> -NamespaceID <String> -SecurityToken <String> [-Descriptor <String[]>] [-Identity <String[]>] [-Allow <String[]>] [-Deny <String[]>] [-Overwrite] [-Inherit] [-Server <Uri>] [-ApiVersion <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
----
