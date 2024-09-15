@@ -15,12 +15,12 @@ __PSDevOps helps you automate DevOps using PowerShell.__
 
 PSDevOps is a PowerShell module that makes it easier to automate DevOps with PowerShell.
 
-* [Automate Azure DevOps](#Automate-Azure-DevOps)
-* [Creating Complex Pipelines](#Creating-Complex-Pipelines)
-* [Dealing with DevOps](#Dealing-with-DevOps)
-* [Get the GitHub API](#PSDevOps-GitHub-API)
-* [Write GitHub Actions](#Write-GitHub-Actions)
-* [Write GitHub Workflows](#Write-GitHub-Workflows)
+* [Automate Azure DevOps](#automate-azure-devops)
+* [Creating Complex Pipelines](#creating-complex-pipelines)
+* [Dealing with DevOps](#dealing-with-devops)
+* [Get the GitHub API](#psdevops-github-api)
+* [Write GitHub Actions](#write-github-actions)
+* [Write GitHub Workflows](#write-github-workflows)
 
 #### What do you mean 'Easier to Automate'?
 
@@ -272,5 +272,3 @@ PSDevOps also includes commands to make logging within a GitHub workflow easier.
 * Write-GitHubError
 * Write-GitHubOutput
 * Write-GitHubWarning
-
-
