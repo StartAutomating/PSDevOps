@@ -1,47 +1,53 @@
 function Get-ADOServiceHealth {
-<#
-    .SYNOPSIS
-        Gets the Azure DevOps Service Health
-    .DESCRIPTION
-        Gets the Service Health of Azure DevOps.
-    .EXAMPLE
-        Get-ADOServiceHealth
-    .LINK
-        https://docs.microsoft.com/en-us/rest/api/azure/devops/status/health/get        
+    <#
     
-#>
+    .SYNOPSIS    
+        Gets the Azure DevOps Service Health    
+    .DESCRIPTION    
+        Gets the Service Health of Azure DevOps.    
+    .EXAMPLE    
+        Get-ADOServiceHealth    
+    .LINK    
+        https://docs.microsoft.com/en-us/rest/api/azure/devops/status/health/get            
     
+    #>
+            
+
     param(
-# If provided, will query for health in a given geographic region.
+    # If provided, will query for health in a given geographic region.        
     [Parameter(ValueFromPipelineByPropertyName)]
     [ComponentModel.DefaultBindingProperty("services")]
     [Alias('Services')]
     [ValidateSet('Artifacts', 'Boards', 'Core services', 'Other services', 'Pipelines', 'Repos', 'Test Plans')]
     [string[]]
     $Service,
-# If provided, will query for health in a given geographic region.
+
+    # If provided, will query for health in a given geographic region.        
     [Parameter(ValueFromPipelineByPropertyName)]
     [ComponentModel.DefaultBindingProperty("geographies")]
     [Alias('Geographies','Region', 'Regions')]
     [ValidateSet('APAC', 'AU', 'BR', 'CA', 'EU', 'IN', 'UK', 'US')]
     [string[]]
     $Geography,
-# The api-version.  By default, 6.0
+
+    # The api-version.  By default, 6.0        
     [Parameter(ValueFromPipelineByPropertyName)]    
     [ComponentModel.DefaultBindingProperty("api-version")]
     [string]
     $ApiVersion = '6.0-preview'
     )
-    dynamicParam { . $GetInvokeParameters -DynamicParameter 
-}
-    begin {
+        dynamicParam { . $GetInvokeParameters -DynamicParameter 
+    }
+        begin {
         #region Copy Invoke-ADORestAPI parameters
         $invokeParams = . $getInvokeParameters $PSBoundParameters
         $invokeParams.PSTypeName    = "ADO.Service.Health"
         #endregion Copy Invoke-ADORestAPI parameters
     
+
         $myCmd = $MyInvocation.MyCommand
         function ConvertRestInput {
+        
                     param([Collections.IDictionary]$RestInput = @{}, [switch]$ToQueryString)
                     foreach ($ri in @($RestInput.GetEnumerator())) {
                         $RestParameterAttributes = @($myCmd.Parameters[$ri.Key].Attributes)
@@ -91,8 +97,8 @@ function Get-ADOServiceHealth {
                 
         }
     
-}
-process {
+    }
+    process {
     $InvokeCommand       = 'Invoke-ADORestAPI'
     $invokerCommandinfo  = 
         $ExecutionContext.SessionState.InvokeCommand.GetCommand('Invoke-ADORestAPI', 'All')
@@ -109,14 +115,19 @@ process {
     if ($ForEachOutput -match '^\s{0,}$') {
         $ForEachOutput = $null
     }    
+
+
     if (-not $invokerCommandinfo) {
         Write-Error "Unable to find invoker '$InvokeCommand'"
         return        
     }
     if (-not $psParameterSet) { $psParameterSet = $psCmdlet.ParameterSetName}
     if ($psParameterSet -eq '__AllParameterSets') { $psParameterSet = $endpoints[0]}    
+
+
         $uri = $endpoints[0]
     
+
     $invokeSplat = @{}
     $invokeSplat.Uri = $uri
     if ($method) {
@@ -125,9 +136,13 @@ process {
     if ($ContentType -and $invokerCommandInfo.Parameters.ContentType) {        
         $invokeSplat.ContentType = $ContentType
     }
+
+
     if ($InvokeParams -and $InvokeParams -is [Collections.IDictionary]) {
         $invokeSplat += $InvokeParams
     }
+
+
     $QueryParams = [Ordered]@{}
     foreach ($QueryParameterName in $QueryParameterNames) {
         if ($PSBoundParameters.ContainsKey($QueryParameterName)) {
@@ -139,7 +154,10 @@ process {
             }
         }
     }
+
+
     $queryParams = ConvertRestInput $queryParams -ToQueryString
+
     if ($invokerCommandinfo.Parameters['QueryParameter'] -and 
         $invokerCommandinfo.Parameters['QueryParameter'].ParameterType -eq [Collections.IDictionary]) {
         $invokeSplat.QueryParameter = $QueryParams
@@ -161,6 +179,8 @@ process {
             $invokeSplat.Uri = "$($invokeSplat.Uri)" + '?' + $queryParamStr
         }
     }
+
+
     Write-Verbose "$($invokeSplat.Uri)"
     if ($ForEachOutput) {
         if ($ForEachOutput.Ast.ProcessBlock) {
@@ -171,7 +191,8 @@ process {
     } else {
         & $invokerCommandinfo @invokeSplat
     }
-}
+
+    }
 }
 
 
