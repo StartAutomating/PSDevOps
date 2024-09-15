@@ -1,357 +1,167 @@
 Get-ADOArtifactFeed
 -------------------
+
 ### Synopsis
 Gets artifact feeds from Azure DevOps
 
 ---
+
 ### Description
 
 Gets artifact feeds from Azure DevOps.  Artifact feeds can be used to publish packages.
 
 ---
+
 ### Related Links
 * [https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/get%20feeds?view=azure-devops-rest-5.1](https://docs.microsoft.com/en-us/rest/api/azure/devops/artifacts/feed%20%20management/get%20feeds?view=azure-devops-rest-5.1)
 
-
-
 ---
+
 ### Examples
-#### EXAMPLE 1
+> EXAMPLE 1
+
 ```PowerShell
 Get-ADOArtifactFeed -Organization myOrganization -Project MyProject
 ```
 
 ---
+
 ### Parameters
 #### **Organization**
-
 The Organization
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|true    |named   |true (ByPropertyName)|Org    |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Project**
-
 The Project
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **FeedID**
-
 The name or ID of the feed.
 
+|Type      |Required|Position|PipelineInput        |Aliases         |
+|----------|--------|--------|---------------------|----------------|
+|`[String]`|false   |named   |true (ByPropertyName)|fullyQualifiedId|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **View**
-
 If set, will Get Artifact Feed Views
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Views  |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Permission**
-
 If set, will get artifact permissions
 
+|Type      |Required|Position|PipelineInput        |Aliases    |
+|----------|--------|--------|---------------------|-----------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|Permissions|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **RetentionPolicy**
-
 If set, will get artifact retention policies
 
+|Type      |Required|Position|PipelineInput        |Aliases          |
+|----------|--------|--------|---------------------|-----------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|RetentionPolicies|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PackageVersionList**
-
 If set, will list versions of a particular package.
 
+|Type      |Required|Position|PipelineInput        |Aliases                                         |
+|----------|--------|--------|---------------------|------------------------------------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ListVersions<br/>ListVersion<br/>PackageVersions|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Provenance**
-
 If set, will get provenance for a package version
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **VersionID**
-
 A package version ID.  Only required when getting version provenance.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PackageList**
-
 If set, will list packages within a feed.
 
+|Type      |Required|Position|PipelineInput        |Aliases                                  |
+|----------|--------|--------|---------------------|-----------------------------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|ListPackages<br/>ListPackage<br/>Packages|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IncludeAllVersion**
-
 If set, will include all versions of packages within a feed.
 
+|Type      |Required|Position|PipelineInput        |Aliases           |
+|----------|--------|--------|---------------------|------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|IncludeAllVersions|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **IncludeDescription**
-
 If set, will include descriptions of a package.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **ProtocolType**
-
 If provided, will return packages of a given protocol.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **NPM**
-
 If set, will get information about a Node Package Manager module.
 
+|Type      |Required|Position|PipelineInput        |Aliases           |
+|----------|--------|--------|---------------------|------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|NodePackageManager|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **NuGet**
-
 If set, will get information about a Nuget module.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Python**
-
 If set, will get information about a Python module.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|PyPi   |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Universal**
-
 If set, will get information about a Universal package module.
 
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[Switch]`|true    |named   |true (ByPropertyName)|UPack  |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PackageName**
-
 The Package Name.  Must be used with -NPM, -NuGet, -Python, or -Universal.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PackageVersion**
-
 The Package Version.  Must be used with -NPM, -NuGet, -Python, or -Universal.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **FeedRole**
-
 The Feed Role
-
-
-
 Valid Values:
 
 * Administrator
@@ -359,134 +169,63 @@ Valid Values:
 * Contributor
 * Reader
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|false   |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **PackageID**
-
 A -PackageID.  This can be used to get Packages -Metrics, -ListPackageVersion, or get -Provenance of a particular version.
 
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[String]`|true    |named   |true (ByPropertyName)|
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:true (ByPropertyName)
-
-
-
----
 #### **Metric**
-
 If set, will get package metrics.
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[Switch]`|true    |named   |false        |Metrics|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: true
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **IncludeDeleted**
-
 If set, will include deleted feeds.
 
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[Switch]`|false   |named   |false        |
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Change**
-
 If set, will get changes in artifact feeds.
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[Switch]`|false   |named   |false        |Changes|
 
-
-> **Type**: ```[Switch]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **Server**
-
 The server.  By default https://feeds.dev.azure.com/.
 
+|Type   |Required|Position|PipelineInput|
+|-------|--------|--------|-------------|
+|`[Uri]`|false   |named   |false        |
 
-
-> **Type**: ```[Uri]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
-
----
 #### **ApiVersion**
-
 The api version.  By default, 5.1-preview.
 
-
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: named
-
-> **PipelineInput**:false
-
-
+|Type      |Required|Position|PipelineInput|
+|----------|--------|--------|-------------|
+|`[String]`|false   |named   |false        |
 
 ---
+
 ### Outputs
 * PSDevOps.ArtfiactFeed
 
-
 * PSDevOps.ArtfiactFeed.View
-
 
 * PSDevOps.ArtfiactFeed.Change
 
-
-
-
 ---
+
 ### Syntax
 ```PowerShell
 Get-ADOArtifactFeed -Organization <String> [-Project <String>] [-FeedID <String>] [-IncludeDeleted] [-Change] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
@@ -527,4 +266,3 @@ Get-ADOArtifactFeed -Organization <String> [-Project <String>] [-FeedID <String>
 ```PowerShell
 Get-ADOArtifactFeed -Organization <String> [-Project <String>] [-FeedID <String>] -PackageID <String> -Metric [-IncludeDeleted] [-Change] [-Server <Uri>] [-ApiVersion <String>] [<CommonParameters>]
 ```
----
