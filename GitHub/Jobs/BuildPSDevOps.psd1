@@ -9,6 +9,7 @@
         'RunPSSVG',
         'RunPipeScript',
         'RunEZOut',       
-        'RunHelpOut'
+        'RunHelpOut',
+        'BuildAndPublishContainer'
     )
 }
