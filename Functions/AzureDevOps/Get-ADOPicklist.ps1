@@ -1,5 +1,4 @@
-﻿function Get-ADOPicklist
-{
+﻿function Get-ADOPicklist {
     <#
     .Synopsis
         Gets picklists from Azure DevOps.
@@ -16,43 +15,43 @@
     .Link
         https://docs.microsoft.com/en-us/rest/api/azure/devops/processes/lists/get
     #>
-    [OutputType('PSDevOps.Project','PSDevOps.Property')]
-    [CmdletBinding(DefaultParameterSetName='work/processes/lists')]
+    [OutputType('PSDevOps.Project', 'PSDevOps.Property')]
+    [CmdletBinding(DefaultParameterSetName = 'work/processes/lists')]
     param(
-    # The Organization
-    [Parameter(Mandatory,ParameterSetName='work/processes/lists',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='work/processes/lists/{PickListID}',ValueFromPipelineByPropertyName)]
-    [Parameter(Mandatory,ParameterSetName='Orphan')]
-    [Alias('Org')]
-    [string]
-    $Organization,
+        # The Organization
+        [Parameter(Mandatory, ParameterSetName = 'work/processes/lists', ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ParameterSetName = 'work/processes/lists/{PickListID}', ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ParameterSetName = 'Orphan')]
+        [Alias('Org')]
+        [string]
+        $Organization,
 
-    # The Picklist Identifier.
-    [Parameter(Mandatory,ParameterSetName='work/processes/lists/{PickListID}',ValueFromPipelineByPropertyName)]
-    [string]
-    $PickListID,
+        # The Picklist Identifier.
+        [Parameter(Mandatory, ParameterSetName = 'work/processes/lists/{PickListID}', ValueFromPipelineByPropertyName)]
+        [string]
+        $PickListID,
 
-    # The name of the picklist
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [string]
-    $PicklistName = '*',
+        # The name of the picklist
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]
+        $PicklistName = '*',
 
-    # If set, will return orphan picklists.  These picklists are not associated with any field.
-    [Parameter(Mandatory,ParameterSetName='Orphan')]
-    [switch]
-    $Orphan,
+        # If set, will return orphan picklists.  These picklists are not associated with any field.
+        [Parameter(Mandatory, ParameterSetName = 'Orphan')]
+        [switch]
+        $Orphan,
 
-    # The server.  By default https://dev.azure.com/.
-    # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [uri]
-    $Server = "https://dev.azure.com/",
+        # The server.  By default https://dev.azure.com/.
+        # To use against TFS, provide the tfs server URL (e.g. http://tfsserver:8080/tfs).
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [uri]
+        $Server = "https://dev.azure.com/",
 
-    # The api version.  By default, 5.1-preview.
-    # If targeting TFS, this will need to change to match your server version.
-    # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
-    [string]
-    $ApiVersion = "5.1-preview"
+        # The api version.  By default, 5.1-preview.
+        # If targeting TFS, this will need to change to match your server version.
+        # See: https://docs.microsoft.com/en-us/azure/devops/integrate/concepts/rest-api-versioning?view=azure-devops
+        [string]
+        $ApiVersion = "5.1-preview"
     )
 
     dynamicParam { . $GetInvokeParameters -DynamicParameter }
@@ -64,19 +63,35 @@
         $q = [Collections.Queue]::new()
     }
     process {
+        if ($ApiVersion -like '5.*') {
+            Write-Warning "The API version '$ApiVersion' may not be compatible with field operations.  Consider using '7.0' or later."
+        }
+
         if ($Orphan) {
-            $allPicklists     = Get-ADOPicklist -Organization $organization
-            $allUsedPicklists = Get-ADOField @invokeParams -Organization $Organization |
+            $allPicklists = @()
+            $allUsedPicklists = @()
+            if ($Server -eq 'https://dev.azure.com') {
+                $allPicklists = Get-ADOPicklist -Organization $organization
+                $allUsedPicklists = Get-ADOField @invokeParams -Organization $Organization |
                 Where-Object { $_.IsPicklist } |
                 Select-Object -ExpandProperty PicklistID
+            }
+            else {
+                Write-Verbose "AzD Server currently is: $Server/$organization" 
+                $allPicklists = Get-ADOPicklist -Organization $organization -Server $Server -Apiversion $apiVersion
+                $allUsedPicklists = Get-ADOField @invokeParams -Organization $Organization -Server $Server -Apiversion $apiVersion |
+                Where-Object { $_.IsPicklist } |
+                Select-Object -ExpandProperty PicklistID
+            }
+    
             $allPicklists  |
-                Where-Object PicklistID -NotIn $allUsedPicklists
+            Where-Object PicklistID -NotIn $allUsedPicklists
             return
         }
 
         $in = $_
         $psParameterSet = $psCmdlet.ParameterSetName
-        $q.Enqueue(@{PSParameterSet=$psParameterSet} + $PSBoundParameters)
+        $q.Enqueue(@{PSParameterSet = $psParameterSet } + $PSBoundParameters)
     }
     end {
         $c, $t, $progId = 0, $q.Count, [Random]::new().Next()
@@ -84,7 +99,7 @@
             . $dq $q
 
             $uri =
-                "$(@(
+            "$(@(
 
                     "$server".TrimEnd('/')  # * The Server
                     $Organization
@@ -106,7 +121,7 @@
 
 
             $typeName = @($psParameterSet -split '/' -notlike '{*}')[-1] -replace
-                's$', '' -replace 'list', 'Picklist'
+            's$', '' -replace 'list', 'Picklist'
 
             if ($psParameterSet -like '*/{PicklistId}') {
                 $typeName = "PickList.Detail"
@@ -114,11 +129,11 @@
 
             $additionalProperty = @{
                 Organization = $Organization
-                Server = $Server
+                Server       = $Server
             }
             Invoke-ADORestAPI @invokeParams -uri $uri -PSTypeName "$Organization.$typeName",
-                "PSDevOps.$typeName" -Property $additionalProperty |
-                Where-Object { $_.Name -like $PicklistName }
+            "PSDevOps.$typeName" -Property $additionalProperty |
+            Where-Object { $_.Name -like $PicklistName }
         }
 
         Write-Progress "Getting" "[$t/$t]" -Completed -Id $progId

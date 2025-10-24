@@ -76,6 +76,10 @@
     }
 
     process {
+        if ($ApiVersion -like '5.*' -and $sr) {
+            Write-Warning "The API version '$ApiVersion' may not be compatible with field operations.  Consider using '7.0' or later."
+        }
+
         # First, construct a base URI.  It's made up of:
         $uriBase = "$Server".TrimEnd('/'), # * The server
             $Organization, # * The organization
